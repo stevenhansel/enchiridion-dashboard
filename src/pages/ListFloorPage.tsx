@@ -87,6 +87,7 @@ const ListFloorPage = (props: Props) => {
                 label="Floor Name"
                 fullWidth
                 variant="standard"
+                sx={{marginBottom: 2}}
               />
               <Stack spacing={2} direction="row">
                 <Button
@@ -112,8 +113,6 @@ const ListFloorPage = (props: Props) => {
             <DialogTitle>Update Floor</DialogTitle>
             <DialogContent>
               <TextField
-                autoFocus
-                
                 margin="dense"
                 id="name"
                 label="Floor Name"
