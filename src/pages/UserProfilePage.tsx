@@ -1,46 +1,112 @@
 import React, { useState } from "react";
 
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormGroup from "@mui/material/FormGroup";
 import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
+import Menu from "@mui/material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 type Props = {
   children?: React.ReactNode;
 };
 
 const UserProfilePage = (props: Props) => {
-  const [age, setAge] = useState("");
+  const [auth, setAuth] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleChange = (event: any) => {
-    setAge(event.target.value);
+    setAuth(event.target.checked);
+  };
+
+  const handleMenu = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
     <Box>
-      <Box display="flex" flexDirection="row" justifyContent="flex-end">
-        <Box display="flex" justifyContent="center" alignItems="center" width="100%">
+      <Box
+        display="flex"
+        flexDirection="row"
+        sx={{
+          bgcolor: "lightblue",
+          boxShadow: 1,
+          borderRadius: 1,
+          p: 2,
+          minWidth: 300,
+        }}
+      >
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          width="100%"
+        >
           <Typography variant="h5" fontWeight="bold">
             Emily
           </Typography>
         </Box>
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <Typography>Hi,</Typography>
+          <Typography fontWeight="bold">Emily</Typography>
+        </Box>
         <Box>
-          <FormControl sx={{ m: 1, minWidth: 120 }}>
-            <InputLabel id="demo-simple-select-label">Profile</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={age}
-              label="Age"
-              onChange={handleChange}
-            >
-              <MenuItem value={10}>Profil</MenuItem>
-              <MenuItem value={20}>Keluar</MenuItem>
-            </Select>
-          </FormControl>
+          <Box sx={{ flexGrow: 1 }}>
+            {auth && (
+              <Box>
+                <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleMenu}
+                  color="inherit"
+                >
+                  <ExpandMoreIcon />
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={handleClose}>
+                    <AccountCircle sx={{ marginRight: 1 }} />
+                    Profile
+                  </MenuItem>
+                  <MenuItem onClick={handleClose}>
+                    <LogoutIcon sx={{ marginRight: 1 }} />
+                    Log Out
+                  </MenuItem>
+                </Menu>
+              </Box>
+            )}
+          </Box>
         </Box>
       </Box>
       <Box display="flex">
