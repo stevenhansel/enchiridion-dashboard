@@ -17,10 +17,12 @@ import DialogContent from "@mui/material/DialogContent";
 import Stack from "@mui/material/Stack";
 import EditIcon from "@mui/icons-material/Edit";
 import { CircularProgress } from "@mui/material";
-
+import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Tooltip from "@mui/material/Tooltip";
 
 import ListFloorForm from "../components/ListFloorForm";
+import { string } from "yup";
 
 type Floor = {
   id: number;
@@ -40,17 +42,17 @@ const ListFloorPage = (props: Props) => {
     {
       id: 1,
       floorName: "Lantai 1",
-      devices: ["0"],
+      devices: ["Device 1", "Device 2", "Device 3", "Device 4"],
     },
     {
       id: 2,
       floorName: "Lantai 2",
-      devices: ["0"],
+      devices: ["Device 1", "Device 2", "Device 3", "Device 4", "Device 5"],
     },
     {
       id: 3,
       floorName: "Lantai 3",
-      devices: ["0"],
+      devices: ["Device 1", "Device 2", "Device 3"],
     },
   ]);
 
@@ -65,7 +67,6 @@ const ListFloorPage = (props: Props) => {
   return (
     <Box>
       <ListFloorForm />
-
       <Box
         style={{
           display: "flex",
@@ -81,13 +82,12 @@ const ListFloorPage = (props: Props) => {
             <DialogTitle>Create Floor</DialogTitle>
             <DialogContent>
               <TextField
-                autoFocus
                 margin="dense"
                 id="name"
                 label="Floor Name"
                 fullWidth
                 variant="standard"
-                sx={{marginBottom: 2}}
+                sx={{ marginBottom: 2 }}
               />
               <Stack spacing={2} direction="row">
                 <Button
@@ -161,31 +161,36 @@ const ListFloorPage = (props: Props) => {
                       {row.id}
                     </TableCell>
                     <TableCell align="left">
-                      {row.floorName} <EditIcon onClick={handleOpenEditFloor} />
+                      {row.floorName}{" "}
+                      <Tooltip title="Edit">
+                        <IconButton>
+                          <EditIcon onClick={handleOpenEditFloor} />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell align="justify">
-                      {row.devices.map((device) => (
+                    <TableCell align="justify" style={{display: "flex", flexDirection: "row" }}>
+                    {row.devices.map((device) => (
                         <TableRow
                           key={device}
                           style={{
-                            width: "100%",
                             display: "flex",
                             justifyContent: "flex-start",
                             alignItems: "center",
                           }}
                         >
-                          <TableCell
-                            style={{ display: "flex" }}
-                            align="justify"
-                          >
-                            {device}
-                          </TableCell>
+                            <Box>
+                              <Button variant="outlined" sx={{ marginRight: 1}}>{device}</Button>
+                            </Box>
                         </TableRow>
                       ))}
                     </TableCell>
                     <TableCell align="center">
-                        <DeleteIcon />
-                      </TableCell>
+                      <Tooltip title="Delete">
+                        <IconButton>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
