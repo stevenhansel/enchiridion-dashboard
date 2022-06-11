@@ -2,22 +2,15 @@ import React, { useState } from "react";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ImageList from "@mui/material/ImageList";
+import ImageListItem from "@mui/material/ImageListItem";
 
 type Props = {
   children?: React.ReactNode;
@@ -38,6 +31,21 @@ const UserProfilePage = (props: Props) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const itemData = [
+    {
+      img: "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e",
+      title: "Breakfast",
+    },
+    {
+      img: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d",
+      title: "Burger",
+    },
+    {
+      img: "https://images.unsplash.com/photo-1522770179533-24471fcdba45",
+      title: "Camera",
+    },
+  ];
 
   return (
     <Box>
@@ -154,7 +162,7 @@ const UserProfilePage = (props: Props) => {
         </Box>
       </Box>
       <Box display="flex" alignItems="flex-end" justifyContent="flex-end">
-        <Button variant="contained" sx={{ marginRight: 2 }}>
+        <Button variant="contained" sx={{ marginRight: 1 }}>
           Ganti Password
         </Button>
         <Button variant="outlined">Edit</Button>

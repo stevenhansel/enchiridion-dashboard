@@ -98,8 +98,6 @@ const CreateAnnouncementForm = ({ onSave }: Props) => {
     } catch (err) {}
   };
 
-  console.log(devices);
-
   return (
     <Formik initialValues={initialValues} onSubmit={handleSubmit}>
       {({ handleSubmit, setFieldValue, resetForm, values }) => (

@@ -24,8 +24,6 @@ const ListFloorForm = (props: Props) => {
 
   return (
     <>
-      <Button onClick={handleOpen}>Floors kayanya hrs di edit</Button>
-
       <Dialog open={isOpen} onClose={handleClose}>
         <DialogTitle>Create New Device</DialogTitle>
         <DialogContent>
