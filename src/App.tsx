@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import HomeIcon from "@mui/icons-material/Home";
@@ -13,17 +13,20 @@ import DevicePage from "./pages/DevicePage";
 import ListFloorPage from "./pages/ListFloorPage";
 import DeviceDetailPage from "./pages/DeviceDetailPage";
 import UserProfilePage from "./pages/UserProfilePage";
-
+import Login from "./pages/Login";
 
 function App() {
 
+  const [login, setLogin] = useState(true);
+
   return (
+    login ? (<Login />) : (
       <BrowserRouter>
         <Layout
           navigation={[
             {
               text: "Announcement",
-              path: "/",
+              path: "announcement",
               icon: <HomeIcon />,
             },
             {
@@ -44,7 +47,8 @@ function App() {
           ]}
         >
           <Routes>
-            <Route path="/" element={<AnnouncementPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/announcement" element={<AnnouncementPage />} />
             <Route path="/device" element={<DevicePage />} />
             <Route path="/device/:id" element={<DeviceDetailPage />} />
             <Route path="/floor" element={<ListFloorPage />} />
@@ -52,6 +56,8 @@ function App() {
           </Routes>
         </Layout>
       </BrowserRouter>
+    ) 
+
   );
 }
 
