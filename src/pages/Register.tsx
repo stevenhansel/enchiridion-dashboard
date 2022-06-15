@@ -1,10 +1,7 @@
 import * as React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Navigate, useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { login } from '../store/auth'
+import { Navigate, useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
@@ -22,6 +19,8 @@ import Typography from "@mui/material/Typography";
 import { blue } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
+import Autocomplete from '@mui/material/Autocomplete';
 
 import AnnouncementPage from "./AnnouncementPage";
 
@@ -29,8 +28,8 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const Login = (props: Props) => {
-  const dispatch = useDispatch()
+const Register = (props: Props) => {
+  const navigate = useNavigate();
 
   const validationSchema = yup.object({
     email: yup
@@ -53,6 +52,15 @@ const Login = (props: Props) => {
       alert(JSON.stringify(values, null, 2));
     },
   });
+
+  const roles = [
+    { label: 'Mahasiswa' },
+    { label: 'Dosen' },
+    { label: 'Karyawan' },
+    { label: 'LSC' },
+    { label: 'BM' },
+    { label: 'Admin' },
+  ];
 
   return (
     <React.Fragment>
@@ -95,8 +103,20 @@ const Login = (props: Props) => {
                 textAlign="center"
                 sx={{ marginBottom: 2 }}
               >
-                Login
+                Register
               </Typography>
+              <Box sx={{ marginBottom: 3 }}>
+                <Typography>Nama</Typography>
+                <TextField
+                  id="email"
+                  name="email"
+                  onChange={formik.handleChange}
+                  error={formik.touched.email && Boolean(formik.errors.email)}
+                  helperText={formik.touched.email && formik.errors.email}
+                  variant="standard"
+                  fullWidth
+                />
+              </Box>
               <Box sx={{ marginBottom: 3 }}>
                 <Typography>Email</Typography>
                 <TextField
@@ -124,6 +144,26 @@ const Login = (props: Props) => {
                   fullWidth
                 />
               </Box>
+              <Box sx={{ marginBottom: 5 }}>
+                <Typography>Alasan untuk daftar</Typography>
+                <TextField
+                  id="reason"
+                  name="reason"
+                  variant="standard"
+                  fullWidth
+                />
+              </Box>
+              <Box>
+                <Autocomplete
+                  disablePortal
+                  id="combo-box-demo"
+                  options={roles}
+                  sx={{ width: 300, marginBottom: 5 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Posisi" />
+                  )}
+                />
+              </Box>
               <Box
                 display="flex"
                 justifyContent="center"
@@ -134,16 +174,11 @@ const Login = (props: Props) => {
                   variant="contained"
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
-                  onClick={() => dispatch(login())}
+                  onClick={() => navigate("/announcement")}
                 >
-                  Masuk
+                  Daftar
                 </Button>
-                <Box display="flex" flexDirection="row">
-                  <Typography sx={{ marginRight: 0.5 }}>
-                    Belum punya akun?
-                  </Typography>
-                  <Link to="/register">Daftar</Link>
-                </Box>
+                <Box display="flex" flexDirection="row"></Box>
               </Box>
             </Box>
           </form>
@@ -153,4 +188,4 @@ const Login = (props: Props) => {
   );
 };
 
-export default Login;
+export default Register;

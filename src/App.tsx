@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Router, Route, Routes } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "./store/index";
 
 import HomeIcon from "@mui/icons-material/Home";
 import TvIcon from "@mui/icons-material/Tv";
 import BalconyIcon from "@mui/icons-material/Balcony";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import Layout from "./components/Layout";
@@ -14,14 +16,14 @@ import ListFloorPage from "./pages/ListFloorPage";
 import DeviceDetailPage from "./pages/DeviceDetailPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
-
-  const [login, setLogin] = useState(true);
+  const isLogin = useSelector((state: RootState) => state.auth.isAuth)
 
   return (
-    login ? (<Login />) : (
-      <BrowserRouter>
+    <BrowserRouter>
+      {isLogin ? (
         <Layout
           navigation={[
             {
@@ -47,7 +49,6 @@ function App() {
           ]}
         >
           <Routes>
-            <Route path="/login" element={<Login />} />
             <Route path="/announcement" element={<AnnouncementPage />} />
             <Route path="/device" element={<DevicePage />} />
             <Route path="/device/:id" element={<DeviceDetailPage />} />
@@ -55,9 +56,13 @@ function App() {
             <Route path="/profile" element={<UserProfilePage />} />
           </Routes>
         </Layout>
-      </BrowserRouter>
-    ) 
-
+      ) : (
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      )}
+    </BrowserRouter>
   );
 }
 
