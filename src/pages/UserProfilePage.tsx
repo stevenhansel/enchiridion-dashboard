@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useDispatch } from 'react-redux';
+import { logout } from "../store/auth";
+import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -17,12 +20,20 @@ type Props = {
 };
 
 const UserProfilePage = (props: Props) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [auth, setAuth] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleChange = (event: any) => {
     setAuth(event.target.checked);
   };
+
+  const handleLogout = () => {
+    navigate("/login");
+    dispatch(logout());
+  }
 
   const handleMenu = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -107,7 +118,7 @@ const UserProfilePage = (props: Props) => {
                     <AccountCircle sx={{ marginRight: 1 }} />
                     Profile
                   </MenuItem>
-                  <MenuItem onClick={handleClose}>
+                  <MenuItem onClick={handleLogout}>
                     <LogoutIcon sx={{ marginRight: 1 }} />
                     Log Out
                   </MenuItem>

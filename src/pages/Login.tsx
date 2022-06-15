@@ -4,20 +4,11 @@ import * as yup from "yup";
 import { Navigate, useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { RootState } from "../store";
-import { login } from '../store/auth'
+import { login } from "../store/auth";
 
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
-import Avatar from "@mui/material/Avatar";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Dialog from "@mui/material/Dialog";
-import PersonIcon from "@mui/icons-material/Person";
-import AddIcon from "@mui/icons-material/Add";
 import Typography from "@mui/material/Typography";
 import { blue } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -30,7 +21,7 @@ type Props = {
 };
 
 const Login = (props: Props) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const validationSchema = yup.object({
     email: yup
@@ -51,6 +42,7 @@ const Login = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
+      dispatch(login());
     },
   });
 
@@ -134,7 +126,6 @@ const Login = (props: Props) => {
                   variant="contained"
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
-                  onClick={() => dispatch(login())}
                 >
                   Masuk
                 </Button>
