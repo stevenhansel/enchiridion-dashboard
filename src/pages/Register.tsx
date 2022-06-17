@@ -1,28 +1,15 @@
 import * as React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
-import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
-import Avatar from "@mui/material/Avatar";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Dialog from "@mui/material/Dialog";
-import PersonIcon from "@mui/icons-material/Person";
-import AddIcon from "@mui/icons-material/Add";
 import Typography from "@mui/material/Typography";
-import { blue } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Autocomplete from '@mui/material/Autocomplete';
+import Autocomplete from "@mui/material/Autocomplete";
 
-import AnnouncementPage from "./AnnouncementPage";
 
 type Props = {
   children?: React.ReactNode;
@@ -32,6 +19,10 @@ const Register = (props: Props) => {
   const navigate = useNavigate();
 
   const validationSchema = yup.object({
+    name: yup
+      .string()
+      .min(4, "Name should be of minimum 4 characters length")
+      .required("Name is required"),
     email: yup
       .string()
       .email("Enter a valid email")
@@ -44,22 +35,24 @@ const Register = (props: Props) => {
 
   const formik = useFormik({
     initialValues: {
+      name: "",
       email: "",
       password: "",
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
+      navigate("/login");
     },
   });
 
   const roles = [
-    { label: 'Mahasiswa' },
-    { label: 'Dosen' },
-    { label: 'Karyawan' },
-    { label: 'LSC' },
-    { label: 'BM' },
-    { label: 'Admin' },
+    { label: "Mahasiswa" },
+    { label: "Dosen" },
+    { label: "Karyawan" },
+    { label: "LSC" },
+    { label: "BM" },
+    { label: "Admin" },
   ];
 
   return (
@@ -108,11 +101,11 @@ const Register = (props: Props) => {
               <Box sx={{ marginBottom: 3 }}>
                 <Typography>Nama</Typography>
                 <TextField
-                  id="email"
-                  name="email"
+                  id="name"
+                  name="name"
                   onChange={formik.handleChange}
-                  error={formik.touched.email && Boolean(formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
+                  helperText={formik.touched.name && formik.errors.name}
                   variant="standard"
                   fullWidth
                 />
@@ -174,7 +167,6 @@ const Register = (props: Props) => {
                   variant="contained"
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
-                  onClick={() => navigate("/announcement")}
                 >
                   Daftar
                 </Button>

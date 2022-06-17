@@ -22,6 +22,7 @@ type Props = {
 
 const Login = (props: Props) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const validationSchema = yup.object({
     email: yup
@@ -43,6 +44,7 @@ const Login = (props: Props) => {
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
       dispatch(login());
+      navigate('/announcement');
     },
   });
 
