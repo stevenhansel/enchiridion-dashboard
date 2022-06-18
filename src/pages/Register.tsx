@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useFormik } from "formik";
+import { FormikConsumer, useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 
@@ -8,8 +8,11 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import MenuItem from "@mui/material/MenuItem";
+import FormHelperText from '@mui/material/FormHelperText';
 
 type Props = {
   children?: React.ReactNode;
@@ -17,6 +20,8 @@ type Props = {
 
 const Register = (props: Props) => {
   const navigate = useNavigate();
+
+  const [age, setAge] = React.useState("");
 
   const validationSchema = yup.object({
     name: yup
@@ -31,6 +36,7 @@ const Register = (props: Props) => {
       .string()
       .min(8, "Password should be of minimum 8 characters length")
       .required("Password is required"),
+    role: yup.string().required(),
   });
 
   const formik = useFormik({
@@ -38,6 +44,7 @@ const Register = (props: Props) => {
       name: "",
       email: "",
       password: "",
+      role: "",
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
@@ -46,14 +53,9 @@ const Register = (props: Props) => {
     },
   });
 
-  const roles = [
-    { label: "Mahasiswa" },
-    { label: "Dosen" },
-    { label: "Karyawan" },
-    { label: "LSC" },
-    { label: "BM" },
-    { label: "Admin" },
-  ];
+  const handleChange = (event: SelectChangeEvent) => {
+    formik.setFieldValue("role", event.target.value);
+  };
 
   return (
     <React.Fragment>
@@ -115,7 +117,9 @@ const Register = (props: Props) => {
                 <TextField
                   id="email"
                   name="email"
-                  onChange={formik.handleChange}
+                  onChange={(event) =>
+                    formik.setFieldValue("email", event.target.value)
+                  }
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                   variant="standard"
@@ -127,7 +131,9 @@ const Register = (props: Props) => {
                 <TextField
                   id="password"
                   name="password"
-                  onChange={formik.handleChange}
+                  onChange={(event) =>
+                    formik.setFieldValue("password", event.target.value)
+                  }
                   error={
                     formik.touched.password && Boolean(formik.errors.password)
                   }
@@ -147,15 +153,31 @@ const Register = (props: Props) => {
                 />
               </Box>
               <Box>
-                <Autocomplete
-                  disablePortal
-                  id="combo-box-demo"
-                  options={roles}
-                  sx={{ width: 300, marginBottom: 5 }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Posisi" />
-                  )}
-                />
+                <FormControl fullWidth sx={{ marginBottom: 5 }}>
+                  <InputLabel
+                    id="role"
+                  >
+                    Posisi
+                  </InputLabel>
+                  <Select
+                    labelId="role"
+                    id="role"
+                    value={formik.values.role}
+                    label="Age"
+                    onChange={handleChange}
+                    error={
+                      formik.touched.role && Boolean(formik.errors.role)
+                    }
+                  >
+                    <MenuItem value={"Mahasiswa"}>Mahasiswa</MenuItem>
+                    <MenuItem value={"Dosen"}>Dosen</MenuItem>
+                    <MenuItem value={"Karyawan"}>Karyawan</MenuItem>
+                    <MenuItem value={"LSC"}>LSC</MenuItem>
+                    <MenuItem value={"BM"}>BM</MenuItem>
+                    <MenuItem value={"Admin"}>Admin</MenuItem>
+                  </Select>
+                  {formik.touched.role && formik.errors.role ? (<Typography sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F", }}>Roles is required</Typography>) : (null)}
+                </FormControl>
               </Box>
               <Box
                 display="flex"

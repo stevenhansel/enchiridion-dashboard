@@ -52,7 +52,6 @@ const AnnouncementPage = (props: Props) => {
       );
       setAnnouncements(announcements);
       setIsLoading(false);
-      console.log();
     } catch (err: any) {
       setError(err.response.data.message);
       console.log(err.response.data.message);

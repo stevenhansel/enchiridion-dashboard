@@ -96,7 +96,7 @@ const Login = (props: Props) => {
                 <TextField
                   id="email"
                   name="email"
-                  onChange={formik.handleChange}
+                  onChange={(event) => formik.setFieldValue("email", event.target.value)}
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                   variant="standard"
@@ -108,7 +108,7 @@ const Login = (props: Props) => {
                 <TextField
                   id="password"
                   name="password"
-                  onChange={formik.handleChange}
+                  onChange={(event) => formik.setFieldValue("password", event.target.value)}
                   error={
                     formik.touched.password && Boolean(formik.errors.password)
                   }

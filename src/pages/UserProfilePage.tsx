@@ -128,15 +128,14 @@ const UserProfilePage = (props: Props) => {
           </Box>
         </Box>
       </Box>
-      <Box display="flex">
-        <Box sx={{ marginTop: 8, marginLeft: 35 }}>
+      <Box display="flex" justifyContent="center" alignItems="center" sx={{ marginTop: 5 }}>
+        <Box>
           <Box sx={{ marginBottom: 5 }}>
             <Typography display="flex" fontWeight="bold">
               ID
             </Typography>
             <Typography>Emily00</Typography>
           </Box>
-
           <Box sx={{ marginBottom: 5 }}>
             <Typography fontWeight="bold">Nama</Typography>
             <Typography>Emily</Typography>
@@ -150,8 +149,7 @@ const UserProfilePage = (props: Props) => {
             <Typography>Mahasiswa</Typography>
           </Box>
         </Box>
-
-        <Box sx={{ marginTop: 8, marginLeft: 40 }}>
+        <Box sx={{ marginLeft: 40 }}>
           <Box sx={{ marginBottom: 5 }}>
             <Typography display="flex" fontWeight="bold">
               Posisi
