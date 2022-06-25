@@ -5,18 +5,14 @@ import { CreateAnnouncementFormContext } from './context';
 import { useFormikContext } from 'formik';
 
 import { CreateAnnouncementFormValues } from './form';
+import { validateFormikFields } from './util';
 
 const fields = ['title', 'duration', 'media', 'notes'];
 
 const Step1 = () => {
-  const {
-    values,
-    errors,
-    touched,
-    validateField,
-    setFieldValue,
-    setFieldTouched,
-  } = useFormikContext<CreateAnnouncementFormValues>();
+  const formik = useFormikContext<CreateAnnouncementFormValues>();
+  const { values, errors, touched, validateField, setFieldValue } = formik;
+
   const { handleNextStep } = useContext(CreateAnnouncementFormContext);
 
   const handleUploadImage = useCallback(
@@ -61,34 +57,11 @@ const Step1 = () => {
   );
 
   const handleSubmission = useCallback(() => {
-    fields.forEach((field) => validateField(field));
-    /**
-     * for (const field of fields) {
-     *    validateField(field)
-     * }
-     */
+    const errors = validateFormikFields(formik, fields);
+    if (errors.length > 0) return;
 
-    // "errors": {
-    //   "title": "title ga boleh kosong",
-    //   "duration": "duration mesti lebih dari 3 hari",
-    // }
-
-    // Object.keys() ["title", "duration"]
-    // Object.values() ["title ga boleh kosong", "duration mesti lebih dari 3 hari"]
-    // Object.entries() [["title", "title ga boleh kosong"], ["duration", "duration mesti lebih dari 3 hari"]]
-
-    // .filter()
-    const fieldErrors = Object.keys(errors).filter((key) =>
-      fields.includes(key)
-    );
-
-    if (fieldErrors.length > 0) {
-      // ["title", "duration"]
-      fieldErrors.forEach((field) => setFieldTouched(field));
-    } else {
-      handleNextStep();
-    }
-  }, [handleNextStep, errors, validateField, setFieldTouched]);
+    handleNextStep();
+  }, [formik, handleNextStep]);
 
   useEffect(() => {
     fields.forEach((field) => validateField(field));

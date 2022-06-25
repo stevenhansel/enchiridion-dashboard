@@ -1,5 +1,11 @@
 import * as yup from 'yup';
 
+export type FormDevice = {
+  deviceId: number;
+  deviceName: string;
+  floorName: string;
+};
+
 export type CreateAnnouncementFormValues = {
   title: string;
   media: {
@@ -8,6 +14,7 @@ export type CreateAnnouncementFormValues = {
   } | null;
   duration: number;
   notes: string;
+  devices: FormDevice[];
 };
 
 export const initialValues: CreateAnnouncementFormValues = {
@@ -15,6 +22,7 @@ export const initialValues: CreateAnnouncementFormValues = {
   media: null,
   duration: 0,
   notes: '',
+  devices: [],
 };
 
 export const validationSchema = yup.object({
@@ -25,4 +33,5 @@ export const validationSchema = yup.object({
     .required()
     .min(3, 'please input at least 3 days of announcement duration'),
   notes: yup.string(),
+  devices: yup.array().min(1, 'You must select atleast 1 device').required(),
 });

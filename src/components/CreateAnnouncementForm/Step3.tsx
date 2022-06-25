@@ -1,21 +1,13 @@
-import React, { useState } from "react";
+import React from 'react';
 
-import {
-  Box,
-  Button,
-  Stepper,
-  TextField,
-  Typography,
-  TableCell,
-  TableContainer,
-  TableRow,
-  Table,
-  TableBody,
-  TableHead,
-  Paper,
-} from "@mui/material";
+import { Box, Button, Typography } from '@mui/material';
+import { useFormikContext } from 'formik';
+
+import { CreateAnnouncementFormValues } from './form';
 
 const Step3 = () => {
+  const { values } = useFormikContext<CreateAnnouncementFormValues>();
+
   return (
     <Box display="flex" flexDirection="column">
       <Box
@@ -27,7 +19,7 @@ const Step3 = () => {
         <Box
           sx={{
             marginTop: 5,
-            bgcolor: "white",
+            bgcolor: 'white',
             boxShadow: 1,
             borderRadius: 1,
             p: 2,
@@ -37,19 +29,21 @@ const Step3 = () => {
             <Typography display="flex" fontWeight="bold">
               Title Announcement
             </Typography>
-            <Typography>Hari Raya Pengumuman</Typography>
+            <Typography>{values.title}</Typography>
           </Box>
           <Box sx={{ marginBottom: 2 }}>
             <Typography display="flex" fontWeight="bold">
               File Announcement
             </Typography>
-            <Typography>1234567.mp4</Typography>
+            <Typography>
+              {values.media ? values.media.file.name : null}
+            </Typography>
           </Box>
           <Box sx={{ marginBottom: 2 }}>
             <Typography display="flex" fontWeight="bold">
               Durasi Hari Announcement
             </Typography>
-            <Typography>7 Hari</Typography>
+            <Typography>{values.duration} Hari</Typography>
           </Box>
           <Box sx={{ marginBottom: 2 }}>
             <Typography display="flex" fontWeight="bold">
@@ -58,9 +52,15 @@ const Step3 = () => {
             <Typography>Ingin di paling depan</Typography>
           </Box>
           <Typography display="flex" fontWeight="bold">
-            Lantai {"&"} Device
+            Lantai {'&'} Device
           </Typography>
-          <Typography>Lantai 1, Device 1</Typography>
+          <Typography>
+            {values.devices.map(({ deviceId, floorName, deviceName }) => (
+              <Typography key={deviceId} style={{ marginBottom: '6px' }}>
+                {floorName}, {deviceName}
+              </Typography>
+            ))}
+          </Typography>
         </Box>
         <Box display="flex" justifyContent="center" alignItems="center">
           <Button variant="contained">Next</Button>
