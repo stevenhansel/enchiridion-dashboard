@@ -17,13 +17,14 @@ import DeviceDetailPage from "./pages/DeviceDetailPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import CreateAnnouncementPage from "./pages/CreateAnnouncementPage";
 
 function App() {
   const isLogin = useSelector((state: RootState) => state.auth.isAuth)
 
   return (
     <BrowserRouter>
-      {isLogin ? (
+      {!isLogin ? (
         <Layout
           navigation={[
             {
@@ -50,6 +51,7 @@ function App() {
         >
           <Routes>
             <Route path="/announcement" element={<AnnouncementPage />} />
+            <Route path="/announcement/create" element={<CreateAnnouncementPage />} />
             <Route path="/device" element={<DevicePage />} />
             <Route path="/device/:id" element={<DeviceDetailPage />} />
             <Route path="/floor" element={<ListFloorPage />} />
