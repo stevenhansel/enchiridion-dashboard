@@ -46,9 +46,10 @@ const CreateAnnouncementForm = () => {
 
   return (
     <Formik
+      validateOnChange
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={() => {handleNextStep();}}
+      onSubmit={() => {}}
     >
       {({ values }) => (
         <Box
