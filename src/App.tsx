@@ -7,6 +7,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import TvIcon from "@mui/icons-material/Tv";
 import BalconyIcon from "@mui/icons-material/Balcony";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AccessibilityIcon from '@mui/icons-material/Accessibility';
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import Layout from "./components/Layout";
@@ -18,6 +19,8 @@ import UserProfilePage from "./pages/UserProfilePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateAnnouncementPage from "./pages/CreateAnnouncementPage";
+import RolesPage from "./pages/RolesPage";
+import ListPermission from './components/ListPermission';
 
 function App() {
   const isLogin = useSelector((state: RootState) => state.auth.isAuth)
@@ -47,6 +50,11 @@ function App() {
               path: "profile",
               icon: <AccountBoxIcon />,
             },
+            {
+              text: "Roles",
+              path: "roles",
+              icon: <AccessibilityIcon />,
+            },
           ]}
         >
           <Routes>
@@ -56,6 +64,7 @@ function App() {
             <Route path="/device/:id" element={<DeviceDetailPage />} />
             <Route path="/floor" element={<ListFloorPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
+            <Route path="/roles" element={<RolesPage />} />
           </Routes>
         </Layout>
       ) : (
