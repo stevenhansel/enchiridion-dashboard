@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useCallback, useContext } from "react";
 
-import { Box, Button, Typography } from '@mui/material';
-import { useFormikContext } from 'formik';
+import { Box, Button, Typography } from "@mui/material";
+import { useFormikContext } from "formik";
 
-import { CreateAnnouncementFormValues } from './form';
+import { CreateAnnouncementFormValues } from "./form";
+import { CreateAnnouncementFormContext } from "./context";
 
 const Step3 = () => {
   const { values } = useFormikContext<CreateAnnouncementFormValues>();
+  const { handlePrevStep } = useContext(CreateAnnouncementFormContext);
+
+  const handlePrevSubmission = useCallback(() => {
+    handlePrevStep();
+  }, [handlePrevStep]);
 
   return (
     <Box display="flex" flexDirection="column">
@@ -19,7 +25,7 @@ const Step3 = () => {
         <Box
           sx={{
             marginTop: 5,
-            bgcolor: 'white',
+            bgcolor: "white",
             boxShadow: 1,
             borderRadius: 1,
             p: 2,
@@ -52,18 +58,21 @@ const Step3 = () => {
             <Typography>Ingin di paling depan</Typography>
           </Box>
           <Typography display="flex" fontWeight="bold">
-            Lantai {'&'} Device
+            Lantai {"&"} Device
           </Typography>
           <Typography>
             {values.devices.map(({ deviceId, floorName, deviceName }) => (
-              <Typography key={deviceId} style={{ marginBottom: '6px' }}>
+              <Typography key={deviceId} style={{ marginBottom: "6px" }}>
                 {floorName}, {deviceName}
               </Typography>
             ))}
           </Typography>
         </Box>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Button variant="contained">Next</Button>
+        <Box display="flex" justifyContent="center" alignItems="center" sx={{marginTop: 1}}>
+          <Button variant="contained" sx={{marginRight: 1}} onClick={handlePrevSubmission}>
+            Previous
+          </Button>
+          <Button variant="contained">Submit</Button>
         </Box>
       </Box>
     </Box>

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,8 +10,8 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
 import DialogContent from "@mui/material/DialogContent";
+import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import EditIcon from "@mui/icons-material/Edit";
 import { CircularProgress } from "@mui/material";
@@ -22,7 +20,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Tooltip from "@mui/material/Tooltip";
 
 import ListFloorForm from "../components/ListFloorForm";
-import { string } from "yup";
 
 type Floor = {
   id: number;
@@ -38,7 +35,7 @@ const baseUrl = "https://enchridion-api.stevenhansel.com/dashboard/v1";
 
 const ListFloorPage = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [floors, setFloors] = useState<Floor[]>([
+  const [floors, setFloor] = useState<Floor[]>([
     {
       id: 1,
       floorName: "Lantai 1",
@@ -56,7 +53,7 @@ const ListFloorPage = (props: Props) => {
     },
   ]);
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);    
   const handleOpenNewFloor = () => setOpen(true);
   const handleCloseNewFloor = () => setOpen(false);
 
@@ -168,8 +165,11 @@ const ListFloorPage = (props: Props) => {
                         </IconButton>
                       </Tooltip>
                     </TableCell>
-                    <TableCell align="justify" style={{display: "flex", flexDirection: "row" }}>
-                    {row.devices.map((device) => (
+                    <TableCell
+                      align="justify"
+                      style={{ display: "flex", flexDirection: "row" }}
+                    >
+                      {row.devices.map((device) => (
                         <TableRow
                           key={device}
                           style={{
@@ -178,9 +178,9 @@ const ListFloorPage = (props: Props) => {
                             alignItems: "center",
                           }}
                         >
-                            <Box>
-                              <Button variant="outlined" sx={{ marginRight: 1}}>{device}</Button>
-                            </Box>
+                          <Button variant="outlined" sx={{ marginRight: 1 }}>
+                            {device}
+                          </Button>
                         </TableRow>
                       ))}
                     </TableCell>

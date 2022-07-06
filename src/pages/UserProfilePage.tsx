@@ -41,21 +41,6 @@ const UserProfilePage = (props: Props) => {
     setAnchorEl(null);
   };
 
-  const itemData = [
-    {
-      img: "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e",
-      title: "Breakfast",
-    },
-    {
-      img: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d",
-      title: "Burger",
-    },
-    {
-      img: "https://images.unsplash.com/photo-1522770179533-24471fcdba45",
-      title: "Camera",
-    },
-  ];
-
   return (
     <Box>
       <Box
@@ -152,7 +137,7 @@ const UserProfilePage = (props: Props) => {
             <Typography display="flex" fontWeight="bold">
               Posisi
             </Typography>
-            <Typography>-</Typography>
+            <Typography>Mahasiswa</Typography>
           </Box>
           <Box sx={{ marginBottom: 5 }}>
             <Typography fontWeight="bold">Alasan untuk daftar</Typography>

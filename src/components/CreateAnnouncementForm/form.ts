@@ -31,7 +31,7 @@ export const validationSchema = yup.object({
   duration: yup
     .number()
     .required()
-    .min(3, 'please input at least 3 days of announcement duration'),
+    .min(3, 'Please input at least 3 days of announcement duration'),
   notes: yup.string(),
   devices: yup.array().min(1, 'You must select atleast 1 device').required(),
 });

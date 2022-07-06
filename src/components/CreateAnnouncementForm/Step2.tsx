@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from "react";
 import {
   Box,
   Button,
@@ -11,16 +11,16 @@ import {
   ToggleButton,
   Paper,
   Typography,
-} from '@mui/material';
-import { red } from '@mui/material/colors';
-import { useFormikContext } from 'formik';
-import cloneDeep from 'lodash/cloneDeep';
+} from "@mui/material";
+import { red } from "@mui/material/colors";
+import { useFormikContext } from "formik";
+import cloneDeep from "lodash/cloneDeep";
 
-import { CreateAnnouncementFormContext } from './context';
-import { CreateAnnouncementFormValues, type FormDevice } from './form';
-import { validateFormikFields } from './util';
+import { CreateAnnouncementFormContext } from "./context";
+import { CreateAnnouncementFormValues, type FormDevice } from "./form";
+import { validateFormikFields } from "./util";
 
-const fields = ['devices'];
+const fields = ["devices"];
 
 type Data = {
   id: number;
@@ -34,79 +34,79 @@ type Data = {
 const mockDevices: Data[] = [
   {
     id: 1,
-    name: 'Lantai 1',
+    name: "Lantai 1",
     devices: [
       {
         id: 1,
-        name: 'Device 1',
+        name: "Device 1",
       },
       {
         id: 2,
-        name: 'Device 2',
+        name: "Device 2",
       },
       {
         id: 3,
-        name: 'Device 3',
+        name: "Device 3",
       },
       {
         id: 4,
-        name: 'Device 4',
+        name: "Device 4",
       },
       {
         id: 5,
-        name: 'Device 5',
+        name: "Device 5",
       },
     ],
   },
   {
     id: 2,
-    name: 'Lantai 2',
+    name: "Lantai 2",
     devices: [
       {
         id: 6,
-        name: 'Device 6',
+        name: "Device 6",
       },
       {
         id: 7,
-        name: 'Device 7',
+        name: "Device 7",
       },
       {
         id: 8,
-        name: 'Device 8',
+        name: "Device 8",
       },
       {
         id: 9,
-        name: 'Device 9',
+        name: "Device 9",
       },
       {
         id: 10,
-        name: 'Device 10',
+        name: "Device 10",
       },
     ],
   },
   {
     id: 3,
-    name: 'Lantai 3',
+    name: "Lantai 3",
     devices: [
       {
         id: 11,
-        name: 'Device 11',
+        name: "Device 11",
       },
       {
         id: 12,
-        name: 'Device 12',
+        name: "Device 12",
       },
       {
         id: 13,
-        name: 'Device 13',
+        name: "Device 13",
       },
       {
         id: 14,
-        name: 'Device 14',
+        name: "Device 14",
       },
       {
         id: 15,
-        name: 'Device 15',
+        name: "Device 15",
       },
     ],
   },
@@ -115,7 +115,9 @@ const mockDevices: Data[] = [
 const Step2 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
-  const { handleNextStep } = useContext(CreateAnnouncementFormContext);
+  const { handleNextStep, handlePrevStep } = useContext(
+    CreateAnnouncementFormContext
+  );
   const [listDevices] = useState<Data[]>(mockDevices);
 
   const handleDeviceSelect = useCallback(
@@ -132,18 +134,22 @@ const Step2 = () => {
         updatedDevices.push(selectedDevice);
       }
 
-      setFieldValue('devices', updatedDevices);
+      setFieldValue("devices", updatedDevices);
     },
     [values, setFieldValue]
   );
 
-  const handleSubmission = useCallback(() => {
+  const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
-    console.log('errors', errors);
+    console.log("errors", errors);
     if (errors.length > 0) return;
 
     handleNextStep();
   }, [formik, handleNextStep]);
+
+  const handlePrevSubmission = useCallback(() => {
+    handlePrevStep();
+  }, [handlePrevStep]);
 
   useEffect(() => {
     fields.forEach((field) => validateField(field));
@@ -162,20 +168,20 @@ const Step2 = () => {
               {listDevices.map((row) => (
                 <TableRow
                   key={row.id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell align="left">{row.name}</TableCell>
                   <TableCell
                     align="justify"
-                    style={{ display: 'flex', flexDirection: 'row' }}
+                    style={{ display: "flex", flexDirection: "row" }}
                   >
                     {row.devices.map((device) => (
                       <TableRow
                         key={device.id}
                         style={{
-                          display: 'flex',
-                          justifyContent: 'flex-start',
-                          alignItems: 'center',
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
                         }}
                       >
                         <Box>
@@ -212,14 +218,19 @@ const Step2 = () => {
         >
           {touched.devices &&
           errors.devices &&
-          typeof errors.devices === 'string' ? (
+          typeof errors.devices === "string" ? (
             <Typography variant="caption" color={red[700]} fontSize="">
               {errors.devices}
             </Typography>
           ) : null}
-          <Button variant="contained" onClick={handleSubmission}>
-            Next
-          </Button>
+          <Box display="flex" justifyContent="center" alignItems="center" sx={{marginTop: 1}}>
+            <Button variant="contained" sx={{marginRight: 1}} onClick={handlePrevSubmission}>
+              Previous
+            </Button>
+            <Button variant="contained" onClick={handleNextSubmission}>
+              Next
+            </Button>
+          </Box>
         </Box>
       </Box>
     </Box>

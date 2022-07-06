@@ -1,13 +1,13 @@
-import React, { useCallback, useContext, useEffect } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
-import { red } from '@mui/material/colors';
-import { CreateAnnouncementFormContext } from './context';
-import { useFormikContext } from 'formik';
+import React, { useCallback, useContext, useEffect } from "react";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import { red } from "@mui/material/colors";
+import { CreateAnnouncementFormContext } from "./context";
+import { useFormikContext } from "formik";
 
-import { CreateAnnouncementFormValues } from './form';
-import { validateFormikFields } from './util';
+import { CreateAnnouncementFormValues } from "./form";
+import { validateFormikFields } from "./util";
 
-const fields = ['title', 'duration', 'media', 'notes'];
+const fields = ["title", "duration", "media", "notes"];
 
 const Step1 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
@@ -20,30 +20,30 @@ const Step1 = () => {
       try {
         const files = event.currentTarget.files;
         if (files === null) {
-          throw new Error('Something went wrong when reading the image');
+          throw new Error("Something went wrong when reading the image");
         }
         const file = files.item(0);
         if (file === null) {
-          throw new Error('Something went wrong when reading the image');
+          throw new Error("Something went wrong when reading the image");
         }
 
         const reader = new FileReader();
 
         reader.onload = (e) => {
           if (!e.target || (e.target && !e.target.result))
-            throw new Error('Something went wrong when reading the image');
+            throw new Error("Something went wrong when reading the image");
 
           const image = new Image();
           image.onload = () => {
-            setFieldValue('media', { file, image });
+            setFieldValue("media", { file, image });
           };
           image.onerror = () => {
-            throw new Error('Something went wrong when reading the image');
+            throw new Error("Something went wrong when reading the image");
           };
           image.src = e.target.result as string;
         };
         reader.onerror = () => {
-          throw new Error('Something went wrong when reading the file');
+          throw new Error("Something went wrong when reading the file");
         };
 
         reader.readAsDataURL(file);
@@ -56,7 +56,7 @@ const Step1 = () => {
     [setFieldValue]
   );
 
-  const handleSubmission = useCallback(() => {
+  const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
     if (errors.length > 0) return;
 
@@ -74,9 +74,9 @@ const Step1 = () => {
       justifyContent="center"
       alignItems="center"
       flexDirection="column"
-      sx={{ width: '100%' }}
+      sx={{ width: "100%" }}
     >
-      <Box sx={{ marginBottom: 2, width: '100%' }}>
+      <Box sx={{ marginBottom: 2, width: "100%" }}>
         <Typography>Title Announcement</Typography>
         <TextField
           fullWidth
@@ -84,7 +84,7 @@ const Step1 = () => {
           name="title"
           variant="standard"
           value={values.title}
-          onChange={(e) => setFieldValue('title', e.target.value)}
+          onChange={(e) => setFieldValue("title", e.target.value)}
           error={touched.title && Boolean(errors.title)}
         />
 
@@ -95,7 +95,7 @@ const Step1 = () => {
         ) : null}
       </Box>
 
-      <Box sx={{ marginBottom: 2, width: '100%' }}>
+      <Box sx={{ marginBottom: 2, width: "100%" }}>
         <Typography>File Announcement</Typography>
         <Box display="flex" gap={10}>
           <Button variant="contained" component="label">
@@ -120,7 +120,7 @@ const Step1 = () => {
         ) : null}
       </Box>
 
-      <Box sx={{ marginBottom: 2, width: '100%' }}>
+      <Box sx={{ marginBottom: 2, width: "100%" }}>
         <Typography>Durasi hari Announcement</Typography>
         <TextField
           fullWidth
@@ -128,7 +128,7 @@ const Step1 = () => {
           name="title"
           variant="standard"
           value={values.duration}
-          onChange={(e) => setFieldValue('duration', e.target.value)}
+          onChange={(e) => setFieldValue("duration", e.target.value)}
           error={touched.duration && Boolean(errors.duration)}
         />
         {touched.duration && errors.duration ? (
@@ -138,13 +138,13 @@ const Step1 = () => {
         ) : null}
       </Box>
 
-      <Box sx={{ marginBottom: 2, width: '100%' }}>
+      <Box sx={{ marginBottom: 2, width: "100%" }}>
         <Typography>Notes tambahan</Typography>
         <TextField fullWidth id="notes" name="notes" variant="standard" />
       </Box>
 
       <Box display="flex" justifyContent="center" alignItems="center">
-        <Button variant="contained" onClick={handleSubmission}>
+        <Button variant="contained" onClick={handleNextSubmission}>
           Next
         </Button>
       </Box>
