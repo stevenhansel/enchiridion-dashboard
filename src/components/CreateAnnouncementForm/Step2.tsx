@@ -31,6 +31,11 @@ type Data = {
   }[];
 };
 
+type campusData = {
+  campusId: number;
+  campus: string;
+};
+
 const mockDevices: Data[] = [
   {
     id: 1,
@@ -112,6 +117,33 @@ const mockDevices: Data[] = [
   },
 ];
 
+const mockCampuses: campusData[] = [
+  {
+    campusId: 1,
+    campus: "Anggrek",
+  },
+  {
+    campusId: 2,
+    campus: "Syahdan",
+  },
+  {
+    campusId: 3,
+    campus: "Alam Sutera",
+  },
+  {
+    campusId: 4,
+    campus: "Bandung",
+  },
+  {
+    campusId: 5,
+    campus: "Malang",
+  },
+  {
+    campusId: 6,
+    campus: "Medan",
+  },
+];
+
 const Step2 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
@@ -119,6 +151,8 @@ const Step2 = () => {
     CreateAnnouncementFormContext
   );
   const [listDevices] = useState<Data[]>(mockDevices);
+
+  const [listCampuses] = useState<campusData[]>(mockCampuses);
 
   const handleDeviceSelect = useCallback(
     (selectedDevice: FormDevice) => {
@@ -157,58 +191,72 @@ const Step2 = () => {
   }, []);
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box display="flex" flexDirection="row">
+      <Box sx={{ marginRight: 2, height: 300, width: 300 }}>
+        {listCampuses.map((row) => (
+          <TableRow
+            key={row.campusId}
+            sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+          >
+            <Box display="flex" justifyContent="center" sx={{marginBottom: 1}}>
+              <ToggleButton value={row.campusId}>{row.campus}</ToggleButton>
+            </Box>
+          </TableRow>
+        ))}
+      </Box>
       <Box>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow></TableRow>
-            </TableHead>
-            <TableBody>
-              {listDevices.map((row) => (
-                <TableRow
-                  key={row.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell align="left">{row.name}</TableCell>
-                  <TableCell
-                    align="justify"
-                    style={{ display: "flex", flexDirection: "row" }}
+        <Box display="flex" flexDirection="row">
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow></TableRow>
+              </TableHead>
+              <TableBody>
+                {listDevices.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    {row.devices.map((device) => (
-                      <TableRow
-                        key={device.id}
-                        style={{
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Box>
-                          <ToggleButton
-                            value={device.id}
-                            selected={values.devices.some(
-                              ({ deviceId }) => deviceId === device.id
-                            )}
-                            onChange={() =>
-                              handleDeviceSelect({
-                                deviceId: device.id,
-                                deviceName: device.name,
-                                floorName: row.name,
-                              })
-                            }
-                          >
-                            {device.name}
-                          </ToggleButton>
-                        </Box>
-                      </TableRow>
-                    ))}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    <TableCell align="left">{row.name}</TableCell>
+                    <TableCell
+                      align="justify"
+                      style={{ display: "flex", flexDirection: "row" }}
+                    >
+                      {row.devices.map((device) => (
+                        <TableRow
+                          key={device.id}
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Box>
+                            <ToggleButton
+                              value={device.id}
+                              selected={values.devices.some(
+                                ({ deviceId }) => deviceId === device.id
+                              )}
+                              onChange={() =>
+                                handleDeviceSelect({
+                                  deviceId: device.id,
+                                  deviceName: device.name,
+                                  floorName: row.name,
+                                })
+                              }
+                            >
+                              {device.name}
+                            </ToggleButton>
+                          </Box>
+                        </TableRow>
+                      ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
 
         <Box
           display="flex"
@@ -223,8 +271,17 @@ const Step2 = () => {
               {errors.devices}
             </Typography>
           ) : null}
-          <Box display="flex" justifyContent="center" alignItems="center" sx={{marginTop: 1}}>
-            <Button variant="contained" sx={{marginRight: 1}} onClick={handlePrevSubmission}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ marginTop: 1 }}
+          >
+            <Button
+              variant="contained"
+              sx={{ marginRight: 1 }}
+              onClick={handlePrevSubmission}
+            >
               Previous
             </Button>
             <Button variant="contained" onClick={handleNextSubmission}>

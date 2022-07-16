@@ -22,14 +22,6 @@ type Role = {
   name: string;
 };
 
-type RegisterFormSchema = {
-  name: string;
-  email: string;
-  password: string;
-  reason: string;
-  roleId: number | null;
-};
-
 const validationSchema = yup.object({
   name: yup
     .string()
@@ -43,16 +35,16 @@ const validationSchema = yup.object({
     .string()
     .min(8, "Password should be of minimum 8 characters length")
     .required("Password is required"),
-  roleId: yup.number().required(),
+  role: yup.string().required(),
 });
 
-const Register = () => {
+const Register = (props: any) => {
   const navigate = useNavigate();
 
+  const [roles, setRoles] = useState([]);
   const [isReady, setIsReady] = useState(false);
-  const [roles, setRoles] = useState<Record<number, Role>>([]);
 
-  const formik = useFormik<RegisterFormSchema>({
+  const formik = useFormik<any>({
     initialValues: {
       name: "",
       email: "",
@@ -62,13 +54,13 @@ const Register = () => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      console.log(values);
-      // navigate("/login");
+      // alert(JSON.stringify(values, null, 2));
+      navigate("/login");
     },
   });
 
-  const handleChange = (event: SelectChangeEvent) => {
-    formik.setFieldValue("role", event.target.value);
+  const handleChange = (e: SelectChangeEvent) => {
+    formik.setFieldValue("role", e.target.value);
   };
 
   const fetchRoles = useCallback(async (): Promise<Record<number, Role>> => {
@@ -86,7 +78,7 @@ const Register = () => {
   }, []);
 
   useEffect(() => {
-    fetchRoles().then((roles) => {
+    fetchRoles().then((roles: any) => {
       setRoles(roles);
       setIsReady(true);
     });
@@ -98,7 +90,7 @@ const Register = () => {
       <Box
         style={{
           backgroundImage:
-            "url('https://s3-alpha-sig.figma.com/img/89f3/b5fd/bd6aa14691c184f40bd800355c856063?Expires=1655683200&Signature=B3zs2Kpd5FTqP6enUbVoZZ2LiKqKk21pE~bxZJZUi-lXuSdP0UKjTTTz1aXfi89Qzxu3mXHcRNZ5dqFd59Bbb96IuDWWSfFKieoQjoEy2jwE2cARGMn5qNXtcbOCwBKYT7TMOj26~e6~Nb8u4tf39Z-xuuBWI-Nn8iJ-m0rsnw14TU6bCoXFnbLXL4C7GeT50ZmEKuklixhb1CN2o8f2iY4nyyjAQWOv6NMuYhNNUDtZ82XiqRpaSDvt2cFgUSCiBYr3zbOlnQ~mwTQAk~tH3seXu-HuS05uA0ka~ySMppUjH-s1W7OyeNQHN-S6DgrrHW7a8OCMzA9ZW5Vra4w4TQ__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA')",
+            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",
@@ -143,7 +135,7 @@ const Register = () => {
                     name="name"
                     onChange={formik.handleChange}
                     error={formik.touched.name && Boolean(formik.errors.name)}
-                    helperText={formik.touched.name && formik.errors.name}
+                    // helperText={formik.touched.name && formik.errors.name}
                     variant="standard"
                     fullWidth
                   />
@@ -157,7 +149,7 @@ const Register = () => {
                       formik.setFieldValue("email", event.target.value)
                     }
                     error={formik.touched.email && Boolean(formik.errors.email)}
-                    helperText={formik.touched.email && formik.errors.email}
+                    // helperText={formik.touched.email && formik.errors.email}
                     variant="standard"
                     fullWidth
                   />
@@ -173,7 +165,7 @@ const Register = () => {
                     error={
                       formik.touched.password && Boolean(formik.errors.password)
                     }
-                    helperText={formik.touched.password && formik.errors.password}
+                    // helperText={formik.touched.password && formik.errors.password}
                     variant="standard"
                     type="password"
                     fullWidth
@@ -189,7 +181,7 @@ const Register = () => {
                     error={
                       formik.touched.reason && Boolean(formik.errors.reason)
                     }
-                    helperText={formik.touched.reason && formik.errors.reason}
+                    // helperText={formik.touched.reason && formik.errors.reason}
                     fullWidth
                   />
                 </Box>
@@ -210,7 +202,7 @@ const Register = () => {
                         formik.touched.roleId && Boolean(formik.errors.roleId)
                       }
                     >
-                      {Object.values(roles).map((role) => (
+                      {Object.values(roles).map((role: any) => (
                         <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
                       ))}
                     </Select>

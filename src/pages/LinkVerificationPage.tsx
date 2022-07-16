@@ -1,53 +1,25 @@
 import * as React from "react";
-import { useFormik } from "formik";
+import { FormikConsumer, useFormik } from "formik";
 import * as yup from "yup";
-import { Navigate, useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { login } from "../store/auth";
+import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
-import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { blue } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-
-import AnnouncementPage from "./AnnouncementPage";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import MenuItem from "@mui/material/MenuItem";
+import FormHelperText from '@mui/material/FormHelperText';
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const Login = (props: Props) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const validationSchema = yup.object({
-    email: yup
-      .string()
-      .email("Enter a valid email")
-      .required("Email is required"),
-    password: yup
-      .string()
-      .min(8, "Password should be of minimum 8 characters length")
-      .required("Password is required"),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // alert(JSON.stringify(values, null, 2));
-      dispatch(login());
-      navigate('/announcement');
-    },
-  });
-
+const LinkVerificationPage = (props: Props) => {
   return (
     <React.Fragment>
       <CssBaseline />
@@ -74,7 +46,7 @@ const Login = (props: Props) => {
             right: "50%",
           }}
         >
-          <form onSubmit={formik.handleSubmit}>
+          <form>
             <Box
               sx={{
                 bgcolor: "white",
@@ -89,14 +61,28 @@ const Login = (props: Props) => {
                 textAlign="center"
                 sx={{ marginBottom: 2 }}
               >
-                Login
+                Register
               </Typography>
+              <Box sx={{ marginBottom: 3 }}>
+                <Typography>Nama</Typography>
+                <TextField
+                  id="name"
+                  name="name"
+                  onChange={formik.handleChange}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
+                  helperText={formik.touched.name && formik.errors.name}
+                  variant="standard"
+                  fullWidth
+                />
+              </Box>
               <Box sx={{ marginBottom: 3 }}>
                 <Typography>Email</Typography>
                 <TextField
                   id="email"
                   name="email"
-                  onChange={(event) => formik.setFieldValue("email", event.target.value)}
+                  onChange={(event) =>
+                    formik.setFieldValue("email", event.target.value)
+                  }
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                   variant="standard"
@@ -108,7 +94,9 @@ const Login = (props: Props) => {
                 <TextField
                   id="password"
                   name="password"
-                  onChange={(event) => formik.setFieldValue("password", event.target.value)}
+                  onChange={(event) =>
+                    formik.setFieldValue("password", event.target.value)
+                  }
                   error={
                     formik.touched.password && Boolean(formik.errors.password)
                   }
@@ -117,6 +105,42 @@ const Login = (props: Props) => {
                   type="password"
                   fullWidth
                 />
+              </Box>
+              <Box sx={{ marginBottom: 5 }}>
+                <Typography>Alasan untuk daftar</Typography>
+                <TextField
+                  id="reason"
+                  name="reason"
+                  variant="standard"
+                  fullWidth
+                />
+              </Box>
+              <Box>
+                <FormControl fullWidth sx={{ marginBottom: 5 }}>
+                  <InputLabel
+                    id="role"
+                  >
+                    Posisi
+                  </InputLabel>
+                  <Select
+                    labelId="role"
+                    id="role"
+                    value={formik.values.role}
+                    label="Age"
+                    onChange={handleChange}
+                    error={
+                      formik.touched.role && Boolean(formik.errors.role)
+                    }
+                  >
+                    <MenuItem value={"Mahasiswa"}>Mahasiswa</MenuItem>
+                    <MenuItem value={"Dosen"}>Dosen</MenuItem>
+                    <MenuItem value={"Karyawan"}>Karyawan</MenuItem>
+                    <MenuItem value={"LSC"}>LSC</MenuItem>
+                    <MenuItem value={"BM"}>BM</MenuItem>
+                    <MenuItem value={"Admin"}>Admin</MenuItem>
+                  </Select>
+                  {formik.touched.role && formik.errors.role ? (<Typography sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F", }}>Roles is required</Typography>) : (null)}
+                </FormControl>
               </Box>
               <Box
                 display="flex"
@@ -129,20 +153,9 @@ const Login = (props: Props) => {
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
                 >
-                  Masuk
+                  Daftar
                 </Button>
-                <Box display="flex" flexDirection="row">
-                  <Typography sx={{ marginRight: 0.5 }}>
-                    Belum punya akun?
-                  </Typography>
-                  <Link to="/register">Daftar</Link>
-                </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginTop: 1}}>
-                  <Typography sx={{ marginRight: 0.5 }}>
-                    Forgot Password?
-                  </Typography>
-                  <Link to="/forgot_password">Change</Link>
-                </Box>
+                <Box display="flex" flexDirection="row"></Box>
               </Box>
             </Box>
           </form>
@@ -152,4 +165,4 @@ const Login = (props: Props) => {
   );
 };
 
-export default Login;
+export default LinkVerificationPage;

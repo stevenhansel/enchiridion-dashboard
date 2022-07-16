@@ -1,4 +1,7 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import { CreateAnnouncementFormContext } from "./context";
@@ -12,6 +15,9 @@ const fields = ["title", "duration", "media", "notes"];
 const Step1 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { values, errors, touched, validateField, setFieldValue } = formik;
+
+  const [startValue, setStartValue] = useState<Date | null>(null);
+  const [endValue, setEndValue] = useState<Date | null>(null);
 
   const { handleNextStep } = useContext(CreateAnnouncementFormContext);
 
@@ -121,7 +127,7 @@ const Step1 = () => {
       </Box>
 
       <Box sx={{ marginBottom: 2, width: "100%" }}>
-        <Typography>Durasi hari Announcement</Typography>
+        <Typography>Start Date Announcement</Typography>
         <TextField
           fullWidth
           id="title"
@@ -131,11 +137,10 @@ const Step1 = () => {
           onChange={(e) => setFieldValue("duration", e.target.value)}
           error={touched.duration && Boolean(errors.duration)}
         />
-        {touched.duration && errors.duration ? (
-          <Typography variant="caption" color={red[700]} fontSize="">
-            {errors.duration}
-          </Typography>
-        ) : null}
+      </Box>
+
+      <Box sx={{ marginBottom: 2, width: "100%" }}>
+        <Typography>End Date Announcement</Typography>
       </Box>
 
       <Box sx={{ marginBottom: 2, width: "100%" }}>
