@@ -13,8 +13,6 @@ import Button from "@mui/material/Button";
 import { CircularProgress } from "@mui/material";
 import Typography from "@mui/material/Typography";
 
-import CreateAnnouncementForm from "../components/CreateAnnouncementForm";
-
 type Props = {
   children?: React.ReactNode;
 };

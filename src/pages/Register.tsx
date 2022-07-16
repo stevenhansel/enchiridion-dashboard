@@ -18,26 +18,24 @@ type Props = {
   children?: React.ReactNode;
 };
 
+const validationSchema = yup.object({
+  name: yup
+    .string()
+    .min(4, "Name should be of minimum 4 characters length")
+    .required("Name is required"),
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: yup
+    .string()
+    .min(8, "Password should be of minimum 8 characters length")
+    .required("Password is required"),
+  role: yup.string().required(),
+});
+
 const Register = (props: Props) => {
   const navigate = useNavigate();
-
-  const [age, setAge] = React.useState("");
-
-  const validationSchema = yup.object({
-    name: yup
-      .string()
-      .min(4, "Name should be of minimum 4 characters length")
-      .required("Name is required"),
-    email: yup
-      .string()
-      .email("Enter a valid email")
-      .required("Email is required"),
-    password: yup
-      .string()
-      .min(8, "Password should be of minimum 8 characters length")
-      .required("Password is required"),
-    role: yup.string().required(),
-  });
 
   const formik = useFormik({
     initialValues: {
@@ -48,13 +46,13 @@ const Register = (props: Props) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+      // alert(JSON.stringify(values, null, 2));
       navigate("/login");
     },
   });
 
-  const handleChange = (event: SelectChangeEvent) => {
-    formik.setFieldValue("role", event.target.value);
+  const handleChange = (e: SelectChangeEvent) => {
+    formik.setFieldValue("role", e.target.value);
   };
 
   return (
@@ -63,7 +61,7 @@ const Register = (props: Props) => {
       <Box
         style={{
           backgroundImage:
-            "url('https://s3-alpha-sig.figma.com/img/89f3/b5fd/bd6aa14691c184f40bd800355c856063?Expires=1655683200&Signature=B3zs2Kpd5FTqP6enUbVoZZ2LiKqKk21pE~bxZJZUi-lXuSdP0UKjTTTz1aXfi89Qzxu3mXHcRNZ5dqFd59Bbb96IuDWWSfFKieoQjoEy2jwE2cARGMn5qNXtcbOCwBKYT7TMOj26~e6~Nb8u4tf39Z-xuuBWI-Nn8iJ-m0rsnw14TU6bCoXFnbLXL4C7GeT50ZmEKuklixhb1CN2o8f2iY4nyyjAQWOv6NMuYhNNUDtZ82XiqRpaSDvt2cFgUSCiBYr3zbOlnQ~mwTQAk~tH3seXu-HuS05uA0ka~ySMppUjH-s1W7OyeNQHN-S6DgrrHW7a8OCMzA9ZW5Vra4w4TQ__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA')",
+            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",

@@ -20,31 +20,28 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const Login = (props: Props) => {
-  const dispatch = useDispatch();
+const ResetPassword = () => {
   const navigate = useNavigate();
-
   const validationSchema = yup.object({
-    email: yup
+    newPassword: yup
       .string()
-      .email("Enter a valid email")
-      .required("Email is required"),
-    password: yup
+      .min(8, "New Password should be of minimum 8 characters length")
+      .required("New password is required"),
+    confirmPassword: yup
       .string()
-      .min(8, "Password should be of minimum 8 characters length")
-      .required("Password is required"),
+      .required("Please confirm your new password")
+      .oneOf([yup.ref("newPassword"), null], "Password must match"),
   });
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      newPassword: "",
+      confirmPassword: ""
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      // alert(JSON.stringify(values, null, 2));
-      dispatch(login());
-      navigate('/announcement');
+    //   alert(JSON.stringify(values, null, 2));
+      navigate("/login");
     },
   });
 
@@ -89,33 +86,47 @@ const Login = (props: Props) => {
                 textAlign="center"
                 sx={{ marginBottom: 2 }}
               >
-                Login
+                Reset Password
               </Typography>
               <Box sx={{ marginBottom: 3 }}>
-                <Typography>Email</Typography>
+                <Typography>New Password</Typography>
                 <TextField
-                  id="email"
-                  name="email"
-                  onChange={(event) => formik.setFieldValue("email", event.target.value)}
-                  error={formik.touched.email && Boolean(formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
-                  variant="standard"
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ marginBottom: 3 }}>
-                <Typography>Password</Typography>
-                <TextField
-                  id="password"
-                  name="password"
-                  onChange={(event) => formik.setFieldValue("password", event.target.value)}
-                  error={
-                    formik.touched.password && Boolean(formik.errors.password)
-                  }
-                  helperText={formik.touched.password && formik.errors.password}
+                  id="new_password"
+                  name="new_password"
                   variant="standard"
                   type="password"
                   fullWidth
+                  onChange={(event) =>
+                    formik.setFieldValue("newPassword", event.target.value)
+                  }
+                  error={
+                    formik.touched.newPassword &&
+                    Boolean(formik.errors.newPassword)
+                  }
+                  helperText={
+                    formik.touched.newPassword && formik.errors.newPassword
+                  }
+                />
+              </Box>
+              <Box sx={{ marginBottom: 3 }}>
+                <Typography>Confirm New Password</Typography>
+                <TextField
+                  id="confirm_password"
+                  name="confirm_password"
+                  variant="standard"
+                  type="password"
+                  fullWidth
+                  onChange={(event) =>
+                    formik.setFieldValue("confirmPassword", event.target.value)
+                  }
+                  error={
+                    formik.touched.confirmPassword &&
+                    Boolean(formik.errors.confirmPassword)
+                  }
+                  helperText={
+                    formik.touched.confirmPassword &&
+                    formik.errors.confirmPassword
+                  }
                 />
               </Box>
               <Box
@@ -129,20 +140,8 @@ const Login = (props: Props) => {
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
                 >
-                  Masuk
+                  Change Password
                 </Button>
-                <Box display="flex" flexDirection="row">
-                  <Typography sx={{ marginRight: 0.5 }}>
-                    Belum punya akun?
-                  </Typography>
-                  <Link to="/register">Daftar</Link>
-                </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginTop: 1}}>
-                  <Typography sx={{ marginRight: 0.5 }}>
-                    Forgot Password?
-                  </Typography>
-                  <Link to="/forgot_password">Change</Link>
-                </Box>
               </Box>
             </Box>
           </form>
@@ -152,4 +151,4 @@ const Login = (props: Props) => {
   );
 };
 
-export default Login;
+export default ResetPassword;

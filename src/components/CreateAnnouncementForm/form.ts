@@ -13,6 +13,8 @@ export type CreateAnnouncementFormValues = {
     image: HTMLImageElement;
   } | null;
   duration: number;
+  startDate: string;
+  endDate: string;
   notes: string;
   devices: FormDevice[];
 };
@@ -23,6 +25,8 @@ export const initialValues: CreateAnnouncementFormValues = {
   duration: 0,
   notes: '',
   devices: [],
+  startDate: '',
+  endDate: '',
 };
 
 export const validationSchema = yup.object({
@@ -34,4 +38,5 @@ export const validationSchema = yup.object({
     .min(3, 'Please input at least 3 days of announcement duration'),
   notes: yup.string(),
   devices: yup.array().min(1, 'You must select atleast 1 device').required(),
+  date: yup.string().required('Start Date is required'),
 });

@@ -20,31 +20,23 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const Login = (props: Props) => {
-  const dispatch = useDispatch();
+const ForgotPassword = () => {
   const navigate = useNavigate();
-
   const validationSchema = yup.object({
     email: yup
       .string()
-      .email("Enter a valid email")
+      .email("Enter your Email")
       .required("Email is required"),
-    password: yup
-      .string()
-      .min(8, "Password should be of minimum 8 characters length")
-      .required("Password is required"),
   });
 
   const formik = useFormik({
     initialValues: {
       email: "",
-      password: "",
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      // alert(JSON.stringify(values, null, 2));
-      dispatch(login());
-      navigate('/announcement');
+    //   alert(JSON.stringify(values, null, 2));
+      navigate("/reset_password");
     },
   });
 
@@ -89,33 +81,20 @@ const Login = (props: Props) => {
                 textAlign="center"
                 sx={{ marginBottom: 2 }}
               >
-                Login
+                Forgot Password
               </Typography>
               <Box sx={{ marginBottom: 3 }}>
                 <Typography>Email</Typography>
                 <TextField
                   id="email"
                   name="email"
-                  onChange={(event) => formik.setFieldValue("email", event.target.value)}
+                  variant="standard"
+                  fullWidth
+                  onChange={(event) =>
+                    formik.setFieldValue("email", event.target.value)
+                  }
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
-                  variant="standard"
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ marginBottom: 3 }}>
-                <Typography>Password</Typography>
-                <TextField
-                  id="password"
-                  name="password"
-                  onChange={(event) => formik.setFieldValue("password", event.target.value)}
-                  error={
-                    formik.touched.password && Boolean(formik.errors.password)
-                  }
-                  helperText={formik.touched.password && formik.errors.password}
-                  variant="standard"
-                  type="password"
-                  fullWidth
                 />
               </Box>
               <Box
@@ -129,20 +108,8 @@ const Login = (props: Props) => {
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
                 >
-                  Masuk
+                  Send
                 </Button>
-                <Box display="flex" flexDirection="row">
-                  <Typography sx={{ marginRight: 0.5 }}>
-                    Belum punya akun?
-                  </Typography>
-                  <Link to="/register">Daftar</Link>
-                </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginTop: 1}}>
-                  <Typography sx={{ marginRight: 0.5 }}>
-                    Forgot Password?
-                  </Typography>
-                  <Link to="/forgot_password">Change</Link>
-                </Box>
               </Box>
             </Box>
           </form>
@@ -152,4 +119,4 @@ const Login = (props: Props) => {
   );
 };
 
-export default Login;
+export default ForgotPassword;
