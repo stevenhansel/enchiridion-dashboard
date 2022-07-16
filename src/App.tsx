@@ -1,14 +1,11 @@
-import React, { useState } from "react";
-import { BrowserRouter, Router, Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "./store/index";
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import HomeIcon from "@mui/icons-material/Home";
 import TvIcon from "@mui/icons-material/Tv";
 import BalconyIcon from "@mui/icons-material/Balcony";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import Layout from "./components/Layout";
 import AnnouncementPage from "./pages/AnnouncementPage";
@@ -20,14 +17,14 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateAnnouncementPage from "./pages/CreateAnnouncementPage";
 import RolesPage from "./pages/RolesPage";
-import ListPermission from './components/ListPermission';
 
 function App() {
-  const isLogin = useSelector((state: RootState) => state.auth.isAuth)
+  // const isLogin = useSelector((state: RootState) => state.auth.isAuth)
+  const isLogin = false;
 
   return (
     <BrowserRouter>
-      {!isLogin ? (
+      {isLogin ? (
         <Layout
           navigation={[
             {
@@ -69,7 +66,7 @@ function App() {
         </Layout>
       ) : (
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
       )}

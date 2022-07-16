@@ -1,5 +1,6 @@
-import * as React from "react";
-import { FormikConsumer, useFormik } from "formik";
+import React, { useCallback, useEffect, useState } from "react";
+import axios from 'axios';
+import { useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 
@@ -12,50 +13,84 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from '@mui/material/FormHelperText';
+import { CircularProgress } from "@mui/material";
 
-type Props = {
-  children?: React.ReactNode;
+const baseUrl = 'http://enchiridion.stevenhansel.com/dashboard';
+
+type Role = {
+  id: number;
+  name: string;
 };
 
-const Register = (props: Props) => {
+type RegisterFormSchema = {
+  name: string;
+  email: string;
+  password: string;
+  reason: string;
+  roleId: number | null;
+};
+
+const validationSchema = yup.object({
+  name: yup
+    .string()
+    .min(4, "Name should be of minimum 4 characters length")
+    .required("Name is required"),
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: yup
+    .string()
+    .min(8, "Password should be of minimum 8 characters length")
+    .required("Password is required"),
+  roleId: yup.number().required(),
+});
+
+const Register = () => {
   const navigate = useNavigate();
 
-  const [age, setAge] = React.useState("");
+  const [isReady, setIsReady] = useState(false);
+  const [roles, setRoles] = useState<Record<number, Role>>([]);
 
-  const validationSchema = yup.object({
-    name: yup
-      .string()
-      .min(4, "Name should be of minimum 4 characters length")
-      .required("Name is required"),
-    email: yup
-      .string()
-      .email("Enter a valid email")
-      .required("Email is required"),
-    password: yup
-      .string()
-      .min(8, "Password should be of minimum 8 characters length")
-      .required("Password is required"),
-    role: yup.string().required(),
-  });
-
-  const formik = useFormik({
+  const formik = useFormik<RegisterFormSchema>({
     initialValues: {
       name: "",
       email: "",
       password: "",
-      role: "",
+      reason: "",
+      roleId: null,
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-      navigate("/login");
+      console.log(values);
+      // navigate("/login");
     },
   });
 
   const handleChange = (event: SelectChangeEvent) => {
     formik.setFieldValue("role", event.target.value);
   };
+
+  const fetchRoles = useCallback(async (): Promise<Record<number, Role>> => {
+    try {
+      const { data } = await axios.get(`${baseUrl}/v1/roles`);
+      const roles: Record<number, Role> = data.contents.reduce((accumulator: any, current: any) => {
+        accumulator[current.id] = { id: current.id, name: current.name };
+        return accumulator
+      }, {});
+
+      return roles;
+    } catch (err) {
+      throw err;
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRoles().then((roles) => {
+      setRoles(roles);
+      setIsReady(true);
+    });
+  }, [fetchRoles]);
 
   return (
     <React.Fragment>
@@ -83,119 +118,127 @@ const Register = (props: Props) => {
             right: "50%",
           }}
         >
-          <form onSubmit={formik.handleSubmit}>
-            <Box
-              sx={{
-                bgcolor: "white",
-                boxShadow: 1,
-                borderRadius: 1,
-                p: 2,
-                minWidth: 300,
-              }}
-            >
-              <Typography
-                variant="h4"
-                textAlign="center"
-                sx={{ marginBottom: 2 }}
-              >
-                Register
-              </Typography>
-              <Box sx={{ marginBottom: 3 }}>
-                <Typography>Nama</Typography>
-                <TextField
-                  id="name"
-                  name="name"
-                  onChange={formik.handleChange}
-                  error={formik.touched.name && Boolean(formik.errors.name)}
-                  helperText={formik.touched.name && formik.errors.name}
-                  variant="standard"
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ marginBottom: 3 }}>
-                <Typography>Email</Typography>
-                <TextField
-                  id="email"
-                  name="email"
-                  onChange={(event) =>
-                    formik.setFieldValue("email", event.target.value)
-                  }
-                  error={formik.touched.email && Boolean(formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
-                  variant="standard"
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ marginBottom: 3 }}>
-                <Typography>Password</Typography>
-                <TextField
-                  id="password"
-                  name="password"
-                  onChange={(event) =>
-                    formik.setFieldValue("password", event.target.value)
-                  }
-                  error={
-                    formik.touched.password && Boolean(formik.errors.password)
-                  }
-                  helperText={formik.touched.password && formik.errors.password}
-                  variant="standard"
-                  type="password"
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography>Alasan untuk daftar</Typography>
-                <TextField
-                  id="reason"
-                  name="reason"
-                  variant="standard"
-                  fullWidth
-                />
-              </Box>
-              <Box>
-                <FormControl fullWidth sx={{ marginBottom: 5 }}>
-                  <InputLabel
-                    id="role"
-                  >
-                    Posisi
-                  </InputLabel>
-                  <Select
-                    labelId="role"
-                    id="role"
-                    value={formik.values.role}
-                    label="Age"
-                    onChange={handleChange}
-                    error={
-                      formik.touched.role && Boolean(formik.errors.role)
-                    }
-                  >
-                    <MenuItem value={"Mahasiswa"}>Mahasiswa</MenuItem>
-                    <MenuItem value={"Dosen"}>Dosen</MenuItem>
-                    <MenuItem value={"Karyawan"}>Karyawan</MenuItem>
-                    <MenuItem value={"LSC"}>LSC</MenuItem>
-                    <MenuItem value={"BM"}>BM</MenuItem>
-                    <MenuItem value={"Admin"}>Admin</MenuItem>
-                  </Select>
-                  {formik.touched.role && formik.errors.role ? (<Typography sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F", }}>Roles is required</Typography>) : (null)}
-                </FormControl>
-              </Box>
+          {isReady ? (
+            <form onSubmit={formik.handleSubmit}>
               <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                flexDirection="column"
+                sx={{
+                  bgcolor: "white",
+                  boxShadow: 1,
+                  borderRadius: 1,
+                  p: 2,
+                  minWidth: 300,
+                }}
               >
-                <Button
-                  variant="contained"
-                  type="submit"
-                  sx={{ marginBottom: 0.5 }}
+                <Typography
+                  variant="h4"
+                  textAlign="center"
+                  sx={{ marginBottom: 2 }}
                 >
-                  Daftar
-                </Button>
-                <Box display="flex" flexDirection="row"></Box>
+                  Register
+                </Typography>
+                <Box sx={{ marginBottom: 3 }}>
+                  <Typography>Nama</Typography>
+                  <TextField
+                    id="name"
+                    name="name"
+                    onChange={formik.handleChange}
+                    error={formik.touched.name && Boolean(formik.errors.name)}
+                    helperText={formik.touched.name && formik.errors.name}
+                    variant="standard"
+                    fullWidth
+                  />
+                </Box>
+                <Box sx={{ marginBottom: 3 }}>
+                  <Typography>Email</Typography>
+                  <TextField
+                    id="email"
+                    name="email"
+                    onChange={(event) =>
+                      formik.setFieldValue("email", event.target.value)
+                    }
+                    error={formik.touched.email && Boolean(formik.errors.email)}
+                    helperText={formik.touched.email && formik.errors.email}
+                    variant="standard"
+                    fullWidth
+                  />
+                </Box>
+                <Box sx={{ marginBottom: 3 }}>
+                  <Typography>Password</Typography>
+                  <TextField
+                    id="password"
+                    name="password"
+                    onChange={(event) =>
+                      formik.setFieldValue("password", event.target.value)
+                    }
+                    error={
+                      formik.touched.password && Boolean(formik.errors.password)
+                    }
+                    helperText={formik.touched.password && formik.errors.password}
+                    variant="standard"
+                    type="password"
+                    fullWidth
+                  />
+                </Box>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography>Alasan untuk daftar</Typography>
+                  <TextField
+                    id="reason"
+                    name="reason"
+                    variant="standard"
+                    onChange={(event) => formik.setFieldValue("reason", event.target.value)}
+                    error={
+                      formik.touched.reason && Boolean(formik.errors.reason)
+                    }
+                    helperText={formik.touched.reason && formik.errors.reason}
+                    fullWidth
+                  />
+                </Box>
+                <Box>
+                  <FormControl fullWidth sx={{ marginBottom: 5 }}>
+                    <InputLabel
+                      id="role"
+                    >
+                      Role
+                    </InputLabel>
+                    <Select
+                      labelId="role"
+                      id="role"
+                      value={formik.values.roleId ? formik.values.roleId.toString() : undefined}
+                      label="Role"
+                      onChange={handleChange}
+                      error={
+                        formik.touched.roleId && Boolean(formik.errors.roleId)
+                      }
+                    >
+                      {Object.values(roles).map((role) => (
+                        <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
+                      ))}
+                    </Select>
+                    {formik.touched.roleId && formik.errors.roleId ? (<Typography sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F", }}>Role is required</Typography>) : (null)}
+                  </FormControl>
+                </Box>
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  flexDirection="column"
+                >
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    sx={{ marginBottom: 0.5 }}
+                  >
+                    Daftar
+                  </Button>
+                  <Box display="flex" flexDirection="row"></Box>
+                </Box>
               </Box>
-            </Box>
-          </form>
+            </form>
+          ) : (
+            <div>
+                <CircularProgress />
+            </div>
+          )}
         </div>
       </Box>
     </React.Fragment>
