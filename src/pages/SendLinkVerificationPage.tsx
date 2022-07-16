@@ -10,7 +10,9 @@ import {
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
-import axios from '../utils/axiosInstance';
+import axios, { isAxiosError, ApiErrorResponse } from '../utils/axiosInstance';
+
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Props = {
   children?: React.ReactNode;
@@ -29,7 +31,11 @@ const SendLinkVerificationPage = (props: Props) => {
       );
       setIsPressed(true);
     } catch (err) {
-      setErrorMessage('error bang');
+      let message = 'Network Error';
+      if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
+        message = (err.response?.data as ApiErrorResponse).messages[0];
+      }
+      setErrorMessage(message);
     }
     
   }, [email]);
@@ -62,8 +68,7 @@ const SendLinkVerificationPage = (props: Props) => {
       <CssBaseline />
       <Box
         style={{
-          backgroundImage:
-            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
+          backgroundImage: `url(${backgroundImage})`,
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",

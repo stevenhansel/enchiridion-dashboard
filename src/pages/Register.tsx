@@ -3,18 +3,26 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
-import { CircularProgress } from "@mui/material";
+import {
+  Box, 
+  Button, 
+  Typography, 
+  CssBaseline, 
+  TextField, 
+  InputLabel, 
+  FormControl, 
+  MenuItem, 
+  IconButton,
+  Snackbar,
+  CircularProgress, 
+  Select,
+} from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
+import CloseIcon from '@mui/icons-material/Close';
 
-import axios from '../utils/axiosInstance';
+import axios, { isAxiosError, ApiErrorResponse } from '../utils/axiosInstance';
+
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Role = {
   id: number;
@@ -27,7 +35,7 @@ type RegisterForm = {
   password: string,
   reason: string,
   roleId: number | null,
-}
+};
 
 const validationSchema = yup.object({
   name: yup
@@ -50,9 +58,12 @@ const Register = () => {
 
   const [roles, setRoles] = useState<Record<number, Role>>({});
   const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const register = useCallback(async (values: RegisterForm): Promise<void> => {
+  const handleRegister = useCallback(async (values: RegisterForm): Promise<void> => {
     try {
+      setIsLoading(true);
       await axios.post(
         `/v1/auth/register`,
         {
@@ -63,8 +74,14 @@ const Register = () => {
           registrationReason: values.reason,
         },
       );
-    } catch (err) {
-      throw err;
+      setIsLoading(false);
+    } catch (err: unknown) {
+      let message = 'Network Error';
+      if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
+        message = (err.response?.data as ApiErrorResponse).messages[0];
+      }
+      setErrorMessage(message);
+      setIsLoading(false);
     }
   }, []);
 
@@ -78,8 +95,10 @@ const Register = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values: RegisterForm) => {
-      await register(values);
-      navigate(`/register/${values.email}`);
+      handleRegister(values).then(() => {
+
+        navigate(`/register/${values.email}`);
+      });
     },
   });
 
@@ -101,9 +120,19 @@ const Register = () => {
     }
   }, []);
 
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setErrorMessage('');
+  };
+
   useEffect(() => {
     fetchRoles().then((roles: Record<number, Role>) => {
       setRoles(roles);
+      setIsReady(true);
+    }).catch(() => {
+      setErrorMessage('Maintenance');
       setIsReady(true);
     });
   }, [fetchRoles]);
@@ -113,8 +142,7 @@ const Register = () => {
       <CssBaseline />
       <Box
         style={{
-          backgroundImage:
-            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
+          backgroundImage: `url(${backgroundImage})`,
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",
@@ -134,7 +162,7 @@ const Register = () => {
             right: "50%",
           }}
         >
-          {isReady ? (
+          {isReady && Object.keys(roles).length > 0 ? (
             <form onSubmit={formik.handleSubmit}>
               <Box
                 sx={{
@@ -239,10 +267,14 @@ const Register = () => {
                   alignItems="center"
                   flexDirection="column"
                 >
-                  <Button
+                   <Button
                     variant="contained"
+                    disabled={isLoading}
                     type="submit"
                     sx={{ marginBottom: 0.5 }}
+                    endIcon={(
+                      isLoading && <CircularProgress />
+                    )}
                   >
                     Daftar
                   </Button>
@@ -255,6 +287,22 @@ const Register = () => {
                 <CircularProgress />
             </div>
           )}
+          <Snackbar
+            open={Boolean(errorMessage)}
+            autoHideDuration={6000}
+            onClose={() => setErrorMessage('')}
+            message={errorMessage}
+            action={(
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
+          />
         </div>
       </Box>
     </React.Fragment>

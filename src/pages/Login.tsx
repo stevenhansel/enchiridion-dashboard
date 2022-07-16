@@ -1,27 +1,26 @@
 import * as React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Navigate, useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { login } from "../store/auth";
 
 import Box from "@mui/material/Box";
-import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { blue } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 
-import AnnouncementPage from "./AnnouncementPage";
+import { AppDispatch } from "../store";
+import { login } from "../store/auth";
+
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Props = {
   children?: React.ReactNode;
 };
 
 const Login = (props: Props) => {
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
 
   const validationSchema = yup.object({
@@ -42,7 +41,6 @@ const Login = (props: Props) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      // alert(JSON.stringify(values, null, 2));
       dispatch(login());
       navigate('/announcement');
     },
@@ -53,8 +51,7 @@ const Login = (props: Props) => {
       <CssBaseline />
       <Box
         style={{
-          backgroundImage:
-            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
+          backgroundImage: `url(${backgroundImage})`,
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",

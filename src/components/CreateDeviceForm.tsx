@@ -3,14 +3,14 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Stack from "@mui/material/Stack";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 
-import axios from "../axios";
+import axios from "../utils/axiosInstance";
+
 import { Typography } from "@mui/material";
 
 type Props = {
@@ -18,12 +18,10 @@ type Props = {
 };
 
 const CreateDeviceForm = ({ onSave }: Props) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [, setIsOpen] = useState<boolean>(false);
   const [openNewDevice, setOpenNewDevice] = useState<boolean>(false);
   const [machineId, setMachineId] = useState<string>("");
   const [errorModal, setErrorModal] = useState<string>("");
-
-  const handleOpen = () => setIsOpen(true);
 
   const handleClose = () => {
     setIsOpen(false);

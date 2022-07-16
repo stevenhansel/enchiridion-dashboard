@@ -1,59 +1,74 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux'
 
 import {
   Box,
-  Button,
   CssBaseline,
   Typography,
   CircularProgress,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
 
-import axios from '../utils/axiosInstance';
+import { AppDispatch } from '../store';
+import { setProfile, ProfileState } from '../store/profile';
+import { login } from '../store/auth';
 
-type SearchParams = {
-  token: string
-};
+import axios, { isAxiosError, ApiErrorResponse } from '../utils/axiosInstance';
+
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const VerificationCallbackPage = (props: Props) => {
+const VerificationCallbackPage = (_: Props) => {
+  const dispatch: AppDispatch = useDispatch();
+
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('test');
+  const [errorMessage, setErrorMessage] = useState('');
   
   const [searchParams] = useSearchParams();
-  console.log(searchParams.get('token'));
   
   const handleConfirmEmail = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
-      await axios.put(
+
+      const response = await axios.put<ProfileState>(
         '/v1/auth/verification',
         {
           token: searchParams.get('token'),
         }
       );
+      dispatch(setProfile({
+        id: response.data.id,
+        name: response.data.name,
+        email: response.data.email,
+        profilePicture: response.data.profilePicture,
+        role: response.data.role,
+      }));
+      dispatch(login());
+
       setIsLoading(false);
-    } catch (err) {
+    } catch (err: unknown) {
+      let message = 'Network Error';
+      if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
+        message = (err.response?.data as ApiErrorResponse).messages[0];
+      }
       setIsLoading(false);
-      setErrorMessage('error bang');
+      setErrorMessage(message);
     }
-  }, [searchParams]);
+  }, [searchParams, dispatch]);
 
   useEffect(() => {
     handleConfirmEmail();
-  }, []);
+  }, [handleConfirmEmail]);
 
   return (
     <React.Fragment>
       <CssBaseline />
       <Box
         style={{
-          backgroundImage:
-            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
+          backgroundImage: `url(${backgroundImage})`,
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",
@@ -82,9 +97,12 @@ const VerificationCallbackPage = (props: Props) => {
               minWidth: 300,
             }}
           >
-            <Box display="flex" justifyContent="center" flexDirection="row">
+            <Box display="flex" justifyContent="center" flexDirection="column">
                 <Typography>Please wait for confirmation</Typography>
-            {isLoading ? (<CircularProgress color="inherit" />) : (null)}
+                <Box display="flex" justifyContent="center">
+                {isLoading ? (<CircularProgress color="inherit" />) : (null)}
+                </Box>
+            {Boolean(errorMessage) && <Typography>{errorMessage}</Typography>}
             </Box>
           </Box>
         </div>

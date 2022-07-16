@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
 import HomeIcon from "@mui/icons-material/Home";
 import TvIcon from "@mui/icons-material/Tv";
@@ -23,14 +24,17 @@ import ResetPassword from "./pages/ResetPassword";
 import RequestsPage from "./pages/RequestsPage";
 import SendLinkVerificationPage from './pages/SendLinkVerificationPage';
 import VerificationCallbackPage from './pages/VerificationCallbackPage';
+import WaitingApprovalPage from "./pages/WaitingApprovalPage";
+import UserProfilePage from './pages/UserProfilePage';
+
+import { RootState } from './store';
 
 function App() {
-  // const isLogin = useSelector((state: RootState) => state.auth.isAuth)
-  const isLogin = false;
+  const isAuth = useSelector((state: RootState) => state.auth.isAuth)
 
   return (
     <BrowserRouter>
-      {isLogin ? (
+      {isAuth ? (
         <Layout
           navigation={[
             {
@@ -74,6 +78,8 @@ function App() {
             <Route path="/list-user" element={<ListUsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/requests" element={<RequestsPage />}/>
+            <Route path="/profile" element={<UserProfilePage />} />
+            <Route path="/waiting-approval" element={<WaitingApprovalPage />} />
           </Routes>
         </Layout>
       ) : (
