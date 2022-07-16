@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -15,12 +14,20 @@ import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import { CircularProgress } from "@mui/material";
 
-const baseUrl = 'http://enchiridion.stevenhansel.com/dashboard';
+import axios from '../utils/axiosInstance';
 
 type Role = {
   id: number;
   name: string;
 };
+
+type RegisterForm = {
+  name: string,
+  email: string,
+  password: string,
+  reason: string,
+  roleId: number | null,
+}
 
 const validationSchema = yup.object({
   name: yup
@@ -35,16 +42,33 @@ const validationSchema = yup.object({
     .string()
     .min(8, "Password should be of minimum 8 characters length")
     .required("Password is required"),
-  role: yup.string().required(),
+  roleId: yup.number().required(),
 });
 
-const Register = (props: any) => {
+const Register = () => {
   const navigate = useNavigate();
 
-  const [roles, setRoles] = useState([]);
+  const [roles, setRoles] = useState<Record<number, Role>>({});
   const [isReady, setIsReady] = useState(false);
 
-  const formik = useFormik<any>({
+  const register = useCallback(async (values: RegisterForm): Promise<void> => {
+    try {
+      await axios.post(
+        `/v1/auth/register`,
+        {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          roleId: values.roleId,
+          registrationReason: values.reason,
+        },
+      );
+    } catch (err) {
+      throw err;
+    }
+  }, []);
+
+  const formik = useFormik<RegisterForm>({
     initialValues: {
       name: "",
       email: "",
@@ -53,19 +77,19 @@ const Register = (props: any) => {
       roleId: null,
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // alert(JSON.stringify(values, null, 2));
-      navigate("/login");
+    onSubmit: async (values: RegisterForm) => {
+      await register(values);
+      navigate(`/register/${values.email}`);
     },
   });
 
   const handleChange = (e: SelectChangeEvent) => {
-    formik.setFieldValue("role", e.target.value);
+    formik.setFieldValue('roleId', parseInt(e.target.value, 10));
   };
 
   const fetchRoles = useCallback(async (): Promise<Record<number, Role>> => {
     try {
-      const { data } = await axios.get(`${baseUrl}/v1/roles`);
+      const { data } = await axios.get(`/v1/roles`);
       const roles: Record<number, Role> = data.contents.reduce((accumulator: any, current: any) => {
         accumulator[current.id] = { id: current.id, name: current.name };
         return accumulator
@@ -78,7 +102,7 @@ const Register = (props: any) => {
   }, []);
 
   useEffect(() => {
-    fetchRoles().then((roles: any) => {
+    fetchRoles().then((roles: Record<number, Role>) => {
       setRoles(roles);
       setIsReady(true);
     });
@@ -135,7 +159,7 @@ const Register = (props: any) => {
                     name="name"
                     onChange={formik.handleChange}
                     error={formik.touched.name && Boolean(formik.errors.name)}
-                    // helperText={formik.touched.name && formik.errors.name}
+                    helperText={formik.touched.name && formik.errors.name}
                     variant="standard"
                     fullWidth
                   />
@@ -149,7 +173,7 @@ const Register = (props: any) => {
                       formik.setFieldValue("email", event.target.value)
                     }
                     error={formik.touched.email && Boolean(formik.errors.email)}
-                    // helperText={formik.touched.email && formik.errors.email}
+                    helperText={formik.touched.email && formik.errors.email}
                     variant="standard"
                     fullWidth
                   />
@@ -165,7 +189,7 @@ const Register = (props: any) => {
                     error={
                       formik.touched.password && Boolean(formik.errors.password)
                     }
-                    // helperText={formik.touched.password && formik.errors.password}
+                    helperText={formik.touched.password && formik.errors.password}
                     variant="standard"
                     type="password"
                     fullWidth
@@ -181,7 +205,7 @@ const Register = (props: any) => {
                     error={
                       formik.touched.reason && Boolean(formik.errors.reason)
                     }
-                    // helperText={formik.touched.reason && formik.errors.reason}
+                    helperText={formik.touched.reason && formik.errors.reason}
                     fullWidth
                   />
                 </Box>
@@ -202,7 +226,7 @@ const Register = (props: any) => {
                         formik.touched.roleId && Boolean(formik.errors.roleId)
                       }
                     >
-                      {Object.values(roles).map((role: any) => (
+                      {Object.values(roles).map((role: Role) => (
                         <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
                       ))}
                     </Select>

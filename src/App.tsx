@@ -21,6 +21,8 @@ import ListUsersPage from './pages/ListUsersPage';
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import RequestsPage from "./pages/RequestsPage";
+import SendLinkVerificationPage from './pages/SendLinkVerificationPage';
+import VerificationCallbackPage from './pages/VerificationCallbackPage';
 
 function App() {
   // const isLogin = useSelector((state: RootState) => state.auth.isAuth)
@@ -69,7 +71,7 @@ function App() {
             <Route path="/device" element={<DevicePage />} />
             <Route path="/device/:id" element={<DeviceDetailPage />} />
             <Route path="/floor" element={<ListFloorPage />} />
-            <Route path="/list_user" element={<ListUsersPage />} />
+            <Route path="/list-user" element={<ListUsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/requests" element={<RequestsPage />}/>
           </Routes>
@@ -78,8 +80,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/forgot_password" element={<ForgotPassword />} />
-          <Route path="/reset_password" element={<ResetPassword />} />
+          <Route path="/register/:email" element={<SendLinkVerificationPage />} />
+          <Route path="/verification" element={<VerificationCallbackPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       )}
     </BrowserRouter>
