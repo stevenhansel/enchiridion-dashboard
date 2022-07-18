@@ -1,4 +1,4 @@
-import React, { useCallback,  useState } from "react";
+import React, { useCallback,  useEffect,  useState } from "react";
 import { useParams } from 'react-router-dom';
 
 import {
@@ -7,6 +7,8 @@ import {
   CssBaseline,
   Snackbar,
   IconButton,
+  CircularProgress,
+  Typography,
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -14,22 +16,30 @@ import axios, { isAxiosError, ApiErrorResponse } from '../utils/axiosInstance';
 
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
+const SEND_VERIFICATION_RETRY_DELAY_SECONDS = 20;
+
 type Props = {
   children?: React.ReactNode;
 };
 
 const SendLinkVerificationPage = (props: Props) => {
   const [errorMessage, setErrorMessage] = useState('');
-  const [isPressed, setIsPressed] = useState(false)
-  
+  const [isPressed, setIsPressed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [countdownSeconds, setCountdownSeconds] = useState(SEND_VERIFICATION_RETRY_DELAY_SECONDS);
+
   const { email } = useParams();
 
   const handleVerification = useCallback(async (): Promise<void> => {
     try {
+      setIsLoading(true);
+
       await axios.get(
         `/v1/auth/verification/${email}`,
       );
+
       setIsPressed(true);
+      setIsLoading(false);
     } catch (err) {
       let message = 'Network Error';
       if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
@@ -46,6 +56,26 @@ const SendLinkVerificationPage = (props: Props) => {
     }
     setErrorMessage('');
   };
+
+  useEffect(() => {
+    if (!isPressed) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCountdownSeconds((prevCount: number) => {
+        if (prevCount === 0) {
+          clearInterval(interval);
+          setIsPressed(false);
+          return prevCount;
+        } 
+
+        return prevCount - 1;
+    });
+
+    return () => clearInterval(interval);
+    }, 1000);
+  }, [isPressed]);
 
   const action = (
     <React.Fragment>
@@ -105,7 +135,16 @@ const SendLinkVerificationPage = (props: Props) => {
             }}
           >
             <Box display="flex" justifyContent="center" >
-              <Button onClick={handleVerification} disabled={isPressed} variant="contained">Kirim Link Verifikasi</Button>
+              {isLoading ? (
+                <CircularProgress />
+              ) : (
+                  <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+                    <Button onClick={handleVerification} disabled={isPressed} variant="contained">Kirim Link Verifikasi</Button>
+                    {isPressed ? (
+                      <Typography>{new Date(countdownSeconds * 1000).toISOString().substring(14, 19)}</Typography>
+                    ) : null}
+                  </Box>
+              )}
             </Box>
           </Box>
         </div>
