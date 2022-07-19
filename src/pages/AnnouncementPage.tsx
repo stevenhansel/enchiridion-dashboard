@@ -8,46 +8,63 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
 import { CircularProgress } from "@mui/material";
-import Typography from "@mui/material/Typography";
 
-import { useSelector } from "react-redux";
-import { RootState } from '../store';
-import axios from '../utils/axiosInstance';
+import axios from "../utils/axiosInstance";
 
 type Props = {
   children?: React.ReactNode;
 };
 
-type Announcement = {
+type Status = {
+  value: string;
+  label: string;
+};
+
+type Author = {
+  id: number;
+  name: string;
+};
+
+type Content = {
   id: number;
   title: string;
+  startDate: string;
+  endDate: string;
+  statuses: Status[];
+  authors: Author[];
   media: string;
-  status: string;
+  createdAt: string;
+};
+
+type AnnouncementPage = {
+  count: number;
+  pages: number;
+  hasNext: boolean;
+  contents: Content[];
+  title: string;
+  media: string;
 };
 
 const AnnouncementPage = (props: Props) => {
-  const userStateData = useSelector((state: RootState) => state.profile?.userStatus);
-
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [announcements, setAnnouncements] = useState<Content[]>([]);
   const [error, setError] = useState("");
-
 
   const fetchAnnouncements = async () => {
     try {
-      if (!isLoading) setIsLoading(true);
-
-      const response = await axios.get("/v1/announcements");
-      const announcements: Announcement[] = response.data.contents.map(
-        (data: any) => ({
-          id: data.id,
-          title: data.title,
-          media: data.media,
-          status: data.status,
-        })
-      );
+      setIsLoading(true);
+      const response = await axios.get<AnnouncementPage>("/v1/announcements");
+      const announcements: Content[] = response.data.contents.map((data: any) => ({
+        id: data.id,
+        title: data.title,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        statuses: data.statuses,
+        authors: data.authors,
+        createdAt: data.createdAt,
+        media: data.media,
+      }));
       setAnnouncements(announcements);
       setIsLoading(false);
     } catch (err: any) {
@@ -63,16 +80,10 @@ const AnnouncementPage = (props: Props) => {
     } catch (err) {}
   };
 
-  const handleSaveAnnouncement = async () => {
-    await fetchAnnouncements();
-  };
-
-
   useEffect(() => {
     fetchAnnouncements();
+    console.log(announcements);
   }, []);
-
-
 
   return (
     <Box>
@@ -84,20 +95,7 @@ const AnnouncementPage = (props: Props) => {
           width: "100%",
         }}
       >
-        {isLoading && <CircularProgress />}
-        {error && (
-          <Box>
-            <Typography
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              variant="h6"
-            >
-              {error + "!"}
-            </Typography>
-          </Box>
-        )}
-        {!isLoading && error === "" && (
+        {isLoading ? (
           <>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -105,9 +103,12 @@ const AnnouncementPage = (props: Props) => {
                   <TableRow>
                     <TableCell>ID</TableCell>
                     <TableCell align="right">Title</TableCell>
-                    <TableCell align="right">Media</TableCell>
+                    <TableCell align="right">Start Date</TableCell>
+                    <TableCell align="right">End Date</TableCell>
                     <TableCell align="right">Status</TableCell>
-                    <TableCell />
+                    <TableCell align="right">Author</TableCell>
+                    <TableCell align="right">Created At</TableCell>
+                    <TableCell align="right">Media</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -120,35 +121,31 @@ const AnnouncementPage = (props: Props) => {
                         {row.id}
                       </TableCell>
                       <TableCell align="right">{row.title}</TableCell>
+                      <TableCell align="right">{row.startDate}</TableCell>
+                      <TableCell align="right">{row.endDate}</TableCell>
+                      {row.statuses.map((status) => (
+                        <TableRow
+                          key={status.value}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell align="right">{status.label}</TableCell>
+                        </TableRow>
+                      ))}
+                      {row.authors.map((author) => (
+                        <TableRow
+                          key={author.id}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell align="right">{author.name}</TableCell>
+                        </TableRow>
+                      ))}
+                      <TableCell>{row.createdAt}</TableCell>
                       <TableCell align="right">
                         <img src={row.media} alt={row.title} />
-                      </TableCell>
-                      <TableCell align="right">{row.status}</TableCell>
-                      <TableCell style={{ width: "200px" }}>
-                        {row.status === "waiting_for_approval" ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: "16px",
-                            }}
-                          >
-                            <Button
-                              onClick={() => updateApprovalStatus(row.id, true)}
-                            >
-                              Approve
-                            </Button>
-                            <Button
-                              onClick={() =>
-                                updateApprovalStatus(row.id, false)
-                              }
-                            >
-                              Reject
-                            </Button>
-                          </div>
-                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -156,7 +153,7 @@ const AnnouncementPage = (props: Props) => {
               </Table>
             </TableContainer>
           </>
-        )}
+        ) : (<CircularProgress />)}
       </Box>
     </Box>
   );

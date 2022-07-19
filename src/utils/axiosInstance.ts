@@ -21,16 +21,16 @@ instance.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
-    console.log('interceptor masuk', error)
+    // console.log('interceptor masuk', error)
     // access token expired
     if (error.response.status === 401) {
-      console.log('test masuk error');
+      // console.log('test masuk error');
 
       return instance
         .put('/v1/auth/refresh')
         .then((res) => {
           if (res.status === 200) {
-            console.log('test then promise');
+            // console.log('test then promise');
             return axios(originalRequest);
           }
         })
@@ -38,7 +38,7 @@ instance.interceptors.response.use(
           // refresh token expired
           if (refreshTokenErr.response.status === 401) {
             // logout
-            console.log('test catch promise');
+            // console.log('test catch promise');
             store.dispatch(logout());
             return Promise.reject(refreshTokenErr);
           }

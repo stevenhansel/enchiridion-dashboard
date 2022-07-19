@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
+import React, { useCallback, useState } from "react";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button, 
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  Stack,
+  CircularProgress,
+  IconButton,
+  Tooltip,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Typography,
+  Select
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { CircularProgress } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import ListFloorForm from "../components/ListFloorForm";
-import { StringMappingType } from "typescript";
+import axios from "../utils/axiosInstance";
 
 type Building = {
   id: number;
@@ -35,8 +37,9 @@ type Building = {
 };
 
 type Campuses = {
+  value: string;
   campusName: string;
-}
+};
 
 type Props = {
   children?: React.ReactNode;
@@ -65,29 +68,34 @@ const floorMock: Building[] = [
 
 const campusesMock: Campuses[] = [
   {
+    value: "syahdan",
     campusName: "Syahdan",
   },
   {
+    value: "alam sutera",
     campusName: "Alam Sutera",
   },
   {
+    value: "anggrek",
     campusName: "Anggrek",
   },
   {
+    value: "bandung",
     campusName: "Bandung",
   },
   {
+    value: "malang",
     campusName: "Malang",
   },
   {
+    value: "medan",
     campusName: "Medan",
-  }, 
+  },
   {
-    campusName: "All Campuses"
-  }
-]
-
-const baseUrl = "https://enchridion-api.stevenhansel.com/dashboard/v1";
+    value: "all campuses",
+    campusName: "All Campuses",
+  },
+];
 
 const ListFloorPage = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -103,7 +111,18 @@ const ListFloorPage = (props: Props) => {
 
   const [foundUsers, setFoundUsers] = useState(floors);
 
-  const [selectedCampus, setIsSelectedCampus] = useState('');
+  const [selectedCampus, setIsSelectedCampus] = useState("");
+
+
+  const handleListFloor = useCallback(async(): Promise<void> => {
+    try {
+      await axios.get('/v1/floors')
+    } catch {
+
+    }
+  }, []);
+
+
 
   const filterUsers = (e: any) => {
     const keyword = e.target.value;
@@ -213,12 +232,11 @@ const ListFloorPage = (props: Props) => {
                 id="search"
                 label="Search by floorname or ID"
                 variant="outlined"
-                // sx={{ marginBottom: 2 }}
                 onChange={filterUsers}
                 sx={{ width: 220 }}
               />
             </Box>
-            <Box sx={{marginLeft: 1}}>
+            <Box sx={{ marginLeft: 1 }}>
               <FormControl sx={{ width: 220 }}>
                 <InputLabel id="demo-simple-select-label">Building</InputLabel>
                 <Select
@@ -229,7 +247,9 @@ const ListFloorPage = (props: Props) => {
                   value={selectedCampus}
                 >
                   {campusesMock.map((campus) => (
-                    <MenuItem value={campus.campusName}>{campus.campusName}</MenuItem>
+                    <MenuItem key={campus.value} value={campus.campusName}>
+                      {campus.campusName}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -274,9 +294,9 @@ const ListFloorPage = (props: Props) => {
                         align="justify"
                         style={{ display: "flex", flexDirection: "row" }}
                       >
-                        {row.devices.map((device) => (
+                        {row.devices.map((device, index) => (
                           <TableRow
-                            key={device}
+                            key={index}
                             style={{
                               display: "flex",
                               justifyContent: "flex-start",
@@ -307,7 +327,7 @@ const ListFloorPage = (props: Props) => {
               </Table>
             </TableContainer>
           ) : (
-            <Typography sx={{marginTop: 2}}>Not found!</Typography>
+            <Typography sx={{ marginTop: 2 }}>Not found!</Typography>
           )}
         </Box>
       )}

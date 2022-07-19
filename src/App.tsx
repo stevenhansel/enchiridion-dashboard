@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useSelector } from 'react-redux';
 
@@ -13,6 +13,7 @@ import Layout from "./components/Layout";
 import AnnouncementPage from "./pages/AnnouncementPage";
 import DevicePage from "./pages/DevicePage";
 import ListFloorPage from "./pages/ListFloorPage";
+import ListFloorPageAPI from "./pages/ListFloorPageAPI";
 import DeviceDetailPage from "./pages/DeviceDetailPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -36,16 +37,16 @@ function App() {
 
   const userStateData = useSelector((state: RootState) => state.profile?.userStatus);
   
-  const handleMe = async () => {
+  const handleMe = useCallback(async () => {
     try{
       await axios.get('/v1/me');
     } catch {
 
     }
-  }
+  }, []);
 
   useEffect(() => {
-    handleMe();
+    // handleMe();
   }, []);
 
 
@@ -76,7 +77,7 @@ function App() {
             },
             {
               text: "List User",
-              path: "list_user",
+              path: "list-user",
               icon: <AccountBoxIcon />,
             },
             {
@@ -96,7 +97,7 @@ function App() {
             <Route path="/announcement/create" element={<CreateAnnouncementPage />} />
             <Route path="/device" element={<DevicePage />} />
             <Route path="/device/:id" element={<DeviceDetailPage />} />
-            <Route path="/floor" element={<ListFloorPage />} />
+            <Route path="/floor" element={<ListFloorPageAPI />} />
             <Route path="/list-user" element={<ListUsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/requests" element={<RequestsPage />}/>

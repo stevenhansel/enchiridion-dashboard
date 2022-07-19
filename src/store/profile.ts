@@ -32,9 +32,10 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState: initialState as ProfileState | null,
   reducers: {
-    setProfile(_: ProfileState | null, action: PayloadAction<ProfileState>) {
+    setProfile(state: ProfileState | null, action: PayloadAction<ProfileState>) {
       console.log('payload', action.payload);
-      return {
+      return { 
+        ...state,
         id: action.payload.id,
         name: action.payload.name,
         email: action.payload.email,
