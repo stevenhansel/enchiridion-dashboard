@@ -1,5 +1,5 @@
-import React, { useCallback,  useEffect,  useState } from "react";
-import { useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import {
   Box,
@@ -10,11 +10,11 @@ import {
   CircularProgress,
   Typography,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
-import axios, { isAxiosError, ApiErrorResponse } from '../utils/axiosInstance';
+import axios, { isAxiosError, ApiErrorResponse } from "../utils/axiosInstance";
 
-import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
 const SEND_VERIFICATION_RETRY_DELAY_SECONDS = 20;
 
@@ -23,10 +23,12 @@ type Props = {
 };
 
 const SendLinkVerificationPage = (props: Props) => {
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [isPressed, setIsPressed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [countdownSeconds, setCountdownSeconds] = useState(SEND_VERIFICATION_RETRY_DELAY_SECONDS);
+  const [countdownSeconds, setCountdownSeconds] = useState(
+    SEND_VERIFICATION_RETRY_DELAY_SECONDS
+  );
 
   const { email } = useParams();
 
@@ -34,46 +36,47 @@ const SendLinkVerificationPage = (props: Props) => {
     try {
       setIsLoading(true);
 
-      await axios.get(
-        `/v1/auth/verification/${email}`,
-      );
+      await axios.get(`/v1/auth/verification/${email}`);
 
       setIsPressed(true);
       setIsLoading(false);
     } catch (err) {
-      let message = 'Network Error';
-      if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
+      let message = "Network Error";
+      if (
+        isAxiosError(err) &&
+        "messages" in (err.response?.data as ApiErrorResponse)
+      ) {
         message = (err.response?.data as ApiErrorResponse).messages[0];
       }
       setErrorMessage(message);
     }
-    
   }, [email]);
 
-  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
       return;
     }
-    setErrorMessage('');
+    setErrorMessage("");
   };
 
   useEffect(() => {
     if (!isPressed) {
       return;
     }
-
     const interval = setInterval(() => {
       setCountdownSeconds((prevCount: number) => {
         if (prevCount === 0) {
           clearInterval(interval);
           setIsPressed(false);
           return prevCount;
-        } 
-
+        }
         return prevCount - 1;
-    });
+      });
 
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
     }, 1000);
   }, [isPressed]);
 
@@ -121,7 +124,7 @@ const SendLinkVerificationPage = (props: Props) => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage('')}
+            onClose={() => setErrorMessage("")}
             message={errorMessage}
             action={action}
           />
@@ -134,16 +137,31 @@ const SendLinkVerificationPage = (props: Props) => {
               minWidth: 300,
             }}
           >
-            <Box display="flex" justifyContent="center" >
+            <Box display="flex" justifyContent="center">
               {isLoading ? (
                 <CircularProgress />
               ) : (
-                  <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-                    <Button onClick={handleVerification} disabled={isPressed} variant="contained">Kirim Link Verifikasi</Button>
-                    {isPressed ? (
-                      <Typography>{new Date(countdownSeconds * 1000).toISOString().substring(14, 19)}</Typography>
-                    ) : null}
-                  </Box>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Button
+                    onClick={handleVerification}
+                    disabled={isPressed}
+                    variant="contained"
+                  >
+                    Kirim Link Verifikasi
+                  </Button>
+                  {isPressed ? (
+                    <Typography>
+                      {new Date(countdownSeconds * 1000)
+                        .toISOString()
+                        .substring(14, 19)}
+                    </Typography>
+                  ) : null}
+                </Box>
               )}
             </Box>
           </Box>

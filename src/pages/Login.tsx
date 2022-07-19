@@ -1,38 +1,89 @@
-import * as React from "react";
+import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
+import {
+  Box,
+  Snackbar,
+  CircularProgress,
+  Button,
+  Typography,
+  CssBaseline,
+  TextField,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 import { AppDispatch } from "../store";
 import { login } from "../store/auth";
+import { setProfile, ProfileState } from "../store/profile";
+import axios, { isAxiosError, ApiErrorResponse } from "../utils/axiosInstance";
 
-import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import { RootState } from '../store'
 
 type Props = {
   children?: React.ReactNode;
 };
 
+type LoginUser = {
+  email: string;
+  password: string;
+};
+
+const validationSchema = yup.object({
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: yup
+    .string()
+    .min(8, "Password should be of minimum 8 characters length")
+    .required("Password is required"),
+});
+
 const Login = (props: Props) => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
+  const userStatusData = useSelector((state: RootState) => state.profile?.userStatus);
 
-  const validationSchema = yup.object({
-    email: yup
-      .string()
-      .email("Enter a valid email")
-      .required("Email is required"),
-    password: yup
-      .string()
-      .min(8, "Password should be of minimum 8 characters length")
-      .required("Password is required"),
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  console.log(userStatusData);
+
+  const handleLogin = useCallback(async (values: LoginUser): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post<ProfileState>("/v1/auth/login", {
+        email: values.email,
+        password: values.password,
+      });
+      dispatch(
+        setProfile({
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          profilePicture: response.data.profilePicture,
+          role: response.data.role,
+          userStatus: response.data.userStatus,
+        })
+      );
+      setIsLoading(false);
+      dispatch(login());
+    } catch (err: unknown) {
+      let message = "Network Error";
+      if (
+        isAxiosError(err) &&
+        "messages" in (err.response?.data as ApiErrorResponse)
+      ) {
+        message = (err.response?.data as ApiErrorResponse).messages[0];
+      }
+      setIsLoading(false);
+      setErrorMessage(message);
+    }
+  }, [dispatch]);
 
   const formik = useFormik({
     initialValues: {
@@ -41,10 +92,16 @@ const Login = (props: Props) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      dispatch(login());
-      navigate('/announcement');
+      handleLogin(values);
     },
   });
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setErrorMessage('');
+  };
 
   return (
     <React.Fragment>
@@ -93,7 +150,9 @@ const Login = (props: Props) => {
                 <TextField
                   id="email"
                   name="email"
-                  onChange={(event) => formik.setFieldValue("email", event.target.value)}
+                  onChange={(event) =>
+                    formik.setFieldValue("email", event.target.value)
+                  }
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                   variant="standard"
@@ -105,7 +164,9 @@ const Login = (props: Props) => {
                 <TextField
                   id="password"
                   name="password"
-                  onChange={(event) => formik.setFieldValue("password", event.target.value)}
+                  onChange={(event) =>
+                    formik.setFieldValue("password", event.target.value)
+                  }
                   error={
                     formik.touched.password && Boolean(formik.errors.password)
                   }
@@ -123,18 +184,20 @@ const Login = (props: Props) => {
               >
                 <Button
                   variant="contained"
+                  disabled={isLoading}
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
+                  endIcon={isLoading && <CircularProgress />}
                 >
                   Masuk
                 </Button>
-                <Box display="flex" flexDirection="row">
+                <Box display="flex" flexDirection="row" sx={{ marginRight: 0.5, marginTop: 1 }}>
                   <Typography sx={{ marginRight: 0.5 }}>
                     Belum punya akun?
                   </Typography>
                   <Link to="/register">Daftar</Link>
                 </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginTop: 1}}>
+                <Box display="flex" flexDirection="row" sx={{ marginTop: 1 }}>
                   <Typography sx={{ marginRight: 0.5 }}>
                     Forgot Password?
                   </Typography>
@@ -142,6 +205,22 @@ const Login = (props: Props) => {
                 </Box>
               </Box>
             </Box>
+            <Snackbar
+              open={Boolean(errorMessage)}
+              autoHideDuration={6000}
+              onClose={() => setErrorMessage("")}
+              message={errorMessage}
+              action={
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              }
+            />
           </form>
         </div>
       </Box>

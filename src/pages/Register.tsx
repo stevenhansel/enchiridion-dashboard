@@ -75,6 +75,7 @@ const Register = () => {
         },
       );
       setIsLoading(false);
+      navigate(`/register/${values.email}`);
     } catch (err: unknown) {
       let message = 'Network Error';
       if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
@@ -94,11 +95,8 @@ const Register = () => {
       roleId: null,
     },
     validationSchema: validationSchema,
-    onSubmit: async (values: RegisterForm) => {
-      handleRegister(values).then(() => {
-
-        navigate(`/register/${values.email}`);
-      });
+    onSubmit: (values: RegisterForm) => {
+      handleRegister(values);
     },
   });
 

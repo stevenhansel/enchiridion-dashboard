@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -13,6 +12,10 @@ import Button from "@mui/material/Button";
 import { CircularProgress } from "@mui/material";
 import Typography from "@mui/material/Typography";
 
+import { useSelector } from "react-redux";
+import { RootState } from '../store';
+import axios from '../utils/axiosInstance';
+
 type Props = {
   children?: React.ReactNode;
 };
@@ -24,22 +27,19 @@ type Announcement = {
   status: string;
 };
 
-const baseUrl = "https://enchridion-api.stevenhansel.com/dashboard/v1";
-
 const AnnouncementPage = (props: Props) => {
+  const userStateData = useSelector((state: RootState) => state.profile?.userStatus);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
 
   const fetchAnnouncements = async () => {
     try {
       if (!isLoading) setIsLoading(true);
 
-      const response = await axios.get(baseUrl + "/announcements");
+      const response = await axios.get("/v1/announcements");
       const announcements: Announcement[] = response.data.contents.map(
         (data: any) => ({
           id: data.id,
@@ -52,14 +52,13 @@ const AnnouncementPage = (props: Props) => {
       setIsLoading(false);
     } catch (err: any) {
       setError(err.response.data.message);
-      console.log(err.response.data.message);
       setIsLoading(false);
     }
   };
 
   const updateApprovalStatus = async (id: number, approve: boolean) => {
     try {
-      await axios.put(baseUrl + `/announcements/${id}/approval`, { approve });
+      await axios.put(`/v1/announcements/${id}/approval`, { approve });
       fetchAnnouncements();
     } catch (err) {}
   };
@@ -67,6 +66,13 @@ const AnnouncementPage = (props: Props) => {
   const handleSaveAnnouncement = async () => {
     await fetchAnnouncements();
   };
+
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+
 
   return (
     <Box>

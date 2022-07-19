@@ -4,22 +4,22 @@ import {
   Box,
   CssBaseline,
   Typography,
+  CircularProgress
 } from "@mui/material";
+
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Props = {
   children?: React.ReactNode;
 };
 
 const WaitingApprovalPage = (props: Props) => {
-
-
   return (
     <React.Fragment>
       <CssBaseline />
       <Box
         style={{
-          backgroundImage:
-            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
+          backgroundImage: `url(${backgroundImage})`,
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",
@@ -48,8 +48,9 @@ const WaitingApprovalPage = (props: Props) => {
               minWidth: 300,
             }}
           >
-            <Box display="flex" justifyContent="center" flexDirection="row">
-                <Typography>Waiting for Approval</Typography>
+            <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                <Typography>Still Waiting for Approval</Typography>
+                <CircularProgress color="inherit" sx={{marginTop: 1}}/>
             </Box>
           </Box>
         </div>

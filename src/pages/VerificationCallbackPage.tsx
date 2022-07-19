@@ -45,9 +45,9 @@ const VerificationCallbackPage = (_: Props) => {
         email: response.data.email,
         profilePicture: response.data.profilePicture,
         role: response.data.role,
+        userStatus: response.data.userStatus,
       }));
       dispatch(login());
-
       setIsLoading(false);
     } catch (err: unknown) {
       let message = 'Network Error';

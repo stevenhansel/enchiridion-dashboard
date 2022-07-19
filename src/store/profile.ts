@@ -11,12 +11,19 @@ export interface Role {
     permissions: Permissions[];
 }
 
+export enum UserStatus {
+  waiting_for_approval = "WaitingForApproval",
+  approved = "approved",
+  rejected = "rejected",
+}
+
 export interface ProfileState {
   id: number;
   name: string;
   email: string;
   profilePicture: string | null;
   role: Role; 
+  userStatus: UserStatus;
 }
 
 const initialState = null;
@@ -33,6 +40,7 @@ const profileSlice = createSlice({
         email: action.payload.email,
         profilePicture: action.payload.profilePicture,
         role: action.payload.role,
+        userStatus: action.payload.userStatus
       };
     },
     resetProfile() {
