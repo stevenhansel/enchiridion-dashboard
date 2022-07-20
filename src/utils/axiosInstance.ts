@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-import store from '../store';
-
-import { logout } from '../store/auth'
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 export type ApiErrorResponse = {
   code: string;
@@ -21,16 +17,14 @@ instance.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
-    // console.log('interceptor masuk', error)
+
     // access token expired
     if (error.response.status === 401) {
-      // console.log('test masuk error');
 
       return instance
         .put('/v1/auth/refresh')
         .then((res) => {
           if (res.status === 200) {
-            // console.log('test then promise');
             return axios(originalRequest);
           }
         })
@@ -39,7 +33,6 @@ instance.interceptors.response.use(
           if (refreshTokenErr.response.status === 401) {
             // logout
             // console.log('test catch promise');
-            store.dispatch(logout());
             return Promise.reject(refreshTokenErr);
           }
         });
@@ -48,8 +41,27 @@ instance.interceptors.response.use(
   },
 );
 
-const isAxiosError = axios.isAxiosError;
+const makeBaseQuery = () => (
+  async ({ url, method, data, headers = {} }: AxiosRequestConfig) => {
+    try {
+      const result = await instance({
+        url,
+        method,
+        data,
+        headers,
+      });
 
-export { isAxiosError };
+      return { data: result.data };
+    } catch (axiosError: unknown) {
+      const err = axiosError as AxiosError;
+      return {
+        error: {
+          status: err.response?.status,
+          data: err.response?.data,
+        },
+      };
+    }
+  }
+);
 
-export default instance;
+export default makeBaseQuery;

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   Box, 
@@ -20,7 +21,12 @@ import {
 import { SelectChangeEvent } from "@mui/material/Select";
 import CloseIcon from '@mui/icons-material/Close';
 
-import axios, { isAxiosError, ApiErrorResponse } from '../utils/axiosInstance';
+import { AppDispatch, RootState } from "../store";
+import { setRoles } from "../store/roles";
+
+import { ApiErrorResponse } from "../services";
+import { authApi } from "../services/auth";
+import { rolesApi } from "../services/roles";
 
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
@@ -54,37 +60,36 @@ const validationSchema = yup.object({
 });
 
 const Register = () => {
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [roles, setRoles] = useState<Record<number, Role>>({});
+  const rolesState = useSelector((state: RootState) => state.roles);
+
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleRegister = useCallback(async (values: RegisterForm): Promise<void> => {
-    try {
-      setIsLoading(true);
-      await axios.post(
-        `/v1/auth/register`,
-        {
-          name: values.name,
-          email: values.email,
-          password: values.password,
-          roleId: values.roleId,
-          registrationReason: values.reason,
-        },
-      );
-      setIsLoading(false);
+    setIsLoading(true);
+
+    const response = await dispatch(
+      authApi.endpoints.register.initiate({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        roleId: values.roleId,
+        registrationReason: values.reason,
+      }),
+    );
+
+    if ('data' in response) {
       navigate(`/register/${values.email}`);
-    } catch (err: unknown) {
-      let message = 'Network Error';
-      if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
-        message = (err.response?.data as ApiErrorResponse).messages[0];
-      }
-      setErrorMessage(message);
-      setIsLoading(false);
+    } else {
+      setErrorMessage('data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
     }
-  }, []);
+
+    setIsLoading(false);
+  }, [dispatch, navigate]);
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -95,28 +100,32 @@ const Register = () => {
       roleId: null,
     },
     validationSchema: validationSchema,
-    onSubmit: (values: RegisterForm) => {
-      handleRegister(values);
-    },
+    onSubmit: handleRegister,
   });
 
   const handleChange = (e: SelectChangeEvent) => {
     formik.setFieldValue('roleId', parseInt(e.target.value, 10));
   };
 
-  const fetchRoles = useCallback(async (): Promise<Record<number, Role>> => {
-    try {
-      const { data } = await axios.get(`/v1/roles`);
-      const roles: Record<number, Role> = data.contents.reduce((accumulator: any, current: any) => {
+  const fetchRoles = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
+
+    const response = await dispatch(rolesApi.endpoints.getRoles.initiate(''));
+
+    if ('data' in response) {
+      const roles: Record<number, Role> = response.data.contents.reduce((accumulator: any, current: any) => {
         accumulator[current.id] = { id: current.id, name: current.name };
         return accumulator
       }, {});
 
-      return roles;
-    } catch (err) {
-      throw err;
-    }
-  }, []);
+      setRoles(roles);
+    } else {
+      setErrorMessage(response.error && 'data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
+    } 
+
+    setIsReady(true);
+    setIsLoading(false);
+  }, [dispatch]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -126,13 +135,7 @@ const Register = () => {
   };
 
   useEffect(() => {
-    fetchRoles().then((roles: Record<number, Role>) => {
-      setRoles(roles);
-      setIsReady(true);
-    }).catch(() => {
-      setErrorMessage('Maintenance');
-      setIsReady(true);
-    });
+    fetchRoles();
   }, [fetchRoles]);
 
   return (
@@ -160,7 +163,7 @@ const Register = () => {
             right: "50%",
           }}
         >
-          {isReady && Object.keys(roles).length > 0 ? (
+          {isReady && rolesState && Object.keys(rolesState).length > 0 ? (
             <form onSubmit={formik.handleSubmit}>
               <Box
                 sx={{
@@ -252,7 +255,7 @@ const Register = () => {
                         formik.touched.roleId && Boolean(formik.errors.roleId)
                       }
                     >
-                      {Object.values(roles).map((role: Role) => (
+                      {rolesState && Object.values(rolesState).map((role: Role) => (
                         <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
                       ))}
                     </Select>

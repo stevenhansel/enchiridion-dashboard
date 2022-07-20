@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { useNavigate, Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import {
   Box,
@@ -18,17 +18,18 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import { AppDispatch } from "../store";
 import { login } from "../store/auth";
-import { setProfile, ProfileState } from "../store/profile";
-import axios, { isAxiosError, ApiErrorResponse } from "../utils/axiosInstance";
+import { setProfile } from "../store/profile";
+
+import { ApiErrorResponse } from "../services";
+import { authApi } from "../services/auth";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
-import { RootState } from '../store'
 
 type Props = {
   children?: React.ReactNode;
 };
 
-type LoginUser = {
+type LoginForm = {
   email: string;
   password: string;
 };
@@ -46,20 +47,21 @@ const validationSchema = yup.object({
 
 const Login = (props: Props) => {
   const dispatch: AppDispatch = useDispatch();
-  const navigate = useNavigate();
-  const userStatusData = useSelector((state: RootState) => state.profile?.userStatus);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  console.log(userStatusData);
 
-  const handleLogin = useCallback(async (values: LoginUser): Promise<void> => {
-    try {
-      setIsLoading(true);
-      const response = await axios.post<ProfileState>("/v1/auth/login", {
+  const handleLogin = useCallback(async (values: LoginForm): Promise<void> => {
+    setIsLoading(true);
+
+    const response = await dispatch(
+      authApi.endpoints.login.initiate({
         email: values.email,
         password: values.password,
-      });
+      }),
+    );
+
+    if ('data' in response) {
       dispatch(
         setProfile({
           id: response.data.id,
@@ -70,19 +72,13 @@ const Login = (props: Props) => {
           userStatus: response.data.userStatus,
         })
       );
-      setIsLoading(false);
+
       dispatch(login());
-    } catch (err: unknown) {
-      let message = "Network Error";
-      if (
-        isAxiosError(err) &&
-        "messages" in (err.response?.data as ApiErrorResponse)
-      ) {
-        message = (err.response?.data as ApiErrorResponse).messages[0];
-      }
-      setIsLoading(false);
-      setErrorMessage(message);
+    } else {
+      setErrorMessage('data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
     }
+
+    setIsLoading(false);
   }, [dispatch]);
 
   const formik = useFormik({
@@ -91,9 +87,7 @@ const Login = (props: Props) => {
       password: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      handleLogin(values);
-    },
+    onSubmit: handleLogin,
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
