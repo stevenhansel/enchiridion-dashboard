@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button, 
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -20,20 +20,43 @@ import {
   InputLabel,
   MenuItem,
   FormControl,
-  Typography,
-  Select
+  Select,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useDispatch } from "react-redux";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 import ListFloorForm from "../components/ListFloorForm";
-import axios from "../utils/axiosInstance";
+import { floorApi } from "../services/floor";
+import { AppDispatch, RootState } from "../store";
 
 type Building = {
   id: number;
-  floorName: string;
-  buildingName: string;
-  devices: string[];
+  name: string;
+  color: string;
+};
+
+type Device = {
+  id: number;
+  name: string;
+  description: string;
+  totalAnnouncements: number;
+};
+
+type Floor = {
+  id: number;
+  name: string;
+  buildings: Building[];
+  devices: Device[];
+};
+
+type FloorPage = {
+  hasNext: boolean;
+  count: number;
+  pages: number;
+  contents: Floor[];
 };
 
 type Campuses = {
@@ -41,30 +64,14 @@ type Campuses = {
   campusName: string;
 };
 
+type CreateFloor = {
+  name: string;
+  buildingId: number | null;
+};
+
 type Props = {
   children?: React.ReactNode;
 };
-
-const floorMock: Building[] = [
-  {
-    id: 1,
-    floorName: "Lantai SK",
-    buildingName: "Syahdan",
-    devices: ["Device 1", "Device 2", "Device 3", "Device 4"],
-  },
-  {
-    id: 2,
-    floorName: "Lantai CS",
-    buildingName: "Anggrek",
-    devices: ["Device 1", "Device 2", "Device 3", "Device 4", "Device 5"],
-  },
-  {
-    id: 3,
-    floorName: "Lantai SI",
-    buildingName: "Syahdan",
-    devices: ["Device 1", "Device 2", "Device 3"],
-  },
-];
 
 const campusesMock: Campuses[] = [
   {
@@ -97,9 +104,20 @@ const campusesMock: Campuses[] = [
   },
 ];
 
+const validationSchema = yup.object({
+  name: yup
+    .string()
+    .min(4, "Name should be of minimum 4 characters length")
+    .required("Name is required"),
+  buildingId: yup
+    .number()
+    .required("Building is required"),
+});
+
 const ListFloorPage = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [floors, setFloor] = useState<Building[]>(floorMock);
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [error, setError] = useState(false);
 
   const [open, setOpen] = useState(false);
   const handleOpenNewFloor = () => setOpen(true);
@@ -113,62 +131,101 @@ const ListFloorPage = (props: Props) => {
 
   const [selectedCampus, setIsSelectedCampus] = useState("");
 
+  const dispatch: AppDispatch = useDispatch();
 
-  const handleListFloor = useCallback(async(): Promise<void> => {
-    try {
-      await axios.get('/v1/floors')
-    } catch {
+  const handleListFloor = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
 
-    }
+    const response = await dispatch(floorApi.endpoints.getFloors.initiate(""));
+
+    const getData: Floor[] = response.data.contents.map((data: any) => ({
+      id: data.id,
+      name: data.name,
+      buildings: data.buildings,
+      devices: data.devices,
+    }));
+    setFloors(getData);
   }, []);
 
+  const handleCreateFloor = useCallback(
+    async (values: CreateFloor): Promise<void> => {
+      await dispatch(
+        floorApi.endpoints.createFloor.initiate({
+          name: values.name,
+          buildingId: values.buildingId,
+        })
+      );
+    },
+    []
+  );
 
+  const formik = useFormik<CreateFloor>({
+    initialValues: {
+      name: "",
+      buildingId: null,
+    },
+    validationSchema: validationSchema,
+    onSubmit: handleCreateFloor,
+  });
 
-  const filterUsers = (e: any) => {
-    const keyword = e.target.value;
+  useEffect(() => {
+    handleListFloor();
+    console.log(floors);
+  }, []);
 
-    if (keyword !== "") {
-      const result = floors.filter((floor) => {
-        return (
-          floor.floorName.toLowerCase().startsWith(keyword.toLowerCase()) ||
-          floor.id.toString().startsWith(keyword.toLowerCase())
-        );
-      });
-      setFoundUsers(result);
-    } else {
-      setFoundUsers(floors);
-    }
-  };
+  //   const filterUsers = (e: any) => {
+  //     const keyword = e.target.value;
 
-  const filterBuilding = (selectByUser: any): any => {
-    const filtered = floors.filter(
-      (floor) => floor.buildingName === selectByUser
-    );
-    return filtered;
-  };
+  //     if (keyword !== "") {
+  //       const result = floors.filter((floor) => {
+  //         return (
+  //           floor.floorName.toLowerCase().startsWith(keyword.toLowerCase()) ||
+  //           floor.id.toString().startsWith(keyword.toLowerCase())
+  //         );
+  //       });
+  //       setFoundUsers(result);
+  //     } else {
+  //       setFoundUsers(floors);
+  //     }
+  //   };
 
-  const handleFilterBuilding = (e: any) => {
-    const selected = e.target.value;
+  //   const filterBuilding = (selectByUser: any): any => {
+  //     const filtered = floors.filter(
+  //       (floor) => floor.buildingName === selectByUser
+  //     );
+  //     return filtered;
+  //   };
 
-    if (selected !== "All Campuses") {
-      setFoundUsers(filterBuilding(selected));
-    } else {
-      setFoundUsers(floors);
-    }
-    setIsSelectedCampus(selected);
-  };
+  //   const handleFilterBuilding = (e: any) => {
+  //     const selected = e.target.value;
+
+  //     if (selected !== "All Campuses") {
+  //       setFoundUsers(filterBuilding(selected));
+  //     } else {
+  //       setFoundUsers(floors);
+  //     }
+  //     setIsSelectedCampus(selected);
+  //   };
 
   return (
     <Box>
       <ListFloorForm />
-      <div>
+      <form onSubmit={formik.handleSubmit}>
         <Dialog open={open} onClose={handleCloseNewFloor}>
           <DialogTitle>Create Floor</DialogTitle>
           <DialogContent>
             <TextField
               margin="dense"
               id="name"
-              label="Floor Name"
+              label="Name"
+              fullWidth
+              variant="standard"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              margin="dense"
+              id="building"
+              label="Building"
               fullWidth
               variant="standard"
               sx={{ marginBottom: 2 }}
@@ -177,7 +234,6 @@ const ListFloorPage = (props: Props) => {
               <Button
                 variant="contained"
                 component="label"
-                onClick={handleCloseNewFloor}
               >
                 OK
               </Button>
@@ -191,7 +247,7 @@ const ListFloorPage = (props: Props) => {
             </Stack>
           </DialogContent>
         </Dialog>
-      </div>
+      </form>
       <div>
         <Dialog open={editFloor} onClose={handleCloseEditFloor}>
           <DialogTitle>Update Floor</DialogTitle>
@@ -222,8 +278,11 @@ const ListFloorPage = (props: Props) => {
           </DialogContent>
         </Dialog>
       </div>
-      {isLoading ? (
-        <CircularProgress />
+      {!isLoading ? (
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+          {/* <Typography>error sir</Typography> */}
+        </Box>
       ) : (
         <Box>
           <Box display="flex">
@@ -232,7 +291,7 @@ const ListFloorPage = (props: Props) => {
                 id="search"
                 label="Search by floorname or ID"
                 variant="outlined"
-                onChange={filterUsers}
+                // onChange={filterUsers}
                 sx={{ width: 220 }}
               />
             </Box>
@@ -243,7 +302,7 @@ const ListFloorPage = (props: Props) => {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   label="Building"
-                  onChange={handleFilterBuilding}
+                  //   onChange={handleFilterBuilding}
                   value={selectedCampus}
                 >
                   {campusesMock.map((campus) => (
@@ -265,70 +324,77 @@ const ListFloorPage = (props: Props) => {
               </Button>
             </Box>
           </Box>
-          {foundUsers.length > 0 && foundUsers ? (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell align="justify">Floor Name</TableCell>
-                    <TableCell align="justify">Building</TableCell>
-                    <TableCell align="justify">Devices</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {foundUsers.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {row.id}
-                      </TableCell>
-                      <TableCell align="justify">{row.floorName}</TableCell>
-                      <TableCell align="justify">
-                        <Button variant="contained">{row.buildingName}</Button>
-                      </TableCell>
-                      <TableCell
-                        align="justify"
-                        style={{ display: "flex", flexDirection: "row" }}
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell align="justify">Floor Name</TableCell>
+                  <TableCell align="justify">Building</TableCell>
+                  <TableCell align="justify">Devices</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {floors.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {row.id}
+                    </TableCell>
+                    <TableCell align="justify">{row.name}</TableCell>
+                    {row.buildings.map((building) => (
+                      <TableRow
+                        key={building.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                        }}
                       >
-                        {row.devices.map((device, index) => (
-                          <TableRow
-                            key={index}
-                            style={{
-                              display: "flex",
-                              justifyContent: "flex-start",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Button variant="outlined" sx={{ marginRight: 1 }}>
-                              {device}
-                            </Button>
-                          </TableRow>
-                        ))}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Tooltip title="Delete">
-                          <IconButton>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit">
-                          <IconButton>
-                            <EditIcon onClick={handleOpenEditFloor} />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Typography sx={{ marginTop: 2 }}>Not found!</Typography>
-          )}
+                        <Button variant="outlined" sx={{ marginRight: 1 }}>
+                          {building.name}
+                        </Button>
+                      </TableRow>
+                    ))}
+                    <TableCell
+                      align="justify"
+                      style={{ display: "flex", flexDirection: "row" }}
+                    >
+                      {row.devices.map((device) => (
+                        <TableRow
+                          key={device.id}
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Button variant="outlined" sx={{ marginRight: 1 }}>
+                            {device.name}
+                          </Button>
+                        </TableRow>
+                      ))}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Tooltip title="Delete">
+                        <IconButton>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit">
+                        <IconButton>
+                          <EditIcon onClick={handleOpenEditFloor} />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
       )}
     </Box>

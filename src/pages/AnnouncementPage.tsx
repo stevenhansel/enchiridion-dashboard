@@ -54,17 +54,17 @@ const AnnouncementPage = (props: Props) => {
   const fetchAnnouncements = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get<AnnouncementPage>("/v1/announcements");
-      const announcements: Content[] = response.data.contents.map((data: any) => ({
-        id: data.id,
-        title: data.title,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        statuses: data.statuses,
-        authors: data.authors,
-        createdAt: data.createdAt,
-        media: data.media,
-      }));
+      // const response = await axios.get<AnnouncementPage>("/v1/announcements");
+      // const announcements: Content[] = response.data.contents.map((data: any) => ({
+      //   id: data.id,
+      //   title: data.title,
+      //   startDate: data.startDate,
+      //   endDate: data.endDate,
+      //   statuses: data.statuses,
+      //   authors: data.authors,
+      //   createdAt: data.createdAt,
+      //   media: data.media,
+      // }));
       setAnnouncements(announcements);
       setIsLoading(false);
     } catch (err: any) {
@@ -74,10 +74,10 @@ const AnnouncementPage = (props: Props) => {
   };
 
   const updateApprovalStatus = async (id: number, approve: boolean) => {
-    try {
-      await axios.put(`/v1/announcements/${id}/approval`, { approve });
-      fetchAnnouncements();
-    } catch (err) {}
+    // try {
+    //   await axios.put(`/v1/announcements/${id}/approval`, { approve });
+    //   fetchAnnouncements();
+    // } catch (err) {}
   };
 
   useEffect(() => {

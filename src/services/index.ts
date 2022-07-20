@@ -1,5 +1,6 @@
 import { authApi } from './auth';
-import { roleApi } from './role';
+import { rolesApi } from './roles';
+import { floorApi } from './floor';
 
 export type ApiErrorResponse = {
   status: string,
@@ -8,10 +9,12 @@ export type ApiErrorResponse = {
 
 export const apiReducers = {
   [authApi.reducerPath]: authApi.reducer,
-  [roleApi.reducerPath]: roleApi.reducer,
+  [rolesApi.reducerPath]: rolesApi.reducer,
+  [floorApi.reducerPath]: floorApi.reducer,
 }
 
 export const apiMiddlewares = [
   authApi.middleware,
-  roleApi.middleware,
+  rolesApi.middleware,
+  floorApi.middleware,
 ];

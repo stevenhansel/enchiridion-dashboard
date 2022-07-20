@@ -13,7 +13,7 @@ import { AppDispatch } from '../store';
 import { setProfile, ProfileState } from '../store/profile';
 import { login } from '../store/auth';
 
-import axios, { isAxiosError, ApiErrorResponse } from '../utils/axiosInstance';
+import { authApi } from '../services/auth';
 
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
@@ -30,34 +30,24 @@ const VerificationCallbackPage = (_: Props) => {
   const [searchParams] = useSearchParams();
   
   const handleConfirmEmail = useCallback(async (): Promise<void> => {
-    try {
       setIsLoading(true);
 
-      const response = await axios.put<ProfileState>(
-        '/v1/auth/verification',
-        {
-          token: searchParams.get('token'),
-        }
+      const response = await dispatch(
+        authApi.endpoints.confirmEmail.initiate({
+          token: searchParams.get('token')
+        })
       );
-      dispatch(setProfile({
-        id: response.data.id,
-        name: response.data.name,
-        email: response.data.email,
-        profilePicture: response.data.profilePicture,
-        role: response.data.role,
-        userStatus: response.data.userStatus,
-      }));
+      // dispatch(setProfile({
+      //   id: response.data.id,
+      //   name: response.data.name,
+      //   email: response.data.email,
+      //   profilePicture: response.data.profilePicture,
+      //   role: response.data.role,
+      //   userStatus: response.data.userStatus,
+      // }));
       dispatch(login());
       setIsLoading(false);
-    } catch (err: unknown) {
-      let message = 'Network Error';
-      if (isAxiosError(err) && 'messages' in (err.response?.data as ApiErrorResponse)) {
-        message = (err.response?.data as ApiErrorResponse).messages[0];
-      }
-      setIsLoading(false);
-      setErrorMessage(message);
-    }
-  }, [searchParams, dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     handleConfirmEmail();

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import {
   Box,
@@ -12,7 +13,8 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-import axios, { isAxiosError, ApiErrorResponse } from "../utils/axiosInstance";
+import { authApi } from "../services/auth";
+import { AppDispatch, RootState } from "../store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
@@ -30,26 +32,14 @@ const SendLinkVerificationPage = (props: Props) => {
     SEND_VERIFICATION_RETRY_DELAY_SECONDS
   );
 
+  const dispatch: AppDispatch = useDispatch();
+
   const { email } = useParams();
 
   const handleVerification = useCallback(async (): Promise<void> => {
-    try {
-      setIsLoading(true);
-
-      await axios.get(`/v1/auth/verification/${email}`);
-
-      setIsPressed(true);
-      setIsLoading(false);
-    } catch (err) {
-      let message = "Network Error";
-      if (
-        isAxiosError(err) &&
-        "messages" in (err.response?.data as ApiErrorResponse)
-      ) {
-        message = (err.response?.data as ApiErrorResponse).messages[0];
-      }
-      setErrorMessage(message);
-    }
+    setIsLoading(true);
+    await dispatch(authApi.endpoints.emailVerification.initiate(""));
+    setIsLoading(false);
   }, [email]);
 
   const handleClose = (

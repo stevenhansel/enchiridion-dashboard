@@ -32,16 +32,16 @@ const CreateDeviceForm = ({ onSave }: Props) => {
 
   const handleCloseNewDevice = () => setOpenNewDevice(false);
 
-  const createDevice = async () => {
-    axios
-      .post("/v1/devices", { machineId })
-      .then(() => onSave())
-      .then(() => handleClose())
-      .catch((error) => {
-        console.log(error);
-        setErrorModal("please enter valid value");
-      });
-  };
+  // const createDevice = async () => {
+  //   axios
+  //     .post("/v1/devices", { machineId })
+  //     .then(() => onSave())
+  //     .then(() => handleClose())
+  //     .catch((error) => {
+  //       console.log(error);
+  //       setErrorModal("please enter valid value");
+  //     });
+  // };
 
   const listLantai = [
     { label: "Lantai 1" },
@@ -85,7 +85,7 @@ const CreateDeviceForm = ({ onSave }: Props) => {
                 <Button
                   variant="contained"
                   component="label"
-                  onClick={createDevice}
+                  // onClick={createDevice}
                   sx={{ marginTop: 2 }}
                 >
                   Create
