@@ -1,39 +1,85 @@
-import * as React from "react";
+import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Navigate, useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { RootState } from "../store";
+
+import {
+  Box,
+  Snackbar,
+  CircularProgress,
+  Button,
+  Typography,
+  CssBaseline,
+  TextField,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+
+import { AppDispatch } from "../store";
 import { login } from "../store/auth";
+import { setProfile } from "../store/profile";
 
-import Box from "@mui/material/Box";
-import PropTypes from "prop-types";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { blue } from "@mui/material/colors";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
+import { ApiErrorResponse } from "../services";
+import { authApi } from "../services/auth";
 
-import AnnouncementPage from "./AnnouncementPage";
+import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const Login = (props: Props) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+type LoginForm = {
+  email: string;
+  password: string;
+};
 
-  const validationSchema = yup.object({
-    email: yup
-      .string()
-      .email("Enter a valid email")
-      .required("Email is required"),
-    password: yup
-      .string()
-      .min(8, "Password should be of minimum 8 characters length")
-      .required("Password is required"),
-  });
+const validationSchema = yup.object({
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: yup
+    .string()
+    .min(8, "Password should be of minimum 8 characters length")
+    .required("Password is required"),
+});
+
+const Login = (props: Props) => {
+  const dispatch: AppDispatch = useDispatch();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleLogin = useCallback(async (values: LoginForm): Promise<void> => {
+    setIsLoading(true);
+
+    const response = await dispatch(
+      authApi.endpoints.login.initiate({
+        email: values.email,
+        password: values.password,
+      }),
+    );
+
+    if ('data' in response) {
+      dispatch(
+        setProfile({
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          profilePicture: response.data.profilePicture,
+          role: response.data.role,
+          userStatus: response.data.userStatus,
+        })
+      );
+
+      dispatch(login());
+    } else {
+      setErrorMessage('data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
+    }
+
+    setIsLoading(false);
+  }, [dispatch]);
 
   const formik = useFormik({
     initialValues: {
@@ -41,20 +87,22 @@ const Login = (props: Props) => {
       password: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // alert(JSON.stringify(values, null, 2));
-      dispatch(login());
-      navigate('/announcement');
-    },
+    onSubmit: handleLogin,
   });
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setErrorMessage('');
+  };
 
   return (
     <React.Fragment>
       <CssBaseline />
       <Box
         style={{
-          backgroundImage:
-            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
+          backgroundImage: `url(${backgroundImage})`,
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",
@@ -96,7 +144,9 @@ const Login = (props: Props) => {
                 <TextField
                   id="email"
                   name="email"
-                  onChange={(event) => formik.setFieldValue("email", event.target.value)}
+                  onChange={(event) =>
+                    formik.setFieldValue("email", event.target.value)
+                  }
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                   variant="standard"
@@ -108,7 +158,9 @@ const Login = (props: Props) => {
                 <TextField
                   id="password"
                   name="password"
-                  onChange={(event) => formik.setFieldValue("password", event.target.value)}
+                  onChange={(event) =>
+                    formik.setFieldValue("password", event.target.value)
+                  }
                   error={
                     formik.touched.password && Boolean(formik.errors.password)
                   }
@@ -126,18 +178,20 @@ const Login = (props: Props) => {
               >
                 <Button
                   variant="contained"
+                  disabled={isLoading}
                   type="submit"
                   sx={{ marginBottom: 0.5 }}
+                  endIcon={isLoading && <CircularProgress />}
                 >
                   Masuk
                 </Button>
-                <Box display="flex" flexDirection="row">
+                <Box display="flex" flexDirection="row" sx={{ marginRight: 0.5, marginTop: 1 }}>
                   <Typography sx={{ marginRight: 0.5 }}>
                     Belum punya akun?
                   </Typography>
                   <Link to="/register">Daftar</Link>
                 </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginTop: 1}}>
+                <Box display="flex" flexDirection="row" sx={{ marginTop: 1 }}>
                   <Typography sx={{ marginRight: 0.5 }}>
                     Forgot Password?
                   </Typography>
@@ -145,6 +199,22 @@ const Login = (props: Props) => {
                 </Box>
               </Box>
             </Box>
+            <Snackbar
+              open={Boolean(errorMessage)}
+              autoHideDuration={6000}
+              onClose={() => setErrorMessage("")}
+              message={errorMessage}
+              action={
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              }
+            />
           </form>
         </div>
       </Box>

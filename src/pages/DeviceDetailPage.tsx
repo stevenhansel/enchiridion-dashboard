@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Box from "@mui/material/Box";
@@ -13,10 +13,6 @@ import Autocomplete from "@mui/material/Autocomplete";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 
-import CreateAnnouncementForm from "../components/CreateAnnouncementForm";
-
-import axios from "../axios";
-
 type Props = {
   children?: React.ReactNode;
 };
@@ -24,17 +20,8 @@ type Props = {
 const DeviceDetailPage = (props: Props) => {
   const { id } = useParams();
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [openNewDevice, setOpenNewDevice] = useState(false);
   const [openDeleteDevice, setDeleteDevice] = useState(false);
-  const [machineId, setMachineId] = useState<string>("");
-
-  const handleOpen = () => setIsOpen(true);
-
-  const handleClose = () => {
-    setIsOpen(false);
-    setMachineId("");
-  };
 
   const handleOpenNewDevice = () => setOpenNewDevice(true);
   const handleCloseNewDevice = () => setOpenNewDevice(false);

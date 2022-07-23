@@ -1,178 +1,271 @@
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
+import React, { useCallback, useState, useEffect } from "react";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  Stack,
+  CircularProgress,
+  IconButton,
+  Tooltip,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  Typography,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { CircularProgress } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
+import { SelectChangeEvent } from "@mui/material/Select";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { useDispatch } from "react-redux";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 import ListFloorForm from "../components/ListFloorForm";
-import { StringMappingType } from "typescript";
+
+import { AppDispatch } from "../store";
+
+import { ApiErrorResponse } from "../services";
+import { floorApi } from "../services/floor";
+import { buildingApi } from "../services/building";
 
 type Building = {
   id: number;
-  floorName: string;
-  buildingName: string;
-  devices: string[];
+  name: string;
+  color: string;
 };
 
-type Campuses = {
-  campusName: string;
-}
+type Device = {
+  id: number;
+  name: string;
+  description: string;
+  totalAnnouncements: number;
+};
+
+type Floor = {
+  id: number;
+  name: string;
+  building: Building;
+  devices: Device[];
+};
+
+type FloorPage = {
+  hasNext: boolean;
+  count: number;
+  pages: number;
+  contents: Floor[];
+};
+
+type CreateFloor = {
+  name: string;
+  buildingId: number | null;
+};
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const floorMock: Building[] = [
-  {
-    id: 1,
-    floorName: "Lantai SK",
-    buildingName: "Syahdan",
-    devices: ["Device 1", "Device 2", "Device 3", "Device 4"],
-  },
-  {
-    id: 2,
-    floorName: "Lantai CS",
-    buildingName: "Anggrek",
-    devices: ["Device 1", "Device 2", "Device 3", "Device 4", "Device 5"],
-  },
-  {
-    id: 3,
-    floorName: "Lantai SI",
-    buildingName: "Syahdan",
-    devices: ["Device 1", "Device 2", "Device 3"],
-  },
-];
-
-const campusesMock: Campuses[] = [
-  {
-    campusName: "Syahdan",
-  },
-  {
-    campusName: "Alam Sutera",
-  },
-  {
-    campusName: "Anggrek",
-  },
-  {
-    campusName: "Bandung",
-  },
-  {
-    campusName: "Malang",
-  },
-  {
-    campusName: "Medan",
-  }, 
-  {
-    campusName: "All Campuses"
-  }
-]
-
-const baseUrl = "https://enchridion-api.stevenhansel.com/dashboard/v1";
+const validationSchema = yup.object({
+  name: yup
+    .string()
+    .min(4, "Name should be of minimum 4 characters length")
+    .required("Name is required"),
+  buildingId: yup.number().required("Building is required"),
+});
 
 const ListFloorPage = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [floors, setFloor] = useState<Building[]>(floorMock);
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [filterById, setFilterById] = useState("");
+  const [filterByBuilding, setFilterByBuilding] = useState<number | null>(null);
 
   const [open, setOpen] = useState(false);
-  const handleOpenNewFloor = () => setOpen(true);
-  const handleCloseNewFloor = () => setOpen(false);
+  const handleOpenNewBuilding = () => setOpen(true);
+  const handleCloseNewBuilding = () => setOpen(false);
 
   const [editFloor, setIsEditFloor] = useState(false);
   const handleOpenEditFloor = () => setIsEditFloor(true);
   const handleCloseEditFloor = () => setIsEditFloor(false);
 
-  const [foundUsers, setFoundUsers] = useState(floors);
+  // const [foundUsers, setFoundUsers] = useState(floors);
 
-  const [selectedCampus, setIsSelectedCampus] = useState('');
+  const dispatch: AppDispatch = useDispatch();
 
-  const filterUsers = (e: any) => {
-    const keyword = e.target.value;
+  const handleListFloor = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
 
-    if (keyword !== "") {
-      const result = floors.filter((floor) => {
-        return (
-          floor.floorName.toLowerCase().startsWith(keyword.toLowerCase()) ||
-          floor.id.toString().startsWith(keyword.toLowerCase())
-        );
-      });
-      setFoundUsers(result);
-    } else {
-      setFoundUsers(floors);
-    }
-  };
-
-  const filterBuilding = (selectByUser: any): any => {
-    const filtered = floors.filter(
-      (floor) => floor.buildingName === selectByUser
+    const response = await dispatch(
+      floorApi.endpoints.getFloors.initiate("", {
+        forceRefetch: true,
+      })
     );
-    return filtered;
-  };
 
-  const handleFilterBuilding = (e: any) => {
-    const selected = e.target.value;
-
-    if (selected !== "All Campuses") {
-      setFoundUsers(filterBuilding(selected));
+    if ("data" in response) {
+      const getFloorData: Floor[] = response.data.contents.map((data: any) => ({
+        id: data.id,
+        name: data.name,
+        building: data.building,
+        devices: data.devices,
+      }));
+      setIsLoading(false);
+      setFloors(getFloorData);
+      console.log(floors);
     } else {
-      setFoundUsers(floors);
+      setErrorMessage(
+        response.error && "data" in response.error
+          ? (response.error.data as ApiErrorResponse).messages[0]
+          : "Network Error"
+      );
+      setIsLoading(false);
     }
-    setIsSelectedCampus(selected);
+  }, []);
+
+  const handleCreateFloor = useCallback(
+    async (values: CreateFloor): Promise<void> => {
+      await dispatch(
+        floorApi.endpoints.createFloor.initiate({
+          name: values.name,
+          buildingId: values.buildingId,
+        })
+      );
+      setOpen(false);
+    },
+    [open]
+  );
+
+  const handleChange = (e: SelectChangeEvent) => {
+    formik.setFieldValue("buildingId", parseInt(e.target.value, 10));
   };
+
+  const handleCreateBuilding = useCallback(async (): Promise<void> => {
+    const response = await dispatch(
+      buildingApi.endpoints.getBuildings.initiate("")
+    );
+    const buildingList: Building[] = response.data.contents.map(
+      (data: any) => ({
+        id: data.id,
+        name: data.name,
+        color: data.color,
+      })
+    );
+    setBuildings(buildingList);
+  }, []);
+
+  const formik = useFormik<CreateFloor>({
+    initialValues: {
+      name: "",
+      buildingId: null,
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      handleCreateFloor(values).then(handleListFloor);
+    },
+  });
+
+  useEffect(() => {
+    handleListFloor();
+    handleCreateBuilding();
+  }, []);
+
+  console.log(filterById, "Id");
+  console.log(filterByBuilding, "building");
+  
 
   return (
     <Box>
       <ListFloorForm />
-      <div>
-        <Dialog open={open} onClose={handleCloseNewFloor}>
-          <DialogTitle>Create Floor</DialogTitle>
-          <DialogContent>
-            <TextField
-              margin="dense"
-              id="name"
-              label="Floor Name"
-              fullWidth
-              variant="standard"
-              sx={{ marginBottom: 2 }}
-            />
-            <Stack spacing={2} direction="row">
-              <Button
-                variant="contained"
-                component="label"
-                onClick={handleCloseNewFloor}
-              >
-                OK
-              </Button>
-              <Button
-                variant="contained"
-                component="label"
-                onClick={handleCloseNewFloor}
-              >
-                Cancel
-              </Button>
-            </Stack>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <Dialog open={open} onClose={handleCloseNewBuilding}>
+        <DialogTitle>Create Floor</DialogTitle>
+        <DialogContent>
+          <form onSubmit={formik.handleSubmit}>
+            <Box>
+              <TextField
+                margin="dense"
+                id="name"
+                label="Name"
+                fullWidth
+                variant="standard"
+                sx={{ marginBottom: 2 }}
+                onChange={(e) => formik.setFieldValue("name", e.target.value)}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={formik.touched.name && formik.errors.name}
+              />
+              <Box sx={{ marginBottom: 2 }}>
+                <FormControl sx={{ width: 220 }}>
+                  <InputLabel
+                    id="building"
+                    error={
+                      formik.touched.buildingId &&
+                      Boolean(formik.errors.buildingId)
+                    }
+                  >
+                    Building
+                  </InputLabel>
+                  <Select
+                    labelId="building"
+                    id="building"
+                    label="Building"
+                    onChange={handleChange}
+                    value={
+                      formik.values.buildingId
+                        ? formik.values.buildingId.toString()
+                        : ""
+                    }
+                    error={
+                      formik.touched.buildingId &&
+                      Boolean(formik.errors.buildingId)
+                    }
+                    defaultValue={""}
+                  >
+                    {buildings &&
+                      buildings.map((building) => (
+                        <MenuItem key={building.id} value={building.id}>
+                          {building.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  {formik.touched.buildingId && formik.errors.buildingId ? (
+                    <Typography
+                      sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F" }}
+                    >
+                      Building is required
+                    </Typography>
+                  ) : null}
+                </FormControl>
+              </Box>
+              <Box>
+                <Button
+                  variant="contained"
+                  // component="label"
+                  // onClick={formik.submitForm}
+                  type="submit"
+                  sx={{ marginRight: 1 }}
+                >
+                  OK
+                </Button>
+                <Button
+                  variant="contained"
+                  component="label"
+                  onClick={handleCloseNewBuilding}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </Box>
+          </form>
+        </DialogContent>
+      </Dialog>
       <div>
         <Dialog open={editFloor} onClose={handleCloseEditFloor}>
           <DialogTitle>Update Floor</DialogTitle>
@@ -204,7 +297,10 @@ const ListFloorPage = (props: Props) => {
         </Dialog>
       </div>
       {isLoading ? (
-        <CircularProgress />
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+          {/* <Typography>error sir</Typography> */}
+        </Box>
       ) : (
         <Box>
           <Box display="flex">
@@ -213,24 +309,35 @@ const ListFloorPage = (props: Props) => {
                 id="search"
                 label="Search by floorname or ID"
                 variant="outlined"
-                // sx={{ marginBottom: 2 }}
-                onChange={filterUsers}
+                onChange={(e) => {
+                  setFilterById(e.target.value);
+                }}
                 sx={{ width: 220 }}
               />
             </Box>
-            <Box sx={{marginLeft: 1}}>
+            <Box sx={{ marginLeft: 1 }}>
               <FormControl sx={{ width: 220 }}>
                 <InputLabel id="demo-simple-select-label">Building</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   label="Building"
-                  onChange={handleFilterBuilding}
-                  value={selectedCampus}
+                  onChange={(e, child) => {
+                    setFilterByBuilding((child as any)?.props.value);
+                  }}
+                  value={
+                    formik.values.buildingId
+                      ? formik.values.buildingId.toString()
+                      : undefined
+                  }
+                  defaultValue={""}
                 >
-                  {campusesMock.map((campus) => (
-                    <MenuItem value={campus.campusName}>{campus.campusName}</MenuItem>
-                  ))}
+                  {buildings &&
+                    buildings.map((building) => (
+                      <MenuItem key={building.id} value={building.id}>
+                        {building.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Box>
@@ -240,53 +347,63 @@ const ListFloorPage = (props: Props) => {
               justifyContent="flex-end"
               width="100%"
             >
-              <Button variant="contained" onClick={handleOpenNewFloor}>
+              <Button variant="contained" onClick={handleOpenNewBuilding}>
                 + Create
               </Button>
             </Box>
           </Box>
-          {foundUsers.length > 0 && foundUsers ? (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell align="justify">Floor Name</TableCell>
-                    <TableCell align="justify">Building</TableCell>
-                    <TableCell align="justify">Devices</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {foundUsers.map((row) => (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell align="center">Floor Name</TableCell>
+                  <TableCell align="center">Building</TableCell>
+                  <TableCell align="center">Devices</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {floors
+                  .filter((floor) => {
+                    return (
+                      floor.name
+                        .toLowerCase()
+                        .startsWith(filterById.toLowerCase()) ||
+                      floor.id.toString().startsWith(filterById.toLowerCase())
+                    );
+                  })
+                  .filter(
+                    (floor) =>
+                      floor.building.id === filterByBuilding ||
+                      filterByBuilding === null
+                  )
+                  .map((row) => (
                     <TableRow
                       key={row.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                      }}
                     >
                       <TableCell component="th" scope="row">
                         {row.id}
                       </TableCell>
-                      <TableCell align="justify">{row.floorName}</TableCell>
-                      <TableCell align="justify">
-                        <Button variant="contained">{row.buildingName}</Button>
+
+                      <TableCell align="center">{row.name}</TableCell>
+                      <TableCell align="center">
+                        <Button variant="outlined" sx={{ marginRight: 1 }}>
+                          {row.building.name}
+                        </Button>
                       </TableCell>
-                      <TableCell
-                        align="justify"
-                        style={{ display: "flex", flexDirection: "row" }}
-                      >
+                      <TableCell align="center">
                         {row.devices.map((device) => (
-                          <TableRow
-                            key={device}
-                            style={{
-                              display: "flex",
-                              justifyContent: "flex-start",
-                              alignItems: "center",
-                            }}
+                          <Button
+                            key={device.id}
+                            variant="outlined"
+                            sx={{ marginRight: 1 }}
                           >
-                            <Button variant="outlined" sx={{ marginRight: 1 }}>
-                              {device}
-                            </Button>
-                          </TableRow>
+                            {device.name}
+                          </Button>
                         ))}
                       </TableCell>
                       <TableCell align="center">
@@ -297,18 +414,15 @@ const ListFloorPage = (props: Props) => {
                         </Tooltip>
                         <Tooltip title="Edit">
                           <IconButton>
-                            <EditIcon onClick={handleOpenEditFloor} />
+                            <EditIcon />
                           </IconButton>
                         </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Typography sx={{marginTop: 2}}>Not found!</Typography>
-          )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
       )}
     </Box>

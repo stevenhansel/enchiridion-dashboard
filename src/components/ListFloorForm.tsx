@@ -7,15 +7,11 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 
-import axios from "../axios";
-
 type Props = {};
 
 const ListFloorForm = (props: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [machineId, setMachineId] = useState<string>("");
-
-  const handleOpen = () => setIsOpen(true);
 
   const handleClose = () => {
     setIsOpen(false);
