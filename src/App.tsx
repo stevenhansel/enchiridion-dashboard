@@ -37,15 +37,15 @@ import { AppDispatch, RootState } from "./store";
 
 function App() {
   const isAuth = useSelector((state: RootState) => state.auth.isAuth);
+
   const dispatch: AppDispatch = useDispatch();
 
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const userStateData = useSelector(
-    (state: RootState) => state.profile?.userStatus
-  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [, setErrorMessage] = useState("");
 
   const handleMe = useCallback(async () => {
+    setIsLoading(true);
+
     const response = await dispatch(authApi.endpoints.me.initiate(""));
     if ("data" in response) {
       dispatch(
@@ -66,13 +66,17 @@ function App() {
           : "Network Error"
       );
     }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     handleMe();
   }, []);
 
-  console.log(isAuth);
+  if (isLoading) {
+    return <div/>;
+  }
 
   return (
     <BrowserRouter>

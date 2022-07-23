@@ -9,11 +9,7 @@ import {
   TableRow,
   Paper,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   TextField,
-  Stack,
   CircularProgress,
   IconButton,
   Tooltip,
@@ -24,81 +20,37 @@ import {
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { SelectChangeEvent } from "@mui/material/Select";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useDispatch } from "react-redux";
-import { useFormik } from "formik";
-import * as yup from "yup";
+import { useDispatch, useSelector } from "react-redux";
 
 import ListFloorForm from "../components/ListFloorForm";
+import EditFloorModal from "../components/EditFloorModal";
+import CreateFloorModal from '../components/CreateFloorModal';
 
-import { AppDispatch } from "../store";
+import { AppDispatch, RootState } from "../store";
+import { setBuildings } from "../store/buildings";
 
 import { ApiErrorResponse } from "../services";
 import { floorApi } from "../services/floor";
 import { buildingApi } from "../services/building";
 
-type Building = {
-  id: number;
-  name: string;
-  color: string;
-};
-
-type Device = {
-  id: number;
-  name: string;
-  description: string;
-  totalAnnouncements: number;
-};
-
-type Floor = {
-  id: number;
-  name: string;
-  building: Building;
-  devices: Device[];
-};
-
-type FloorPage = {
-  hasNext: boolean;
-  count: number;
-  pages: number;
-  contents: Floor[];
-};
-
-type CreateFloor = {
-  name: string;
-  buildingId: number | null;
-};
+import { Building, Floor } from '../types/store';
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const validationSchema = yup.object({
-  name: yup
-    .string()
-    .min(4, "Name should be of minimum 4 characters length")
-    .required("Name is required"),
-  buildingId: yup.number().required("Building is required"),
-});
-
 const ListFloorPage = (props: Props) => {
+  const buildingsState = useSelector((state: RootState) => state.buildings);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [floors, setFloors] = useState<Floor[]>([]);
-  const [buildings, setBuildings] = useState<Building[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [filterById, setFilterById] = useState("");
-  const [filterByBuilding, setFilterByBuilding] = useState<number | null>(null);
+  const [filterByBuilding, setFilterByBuilding] = useState<string | null>(null);
 
-  const [open, setOpen] = useState(false);
-  const handleOpenNewBuilding = () => setOpen(true);
-  const handleCloseNewBuilding = () => setOpen(false);
-
-  const [editFloor, setIsEditFloor] = useState(false);
-  const handleOpenEditFloor = () => setIsEditFloor(true);
-  const handleCloseEditFloor = () => setIsEditFloor(false);
-
-  // const [foundUsers, setFoundUsers] = useState(floors);
+  const [openCreateFloor, setOpenCreateFloor] = useState(false);
+  const [openEditFloor, setOpenEditFloor] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -120,7 +72,6 @@ const ListFloorPage = (props: Props) => {
       }));
       setIsLoading(false);
       setFloors(getFloorData);
-      console.log(floors);
     } else {
       setErrorMessage(
         response.error && "data" in response.error
@@ -131,171 +82,46 @@ const ListFloorPage = (props: Props) => {
     }
   }, []);
 
-  const handleCreateFloor = useCallback(
-    async (values: CreateFloor): Promise<void> => {
-      await dispatch(
-        floorApi.endpoints.createFloor.initiate({
-          name: values.name,
-          buildingId: values.buildingId,
-        })
-      );
-      setOpen(false);
-    },
-    [open]
-  );
-
-  const handleChange = (e: SelectChangeEvent) => {
-    formik.setFieldValue("buildingId", parseInt(e.target.value, 10));
-  };
-
-  const handleCreateBuilding = useCallback(async (): Promise<void> => {
+  const handleFetchBuildings = useCallback(async (): Promise<void> => {
     const response = await dispatch(
       buildingApi.endpoints.getBuildings.initiate("")
     );
-    const buildingList: Building[] = response.data.contents.map(
-      (data: any) => ({
-        id: data.id,
-        name: data.name,
-        color: data.color,
-      })
+    const building: Record<number, Building> = response.data.contents.reduce(
+      (prev: Record<number, Building>, curr: Building) => ({
+        ...prev,
+        [curr.id]: curr,
+      }),
+      {},
     );
-    setBuildings(buildingList);
+    dispatch(setBuildings(building));
   }, []);
-
-  const formik = useFormik<CreateFloor>({
-    initialValues: {
-      name: "",
-      buildingId: null,
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      handleCreateFloor(values).then(handleListFloor);
-    },
-  });
 
   useEffect(() => {
     handleListFloor();
-    handleCreateBuilding();
+    handleFetchBuildings();
   }, []);
 
-  console.log(filterById, "Id");
-  console.log(filterByBuilding, "building");
-  
+  const filteredFloors = floors
+    .filter((floor) => (
+      floor.name.toLowerCase().startsWith(filterById.toLowerCase()) ||
+      floor.id.toString().startsWith(filterById.toLowerCase()) ||
+      filterByBuilding === floor.building.id.toString() ||
+      filterByBuilding === null
+    ));
 
   return (
     <Box>
       <ListFloorForm />
-      <Dialog open={open} onClose={handleCloseNewBuilding}>
-        <DialogTitle>Create Floor</DialogTitle>
-        <DialogContent>
-          <form onSubmit={formik.handleSubmit}>
-            <Box>
-              <TextField
-                margin="dense"
-                id="name"
-                label="Name"
-                fullWidth
-                variant="standard"
-                sx={{ marginBottom: 2 }}
-                onChange={(e) => formik.setFieldValue("name", e.target.value)}
-                error={formik.touched.name && Boolean(formik.errors.name)}
-                helperText={formik.touched.name && formik.errors.name}
-              />
-              <Box sx={{ marginBottom: 2 }}>
-                <FormControl sx={{ width: 220 }}>
-                  <InputLabel
-                    id="building"
-                    error={
-                      formik.touched.buildingId &&
-                      Boolean(formik.errors.buildingId)
-                    }
-                  >
-                    Building
-                  </InputLabel>
-                  <Select
-                    labelId="building"
-                    id="building"
-                    label="Building"
-                    onChange={handleChange}
-                    value={
-                      formik.values.buildingId
-                        ? formik.values.buildingId.toString()
-                        : ""
-                    }
-                    error={
-                      formik.touched.buildingId &&
-                      Boolean(formik.errors.buildingId)
-                    }
-                    defaultValue={""}
-                  >
-                    {buildings &&
-                      buildings.map((building) => (
-                        <MenuItem key={building.id} value={building.id}>
-                          {building.name}
-                        </MenuItem>
-                      ))}
-                  </Select>
-                  {formik.touched.buildingId && formik.errors.buildingId ? (
-                    <Typography
-                      sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F" }}
-                    >
-                      Building is required
-                    </Typography>
-                  ) : null}
-                </FormControl>
-              </Box>
-              <Box>
-                <Button
-                  variant="contained"
-                  // component="label"
-                  // onClick={formik.submitForm}
-                  type="submit"
-                  sx={{ marginRight: 1 }}
-                >
-                  OK
-                </Button>
-                <Button
-                  variant="contained"
-                  component="label"
-                  onClick={handleCloseNewBuilding}
-                >
-                  Cancel
-                </Button>
-              </Box>
-            </Box>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <div>
-        <Dialog open={editFloor} onClose={handleCloseEditFloor}>
-          <DialogTitle>Update Floor</DialogTitle>
-          <DialogContent>
-            <TextField
-              margin="dense"
-              id="name"
-              label="Floor Name"
-              fullWidth
-              variant="standard"
-            />
-            <Stack spacing={2} direction="row">
-              <Button
-                variant="contained"
-                component="label"
-                onClick={handleCloseEditFloor}
-              >
-                OK
-              </Button>
-              <Button
-                variant="contained"
-                component="label"
-                onClick={handleCloseEditFloor}
-              >
-                Cancel
-              </Button>
-            </Stack>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <EditFloorModal 
+        open={openEditFloor} 
+        handleListFloor={handleListFloor} 
+        setOpen={setOpenEditFloor}
+      />
+      <CreateFloorModal       
+        open={openCreateFloor} 
+        handleListFloor={handleListFloor} 
+        setOpen={setOpenCreateFloor} 
+      />
       {isLoading ? (
         <Box display="flex" justifyContent="center">
           <CircularProgress />
@@ -323,21 +149,22 @@ const ListFloorPage = (props: Props) => {
                   id="demo-simple-select"
                   label="Building"
                   onChange={(e, child) => {
-                    setFilterByBuilding((child as any)?.props.value);
+                    if ((child as any)?.props.value === 'all-building') {
+                      setFilterByBuilding(null);
+                    } else {
+                      setFilterByBuilding((child as any)?.props.value);
+                    }
                   }}
-                  value={
-                    formik.values.buildingId
-                      ? formik.values.buildingId.toString()
-                      : undefined
-                  }
                   defaultValue={""}
                 >
-                  {buildings &&
-                    buildings.map((building) => (
-                      <MenuItem key={building.id} value={building.id}>
-                        {building.name}
-                      </MenuItem>
-                    ))}
+                  <MenuItem value="all-building">
+                    All Campus 
+                  </MenuItem>
+                  {buildingsState && Object.entries(buildingsState).map(([buildingId, building]) => (
+                    <MenuItem key={buildingId} value={buildingId}>
+                      {building.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Box>
@@ -347,11 +174,12 @@ const ListFloorPage = (props: Props) => {
               justifyContent="flex-end"
               width="100%"
             >
-              <Button variant="contained" onClick={handleOpenNewBuilding}>
+              <Button variant="contained" onClick={() => setOpenCreateFloor(true)}>
                 + Create
               </Button>
             </Box>
           </Box>
+          {filteredFloors && filteredFloors.length > 0 ? 
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
@@ -364,21 +192,7 @@ const ListFloorPage = (props: Props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {floors
-                  .filter((floor) => {
-                    return (
-                      floor.name
-                        .toLowerCase()
-                        .startsWith(filterById.toLowerCase()) ||
-                      floor.id.toString().startsWith(filterById.toLowerCase())
-                    );
-                  })
-                  .filter(
-                    (floor) =>
-                      floor.building.id === filterByBuilding ||
-                      filterByBuilding === null
-                  )
-                  .map((row) => (
+                {filteredFloors.map((row) => (
                     <TableRow
                       key={row.id}
                       sx={{
@@ -388,7 +202,6 @@ const ListFloorPage = (props: Props) => {
                       <TableCell component="th" scope="row">
                         {row.id}
                       </TableCell>
-
                       <TableCell align="center">{row.name}</TableCell>
                       <TableCell align="center">
                         <Button variant="outlined" sx={{ marginRight: 1 }}>
@@ -422,7 +235,7 @@ const ListFloorPage = (props: Props) => {
                   ))}
               </TableBody>
             </Table>
-          </TableContainer>
+          </TableContainer> : <Typography>Not Found!</Typography> }
         </Box>
       )}
     </Box>

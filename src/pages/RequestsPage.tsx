@@ -45,7 +45,7 @@ const requestsData: Request[] = [
   },
   {
     id: 2,
-    announcement: "acin saja",
+    announcement: "ya udah ganti bang",
     author: "Steven Hansel",
     action: "change date",
     description: "Change Date",

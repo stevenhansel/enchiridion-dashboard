@@ -11,6 +11,11 @@ export const announcementApi = createApi({
         url: "/v1/announcements",
       }),
     }),
+    getAnnouncementMedia: builders.query({
+      query: ({ announcementId }) => ({
+        url: `/v1/announcements/${announcementId}/media`,
+      }),
+    }),
     getAnnouncementsDetail: builders.query({
       query: () => ({
         url: "v1/announcements/:announcementId",
@@ -19,4 +24,4 @@ export const announcementApi = createApi({
   }),
 });
 
-export const { useGetAnnouncementsQuery } = announcementApi;
+export const { useGetAnnouncementsQuery, useGetAnnouncementMediaQuery } = announcementApi;

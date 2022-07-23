@@ -1,80 +1,67 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { CircularProgress } from "@mui/material";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  TextField,
+  CircularProgress,
+} from "@mui/material";
+import ViewAnnouncementImageModal from '../components/ViewAnnouncementImageModal';
 
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 
 import { announcementApi } from "../services/announcement";
 import { ApiErrorResponse } from "../services";
+
+import { Announcement } from '../types/store';
 
 type Props = {
   children?: React.ReactNode;
 };
 
-type Status = {
-  value: string;
-  label: string;
-};
-
-type Author = {
-  id: number;
-  name: string;
-};
-
-type Content = {
-  id: number;
-  title: string;
-  startDate: string;
-  endDate: string;
-  statuses: Status[];
-  authors: Author[];
-  media: string;
-  createdAt: string;
-};
-
-type AnnouncementPage = {
-  count: number;
-  pages: number;
-  hasNext: boolean;
-  contents: Content[];
-  title: string;
-  media: string;
-};
+const toDate = (dateStr: string) => new Date(dateStr).toDateString();
 
 const AnnouncementPage = (props: Props) => {
+  const navigate = useNavigate();
+
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [currentAnnouncementId, setCurrentAnnouncementId] = useState<string>('');
+  const [imageModalOpen, setImageModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [announcements, setAnnouncements] = useState<Content[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const dispatch: AppDispatch = useDispatch();
 
   const fetchAnnouncements = async (): Promise<void> => {
     setIsLoading(true);
+
     const response = await dispatch(
       announcementApi.endpoints.getAnnouncements.initiate("")
     );
+
     if ("data" in response) {
-      const announcementData: Content[] = response.data.contents.map(
-        (data: any) => ({
+      const announcementData: Announcement[] = response.data.contents.map(
+        (data: Announcement) => ({
           id: data.id,
           title: data.title,
           startDate: data.startDate,
           endDate: data.endDate,
           status: data.status,
+          author: data.author,
+          createdAt: data.createdAt,
           media: data.media,
         })
       );
       setAnnouncements(announcementData);
-      setIsLoading(false);
     } else {
       setErrorMessage(
         response.error && "data" in response.error
@@ -82,25 +69,55 @@ const AnnouncementPage = (props: Props) => {
           : "Network Error"
       );
     }
+
+    setIsLoading(false);
   };
+
+  const handleSelectAnnouncementImage = (announcementId: number) => {
+    setCurrentAnnouncementId(announcementId.toString());
+    setImageModalOpen(true);
+  }
 
   useEffect(() => {
     fetchAnnouncements();
-    console.log(announcements);
   }, []);
 
   return (
     <Box>
       <Box
-        style={{
-          display: "flex",
+        sx={{
           alignItems: "center",
           justifyContent: "center",
           width: "100%",
         }}
       >
-        {isLoading ? (
+        {!isLoading ? (
           <>
+            <Box display="flex">
+              <Box>
+                <TextField
+                  id="search"
+                  label="Search by floorname or ID"
+                  variant="outlined"
+                  onChange={(e) => {
+                    //setFilterById(e.target.value);
+                  }}
+                  sx={{ width: 220 }}
+                />
+              </Box>
+              <Box sx={{ marginLeft: 1 }}>
+              </Box>
+              <Box
+                display="flex"
+                flexDirection="row"
+                justifyContent="flex-end"
+                width="100%"
+              >
+                <Button variant="contained" onClick={() => navigate('/announcement/create')}>
+                  Create
+                </Button>
+              </Box>
+            </Box>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -125,31 +142,15 @@ const AnnouncementPage = (props: Props) => {
                         {row.id}
                       </TableCell>
                       <TableCell align="right">{row.title}</TableCell>
-                      <TableCell align="right">{row.startDate}</TableCell>
-                      <TableCell align="right">{row.endDate}</TableCell>
-                      {row.statuses.map((status) => (
-                        <TableRow
-                          key={status.value}
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell align="right">{status.label}</TableCell>
-                        </TableRow>
-                      ))}
-                      {row.authors.map((author) => (
-                        <TableRow
-                          key={author.id}
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell align="right">{author.name}</TableCell>
-                        </TableRow>
-                      ))}
-                      <TableCell>{row.createdAt}</TableCell>
+                      <TableCell align="right">{toDate(row.startDate)}</TableCell>
+                      <TableCell align="right">{toDate(row.endDate)}</TableCell>
+                      <TableCell align="right">{row.status.label}</TableCell>
+                      <TableCell align="right">{row.author.name}</TableCell>
+                      <TableCell align="right">{toDate(row.createdAt)}</TableCell>
                       <TableCell align="right">
-                        <img src={row.media} alt={row.title} />
+                        <Button onClick={() => handleSelectAnnouncementImage(row.id)}>
+                          Open
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -161,6 +162,11 @@ const AnnouncementPage = (props: Props) => {
           <CircularProgress />
         )}
       </Box>
+      <ViewAnnouncementImageModal
+        announcementId={currentAnnouncementId}
+        open={imageModalOpen}
+        setOpen={setImageModalOpen}
+      />
     </Box>
   );
 };

@@ -60,13 +60,13 @@ const Step3 = () => {
           <Typography display="flex" fontWeight="bold">
             Lantai {"&"} Device
           </Typography>
-          <Typography>
+          <Box>
             {values.devices.map(({ deviceId, floorName, deviceName }) => (
               <Typography key={deviceId} style={{ marginBottom: "6px" }}>
                 {floorName}, {deviceName}
               </Typography>
             ))}
-          </Typography>
+          </Box>
         </Box>
         <Box display="flex" justifyContent="center" alignItems="center" sx={{marginTop: 1}}>
           <Button variant="contained" sx={{marginRight: 1}} onClick={handlePrevSubmission}>

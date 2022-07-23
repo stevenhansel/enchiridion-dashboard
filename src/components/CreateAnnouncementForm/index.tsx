@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
+import { Formik } from "formik";
 
 import { Box, Stepper, Step, StepLabel, Typography } from "@mui/material";
-import { Formik, useFormik } from "formik";
 
 import Step1 from "./Step1";
 import Step2 from "./Step2";
@@ -10,12 +10,11 @@ import Step3 from "./Step3";
 import { CreateAnnouncementFormContext } from "./context";
 import { initialValues, validationSchema } from "./form";
 
-const MAX_STEP = 2;
+const steps = ["Upload file", "Pilih lokasi pengumuman", "Submit"];
 const MIN_STEP = 0;
+const MAX_STEP: number = steps.length;
 
 const CreateAnnouncementForm = () => {
-  const steps = ["Upload file", "Pilih lokasi pengumuman", "Submit"];
-
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNextStep = useCallback(() => {
@@ -51,7 +50,7 @@ const CreateAnnouncementForm = () => {
       validationSchema={validationSchema}
       onSubmit={() => {}}
     >
-      {({ values }) => (
+      {() => (
         <Box
           display="flex"
           justifyContent="center"
@@ -64,8 +63,6 @@ const CreateAnnouncementForm = () => {
               Create Announcement Page
             </Typography>
           </Box>
-          <span>titlenya: {values.title}</span>
-          <span>durationnya: {values.duration}</span>
           <Stepper activeStep={activeStep} alternativeLabel>
             {steps.map((label) => (
               <Step key={label}>

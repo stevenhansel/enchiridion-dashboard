@@ -1,22 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export interface Permissions {
-    id: number;
-    name: string;
-}
+import { Role, UserStatus } from '../types/store';
 
-export interface Role {
-    id: number;
-    name: string;
-    permissions: Permissions[];
-}
-
-export interface UserStatus {
-  value: string;
-  label: string;
-}
-
-export interface ProfileState {
+export type ProfileState = {
   id: number;
   name: string;
   email: string;
@@ -32,7 +18,6 @@ const profileSlice = createSlice({
   initialState: initialState as ProfileState | null,
   reducers: {
     setProfile(state: ProfileState | null, action: PayloadAction<ProfileState>) {
-      console.log('payload', action.payload);
       return { 
         ...state,
         id: action.payload.id,

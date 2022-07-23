@@ -1,23 +1,25 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import React, { useCallback, useContext, useEffect } from "react";
+import { useFormikContext } from "formik";
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
-import { CreateAnnouncementFormContext } from "./context";
-import { useFormikContext } from "formik";
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 
+import { CreateAnnouncementFormContext } from "./context";
 import { CreateAnnouncementFormValues } from "./form";
 import { validateFormikFields } from "./util";
 
-const fields = ["title", "duration", "media", "notes"];
+dayjs.extend(isSameOrBefore);
+
+const fields = ["title", "media", "startDate", "endDate", "notes"];
+
+const today = dayjs();
 
 const Step1 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { values, errors, touched, validateField, setFieldValue } = formik;
-
-  const [startValue, setStartValue] = useState<Date | null>(null);
-  const [endValue, setEndValue] = useState<Date | null>(null);
 
   const { handleNextStep } = useContext(CreateAnnouncementFormContext);
 
@@ -88,7 +90,7 @@ const Step1 = () => {
           fullWidth
           id="title"
           name="title"
-          variant="standard"
+          variant="outlined"
           value={values.title}
           onChange={(e) => setFieldValue("title", e.target.value)}
           error={touched.title && Boolean(errors.title)}
@@ -127,25 +129,40 @@ const Step1 = () => {
       </Box>
 
       <Box sx={{ marginBottom: 2, width: "100%" }}>
-        <Typography>Start Date Announcement</Typography>
-        <TextField
-          fullWidth
-          id="title"
-          name="title"
-          variant="standard"
-          value={values.duration}
-          onChange={(e) => setFieldValue("duration", e.target.value)}
-          error={touched.duration && Boolean(errors.duration)}
+        <DesktopDatePicker
+          label="Start Date Announcement"
+          inputFormat="MM/dd/yyyy"
+          value={values.startDate}
+          onChange={(newDate) => setFieldValue("startDate", newDate)}
+          renderInput={(params) => <TextField {...params} />}
+          shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
         />
       </Box>
+      {touched.startDate && errors.startDate ? (
+        <Typography variant="caption" color={red[700]} fontSize="">
+          {String(errors.startDate)}
+        </Typography>
+      ) : null}
 
       <Box sx={{ marginBottom: 2, width: "100%" }}>
-        <Typography>End Date Announcement</Typography>
+        <DesktopDatePicker
+          label="End Date Announcement"
+          inputFormat="MM/dd/yyyy"
+          value={values.endDate}
+          onChange={(newDate) => setFieldValue("endDate", newDate)}
+          renderInput={(params) => <TextField {...params} />}
+          shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
+        />
       </Box>
+      {touched.endDate && errors.endDate ? (
+        <Typography variant="caption" color={red[700]} fontSize="">
+          {String(errors.endDate)}
+        </Typography>
+      ) : null}
 
       <Box sx={{ marginBottom: 2, width: "100%" }}>
         <Typography>Notes tambahan</Typography>
-        <TextField fullWidth id="notes" name="notes" variant="standard" />
+        <TextField fullWidth id="notes" name="notes" variant="outlined" />
       </Box>
 
       <Box display="flex" justifyContent="center" alignItems="center">
