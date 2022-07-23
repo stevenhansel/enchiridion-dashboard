@@ -11,10 +11,9 @@ export interface Role {
     permissions: Permissions[];
 }
 
-export enum UserStatus {
-  waiting_for_approval = "WaitingForApproval",
-  approved = "approved",
-  rejected = "rejected",
+export interface UserStatus {
+  value: string;
+  label: string;
 }
 
 export interface ProfileState {

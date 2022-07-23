@@ -7,9 +7,10 @@ export const authApi = createApi({
   baseQuery: axios(),
   endpoints: (builder) => ({
     register: builder.mutation({
-      query: () => ({
+      query: (data) => ({
         url: "/v1/auth/register",
         method: "POST",
+        data
       }),
     }),
     login: builder.mutation({
@@ -53,9 +54,14 @@ export const authApi = createApi({
         method: "PUT",
         data: { token, newPassword }
       })
+    }),
+    me: builder.query({
+      query: () => ({
+        url: '/v1/me',
+      })
     })
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation, useLogoutQuery, useEmailVerificationQuery } =
+export const { useRegisterMutation, useLoginMutation, useLogoutQuery, useEmailVerificationQuery, useMeQuery} =
   authApi;

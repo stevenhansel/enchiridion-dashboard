@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from "react-redux";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -16,23 +17,30 @@ import Typography from "@mui/material/Typography";
 
 import CreateDeviceForm from "../components/CreateDeviceForm";
 
+import { AppDispatch } from "../store";
+
+import { deviceApi } from "../services/device";
+import { ApiErrorResponse } from "../services";
+
 type Device = {
   id: number;
-  machineId: string;
+  name: string;
+  location: string;
+  activeAnnouncements: string;
+  description: string;
 };
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const baseUrl = "https://enchridion-api.stevenhansel.com/dashboard/v1";
-
 const DevicePage = (props: Props) => {
   const navigate = useNavigate();
+  const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [devices, setDevices] = useState<Device[]>([]);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchDevices();
@@ -42,29 +50,41 @@ const DevicePage = (props: Props) => {
     navigate(`/device/${deviceId}`, { replace: true });
   };
 
-  const fetchDevices = async () => {
-    try {
-      if (!isLoading) setIsLoading(true);
+  const fetchDevices = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
 
-      const response = await axios.get(baseUrl + "/devices");
-      const devices = response.data.contents.map((device: any) => ({
-        id: device.id,
-        machineId: device.machineId,
-      }));
+    const response = await dispatch(
+      deviceApi.endpoints.getDevices.initiate("")
+    );
 
-      setDevices(devices);
-      setIsLoading(false);
-    } catch (err: any) {
-      setIsLoading(false);
-      setError(err.response.data.message);
+    if ("data" in response) {
+      const getDeviceData: Device[] = response.data.contents.map(
+        (data: any) => ({
+          id: data.id,
+          name: data.name,
+          location: data.location,
+          activeAnnouncements: data.activeAnnouncements,
+          description: data.description,
+        })
+      );
+      setDevices(getDeviceData);
+      setIsLoading(false)
+    } else {
+      setErrorMessage(
+        response.error && "data" in response.error
+          ? (response.error.data as ApiErrorResponse).messages[0]
+          : "Network Error"
+      );
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDevices();
+  }, [])
 
   const handleDeviceSave = async () => {
     await fetchDevices();
   };
-
-  console.log(error);
 
   return (
     <Box>
@@ -73,12 +93,6 @@ const DevicePage = (props: Props) => {
           <CircularProgress />
         </Box>
       )}
-      {error && (
-        <Typography display="flex" justifyContent="center" alignItems="center" variant="h6">
-          {error + "!"}
-        </Typography>
-      )}
-      {!isLoading && error === "" && (
         <>
           <CreateDeviceForm onSave={handleDeviceSave} />
           <Box
@@ -95,9 +109,9 @@ const DevicePage = (props: Props) => {
                   <TableRow>
                     <TableCell align="center">ID</TableCell>
                     <TableCell align="center">Name</TableCell>
-                    <TableCell align="center">Description</TableCell>
-                    <TableCell align="center">Floor</TableCell>
-                    <TableCell align="center">Nums of Announcement</TableCell>
+                    <TableCell align="center">Location</TableCell>
+                    <TableCell align="center">Active Announcements</TableCell>
+                    <TableCell align="center">Descriptions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -113,9 +127,12 @@ const DevicePage = (props: Props) => {
                         <Button
                           onClick={() => handleNavigateToDetailPage(row.id)}
                         >
-                          {row.machineId}
+                          {row.name}
                         </Button>
                       </TableCell>
+                      <TableCell align="center">{row.location}</TableCell>
+                      <TableCell align="center">{row.activeAnnouncements}</TableCell>
+                      <TableCell align="center">{row.description}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -123,7 +140,6 @@ const DevicePage = (props: Props) => {
             </TableContainer>
           </Box>
         </>
-      )}
     </Box>
   );
 };

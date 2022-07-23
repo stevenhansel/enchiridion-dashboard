@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -10,7 +11,10 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { CircularProgress } from "@mui/material";
 
-import axios from "../utils/axiosInstance";
+import { AppDispatch, RootState } from "../store";
+
+import { announcementApi } from "../services/announcement";
+import { ApiErrorResponse } from "../services";
 
 type Props = {
   children?: React.ReactNode;
@@ -49,35 +53,35 @@ type AnnouncementPage = {
 const AnnouncementPage = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [announcements, setAnnouncements] = useState<Content[]>([]);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const fetchAnnouncements = async () => {
-    try {
-      setIsLoading(true);
-      // const response = await axios.get<AnnouncementPage>("/v1/announcements");
-      // const announcements: Content[] = response.data.contents.map((data: any) => ({
-      //   id: data.id,
-      //   title: data.title,
-      //   startDate: data.startDate,
-      //   endDate: data.endDate,
-      //   statuses: data.statuses,
-      //   authors: data.authors,
-      //   createdAt: data.createdAt,
-      //   media: data.media,
-      // }));
-      setAnnouncements(announcements);
+  const dispatch: AppDispatch = useDispatch();
+
+  const fetchAnnouncements = async (): Promise<void> => {
+    setIsLoading(true);
+    const response = await dispatch(
+      announcementApi.endpoints.getAnnouncements.initiate("")
+    );
+    if ("data" in response) {
+      const announcementData: Content[] = response.data.contents.map(
+        (data: any) => ({
+          id: data.id,
+          title: data.title,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          status: data.status,
+          media: data.media,
+        })
+      );
+      setAnnouncements(announcementData);
       setIsLoading(false);
-    } catch (err: any) {
-      setError(err.response.data.message);
-      setIsLoading(false);
+    } else {
+      setErrorMessage(
+        response.error && "data" in response.error
+          ? (response.error.data as ApiErrorResponse).messages[0]
+          : "Network Error"
+      );
     }
-  };
-
-  const updateApprovalStatus = async (id: number, approve: boolean) => {
-    // try {
-    //   await axios.put(`/v1/announcements/${id}/approval`, { approve });
-    //   fetchAnnouncements();
-    // } catch (err) {}
   };
 
   useEffect(() => {
@@ -153,7 +157,9 @@ const AnnouncementPage = (props: Props) => {
               </Table>
             </TableContainer>
           </>
-        ) : (<CircularProgress />)}
+        ) : (
+          <CircularProgress />
+        )}
       </Box>
     </Box>
   );

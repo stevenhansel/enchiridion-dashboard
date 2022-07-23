@@ -118,7 +118,7 @@ const Register = () => {
         return accumulator
       }, {});
 
-      setRoles(roles);
+      dispatch(setRoles(roles));
     } else {
       setErrorMessage(response.error && 'data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
     } 
@@ -136,7 +136,9 @@ const Register = () => {
 
   useEffect(() => {
     fetchRoles();
-  }, [fetchRoles]);
+  }, []);
+
+  console.log(rolesState);
 
   return (
     <React.Fragment>
@@ -198,8 +200,8 @@ const Register = () => {
                   <TextField
                     id="email"
                     name="email"
-                    onChange={(event) =>
-                      formik.setFieldValue("email", event.target.value)
+                    onChange={(e) =>
+                      formik.setFieldValue("email", e.target.value)
                     }
                     error={formik.touched.email && Boolean(formik.errors.email)}
                     helperText={formik.touched.email && formik.errors.email}

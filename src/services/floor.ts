@@ -15,9 +15,16 @@ export const floorApi = createApi({
         query: ({ name, buildingId }) => ({
           url: "/v1/floors",
           method: 'POST',
-          data: { name, buildingId },
+          data: { name, buildingId: +buildingId },
         }),
       }),
+      updateFloor: builder.mutation({
+        query: ({ name, buildingId }) => ({
+          url: "v1/floors/:floorId",
+          method:'PUT',
+          data:{ name, buildingId },
+        })
+      })
   }),
 });
 

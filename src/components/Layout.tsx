@@ -175,7 +175,6 @@ export default function MiniDrawer(props: Props) {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
-
         {props.children}
       </Box>
     </Box>

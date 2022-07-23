@@ -16,6 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { authApi } from "../services/auth";
 import { AppDispatch, RootState } from "../store";
 
+
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
 const SEND_VERIFICATION_RETRY_DELAY_SECONDS = 20;
@@ -38,7 +39,7 @@ const SendLinkVerificationPage = (props: Props) => {
 
   const handleVerification = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    await dispatch(authApi.endpoints.emailVerification.initiate(""));
+   await dispatch(authApi.endpoints.emailVerification.initiate({email}));
     setIsLoading(false);
   }, [email]);
 

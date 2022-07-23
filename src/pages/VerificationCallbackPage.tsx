@@ -1,21 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux'
+import { useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
-import {
-  Box,
-  CssBaseline,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
+import { Box, CssBaseline, Typography, CircularProgress } from "@mui/material";
 
-import { AppDispatch } from '../store';
-import { setProfile, ProfileState } from '../store/profile';
-import { login } from '../store/auth';
+import { AppDispatch } from "../store";
+import { setProfile } from "../store/profile";
+import { login } from "../store/auth";
 
-import { authApi } from '../services/auth';
+import { ApiErrorResponse } from "../services";
+import { authApi } from "../services/auth";
 
-import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
 type Props = {
   children?: React.ReactNode;
@@ -25,33 +21,44 @@ const VerificationCallbackPage = (_: Props) => {
   const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  
-  const [searchParams] = useSearchParams();
-  
-  const handleConfirmEmail = useCallback(async (): Promise<void> => {
-      setIsLoading(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-      const response = await dispatch(
-        authApi.endpoints.confirmEmail.initiate({
-          token: searchParams.get('token')
+  const [searchParams] = useSearchParams();
+
+  const handleConfirmEmail = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
+
+    const response = await dispatch(
+      authApi.endpoints.confirmEmail.initiate({
+        token: searchParams.get("token"),
+      })
+    );
+
+    if ("data" in response) {
+      dispatch(
+        setProfile({
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          profilePicture: response.data.profilePicture,
+          role: response.data.role,
+          userStatus: response.data.userStatus,
         })
       );
-      // dispatch(setProfile({
-      //   id: response.data.id,
-      //   name: response.data.name,
-      //   email: response.data.email,
-      //   profilePicture: response.data.profilePicture,
-      //   role: response.data.role,
-      //   userStatus: response.data.userStatus,
-      // }));
       dispatch(login());
-      setIsLoading(false);
+    } else {
+      setErrorMessage(
+        "data" in response.error
+          ? (response.error.data as ApiErrorResponse).messages[0]
+          : "Network Error"
+      );
+    }
+    setIsLoading(false);
   }, [dispatch]);
 
   useEffect(() => {
     handleConfirmEmail();
-  }, [handleConfirmEmail]);
+  }, []);
 
   return (
     <React.Fragment>
@@ -88,11 +95,11 @@ const VerificationCallbackPage = (_: Props) => {
             }}
           >
             <Box display="flex" justifyContent="center" flexDirection="column">
-                <Typography>Please wait for confirmation</Typography>
-                <Box display="flex" justifyContent="center">
-                {isLoading ? (<CircularProgress color="inherit" />) : (null)}
-                </Box>
-            {Boolean(errorMessage) && <Typography>{errorMessage}</Typography>}
+              <Typography>Please wait for confirmation</Typography>
+              <Box display="flex" justifyContent="center">
+                {isLoading ? <CircularProgress color="inherit" /> : null}
+              </Box>
+              {Boolean(errorMessage) && <Typography>{errorMessage}</Typography>}
             </Box>
           </Box>
         </div>
