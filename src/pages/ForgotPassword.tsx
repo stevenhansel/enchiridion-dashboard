@@ -1,33 +1,23 @@
 import * as React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Navigate, useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { login } from "../store/auth";
+import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
-import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { blue } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 
-import AnnouncementPage from "./AnnouncementPage";
-
-type Props = {
-  children?: React.ReactNode;
-};
+const validationSchema = yup.object({
+  email: yup
+    .string()
+    .email("Enter your Email")
+    .required("Email is required"),
+});
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const validationSchema = yup.object({
-    email: yup
-      .string()
-      .email("Enter your Email")
-      .required("Email is required"),
-  });
 
   const formik = useFormik({
     initialValues: {

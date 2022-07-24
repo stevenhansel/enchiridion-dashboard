@@ -10,13 +10,14 @@ import AccessibilityIcon from "@mui/icons-material/Accessibility";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
 import Layout from "./components/Layout";
-import AnnouncementPage from "./pages/AnnouncementPage";
+import ListAnnouncementPage from "./pages/ListAnnouncementPage";
 import DevicePage from "./pages/DevicePage";
 import ListFloorPage from "./pages/ListFloorPage";
 import DeviceDetailPage from "./pages/DeviceDetailPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateAnnouncementPage from "./pages/CreateAnnouncementPage";
+import AnnouncementDetailPage from "./pages/AnnouncementDetailPage";
 import RolesPage from "./pages/RolesPage";
 import ListUsersPage from "./pages/ListUsersPage";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -37,15 +38,15 @@ import { AppDispatch, RootState } from "./store";
 
 function App() {
   const isAuth = useSelector((state: RootState) => state.auth.isAuth);
+
   const dispatch: AppDispatch = useDispatch();
 
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const userStateData = useSelector(
-    (state: RootState) => state.profile?.userStatus
-  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [, setErrorMessage] = useState("");
 
   const handleMe = useCallback(async () => {
+    setIsLoading(true);
+
     const response = await dispatch(authApi.endpoints.me.initiate(""));
     if ("data" in response) {
       dispatch(
@@ -66,13 +67,17 @@ function App() {
           : "Network Error"
       );
     }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     handleMe();
   }, []);
 
-  console.log(isAuth);
+  if (isLoading) {
+    return <div/>;
+  }
 
   return (
     <BrowserRouter>
@@ -116,7 +121,7 @@ function App() {
               path="/"
               element={
                 <UserStatusWrapper>
-                  <AnnouncementPage />
+                  <ListAnnouncementPage />
                 </UserStatusWrapper>
               }
             />
@@ -125,6 +130,14 @@ function App() {
               element={
                 <UserStatusWrapper>
                   <CreateAnnouncementPage />
+                </UserStatusWrapper>
+              }
+            />
+            <Route
+              path="/announcement/detail/:announcementId"
+              element={
+                <UserStatusWrapper>
+                  <AnnouncementDetailPage />
                 </UserStatusWrapper>
               }
             />

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch } from 'react-redux';
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -13,12 +14,27 @@ import Autocomplete from "@mui/material/Autocomplete";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 
+import { AppDispatch } from "../store";
+
+import { deviceApi } from "../services/device";
+import { ApiErrorResponse } from "../services";
+
+type DeviceDetail = {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 type Props = {
   children?: React.ReactNode;
 };
 
 const DeviceDetailPage = (props: Props) => {
   const { id } = useParams();
+  const dispatch: AppDispatch = useDispatch();
 
   const [openNewDevice, setOpenNewDevice] = useState(false);
   const [openDeleteDevice, setDeleteDevice] = useState(false);
@@ -50,6 +66,17 @@ const DeviceDetailPage = (props: Props) => {
       title: 'Camera',
     },
   ];
+
+  const getDeviceDetail = useCallback( async (): Promise<void> => {
+    const response = await dispatch(deviceApi.endpoints.getDeviceDetail.initiate(""))
+
+    console.log(response);
+  }, [])
+
+
+  useEffect(() => {
+    getDeviceDetail()
+  }, [])
 
   return (
     <Box>

@@ -1,21 +1,41 @@
 import React, { useCallback, useState } from "react";
+import dayjs from 'dayjs';
+import { Formik } from "formik";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import { Box, Stepper, Step, StepLabel, Typography } from "@mui/material";
-import { Formik, useFormik } from "formik";
+import {
+  Box,
+  CircularProgress,
+  Stepper,
+  Step,
+  StepLabel,
+  Typography,
+} from "@mui/material";
+
+import { AppDispatch } from "../../store";
+
+import { ApiErrorResponse } from "../../services";
+import { announcementApi } from "../../services/announcement";
 
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
 
 import { CreateAnnouncementFormContext } from "./context";
-import { initialValues, validationSchema } from "./form";
+import { initialValues, validationSchema, CreateAnnouncementFormValues } from "./form";
 
-const MAX_STEP = 2;
+const steps = ["Upload file", "Pilih lokasi pengumuman", "Submit"];
 const MIN_STEP = 0;
+const MAX_STEP: number = steps.length;
+const dateFormat = 'YYYY-MM-DD';
 
 const CreateAnnouncementForm = () => {
-  const steps = ["Upload file", "Pilih lokasi pengumuman", "Submit"];
+  const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNextStep = useCallback(() => {
@@ -29,6 +49,36 @@ const CreateAnnouncementForm = () => {
 
     setActiveStep((p) => p - 1);
   }, [activeStep]);
+
+  const handleSubmit = useCallback(async (values: CreateAnnouncementFormValues) => {
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append('title', values.title);
+    formData.append('media', values.media!.file);
+    formData.append('startDate', dayjs(values.startDate).format(dateFormat));
+    formData.append('endDate', dayjs(values.endDate).format(dateFormat));
+    formData.append('notes', values.notes);
+    formData.append('deviceIds', values.devices.join(','));
+
+    const response = await dispatch(
+      announcementApi.endpoints.createAnnouncement.initiate({
+        formData,
+      })
+    );
+
+    if ('error' in response) {
+      setErrorMessage(
+        response.error && "data" in response.error
+          ? (response.error.data as ApiErrorResponse).messages[0]
+          : "Network Error"
+      );
+    }
+
+    setIsLoading(false);
+
+    navigate('/');
+  }, []);
 
   const renderForm = useCallback((): JSX.Element | null => {
     if (activeStep === 0) {
@@ -49,37 +99,42 @@ const CreateAnnouncementForm = () => {
       validateOnChange
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={() => {}}
+      onSubmit={handleSubmit}
     >
-      {({ values }) => (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          flexDirection="column"
-          sx={{ marginTop: 3 }}
-        >
-          <Box>
-            <Typography variant="h5" fontWeight="bold">
-              Create Announcement Page
-            </Typography>
-          </Box>
-          <span>titlenya: {values.title}</span>
-          <span>durationnya: {values.duration}</span>
-          <Stepper activeStep={activeStep} alternativeLabel>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
+      {() => (
+        <>
+          {isLoading && (<CircularProgress />)}
+          {!isLoading && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              sx={{ marginTop: 3 }}
+            >
+              <Box sx={{ marginBottom: 4 }}>
+                <Typography variant="h5" fontWeight="bold">
+                  Create Announcement Page
+                </Typography>
+              </Box>
+              <Box sx={{ marginBottom: 3 }}>
+                <Stepper activeStep={activeStep} alternativeLabel>
+                  {steps.map((label) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+              </Box>
 
-          <CreateAnnouncementFormContext.Provider
-            value={{ handleNextStep, handlePrevStep }}
-          >
-            <Box sx={{ width: "60%" }}>{form}</Box>
-          </CreateAnnouncementFormContext.Provider>
-        </Box>
+              <CreateAnnouncementFormContext.Provider
+                value={{ handleNextStep, handlePrevStep }}
+              >
+                <Box sx={{ marginHorizontal: 10, width: '100%' }}>{form}</Box>
+              </CreateAnnouncementFormContext.Provider>
+            </Box>
+          )}
+        </>
       )}
     </Formik>
   );

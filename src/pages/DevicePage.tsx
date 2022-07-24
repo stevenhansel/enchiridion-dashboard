@@ -12,8 +12,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { CircularProgress } from "@mui/material";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import Link from '@mui/material/Link';
 
 import CreateDeviceForm from "../components/CreateDeviceForm";
 
@@ -82,10 +81,6 @@ const DevicePage = (props: Props) => {
     fetchDevices();
   }, [])
 
-  const handleDeviceSave = async () => {
-    await fetchDevices();
-  };
-
   return (
     <Box>
       {isLoading && (
@@ -94,7 +89,6 @@ const DevicePage = (props: Props) => {
         </Box>
       )}
         <>
-          <CreateDeviceForm onSave={handleDeviceSave} />
           <Box
             style={{
               display: "flex",
@@ -120,16 +114,10 @@ const DevicePage = (props: Props) => {
                       key={row.id}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row" align="center">
-                        {row.id}
-                      </TableCell>
                       <TableCell align="center">
-                        <Button
-                          onClick={() => handleNavigateToDetailPage(row.id)}
-                        >
-                          {row.name}
-                        </Button>
+                        <Link onClick={() => handleNavigateToDetailPage(row.id)}>{row.id}</Link>
                       </TableCell>
+                      <TableCell align="center">{row.name}</TableCell>
                       <TableCell align="center">{row.location}</TableCell>
                       <TableCell align="center">{row.activeAnnouncements}</TableCell>
                       <TableCell align="center">{row.description}</TableCell>

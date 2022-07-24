@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/index";
 
 type Props = {
-    children: React.ReactNode;
+  children: React.ReactNode;
 };
 
 const UserStatusWrapper = (props: Props) => {
@@ -13,9 +13,10 @@ const UserStatusWrapper = (props: Props) => {
     (state: RootState) => state.profile?.userStatus
   );
 
-//   if (userStateData && userStateData?.value === "waiting_for_approval") {
-//     return <Navigate to="/waiting-approval" replace={true} />;
-//   }
+  if (userStateData && userStateData?.value === "waiting_for_approval") {
+    return <Navigate to="/waiting-approval" replace={true} />;
+  }
+
   return <>{props.children}</>;
 };
 
