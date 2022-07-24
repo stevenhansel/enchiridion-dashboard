@@ -10,13 +10,14 @@ import AccessibilityIcon from "@mui/icons-material/Accessibility";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
 import Layout from "./components/Layout";
-import AnnouncementPage from "./pages/AnnouncementPage";
+import ListAnnouncementPage from "./pages/ListAnnouncementPage";
 import DevicePage from "./pages/DevicePage";
 import ListFloorPage from "./pages/ListFloorPage";
 import DeviceDetailPage from "./pages/DeviceDetailPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateAnnouncementPage from "./pages/CreateAnnouncementPage";
+import AnnouncementDetailPage from "./pages/AnnouncementDetailPage";
 import RolesPage from "./pages/RolesPage";
 import ListUsersPage from "./pages/ListUsersPage";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -120,7 +121,7 @@ function App() {
               path="/"
               element={
                 <UserStatusWrapper>
-                  <AnnouncementPage />
+                  <ListAnnouncementPage />
                 </UserStatusWrapper>
               }
             />
@@ -129,6 +130,14 @@ function App() {
               element={
                 <UserStatusWrapper>
                   <CreateAnnouncementPage />
+                </UserStatusWrapper>
+              }
+            />
+            <Route
+              path="/announcement/detail/:announcementId"
+              element={
+                <UserStatusWrapper>
+                  <AnnouncementDetailPage />
                 </UserStatusWrapper>
               }
             />

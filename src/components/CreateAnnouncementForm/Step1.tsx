@@ -21,7 +21,6 @@ const Step1 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { values, errors, touched, validateField, setFieldValue } = formik;
 
-  console.log(values);
   const { handleNextStep } = useContext(CreateAnnouncementFormContext);
 
   const handleUploadImage = useCallback(

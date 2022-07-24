@@ -14,13 +14,15 @@ import {
   Typography,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 
 import { floorApi } from "../services/floor";
+
+import { Building } from '../types/store';
 
 const validationSchema = yup.object({
   name: yup
@@ -30,43 +32,45 @@ const validationSchema = yup.object({
   buildingId: yup.number().required("Building is required"),
 });
 
-type UpdateFloor = {
+type CreateFloor = {
   name: string;
   buildingId: number | null;
 };
 
 type Props = {
+  buildingHash?: Record<number, Building>;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleListFloor: () => {};
+  refetch: () => Promise<void>;
 };
 
 const CreateFloorModal = (props: Props) => {
-  const buildingsState = useSelector((state: RootState) => state.buildings);
-
+  const { buildingHash, open, setOpen, refetch } = props;
   const dispatch: AppDispatch = useDispatch();
   
   const handleCreateFloor = useCallback(
-    async (values: UpdateFloor): Promise<void> => {
+    async (values: CreateFloor): Promise<void> => {
       await dispatch(
         floorApi.endpoints.createFloor.initiate({
           name: values.name,
           buildingId: values.buildingId,
         })
       );
-      props.setOpen(false);
+      setOpen(false);
+
+      await refetch();
     },
-    [dispatch, props.setOpen]
+    [dispatch, setOpen, refetch]
   );
 
-  const formik = useFormik<UpdateFloor>({
+  const formik = useFormik<CreateFloor>({
     initialValues: {
       name: "",
       buildingId: null,
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-        handleCreateFloor(values).then(props.handleListFloor);
+      handleCreateFloor(values);
     },
   });
 
@@ -75,7 +79,7 @@ const CreateFloorModal = (props: Props) => {
   };
 
   return (
-    <Dialog open={props.open} onClose={props.setOpen}>
+    <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>Create Floor</DialogTitle>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
@@ -118,7 +122,7 @@ const CreateFloorModal = (props: Props) => {
                   }
                   defaultValue={""}
                 >
-                  {buildingsState && Object.entries(buildingsState).map(([buildingId, building]) => (
+                  {buildingHash && Object.entries(buildingHash).map(([buildingId, building]) => (
                     <MenuItem key={buildingId} value={buildingId}>
                       {building.name}
                     </MenuItem>
@@ -146,7 +150,7 @@ const CreateFloorModal = (props: Props) => {
               <Button
                 variant="contained"
                 component="label"
-                onClick={() => props.setOpen(false)}
+                onClick={() => setOpen(false)}
               >
                 Cancel
               </Button>

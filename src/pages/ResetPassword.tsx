@@ -1,37 +1,27 @@
 import * as React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Navigate, useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { login } from "../store/auth";
+import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
-import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { blue } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 
-import AnnouncementPage from "./AnnouncementPage";
-
-type Props = {
-  children?: React.ReactNode;
-};
+const validationSchema = yup.object({
+  newPassword: yup
+    .string()
+    .min(8, "New Password should be of minimum 8 characters length")
+    .required("New password is required"),
+  confirmPassword: yup
+    .string()
+    .required("Please confirm your new password")
+    .oneOf([yup.ref("newPassword"), null], "Password must match"),
+});
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const validationSchema = yup.object({
-    newPassword: yup
-      .string()
-      .min(8, "New Password should be of minimum 8 characters length")
-      .required("New password is required"),
-    confirmPassword: yup
-      .string()
-      .required("Please confirm your new password")
-      .oneOf([yup.ref("newPassword"), null], "Password must match"),
-  });
 
   const formik = useFormik({
     initialValues: {

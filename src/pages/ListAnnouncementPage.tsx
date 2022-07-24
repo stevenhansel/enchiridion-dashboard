@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState } from "react";
+import dayjs from 'dayjs';
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -17,70 +17,26 @@ import {
 } from "@mui/material";
 import ViewAnnouncementImageModal from '../components/ViewAnnouncementImageModal';
 
-import { AppDispatch } from "../store";
+import { useGetAnnouncementsQuery } from "../services/announcement";
 
-import { announcementApi } from "../services/announcement";
-import { ApiErrorResponse } from "../services";
+const toDate = (dateStr: string) => dayjs(dateStr).format('DD MM YYYY');
 
-import { Announcement } from '../types/store';
-
-type Props = {
-  children?: React.ReactNode;
-};
-
-const toDate = (dateStr: string) => new Date(dateStr).toDateString();
-
-const AnnouncementPage = (props: Props) => {
+const ListAnnouncementPage = () => {
   const navigate = useNavigate();
 
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const { data: announcementHash, isLoading } = useGetAnnouncementsQuery(null);
+
   const [currentAnnouncementId, setCurrentAnnouncementId] = useState<string>('');
   const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const dispatch: AppDispatch = useDispatch();
-
-  const fetchAnnouncements = async (): Promise<void> => {
-    setIsLoading(true);
-
-    const response = await dispatch(
-      announcementApi.endpoints.getAnnouncements.initiate("")
-    );
-
-    if ("data" in response) {
-      const announcementData: Announcement[] = response.data.contents.map(
-        (data: Announcement) => ({
-          id: data.id,
-          title: data.title,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          status: data.status,
-          author: data.author,
-          createdAt: data.createdAt,
-          media: data.media,
-        })
-      );
-      setAnnouncements(announcementData);
-    } else {
-      setErrorMessage(
-        response.error && "data" in response.error
-          ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
-      );
-    }
-
-    setIsLoading(false);
-  };
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
     setImageModalOpen(true);
   }
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
+  const handleNavigateToDetailPage = (announcementId: number) => {
+    navigate(`/announcement/detail/${announcementId}`);
+  }
 
   return (
     <Box>
@@ -133,22 +89,26 @@ const AnnouncementPage = (props: Props) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {announcements.map((row) => (
+                  {announcementHash && Object.entries(announcementHash).map(([announcementId, announcement]) => (
                     <TableRow
-                      key={row.id}
+                      key={announcementId}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
-                        {row.id}
+                        {announcementId}
                       </TableCell>
-                      <TableCell align="right">{row.title}</TableCell>
-                      <TableCell align="right">{toDate(row.startDate)}</TableCell>
-                      <TableCell align="right">{toDate(row.endDate)}</TableCell>
-                      <TableCell align="right">{row.status.label}</TableCell>
-                      <TableCell align="right">{row.author.name}</TableCell>
-                      <TableCell align="right">{toDate(row.createdAt)}</TableCell>
                       <TableCell align="right">
-                        <Button onClick={() => handleSelectAnnouncementImage(row.id)}>
+                        <Button onClick={() => handleNavigateToDetailPage(announcement.id)}>
+                          {announcement.title}
+                        </Button>
+                      </TableCell>
+                      <TableCell align="right">{toDate(announcement.startDate)}</TableCell>
+                      <TableCell align="right">{toDate(announcement.endDate)}</TableCell>
+                      <TableCell align="right">{announcement.status.label}</TableCell>
+                      <TableCell align="right">{announcement.author.name}</TableCell>
+                      <TableCell align="right">{toDate(announcement.createdAt)}</TableCell>
+                      <TableCell align="right">
+                        <Button onClick={() => handleSelectAnnouncementImage(announcement.id)}>
                           Open
                         </Button>
                       </TableCell>
@@ -171,4 +131,4 @@ const AnnouncementPage = (props: Props) => {
   );
 };
 
-export default AnnouncementPage;
+export default ListAnnouncementPage;

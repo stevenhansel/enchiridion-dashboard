@@ -1,7 +1,8 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import dayjs from 'dayjs';
 import { Formik } from "formik";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import {
   Box,
@@ -13,12 +14,8 @@ import {
 } from "@mui/material";
 
 import { AppDispatch } from "../../store";
-import { setBuildings } from "../../store/buildings";
-import { setFloors } from "../../store/floors";
 
 import { ApiErrorResponse } from "../../services";
-import { floorApi } from "../../services/floor";
-import { buildingApi } from "../../services/building";
 import { announcementApi } from "../../services/announcement";
 
 import Step1 from "./Step1";
@@ -28,8 +25,6 @@ import Step3 from "./Step3";
 import { CreateAnnouncementFormContext } from "./context";
 import { initialValues, validationSchema, CreateAnnouncementFormValues } from "./form";
 
-import { Building, Floor } from '../../types/store';
-
 const steps = ["Upload file", "Pilih lokasi pengumuman", "Submit"];
 const MIN_STEP = 0;
 const MAX_STEP: number = steps.length;
@@ -37,6 +32,7 @@ const dateFormat = 'YYYY-MM-DD';
 
 const CreateAnnouncementForm = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -54,63 +50,6 @@ const CreateAnnouncementForm = () => {
     setActiveStep((p) => p - 1);
   }, [activeStep]);
 
-  const handleFetchFloors = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-
-    const response = await dispatch(
-      floorApi.endpoints.getFloors.initiate("", {
-        forceRefetch: true,
-      })
-    );
-
-    if ("data" in response) {
-      const floors: Record<number, Floor> = response.data.contents.reduce(
-        (prev: Record<number, Floor>, curr: Floor) => ({
-          ...prev,
-          [curr.id]: curr,
-        }),
-        {},
-      );
-      dispatch(setFloors(floors))
-    } else {
-      setErrorMessage(
-        response.error && "data" in response.error
-          ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
-      );
-    }
-
-    setIsLoading(false);
-  }, []);
-
-  const handleFetchBuildings = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-
-    const response = await dispatch(
-      buildingApi.endpoints.getBuildings.initiate("")
-    );
-
-    if ("data" in response) {
-      const building: Record<number, Building> = response.data.contents.reduce(
-        (prev: Record<number, Building>, curr: Building) => ({
-          ...prev,
-          [curr.id]: curr,
-        }),
-        {},
-      );
-
-      dispatch(setBuildings(building));
-    } else {
-      setErrorMessage(
-        response.error && "data" in response.error
-          ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
-      );
-    }
-    
-    setIsLoading(false);
-  }, []);
-
   const handleSubmit = useCallback(async (values: CreateAnnouncementFormValues) => {
     setIsLoading(true);
 
@@ -121,8 +60,6 @@ const CreateAnnouncementForm = () => {
     formData.append('endDate', dayjs(values.endDate).format(dateFormat));
     formData.append('notes', values.notes);
     formData.append('deviceIds', values.devices.join(','));
-
-    console.log(formData);
 
     const response = await dispatch(
       announcementApi.endpoints.createAnnouncement.initiate({
@@ -139,6 +76,8 @@ const CreateAnnouncementForm = () => {
     }
 
     setIsLoading(false);
+
+    navigate('/');
   }, []);
 
   const renderForm = useCallback((): JSX.Element | null => {
@@ -154,11 +93,6 @@ const CreateAnnouncementForm = () => {
   }, [activeStep]);
 
   const form = renderForm();
-
-  useEffect(() => {
-    handleFetchFloors();
-    handleFetchBuildings();
-  }, []);
 
   return (
     <Formik

@@ -14,11 +14,11 @@ import {
     Typography,
   } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 
 import { floorApi } from "../services/floor";
 
@@ -38,13 +38,14 @@ type UpdateFloor = {
 };
 
 type Props = {
+  buildingHash?: Record<number, Building>;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleListFloor: () => {};
+  refetch: () => Promise<void>;
 };
 
 const EditFloorModal = (props: Props) => {
-  const buildingsState = useSelector((state: RootState) => state.buildings);
+  const { buildingHash, open, setOpen, refetch } = props;
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -57,7 +58,9 @@ const EditFloorModal = (props: Props) => {
       name: values.name,
       buildingId: values.buildingId,
     }));
-  }, []);
+
+    await refetch();
+  }, [dispatch, refetch]);
 
   const formik = useFormik<UpdateFloor>({
     initialValues: {
@@ -66,12 +69,12 @@ const EditFloorModal = (props: Props) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      handleUpdateFloor(values).then(props.handleListFloor);
+      handleUpdateFloor(values).then(() => props.refetch());
     },
   });
 
   return (
-    <Dialog open={props.open} onClose={props.setOpen}>
+    <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>Update Floor</DialogTitle>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
@@ -114,7 +117,7 @@ const EditFloorModal = (props: Props) => {
                   }
                   defaultValue={""}
                 >
-                  {buildingsState && Object.entries(buildingsState).map(([buildingId, building]) => (
+                  {buildingHash && Object.entries(buildingHash).map(([buildingId, building]) => (
                     <MenuItem key={buildingId} value={buildingId}>
                       {building.name}
                     </MenuItem>
@@ -142,7 +145,7 @@ const EditFloorModal = (props: Props) => {
               <Button
                 variant="contained"
                 component="label"
-                onClick={() => props.setOpen(false)}
+                onClick={() => setOpen(false)}
               >
                 Cancel
               </Button>

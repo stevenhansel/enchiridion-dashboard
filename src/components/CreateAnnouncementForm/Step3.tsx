@@ -1,24 +1,19 @@
 import React, { useCallback, useContext } from "react";
-import { useSelector } from "react-redux";
 
 import { Box, Button, Typography } from "@mui/material";
 import { useFormikContext } from "formik";
 
-import { RootState } from "../../store";
-
 import { CreateAnnouncementFormValues } from "./form";
 import { CreateAnnouncementFormContext } from "./context";
 
-import { Floor } from '../../types/store';
+import { useGetBuildingsQuery } from "../../services/building";
+import { useGetFloorsQuery } from "../../services/floor";
 
-type BuildingFloorDevices = {
-  name: string,
-  floors: Floor[],
-}
+import { BuildingFloorDevices } from '../../types/store';
 
 const Step3 = () => {
-  const buildingsState = useSelector((state: RootState) => state.buildings);
-  const floorsState = useSelector((state: RootState) => state.floors);
+  const { data: buildingHash } = useGetBuildingsQuery(null);
+  const { data: floorHash } = useGetFloorsQuery(null);
 
   const { values, handleSubmit } = useFormikContext<CreateAnnouncementFormValues>();
   const { handlePrevStep } = useContext(CreateAnnouncementFormContext);
@@ -27,8 +22,8 @@ const Step3 = () => {
     handlePrevStep();
   }, [handlePrevStep]);
 
-  const floors = floorsState ? Object.values(floorsState) : [];
-  const buildingFloorDevices: Record<string, BuildingFloorDevices>  = buildingsState ? Object.values(buildingsState).reduce((prev, curr) => {
+  const floors = floorHash ? Object.values(floorHash) : [];
+  const buildingFloorDevices: Record<string, BuildingFloorDevices>  = buildingHash ? Object.values(buildingHash).reduce((prev, curr) => {
     const filteredFloors = floors
       .map((floor) => ({
         ...floor,

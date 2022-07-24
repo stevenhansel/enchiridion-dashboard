@@ -3,16 +3,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import { apiReducers, apiMiddlewares } from '../services';
 
 import authReducer from './auth';
-import buildingsReducer from './buildings';
-import floorsReducer from './floors';
 import profileReducer from './profile';
 import rolesReducer from './roles';
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    buildings: buildingsReducer,
-    floors: floorsReducer,
     profile: profileReducer,
     roles: rolesReducer,
     ...apiReducers,

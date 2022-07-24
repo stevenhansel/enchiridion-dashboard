@@ -1,4 +1,5 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState } from "react";
+
 import {
   Box,
   Table,
@@ -21,122 +22,61 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useDispatch, useSelector } from "react-redux";
 
 import ListFloorForm from "../components/ListFloorForm";
 import EditFloorModal from "../components/EditFloorModal";
 import CreateFloorModal from '../components/CreateFloorModal';
 
-import { AppDispatch, RootState } from "../store";
-import { setBuildings } from "../store/buildings";
-import { setFloors } from "../store/floors";
+import { useGetBuildingsQuery } from "../services/building";
+import { useGetFloorsQuery } from "../services/floor";
 
-import { ApiErrorResponse } from "../services";
-import { floorApi } from "../services/floor";
-import { buildingApi } from "../services/building";
+const ListFloorPage = () => {
+  const {
+    data: buildingHash,
+    isLoading: isGetBuildingsLoading,
+    error: getBuildingsError,
+    refetch: refetchGetBuildings,
+  } = useGetBuildingsQuery(null);
+  const {
+    data: floorHash,
+    isLoading: isGetFloorsLoading,
+    error: getFloorsError,
+    refetch: refetchGetFloors,
+  } = useGetFloorsQuery(null);
 
-import { Building, Floor } from '../types/store';
-
-type Props = {
-  children?: React.ReactNode;
-};
-
-const ListFloorPage = (props: Props) => {
-  const buildingsState = useSelector((state: RootState) => state.buildings);
-  const floorsState = useSelector((state: RootState) => state.floors);
-
-  const dispatch: AppDispatch = useDispatch();
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [filterById, setFilterById] = useState("");
   const [filterByBuilding, setFilterByBuilding] = useState<string | null>(null);
 
   const [openCreateFloor, setOpenCreateFloor] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
 
-  const handleListFloor = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
+  const isLoading = isGetBuildingsLoading && isGetFloorsLoading;
+  const error = getBuildingsError || getFloorsError;
 
-    const response = await dispatch(
-      floorApi.endpoints.getFloors.initiate("", {
-        forceRefetch: true,
-      })
-    );
+  const refetch = useCallback(async () => { await Promise.all([refetchGetBuildings, refetchGetFloors]); }, [refetchGetBuildings, refetchGetFloors]);
 
-    if ("data" in response) {
-      const floors: Record<number, Floor> = response.data.contents.reduce(
-        (prev: Record<number, Floor>, curr: Floor) => ({
-          ...prev,
-          [curr.id]: curr,
-        }),
-        {},
-      );
-      dispatch(setFloors(floors))
-    } else {
-      setErrorMessage(
-        response.error && "data" in response.error
-          ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
-      );
-    }
-
-    setIsLoading(false);
-  }, []);
-
-  const handleFetchBuildings = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-
-    const response = await dispatch(
-      buildingApi.endpoints.getBuildings.initiate("")
-    );
-
-    if ("data" in response) {
-      const building: Record<number, Building> = response.data.contents.reduce(
-        (prev: Record<number, Building>, curr: Building) => ({
-          ...prev,
-          [curr.id]: curr,
-        }),
-        {},
-      );
-
-      dispatch(setBuildings(building));
-    } else {
-      setErrorMessage(
-        response.error && "data" in response.error
-          ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
-      );
-    }
-    
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    handleListFloor();
-    handleFetchBuildings();
-  }, []);
-
-  const filteredFloors = floorsState ? Object.values(floorsState)
+  const filteredFloors = floorHash ? Object.values(floorHash)
     .filter((floor) => (
       floor.name.toLowerCase().startsWith(filterById.toLowerCase()) ||
       floor.id.toString().startsWith(filterById.toLowerCase()) ||
       filterByBuilding === floor.building.id.toString() ||
       filterByBuilding === null
-    )) : null;
+    )) : [];
 
   return (
     <Box>
       <ListFloorForm />
       <EditFloorModal 
+        buildingHash={buildingHash}
         open={openEditFloor} 
-        handleListFloor={handleListFloor} 
         setOpen={setOpenEditFloor}
+        refetch={refetch} 
       />
       <CreateFloorModal       
+        buildingHash={buildingHash}
         open={openCreateFloor} 
-        handleListFloor={handleListFloor} 
         setOpen={setOpenCreateFloor} 
+        refetch={refetch} 
       />
       {isLoading ? (
         <Box display="flex" justifyContent="center">
@@ -176,7 +116,7 @@ const ListFloorPage = (props: Props) => {
                   <MenuItem value="all-building">
                     All Campus 
                   </MenuItem>
-                  {buildingsState && Object.entries(buildingsState).map(([buildingId, building]) => (
+                  {buildingHash && Object.entries(buildingHash).map(([buildingId, building]) => (
                     <MenuItem key={buildingId} value={buildingId}>
                       {building.name}
                     </MenuItem>

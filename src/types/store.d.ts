@@ -1,3 +1,8 @@
+export type BuildingFloorDevices = {
+  name: string,
+  floors: Floor[],
+};
+
 // @announcement
 export type Status = {
   value: string;
@@ -17,6 +22,8 @@ export type Announcement = {
   status: Status;
   author: Author;
   media: string;
+  notes: string;
+  devices: Device[];
   createdAt: string;
 };
 

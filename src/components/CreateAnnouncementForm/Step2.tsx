@@ -16,11 +16,14 @@ import { CreateAnnouncementFormContext } from "./context";
 import { CreateAnnouncementFormValues } from "./form";
 import { validateFormikFields } from "./util";
 
+import { useGetBuildingsQuery } from "../../services/building";
+import { useGetFloorsQuery } from "../../services/floor";
+
 const fields = ["devices"];
 
 const Step2 = () => {
-  const buildingsState = useSelector((state: RootState) => state.buildings);
-  const floorsState = useSelector((state: RootState) => state.floors);
+  const { data: buildingHash } = useGetBuildingsQuery(null);
+  const { data: floorHash } = useGetFloorsQuery(null);
 
   const [currentBuildingId, setCurrentBuildingId] = useState<string>('');
 
@@ -80,7 +83,7 @@ const Step2 = () => {
             flexDirection: 'column',
           }}
         >
-          {buildingsState && Object.entries(buildingsState).map(([buildingId, building]) => (
+          {buildingHash && Object.entries(buildingHash).map(([buildingId, building]) => (
             <Button
               key={buildingId}
               onClick={() => setCurrentBuildingId(buildingId)}
@@ -100,7 +103,7 @@ const Step2 = () => {
           }}
         >
           <Box>
-            {floorsState && Object.entries(floorsState).filter(([_, floor]) => currentBuildingId === floor.building.id.toString()).map(([floorId, floor]) => (
+            {floorHash && Object.entries(floorHash).filter(([_, floor]) => currentBuildingId === floor.building.id.toString()).map(([floorId, floor]) => (
               <Box
                 key={floorId}
                 display="flex"
