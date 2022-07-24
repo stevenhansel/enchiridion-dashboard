@@ -21,6 +21,7 @@ const Step1 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { values, errors, touched, validateField, setFieldValue } = formik;
 
+  console.log(values);
   const { handleNextStep } = useContext(CreateAnnouncementFormContext);
 
   const handleUploadImage = useCallback(
@@ -111,7 +112,7 @@ const Step1 = () => {
             <input
               type="file"
               hidden
-              accept=".jpg,.jpeg,.png"
+              accept=".jpg,.jpeg"
               onChange={(e) => handleUploadImage(e)}
             />
           </Button>
@@ -162,7 +163,14 @@ const Step1 = () => {
 
       <Box sx={{ marginBottom: 2, width: "100%" }}>
         <Typography>Notes tambahan</Typography>
-        <TextField fullWidth id="notes" name="notes" variant="outlined" />
+        <TextField
+          fullWidth
+          id="notes"
+          name="notes"
+          variant="outlined"
+          value={values.notes}
+          onChange={(e) => setFieldValue("notes", e.target.value)}
+        />
       </Box>
 
       <Box display="flex" justifyContent="center" alignItems="center">

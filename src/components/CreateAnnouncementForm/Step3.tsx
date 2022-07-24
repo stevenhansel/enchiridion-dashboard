@@ -1,18 +1,49 @@
 import React, { useCallback, useContext } from "react";
+import { useSelector } from "react-redux";
 
 import { Box, Button, Typography } from "@mui/material";
 import { useFormikContext } from "formik";
 
+import { RootState } from "../../store";
+
 import { CreateAnnouncementFormValues } from "./form";
 import { CreateAnnouncementFormContext } from "./context";
 
+import { Floor } from '../../types/store';
+
+type BuildingFloorDevices = {
+  name: string,
+  floors: Floor[],
+}
+
 const Step3 = () => {
-  const { values } = useFormikContext<CreateAnnouncementFormValues>();
+  const buildingsState = useSelector((state: RootState) => state.buildings);
+  const floorsState = useSelector((state: RootState) => state.floors);
+
+  const { values, handleSubmit } = useFormikContext<CreateAnnouncementFormValues>();
   const { handlePrevStep } = useContext(CreateAnnouncementFormContext);
 
   const handlePrevSubmission = useCallback(() => {
     handlePrevStep();
   }, [handlePrevStep]);
+
+  const floors = floorsState ? Object.values(floorsState) : [];
+  const buildingFloorDevices: Record<string, BuildingFloorDevices>  = buildingsState ? Object.values(buildingsState).reduce((prev, curr) => {
+    const filteredFloors = floors
+      .map((floor) => ({
+        ...floor,
+        devices: floor.devices.filter((device) => values.devices.includes(device.id.toString())),
+      }))
+      .filter((floor) => (curr.id === floor.building.id && floor.devices.length > 0));
+
+    return {
+      ...prev,
+      [curr.id]: {
+        name: curr.name,
+        floors: filteredFloors,
+      },
+    }
+  }, {}) : {};
 
   return (
     <Box display="flex" flexDirection="column">
@@ -25,46 +56,75 @@ const Step3 = () => {
         <Box
           sx={{
             marginTop: 5,
-            bgcolor: "white",
-            boxShadow: 1,
-            borderRadius: 1,
             p: 2,
           }}
         >
           <Box sx={{ marginBottom: 2 }}>
-            <Typography display="flex" fontWeight="bold">
-              Title Announcement
-            </Typography>
-            <Typography>{values.title}</Typography>
+            <Typography variant="h2" align="center">{values.title}</Typography>
           </Box>
           <Box sx={{ marginBottom: 2 }}>
-            <Typography display="flex" fontWeight="bold">
-              File Announcement
-            </Typography>
-            <Typography>
-              {values.media ? values.media.file.name : null}
-            </Typography>
+            {values.media ? (
+              <img
+                alt="banner"
+                src={values.media.image.src}
+                style={{ width: '100%' }}
+              />
+            ) : null}
           </Box>
-          <Box sx={{ marginBottom: 2 }}>
-            <Typography display="flex" fontWeight="bold">
-              Durasi Hari Announcement
-            </Typography>
-            <Typography>{values.duration} Hari</Typography>
+          <Box sx={{ marginBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
+            <Box>
+              <Typography>Start Date</Typography>
+              <Typography>{new Date(values.startDate).toDateString()}</Typography>
+            </Box>
+            <Box>
+              <Typography>End Date</Typography>
+              <Typography>{new Date(values.endDate).toDateString()}</Typography>
+            </Box>
           </Box>
           <Box sx={{ marginBottom: 2 }}>
             <Typography display="flex" fontWeight="bold">
               Notes
             </Typography>
-            <Typography>Ingin di paling depan</Typography>
+            <Typography>{values.notes}</Typography>
           </Box>
           <Typography display="flex" fontWeight="bold">
-            Lantai {"&"} Device
+            Device
           </Typography>
           <Box>
-            {values.devices.map(({ deviceId, floorName, deviceName }) => (
-              <Typography key={deviceId} style={{ marginBottom: "6px" }}>
-                {floorName}, {deviceName}
-              </Typography>
+            {Object.entries(buildingFloorDevices).map(([buildingId, building]) => (
+              <React.Fragment key={buildingId}>
+                {building.floors.length > 0 ? (
+                  <Box>
+                    <Typography>
+                      {`• ${building.name}`}
+                    </Typography>
+                    <Box>
+                      {building.floors.map((floor) => (
+                        <Box
+                          key={`building-${buildingId}-floor-${floor.id}`}
+                          pl={2}
+                        >
+                          <Typography>
+                            {`• ${floor.name}`}
+                          </Typography>
+                          <Box>
+                            {floor.devices.map((device) => (
+                              <Box
+                                key={`building-${buildingId}-floor-${floor.id}-device-${device.id}`}
+                                pl={2}
+                              >
+                                <Typography>
+                                  {`• ${device.name}`}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                ) : null}
+              </React.Fragment>
             ))}
           </Box>
         </Box>
@@ -72,7 +132,7 @@ const Step3 = () => {
           <Button variant="contained" sx={{marginRight: 1}} onClick={handlePrevSubmission}>
             Previous
           </Button>
-          <Button variant="contained">Submit</Button>
+          <Button variant="contained" onClick={() => handleSubmit()}>Submit</Button>
         </Box>
       </Box>
     </Box>

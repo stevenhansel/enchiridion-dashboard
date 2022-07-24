@@ -13,14 +13,16 @@ const instance = axios.create({
   withCredentials: true,
 });
 
+let retries = 0;
+
 instance.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
 
     // access token expired
-    if (error.response.status === 401) {
-      console.log("test");
+    if (error.response.status === 401 && retries > 2) {
+      retries += 1;
       return instance
         .put("/v1/auth/refresh")
         .then((res) => {
@@ -32,11 +34,11 @@ instance.interceptors.response.use(
           // refresh token expired
           if (refreshTokenErr.response.status === 401) {
             // logout
-            console.log("test catch promise");
             return Promise.reject(refreshTokenErr);
           }
         });
     }
+    retries = 0;
     return Promise.reject(error);
   }
 );

@@ -1,12 +1,6 @@
 import dayjs from 'dayjs';
 import * as yup from 'yup';
 
-export type FormDevice = {
-  deviceId: number;
-  deviceName: string;
-  floorName: string;
-};
-
 export type CreateAnnouncementFormValues = {
   title: string;
   media: {
@@ -17,7 +11,7 @@ export type CreateAnnouncementFormValues = {
   startDate: Date;
   endDate: Date;
   notes: string;
-  devices: FormDevice[];
+  devices: string[];
 };
 
 const tomorrow = dayjs().add(1, 'day').toDate();

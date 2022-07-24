@@ -29,6 +29,7 @@ import CreateFloorModal from '../components/CreateFloorModal';
 
 import { AppDispatch, RootState } from "../store";
 import { setBuildings } from "../store/buildings";
+import { setFloors } from "../store/floors";
 
 import { ApiErrorResponse } from "../services";
 import { floorApi } from "../services/floor";
@@ -42,17 +43,17 @@ type Props = {
 
 const ListFloorPage = (props: Props) => {
   const buildingsState = useSelector((state: RootState) => state.buildings);
+  const floorsState = useSelector((state: RootState) => state.floors);
+
+  const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [floors, setFloors] = useState<Floor[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [filterById, setFilterById] = useState("");
   const [filterByBuilding, setFilterByBuilding] = useState<string | null>(null);
 
   const [openCreateFloor, setOpenCreateFloor] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
-
-  const dispatch: AppDispatch = useDispatch();
 
   const handleListFloor = useCallback(async (): Promise<void> => {
     setIsLoading(true);
@@ -64,36 +65,51 @@ const ListFloorPage = (props: Props) => {
     );
 
     if ("data" in response) {
-      const getFloorData: Floor[] = response.data.contents.map((data: any) => ({
-        id: data.id,
-        name: data.name,
-        building: data.building,
-        devices: data.devices,
-      }));
-      setIsLoading(false);
-      setFloors(getFloorData);
+      const floors: Record<number, Floor> = response.data.contents.reduce(
+        (prev: Record<number, Floor>, curr: Floor) => ({
+          ...prev,
+          [curr.id]: curr,
+        }),
+        {},
+      );
+      dispatch(setFloors(floors))
     } else {
       setErrorMessage(
         response.error && "data" in response.error
           ? (response.error.data as ApiErrorResponse).messages[0]
           : "Network Error"
       );
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   }, []);
 
   const handleFetchBuildings = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
+
     const response = await dispatch(
       buildingApi.endpoints.getBuildings.initiate("")
     );
-    const building: Record<number, Building> = response.data.contents.reduce(
-      (prev: Record<number, Building>, curr: Building) => ({
-        ...prev,
-        [curr.id]: curr,
-      }),
-      {},
-    );
-    dispatch(setBuildings(building));
+
+    if ("data" in response) {
+      const building: Record<number, Building> = response.data.contents.reduce(
+        (prev: Record<number, Building>, curr: Building) => ({
+          ...prev,
+          [curr.id]: curr,
+        }),
+        {},
+      );
+
+      dispatch(setBuildings(building));
+    } else {
+      setErrorMessage(
+        response.error && "data" in response.error
+          ? (response.error.data as ApiErrorResponse).messages[0]
+          : "Network Error"
+      );
+    }
+    
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -101,13 +117,13 @@ const ListFloorPage = (props: Props) => {
     handleFetchBuildings();
   }, []);
 
-  const filteredFloors = floors
+  const filteredFloors = floorsState ? Object.values(floorsState)
     .filter((floor) => (
       floor.name.toLowerCase().startsWith(filterById.toLowerCase()) ||
       floor.id.toString().startsWith(filterById.toLowerCase()) ||
       filterByBuilding === floor.building.id.toString() ||
       filterByBuilding === null
-    ));
+    )) : null;
 
   return (
     <Box>

@@ -18,7 +18,17 @@ export const announcementApi = createApi({
     }),
     getAnnouncementsDetail: builders.query({
       query: () => ({
-        url: "v1/announcements/:announcementId",
+        url: "/v1/announcements/:announcementId",
+      }),
+    }),
+    createAnnouncement: builders.mutation({
+      query: ({ formData }) => ({
+        url: "/v1/announcements",
+        method: 'POST',
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
       }),
     }),
   }),
