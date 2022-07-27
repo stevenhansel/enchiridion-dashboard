@@ -9,11 +9,10 @@ import Typography from "@mui/material/Typography";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 
+import backgroundImage from "../assets/jpg/background-auth.jpeg";
+
 const validationSchema = yup.object({
-  email: yup
-    .string()
-    .email("Enter your Email")
-    .required("Email is required"),
+  email: yup.string().email("Enter your Email").required("Email is required"),
 });
 
 const ForgotPassword = () => {
@@ -25,7 +24,7 @@ const ForgotPassword = () => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-    //   alert(JSON.stringify(values, null, 2));
+      //   alert(JSON.stringify(values, null, 2));
       navigate("/reset_password");
     },
   });
@@ -35,8 +34,7 @@ const ForgotPassword = () => {
       <CssBaseline />
       <Box
         style={{
-          backgroundImage:
-            "url('https://www.superherohype.com/assets/uploads/2020/08/The-Boys-Season-2-Trailer-1280x720.png')",
+          backgroundImage: `url(${backgroundImage})`,
           backgroundRepeat: "repeat-x",
           height: "100vh",
           width: "100ww",

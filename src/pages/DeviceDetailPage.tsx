@@ -1,56 +1,36 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
-import { useDispatch } from 'react-redux';
+import dayjs from "dayjs";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
-import Autocomplete from "@mui/material/Autocomplete";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 
-import { AppDispatch } from "../store";
-
-import { deviceApi } from "../services/device";
-import { ApiErrorResponse } from "../services";
-
-type DeviceDetail = {
-  id: string;
-  name: string;
-  location: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useGetDeviceDetailQuery, useGetDevicesQuery } from "../services/device";
 
 type Props = {
   children?: React.ReactNode;
 };
 
+const toDate = (dateStr: string | undefined) => dayjs(dateStr).format("DD MMM YYYY h:mm A");
+
 const DeviceDetailPage = (props: Props) => {
-  const { id } = useParams();
-  const dispatch: AppDispatch = useDispatch();
+  const { deviceId = "" } = useParams();
+  
+  const {
+    data: deviceHash,
+    isLoading: isGetDeviceLoading,
+    error: isGetDeviceError,
+  } = useGetDevicesQuery(null);
 
-  const [openNewDevice, setOpenNewDevice] = useState(false);
-  const [openDeleteDevice, setDeleteDevice] = useState(false);
-
-  const handleOpenNewDevice = () => setOpenNewDevice(true);
-  const handleCloseNewDevice = () => setOpenNewDevice(false);
-
-  const handleOpenDeleteDevice = () => setDeleteDevice(true);
-  const handleCloseDeleteDevice = () => setDeleteDevice(false);
-
-  const listLantai = [
-    { label: "Lantai 1" },
-    { label: "Lantai 2" },
-    { label: "Lantai 3" },
-    { label: "Lantai 4" },
-  ];
+  const { data: deviceDetailHash, isLoading: isGetDeviceDetailLoading } =
+  useGetDeviceDetailQuery(
+    { deviceId },
+    {
+      skip: deviceId === "",
+    }
+  );
 
   const itemData = [
     {
@@ -67,139 +47,46 @@ const DeviceDetailPage = (props: Props) => {
     },
   ];
 
-  const getDeviceDetail = useCallback( async (): Promise<void> => {
-    const response = await dispatch(deviceApi.endpoints.getDeviceDetail.initiate(""))
+  // const getDeviceDetail = useCallback( async (): Promise<void> => {
+  //   const response = await dispatch(deviceApi.endpoints.getDeviceDetail.initiate(""))
 
-    console.log(response);
-  }, [])
-
-
-  useEffect(() => {
-    getDeviceDetail()
-  }, [])
+  //   console.log(response);
+  // }, [])
 
   return (
     <Box>
       <Typography align="center" variant="h5" fontWeight="bold">
-        Device {id}
+        Device {deviceId}
       </Typography>
-      <Box display="flex">
-        <Box sx={{ marginTop: 8, marginLeft: 45 }}>
+      <Box display="flex" justifyContent="center">
+        <Box sx={{ marginTop: 8 }}>
           <Box sx={{ marginBottom: 5 }}>
             <Typography display="flex" fontWeight="bold">
-              ID Device
+              ID
             </Typography>
-            <Typography>HJK-{id}</Typography>
+            <Typography>HJK-{deviceId}</Typography>
           </Box>
           <Box sx={{ marginBottom: 5 }}>
-            <Typography fontWeight="bold">Nama Device</Typography>
-            <Typography>Depan BCA</Typography>
+            <Typography fontWeight="bold">Location</Typography>
+            <Typography>{deviceDetailHash?.location}</Typography>
           </Box>
           <Box sx={{ marginBottom: 5 }}>
-            <Typography fontWeight="bold">Deskripsi Device</Typography>
-            <Typography>test 123</Typography>
+            <Typography fontWeight="bold">Deskripsi</Typography>
+            <Typography>{deviceDetailHash?.description}</Typography>
           </Box>
         </Box>
 
         <Box sx={{ marginTop: 8, marginLeft: 40 }}>
           <Box sx={{ marginBottom: 5 }}>
-            <Typography display="flex" fontWeight="bold">
-              Floor
-            </Typography>
-            <Typography>Lantai 1</Typography>
-          </Box>
-          <Box sx={{ marginBottom: 5 }}>
             <Typography fontWeight="bold">Created at</Typography>
-            <Typography>28 Mei 2022</Typography>
+            <Typography>{toDate(deviceDetailHash?.createdAt)}</Typography>
           </Box>
           <Box sx={{ marginBottom: 5 }}>
             <Typography fontWeight="bold">Updated at</Typography>
-            <Typography>2 Juni 2022</Typography>
+            <Typography>{toDate(deviceDetailHash?.updatedAt)}</Typography>
           </Box>
         </Box>
       </Box>
-      <Box display="flex" alignItems="center" justifyContent="center">
-        <Button
-          variant="contained"
-          sx={{ marginRight: 2 }}
-          onClick={handleOpenNewDevice}
-        >
-          Update
-        </Button>
-        <Button variant="outlined" onClick={handleOpenDeleteDevice}>
-          Delete
-        </Button>
-      </Box>
-      <Dialog open={openNewDevice} onClose={handleCloseNewDevice}>
-        <DialogTitle display="flex" alignItems="center" justifyContent="center">
-          Update Device
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Title"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Description"
-            fullWidth
-            variant="standard"
-          />
-          <Autocomplete
-            disablePortal
-            id="combo-box-demo"
-            options={listLantai}
-            sx={{ width: 300, marginTop: 2 }}
-            renderInput={(params) => <TextField {...params} label="Lantai" />}
-          />
-          <Stack spacing={2} direction="row">
-            <Box
-              width="100%"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Button
-                variant="contained"
-                component="label"
-                onClick={handleCloseNewDevice}
-                sx={{ marginTop: 2 }}
-              >
-                Update
-              </Button>
-            </Box>
-          </Stack>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={openDeleteDevice} onClose={handleCloseDeleteDevice}>
-        <DialogTitle>Delete Page?</DialogTitle>
-        <DialogContent>
-          Apakah anda yakin ingin menghapus device ini?
-        </DialogContent>
-        <Box
-          sx={{ marginLeft: 2, marginBottom: 2 }}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Button
-            variant="outlined"
-            sx={{ marginRight: 2 }}
-            onClick={handleCloseDeleteDevice}
-          >
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={handleCloseDeleteDevice}>
-            Yes
-          </Button>
-        </Box>
-      </Dialog>
       <Box>
         <Typography variant="h5" fontWeight="bold">
           Announcement

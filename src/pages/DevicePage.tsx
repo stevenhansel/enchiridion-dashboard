@@ -1,7 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useDispatch } from "react-redux";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -12,22 +10,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { CircularProgress } from "@mui/material";
-import Link from '@mui/material/Link';
+import Link from "@mui/material/Link";
 
-import CreateDeviceForm from "../components/CreateDeviceForm";
-
-import { AppDispatch } from "../store";
-
-import { deviceApi } from "../services/device";
-import { ApiErrorResponse } from "../services";
-
-type Device = {
-  id: number;
-  name: string;
-  location: string;
-  activeAnnouncements: string;
-  description: string;
-};
+import { useGetDevicesQuery } from "../services/device";
 
 type Props = {
   children?: React.ReactNode;
@@ -35,59 +20,19 @@ type Props = {
 
 const DevicePage = (props: Props) => {
   const navigate = useNavigate();
-  const dispatch: AppDispatch = useDispatch();
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    fetchDevices();
-  }, []);
+  const {
+    data: deviceHash,
+    isLoading,
+  } = useGetDevicesQuery(null);
 
   const handleNavigateToDetailPage = (deviceId: number) => {
-    navigate(`/device/${deviceId}`, { replace: true });
+    navigate(`/device/detail/${deviceId}`);
   };
-
-  const fetchDevices = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-
-    const response = await dispatch(
-      deviceApi.endpoints.getDevices.initiate("")
-    );
-
-    if ("data" in response) {
-      const getDeviceData: Device[] = response.data.contents.map(
-        (data: any) => ({
-          id: data.id,
-          name: data.name,
-          location: data.location,
-          activeAnnouncements: data.activeAnnouncements,
-          description: data.description,
-        })
-      );
-      setDevices(getDeviceData);
-      setIsLoading(false)
-    } else {
-      setErrorMessage(
-        response.error && "data" in response.error
-          ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
-      );
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchDevices();
-  }, [])
 
   return (
     <Box>
-      {isLoading && (
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <CircularProgress />
-        </Box>
-      )}
+      {!isLoading ? (
         <>
           <Box
             style={{
@@ -109,25 +54,43 @@ const DevicePage = (props: Props) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {devices.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell align="center">
-                        <Link onClick={() => handleNavigateToDetailPage(row.id)}>{row.id}</Link>
-                      </TableCell>
-                      <TableCell align="center">{row.name}</TableCell>
-                      <TableCell align="center">{row.location}</TableCell>
-                      <TableCell align="center">{row.activeAnnouncements}</TableCell>
-                      <TableCell align="center">{row.description}</TableCell>
-                    </TableRow>
-                  ))}
+                  {deviceHash &&
+                    Object.entries(deviceHash).map(([deviceId, device]) => (
+                      <TableRow
+                        key={deviceId}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell align="center">
+                          <Link
+                            onClick={() =>
+                              handleNavigateToDetailPage(device.id)
+                            }
+                          >
+                            {device.id}
+                          </Link>
+                        </TableCell>
+                        <TableCell align="center">{device.name}</TableCell>
+                        <TableCell align="center">{device.location}</TableCell>
+                        <TableCell align="center">
+                          {device.activeAnnouncements}
+                        </TableCell>
+                        <TableCell align="center">
+                          {device.description}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
           </Box>
         </>
+      ) : (
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <CircularProgress />
+        </Box>
+      )}
     </Box>
   );
 };

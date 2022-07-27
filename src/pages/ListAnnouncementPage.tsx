@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -15,28 +15,29 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
-import ViewAnnouncementImageModal from '../components/ViewAnnouncementImageModal';
+import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
 
 import { useGetAnnouncementsQuery } from "../services/announcement";
 
-const toDate = (dateStr: string) => dayjs(dateStr).format('DD MM YYYY');
+const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
 
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
 
   const { data: announcementHash, isLoading } = useGetAnnouncementsQuery(null);
 
-  const [currentAnnouncementId, setCurrentAnnouncementId] = useState<string>('');
+  const [currentAnnouncementId, setCurrentAnnouncementId] =
+    useState<string>("");
   const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
     setImageModalOpen(true);
-  }
+  };
 
   const handleNavigateToDetailPage = (announcementId: number) => {
     navigate(`/announcement/detail/${announcementId}`);
-  }
+  };
 
   return (
     <Box>
@@ -61,16 +62,18 @@ const ListAnnouncementPage = () => {
                   sx={{ width: 220 }}
                 />
               </Box>
-              <Box sx={{ marginLeft: 1 }}>
-              </Box>
+              <Box sx={{ marginLeft: 1 }}></Box>
               <Box
                 display="flex"
                 flexDirection="row"
                 justifyContent="flex-end"
                 width="100%"
               >
-                <Button variant="contained" onClick={() => navigate('/announcement/create')}>
-                  Create
+                <Button
+                  variant="contained"
+                  onClick={() => navigate("/announcement/create")}
+                >
+                  + Create
                 </Button>
               </Box>
             </Box>
@@ -79,41 +82,64 @@ const ListAnnouncementPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
-                    <TableCell align="right">Title</TableCell>
-                    <TableCell align="right">Start Date</TableCell>
-                    <TableCell align="right">End Date</TableCell>
-                    <TableCell align="right">Status</TableCell>
-                    <TableCell align="right">Author</TableCell>
-                    <TableCell align="right">Created At</TableCell>
-                    <TableCell align="right">Media</TableCell>
+                    <TableCell align="center">Title</TableCell>
+                    <TableCell align="center">Start Date</TableCell>
+                    <TableCell align="center">End Date</TableCell>
+                    <TableCell align="center">Status</TableCell>
+                    <TableCell align="center">Author</TableCell>
+                    <TableCell align="center">Created At</TableCell>
+                    <TableCell align="center">Media</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {announcementHash && Object.entries(announcementHash).map(([announcementId, announcement]) => (
-                    <TableRow
-                      key={announcementId}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {announcementId}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button onClick={() => handleNavigateToDetailPage(announcement.id)}>
-                          {announcement.title}
-                        </Button>
-                      </TableCell>
-                      <TableCell align="right">{toDate(announcement.startDate)}</TableCell>
-                      <TableCell align="right">{toDate(announcement.endDate)}</TableCell>
-                      <TableCell align="right">{announcement.status.label}</TableCell>
-                      <TableCell align="right">{announcement.author.name}</TableCell>
-                      <TableCell align="right">{toDate(announcement.createdAt)}</TableCell>
-                      <TableCell align="right">
-                        <Button onClick={() => handleSelectAnnouncementImage(announcement.id)}>
-                          Open
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {announcementHash &&
+                    Object.entries(announcementHash).map(
+                      ([announcementId, announcement]) => (
+                        <TableRow
+                          key={announcementId}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {announcementId}
+                          </TableCell>
+                          <TableCell align="center">
+                            <Button
+                              onClick={() =>
+                                handleNavigateToDetailPage(announcement.id)
+                              }
+                            >
+                              {announcement.title}
+                            </Button>
+                          </TableCell>
+                          <TableCell align="center">
+                            {toDate(announcement.startDate)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {toDate(announcement.endDate)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {announcement.status.label}
+                          </TableCell>
+                          <TableCell align="center">
+                            {announcement.author.name}
+                          </TableCell>
+                          <TableCell align="center">
+                            {toDate(announcement.createdAt)}
+                          </TableCell>
+                          <TableCell align="center">
+                            <Button
+                              onClick={() =>
+                                handleSelectAnnouncementImage(announcement.id)
+                              }
+                            >
+                              Open
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
                 </TableBody>
               </Table>
             </TableContainer>

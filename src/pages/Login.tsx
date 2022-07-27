@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   Box,
@@ -14,7 +14,7 @@ import {
   TextField,
   IconButton,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
 import { AppDispatch } from "../store";
 import { login } from "../store/auth";
@@ -51,35 +51,43 @@ const Login = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = useCallback(async (values: LoginForm): Promise<void> => {
-    setIsLoading(true);
+  const handleLogin = useCallback(
+    async (values: LoginForm): Promise<void> => {
+      setIsLoading(true);
 
-    const response = await dispatch(
-      authApi.endpoints.login.initiate({
-        email: values.email,
-        password: values.password,
-      }),
-    );
-
-    if ('data' in response) {
-      dispatch(
-        setProfile({
-          id: response.data.id,
-          name: response.data.name,
-          email: response.data.email,
-          profilePicture: response.data.profilePicture,
-          role: response.data.role,
-          userStatus: response.data.userStatus,
+      const response = await dispatch(
+        authApi.endpoints.login.initiate({
+          email: values.email,
+          password: values.password,
         })
       );
 
-      dispatch(login());
-    } else {
-      setErrorMessage('data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
-    }
+      if ("data" in response) {
+        dispatch(
+          setProfile({
+            id: response.data.id,
+            name: response.data.name,
+            email: response.data.email,
+            profilePicture: response.data.profilePicture,
+            role: response.data.role,
+            userStatus: response.data.userStatus,
+          })
+        );
+        console.log(response);
 
-    setIsLoading(false);
-  }, [dispatch]);
+        dispatch(login());
+      } else {
+        setErrorMessage(
+          "data" in response.error
+            ? (response.error.data as ApiErrorResponse).messages[0]
+            : "Network Error"
+        );
+      }
+
+      setIsLoading(false);
+    },
+    [dispatch]
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -91,10 +99,10 @@ const Login = (props: Props) => {
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
-    setErrorMessage('');
+    setErrorMessage("");
   };
 
   return (
@@ -185,7 +193,11 @@ const Login = (props: Props) => {
                 >
                   Masuk
                 </Button>
-                <Box display="flex" flexDirection="row" sx={{ marginRight: 0.5, marginTop: 1 }}>
+                <Box
+                  display="flex"
+                  flexDirection="row"
+                  sx={{ marginRight: 0.5, marginTop: 1 }}
+                >
                   <Typography sx={{ marginRight: 0.5 }}>
                     Belum punya akun?
                   </Typography>

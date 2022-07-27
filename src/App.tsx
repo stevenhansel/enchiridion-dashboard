@@ -104,11 +104,11 @@ function App() {
               path: "list-user",
               icon: <AccountBoxIcon />,
             },
-            {
-              text: "Roles",
-              path: "roles",
-              icon: <AccessibilityIcon />,
-            },
+            // {
+            //   text: "Roles",
+            //   path: "roles",
+            //   icon: <AccessibilityIcon />,
+            // },
             {
               text: "Requests",
               path: "requests",
@@ -150,7 +150,7 @@ function App() {
               }
             />
             <Route
-              path="/device/:id"
+              path="/device/detail/:deviceId"
               element={
                 <UserStatusWrapper>
                   <DeviceDetailPage />

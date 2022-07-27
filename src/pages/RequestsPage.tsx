@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import dayjs from "dayjs";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -7,25 +8,26 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
 import { CircularProgress } from "@mui/material";
-import ToggleButton from '@mui/material/ToggleButton';
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import TextField from "@mui/material/TextField";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import RemoveIcon from "@mui/icons-material/Remove";
 
-type Request = {
-  id: number;
-  announcement: string;
-  author: string;
-  action: string;
-  description: string;
-  createdDate: string;
-  approvalStatus: string[];
-};
+import {
+  useGetRequestsQuery,
+  useCreateRequestMutation,
+} from "../services/request";
 
-type FilterButton = {
-  name: string;
+type ActionButton = {
+  label: string;
   value: string;
 };
 
@@ -33,118 +35,65 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const requestsData: Request[] = [
+const actions: ActionButton[] = [
   {
-    id: 1,
-    announcement: "Daftar Aslab",
-    author: "Lukas Linardi",
-    action: "create",
-    description: "lorem ipsum",
-    createdDate: "25-06-2022",
-    approvalStatus: ["Approve", "Reject"],
-  },
-  {
-    id: 2,
-    announcement: "ya udah ganti bang",
-    author: "Steven Hansel",
-    action: "change date",
-    description: "Change Date",
-    createdDate: "25-06-2022",
-    approvalStatus: ["Approve", "Reject"],
-  },
-  {
-    id: 3,
-    announcement: "alones",
-    author: "Mom",
-    action: "delete",
-    description: "Delete Announcement",
-    createdDate: "25-06-2022",
-    approvalStatus: ["Approve", "Reject"],
-  },
-  {
-    id: 4,
-    announcement: "Bleach",
-    author: "Dad",
-    action: "change content",
-    description: "Open Media",
-    createdDate: "25-06-2022",
-    approvalStatus: ["Approve", "Reject"],
-  },
-  {
-    id: 5,
-    announcement: "Weebo",
-    author: "Andhika",
-    action: "change devices",
-    description: "See Devices Mappings",
-    createdDate: "25-06-2022",
-    approvalStatus: ["Approve", "Reject"],
-  },
-];
-
-const buttons: FilterButton[] = [
-  {
-    name: "All",
+    label: "All",
     value: "all",
   },
   {
-    name: "Create",
+    label: "Create",
     value: "create",
   },
   {
-    name: "Change Date",
+    label: "Change Date",
     value: "change date",
   },
   {
-    name: "Delete",
+    label: "Delete",
     value: "delete",
   },
   {
-    name: "Change Content",
+    label: "Change Content",
     value: "change content",
   },
   {
-    name: "Change Devices",
+    label: "Change Devices",
     value: "change devices",
   },
 ];
 
+const toDate = (dateStr: string | undefined) =>
+  dayjs(dateStr).format("DD MMM YYYY h:mm A");
+
 const RequestsPage = (props: Props) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [requests, setRequests] = useState<Request[]>(requestsData);
-  const [foundUsers, setFoundUsers] = useState(requests);
+  const [selectByUser, setSelectByUser] = useState<string>("");
+  const [approval, setApproval] = useState<string | null>(null);
 
+  const { data: requestHash, isLoading, error } = useGetRequestsQuery(null);
+  const [createRequest] = useCreateRequestMutation();
 
-  const filterUsersById = (e: any) => {
-    const keyword = e.target.value;
+  const filteredRequest = requestHash
+    ? Object.values(requestHash).filter(
+        (request) =>
+          selectByUser === request.action.label || selectByUser === ""
+      )
+    : [];
 
-    if (keyword !== "") {
-      const result = requests.filter((request) => {
-        return request.id
-          .toString()
-          .toLowerCase()
-          .startsWith(keyword.toLowerCase());
-      });
-      setFoundUsers(result);
-    } else {
-      setFoundUsers(requests);
+  const userApprove = (requestId: string, requestStatus: boolean) => {
+    createRequest({ requestId, requestStatus });
+  }
+
+  const renderApprovalStatus = (approval: boolean | null): JSX.Element | null => {
+    if (approval === null) {
+      return <RemoveIcon />
+    } else if (approval === true) {
+      return <CheckIcon />
+    } else if (approval === false) {
+      return <CloseIcon />
     }
-  };
 
-  const filterButton = (selectByUser: any): any => {
-   const filtered = requests.filter(request => request.action === selectByUser)
-
-   return filtered;
-  };
-
-  const handleButtonFilter = (e: any) => {
-    const selected = e.target.value;
-
-    if (selected !== "all") {
-      setFoundUsers(filterButton(selected));
-    } else {
-      setFoundUsers(requests);
-    }
-  };
+    return null;
+  }
 
   return (
     <Box>
@@ -157,86 +106,153 @@ const RequestsPage = (props: Props) => {
           width: "100%",
         }}
       >
-        <Box display="flex">
-          <TextField
-            id="filled-basic"
-            label="Search by ID"
-            variant="outlined"
-            sx={{ marginBottom: 2 }}
-            onChange={filterUsersById}
-          />
-        </Box>
-        <Box sx={{ marginBottom: 1 }}>
-          {buttons && buttons.map((button, index) => (
-            <Button
-              key={index}
-              onClick={handleButtonFilter}
-              variant="contained"
-              sx={{ marginRight: 2 }}
-              value={button.value}
-            >
-              {button.name}
-            </Button>
-          ))}
-        </Box>
-        {isLoading ? (
-          <CircularProgress />
-        ) : foundUsers && foundUsers.length > 0 ? (
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell align="justify">Announcement</TableCell>
-                  <TableCell align="justify">Author</TableCell>
-                  <TableCell align="justify">Action</TableCell>
-                  <TableCell align="justify">Description</TableCell>
-                  <TableCell align="justify">Created at</TableCell>
-                  <TableCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {foundUsers.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {row.id}
-                    </TableCell>
-                    <TableCell align="justify">{row.announcement} </TableCell>
-                    <TableCell align="justify">{row.author} </TableCell>
-                    <TableCell align="justify">
-                      <Button>{row.action}</Button>
-                    </TableCell>
-                    <TableCell align="justify">{row.description} </TableCell>
-                    <TableCell align="justify">{row.createdDate} </TableCell>
-                    <TableCell
-                      align="justify"
-                      style={{ display: "flex", flexDirection: "row" }}
+        {!isLoading ? (
+          filteredRequest && filteredRequest.length > 0 ? (
+            <>
+              <Box display="flex">
+                <TextField
+                  id="filled-basic"
+                  label="Search by ID"
+                  variant="outlined"
+                  sx={{ marginBottom: 2 }}
+                />
+                <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                  <FormControl sx={{ width: 220 }}>
+                    <InputLabel id="demo-simple-select-label">
+                      Announcement
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      label="Announcement"
+                      defaultValue={""}
                     >
-                      {row.approvalStatus.map((approval) => (
-                        <TableRow
-                          key={approval}
-                          style={{
-                            display: "flex",
-                            justifyContent: "flex-start",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Button variant="outlined" sx={{ marginRight: 1 }}>
-                            {approval}
+                      {requestHash &&
+                        Object.entries(requestHash).map(
+                          ([requestId, request]) => (
+                            <MenuItem key={requestId} value={requestId}>
+                              {request.announcement.title}
+                            </MenuItem>
+                          )
+                        )}
+                    </Select>
+                  </FormControl>
+                </Box>
+                <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                  <FormControl sx={{ width: 220 }}>
+                    <InputLabel id="demo-simple-select-label">
+                      Author
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      label="Author"
+                      defaultValue={""}
+                    >
+                      {requestHash &&
+                        Object.entries(requestHash).map(
+                          ([requestId, request]) => (
+                            <MenuItem key={requestId} value={requestId}>
+                              {request.author.name}
+                            </MenuItem>
+                          )
+                        )}
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+
+              <Box sx={{ marginBottom: 1 }}>
+                {actions &&
+                  actions.map((action, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => setSelectByUser(action.label)}
+                      variant={
+                        selectByUser === action.label ? "contained" : "outlined"
+                      }
+                      sx={{ marginRight: 2 }}
+                      value={action.value}
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+              </Box>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell align="center">Announcement</TableCell>
+                      <TableCell align="center">Author</TableCell>
+                      <TableCell align="center">Action</TableCell>
+                      <TableCell align="center">Description</TableCell>
+                      <TableCell align="center">Created at</TableCell>
+                      <TableCell align="center">LSC</TableCell>
+                      <TableCell align="center">BM</TableCell>
+                      <TableCell />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredRequest.map((request) => (
+                      <TableRow
+                        key={request.id}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell>{request.id}</TableCell>
+                        <TableCell align="center">
+                          {request.announcement.title}
+                        </TableCell>
+                        <TableCell align="center">
+                          {request.author.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button variant="contained">
+                            {request.action.label}
                           </Button>
-                        </TableRow>
-                      ))}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                        </TableCell>
+                        <TableCell align="center">
+                          {request.description}
+                        </TableCell>
+                        <TableCell align="center">
+                          {toDate(request.createdAt)}
+                        </TableCell>
+                        <TableCell align="center">
+                          {renderApprovalStatus(request.approvalStatus.lsc)}
+                        </TableCell>
+                        <TableCell align="center">
+                          {renderApprovalStatus(request.approvalStatus.bm)}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button
+                            variant="contained"
+                            sx={{ marginRight: 1 }}
+                            onClick={() => userApprove(request.id.toString(), false)}
+                          >
+                            Reject
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            onClick={() => userApprove(request.id.toString(), true)}
+                          >
+                            Approve
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          ) : (
+            <Typography>Not Found!</Typography>
+          )
         ) : (
-          <Typography>No results found!</Typography>
+          <Box display="flex" justifyContent="center" width="100%">
+            <CircularProgress />
+          </Box>
         )}
       </Box>
     </Box>

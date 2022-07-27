@@ -1,3 +1,5 @@
+import { StringLiteral } from "typescript";
+
 export type BuildingFloorDevices = {
   name: string,
   floors: Floor[],
@@ -47,8 +49,19 @@ export type Building = {
 export type Device = {
   id: number;
   name: string;
+  location: string;
+  activeAnnouncements: number;
   description: string;
-  totalAnnouncements: number;
+};
+
+//device detail
+export type DeviceDetail = {
+  id: number;
+  name: string;
+  location: string;
+  createdAt: string;
+  updatedAt: string;
+  description: string;
 };
 
 // floor
@@ -58,6 +71,11 @@ export type Floor = {
   building: Building;
   devices: Device[];
 };
+
+export type UpdateFloor = {
+  name: string;
+  buildingId: number | null;
+}
 
 export type PaginatedFloors = {
   hasNext: boolean;
@@ -81,4 +99,39 @@ export type Role = {
 export type UserStatus = {
   value: string;
   label: string;
+}
+
+export type AnnouncementRequest = {
+  id: number;
+  title: string;
+}
+
+export type AuthorRequest = {
+  id: number;
+  name: string;
+}
+
+export type ApprovalRequest = {
+  lsc: boolean | null;
+  bm: boolean | null;
+}
+
+export type ActionRequest = {
+  label: string;
+  value: string;
+}
+
+export type Request = {
+  id: number;
+  announcement: AnnouncementRequest;
+  author: AuthorRequest;
+  approvalStatus: ApprovalRequest;
+  action: ActionRequest;
+  description: string;
+  createdAt: string;
+}
+
+export type Action = {
+  action: string;
+  status: boolean;
 }

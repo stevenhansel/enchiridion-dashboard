@@ -40,6 +40,7 @@ export const announcementApi = createApi({
         }
       }),
     }),
+    
   }),
 });
 

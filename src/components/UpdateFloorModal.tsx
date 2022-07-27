@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 
 import {
     Box,
@@ -14,15 +14,12 @@ import {
     Typography,
   } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
-import { AppDispatch } from "../store";
+import { useUpdateFloorMutation } from "../services/floor";
 
-import { floorApi } from "../services/floor";
-
-import { Building } from '../types/store';
+import { UpdateFloor, Building } from '../types/store';
 
 const validationSchema = yup.object({
   name: yup
@@ -32,35 +29,20 @@ const validationSchema = yup.object({
   buildingId: yup.number().required("Building is required"),
 });
 
-type UpdateFloor = {
-  name: string;
-  buildingId: number | null;
-};
 
 type Props = {
   buildingHash?: Record<number, Building>;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  refetch: () => Promise<void>;
 };
 
-const EditFloorModal = (props: Props) => {
-  const { buildingHash, open, setOpen, refetch } = props;
-
-  const dispatch: AppDispatch = useDispatch();
+const UpdateFloorModal = (props: Props) => {
+  const { buildingHash, open, setOpen } = props;
+  const [editFloor] = useUpdateFloorMutation();
 
   const handleChange = (e: SelectChangeEvent) => {
       formik.setFieldValue("buildingId", parseInt(e.target.value, 10));
     };
-
-  const handleUpdateFloor = useCallback(async (values: UpdateFloor): Promise<void> => {
-    await dispatch(floorApi.endpoints.updateFloor.initiate({
-      name: values.name,
-      buildingId: values.buildingId,
-    }));
-
-    await refetch();
-  }, [dispatch, refetch]);
 
   const formik = useFormik<UpdateFloor>({
     initialValues: {
@@ -69,7 +51,8 @@ const EditFloorModal = (props: Props) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      handleUpdateFloor(values).then(() => props.refetch());
+      editFloor(values);
+      setOpen(false);
     },
   });
 
@@ -157,4 +140,4 @@ const EditFloorModal = (props: Props) => {
   );
 }
 
-export default EditFloorModal;
+export default UpdateFloorModal;
