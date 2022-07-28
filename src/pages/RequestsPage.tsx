@@ -75,25 +75,29 @@ const RequestsPage = (props: Props) => {
   const filteredRequest = requestHash
     ? Object.values(requestHash).filter(
         (request) =>
-          selectByUser === request.action.label || selectByUser === ""
+          selectByUser === request.action.label || selectByUser === '' || selectByUser === "All"
       )
     : [];
 
+  console.log(selectByUser);
+
   const userApprove = (requestId: string, requestStatus: boolean) => {
     createRequest({ requestId, requestStatus });
-  }
+  };
 
-  const renderApprovalStatus = (approval: boolean | null): JSX.Element | null => {
+  const renderApprovalStatus = (
+    approval: boolean | null
+  ): JSX.Element | null => {
     if (approval === null) {
-      return <RemoveIcon />
+      return <RemoveIcon />;
     } else if (approval === true) {
-      return <CheckIcon />
+      return <CheckIcon />;
     } else if (approval === false) {
-      return <CloseIcon />
+      return <CloseIcon />;
     }
 
     return null;
-  }
+  };
 
   return (
     <Box>
@@ -107,77 +111,75 @@ const RequestsPage = (props: Props) => {
         }}
       >
         {!isLoading ? (
-          filteredRequest && filteredRequest.length > 0 ? (
-            <>
-              <Box display="flex">
-                <TextField
-                  id="filled-basic"
-                  label="Search by ID"
-                  variant="outlined"
-                  sx={{ marginBottom: 2 }}
-                />
-                <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                  <FormControl sx={{ width: 220 }}>
-                    <InputLabel id="demo-simple-select-label">
-                      Announcement
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      label="Announcement"
-                      defaultValue={""}
-                    >
-                      {requestHash &&
-                        Object.entries(requestHash).map(
-                          ([requestId, request]) => (
-                            <MenuItem key={requestId} value={requestId}>
-                              {request.announcement.title}
-                            </MenuItem>
-                          )
-                        )}
-                    </Select>
-                  </FormControl>
-                </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                  <FormControl sx={{ width: 220 }}>
-                    <InputLabel id="demo-simple-select-label">
-                      Author
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      label="Author"
-                      defaultValue={""}
-                    >
-                      {requestHash &&
-                        Object.entries(requestHash).map(
-                          ([requestId, request]) => (
-                            <MenuItem key={requestId} value={requestId}>
-                              {request.author.name}
-                            </MenuItem>
-                          )
-                        )}
-                    </Select>
-                  </FormControl>
-                </Box>
+          <>
+            <Box display="flex">
+              <TextField
+                id="filled-basic"
+                label="Search by ID"
+                variant="outlined"
+                sx={{ marginBottom: 2 }}
+              />
+              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                <FormControl sx={{ width: 220 }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Announcement
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Announcement"
+                    defaultValue={""}
+                  >
+                    {requestHash &&
+                      Object.entries(requestHash).map(
+                        ([requestId, request]) => (
+                          <MenuItem key={requestId} value={requestId}>
+                            {request.announcement.title}
+                          </MenuItem>
+                        )
+                      )}
+                  </Select>
+                </FormControl>
               </Box>
+              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                <FormControl sx={{ width: 220 }}>
+                  <InputLabel id="demo-simple-select-label">Author</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Author"
+                    defaultValue={""}
+                  >
+                    {requestHash &&
+                      Object.entries(requestHash).map(
+                        ([requestId, request]) => (
+                          <MenuItem key={requestId} value={requestId}>
+                            {request.author.name}
+                          </MenuItem>
+                        )
+                      )}
+                  </Select>
+                </FormControl>
+              </Box>
+            </Box>
 
-              <Box sx={{ marginBottom: 1 }}>
-                {actions &&
-                  actions.map((action, index) => (
-                    <Button
-                      key={index}
-                      onClick={() => setSelectByUser(action.label)}
-                      variant={
-                        selectByUser === action.label ? "contained" : "outlined"
-                      }
-                      sx={{ marginRight: 2 }}
-                      value={action.value}
-                    >
-                      {action.label}
-                    </Button>
-                  ))}
-              </Box>
+            <Box sx={{ marginBottom: 1 }}>
+              {actions &&
+                actions.map((action, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => setSelectByUser(action.label)}
+                    variant={
+                      selectByUser === action.label ? "contained" : "outlined"
+                    }
+                    sx={{ marginRight: 2 }}
+                    value={action.value}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+            </Box>
+            {filteredRequest && filteredRequest.length > 0 ? (
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
@@ -229,13 +231,17 @@ const RequestsPage = (props: Props) => {
                           <Button
                             variant="contained"
                             sx={{ marginRight: 1 }}
-                            onClick={() => userApprove(request.id.toString(), false)}
+                            onClick={() =>
+                              userApprove(request.id.toString(), false)
+                            }
                           >
                             Reject
                           </Button>
                           <Button
                             variant="outlined"
-                            onClick={() => userApprove(request.id.toString(), true)}
+                            onClick={() =>
+                              userApprove(request.id.toString(), true)
+                            }
                           >
                             Approve
                           </Button>
@@ -245,10 +251,10 @@ const RequestsPage = (props: Props) => {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </>
-          ) : (
-            <Typography>Not Found!</Typography>
-          )
+            ) : (
+              <Typography>Not Found!</Typography>
+            )}
+          </>
         ) : (
           <Box display="flex" justifyContent="center" width="100%">
             <CircularProgress />
