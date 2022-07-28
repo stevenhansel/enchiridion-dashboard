@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import dayjs from "dayjs";
 
 import Box from "@mui/material/Box";
@@ -67,7 +67,6 @@ const toDate = (dateStr: string | undefined) =>
 
 const RequestsPage = (props: Props) => {
   const [selectByUser, setSelectByUser] = useState<string>("");
-  const [approval, setApproval] = useState<string | null>(null);
 
   const { data: requestHash, isLoading, error } = useGetRequestsQuery(null);
   const [createRequest] = useCreateRequestMutation();
@@ -75,11 +74,11 @@ const RequestsPage = (props: Props) => {
   const filteredRequest = requestHash
     ? Object.values(requestHash).filter(
         (request) =>
-          selectByUser === request.action.label || selectByUser === '' || selectByUser === "All"
+          selectByUser === request.action.label ||
+          selectByUser === "" ||
+          selectByUser === "All"
       )
     : [];
-
-  console.log(selectByUser);
 
   const userApprove = (requestId: string, requestStatus: boolean) => {
     createRequest({ requestId, requestStatus });
@@ -162,7 +161,6 @@ const RequestsPage = (props: Props) => {
                 </FormControl>
               </Box>
             </Box>
-
             <Box sx={{ marginBottom: 1 }}>
               {actions &&
                 actions.map((action, index) => (

@@ -29,6 +29,7 @@ const ListAnnouncementPage = () => {
   const [currentAnnouncementId, setCurrentAnnouncementId] =
     useState<string>("");
   const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [filterById, setFilterById] = useState("");
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
@@ -38,6 +39,16 @@ const ListAnnouncementPage = () => {
   const handleNavigateToDetailPage = (announcementId: number) => {
     navigate(`/announcement/detail/${announcementId}`);
   };
+
+  const filtered =
+    announcementHash &&
+    Object.entries(announcementHash).filter(
+      ([announcementId, announcement]) =>
+        announcement.title
+          .toLowerCase()
+          .startsWith(filterById.toLowerCase()) ||
+        announcementId.toString().startsWith(filterById)
+    );
 
   return (
     <Box>
@@ -57,7 +68,7 @@ const ListAnnouncementPage = () => {
                   label="Search by floorname or ID"
                   variant="outlined"
                   onChange={(e) => {
-                    //setFilterById(e.target.value);
+                    setFilterById(e.target.value);
                   }}
                   sx={{ width: 220 }}
                 />
@@ -92,8 +103,8 @@ const ListAnnouncementPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {announcementHash &&
-                    Object.entries(announcementHash).map(
+                  {filtered &&
+                    filtered.map(
                       ([announcementId, announcement]) => (
                         <TableRow
                           key={announcementId}

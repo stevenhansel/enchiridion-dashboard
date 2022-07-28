@@ -7,43 +7,45 @@ import Typography from "@mui/material/Typography";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 
-import { useGetDeviceDetailQuery, useGetDevicesQuery } from "../services/device";
+import { useGetDeviceDetailQuery } from "../services/device";
+import { useGetAnnouncementsQuery } from "../services/announcement";
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const toDate = (dateStr: string | undefined) => dayjs(dateStr).format("DD MMM YYYY h:mm A");
+const toDate = (dateStr: string | undefined) =>
+  dayjs(dateStr).format("DD MMM YYYY h:mm A");
 
 const DeviceDetailPage = (props: Props) => {
   const { deviceId = "" } = useParams();
-  
-  const {
-    data: deviceHash,
-    isLoading: isGetDeviceLoading,
-    error: isGetDeviceError,
-  } = useGetDevicesQuery(null);
 
   const { data: deviceDetailHash, isLoading: isGetDeviceDetailLoading } =
-  useGetDeviceDetailQuery(
-    { deviceId },
-    {
-      skip: deviceId === "",
-    }
-  );
+    useGetDeviceDetailQuery(
+      { deviceId },
+      {
+        skip: deviceId === "",
+      }
+    );
+
+  const {
+    data: announcementHash,
+    isLoading: isGetAnnouncementLoading,
+    error: getAnnouncementError,
+  } = useGetAnnouncementsQuery(null);
 
   const itemData = [
     {
-      img: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e',
-      title: 'Breakfast',
+      img: "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e",
+      title: "Breakfast",
     },
     {
-      img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d',
-      title: 'Burger',
+      img: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d",
+      title: "Burger",
     },
     {
-      img: 'https://images.unsplash.com/photo-1522770179533-24471fcdba45',
-      title: 'Camera',
+      img: "https://images.unsplash.com/photo-1522770179533-24471fcdba45",
+      title: "Camera",
     },
   ];
 
@@ -56,7 +58,7 @@ const DeviceDetailPage = (props: Props) => {
   return (
     <Box>
       <Typography align="center" variant="h5" fontWeight="bold">
-        Device {deviceId}
+        {deviceDetailHash?.name}
       </Typography>
       <Box display="flex" justifyContent="center">
         <Box sx={{ marginTop: 8 }}>
@@ -64,7 +66,7 @@ const DeviceDetailPage = (props: Props) => {
             <Typography display="flex" fontWeight="bold">
               ID
             </Typography>
-            <Typography>HJK-{deviceId}</Typography>
+            <Typography>{deviceId}</Typography>
           </Box>
           <Box sx={{ marginBottom: 5 }}>
             <Typography fontWeight="bold">Location</Typography>
@@ -93,18 +95,8 @@ const DeviceDetailPage = (props: Props) => {
         </Typography>
       </Box>
       <Box>
-        <ImageList sx={{ width: 500, height: 450 }} cols={3} rowHeight={164} variant="standard">
-          {itemData.map((item) => (
-            <ImageListItem key={item.img}>
-              <img
-                src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
-                srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                alt={item.title}
-                loading="lazy"
-              />
-            </ImageListItem>
-          ))}
-        </ImageList>
+        {/* {announcementHash && Object.entries(announcementHash).map(([announcementId, announcement]) => (
+                      ))} */}
       </Box>
     </Box>
   );
