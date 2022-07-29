@@ -1,12 +1,9 @@
 import React, { useCallback, useEffect, useContext, useState } from "react";
 import cloneDeep from "lodash/cloneDeep";
 import { useFormikContext } from "formik";
-import { useSelector } from "react-redux";
 
 import { Box, Button, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
-
-import { RootState } from "../../store";
 
 import { CreateAnnouncementFormContext } from "./context";
 import { CreateAnnouncementFormValues } from "./form";
@@ -14,7 +11,6 @@ import { validateFormikFields } from "./util";
 
 import { useGetBuildingsQuery } from "../../services/building";
 import { useGetFloorsQuery } from "../../services/floor";
-import { stubFalse } from "lodash";
 
 const fields = ["devices"];
 

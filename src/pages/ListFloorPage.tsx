@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Box,
@@ -30,6 +30,7 @@ import CreateFloorModal from "../components/CreateFloorModal";
 
 import { useGetBuildingsQuery } from "../services/building";
 import { useGetFloorsQuery, useDeleteFloorMutation } from "../services/floor";
+import { boolean } from "yup";
 
 const ListFloorPage = () => {
   const {
@@ -42,14 +43,13 @@ const ListFloorPage = () => {
     isLoading: isGetFloorsLoading,
     error: getFloorsError,
   } = useGetFloorsQuery(null);
-  const [
-    deleteFloor
-  ] = useDeleteFloorMutation();
+  const [deleteFloor] = useDeleteFloorMutation();
 
   const [open, setOpen] = useState(false);
 
   const [filterById, setFilterById] = useState("");
   const [filterByBuilding, setFilterByBuilding] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [openCreateFloor, setOpenCreateFloor] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
@@ -70,9 +70,13 @@ const ListFloorPage = () => {
     deleteFloor({ floorId });
   };
 
-  // useEffect((
-    
-  // ), [getBuildingsError || getFloorsError])
+  useEffect(() => {
+    if (getBuildingsError) {
+      setErrorMessage("Buildings Not Found");
+    } else if (getFloorsError) {
+      setErrorMessage("Floors Not Found");
+    }
+  }, [getBuildingsError, getFloorsError]);
 
   const handleClose = (
     event: React.SyntheticEvent | Event,
@@ -81,13 +85,12 @@ const ListFloorPage = () => {
     if (reason === "clickaway") {
       return;
     }
-
-    setOpen(false);
+    setErrorMessage("");
   };
 
-   const action = (
+  const action = (
     <>
-     <IconButton
+      <IconButton
         size="small"
         aria-label="close"
         color="inherit"
@@ -237,10 +240,10 @@ const ListFloorPage = () => {
         </Box>
       )}
       <Snackbar
-        // open={!!error}
+        open={Boolean(errorMessage)}
         autoHideDuration={6000}
         onClose={handleClose}
-        message="Error!"
+        message={errorMessage}
         action={action}
       />
     </Box>

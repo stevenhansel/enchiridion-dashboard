@@ -74,9 +74,9 @@ const RequestsPage = (props: Props) => {
   const filteredRequest = requestHash
     ? Object.values(requestHash).filter(
         (request) =>
-          selectByUser === request.action.label ||
+          (selectByUser === request.action.label ||
           selectByUser === "" ||
-          selectByUser === "All"
+          selectByUser === "All") 
       )
     : [];
 
@@ -120,12 +120,10 @@ const RequestsPage = (props: Props) => {
               />
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <FormControl sx={{ width: 220 }}>
-                  <InputLabel id="demo-simple-select-label">
-                    Announcement
-                  </InputLabel>
+                  <InputLabel id="announcement_filter">Announcement</InputLabel>
                   <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
+                    labelId="announcement_filter"
+                    id="announcement_filter"
                     label="Announcement"
                     defaultValue={""}
                   >
@@ -157,6 +155,40 @@ const RequestsPage = (props: Props) => {
                           </MenuItem>
                         )
                       )}
+                  </Select>
+                </FormControl>
+              </Box>
+              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                <FormControl sx={{ width: 220 }}>
+                  <InputLabel id="announcement_filter">
+                    Condition by LSC
+                  </InputLabel>
+                  <Select
+                    labelId="announcement_filter"
+                    id="announcement_filter"
+                    label="Condition by LSC"
+                    defaultValue={""}
+                  >
+                    <MenuItem>Approved</MenuItem>
+                    <MenuItem>Rejected</MenuItem>
+                    <MenuItem>Unchecked</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                <FormControl sx={{ width: 220 }}>
+                  <InputLabel id="announcement_filter">
+                    Condition by BM
+                  </InputLabel>
+                  <Select
+                    labelId="announcement_filter"
+                    id="announcement_filter"
+                    label="Condition by LSC"
+                    defaultValue={""}
+                  >
+                    <MenuItem>Approved</MenuItem>
+                    <MenuItem>Rejected</MenuItem>
+                    <MenuItem>Unchecked</MenuItem>
                   </Select>
                 </FormControl>
               </Box>

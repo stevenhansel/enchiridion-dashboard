@@ -11,7 +11,7 @@ export const floorApi = createApi({
   endpoints: (builder) => ({
     getFloors: builder.query<Record<number, Floor>, null>({
       query: () => ({
-        url: "/v1/floors",
+        url: "/v1/floors?limit=100",
       }),
       providesTags: () => ['Floor'],
       transformResponse: (response) =>
