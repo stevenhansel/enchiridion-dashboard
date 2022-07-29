@@ -7,11 +7,13 @@ import { Building } from '../types/store';
 export const buildingApi = createApi({
   reducerPath: "buildingApi",
   baseQuery: axios(),
+  tagTypes: ["Building"],
   endpoints: (builders) => ({
     getBuildings: builders.query<Record<number, Building>, null>({
       query: () => ({
         url: "/v1/buildings",
       }),
+      providesTags: () => ["Building"],
       transformResponse: (response) => response.contents.reduce(
         (prev: Record<number, Building>, curr: Building) => ({
           ...prev,
@@ -26,6 +28,7 @@ export const buildingApi = createApi({
         method: "POST",
         data: { name, buildingId },
       }),
+      invalidatesTags: () => ["Building"],
     }),
     updateBuilding: builders.mutation({
       query: ({ name, buildingId }) => ({
@@ -33,6 +36,7 @@ export const buildingApi = createApi({
         method: "PUT",
         data: { name, buildingId },
       }),
+      invalidatesTags: () => ["Building"],
     }),
   }),
 });

@@ -44,9 +44,7 @@ const ListAnnouncementPage = () => {
     announcementHash &&
     Object.entries(announcementHash).filter(
       ([announcementId, announcement]) =>
-        announcement.title
-          .toLowerCase()
-          .startsWith(filterById.toLowerCase()) ||
+        announcement.title.toLowerCase().startsWith(filterById.toLowerCase()) ||
         announcementId.toString().startsWith(filterById)
     );
 
@@ -104,59 +102,59 @@ const ListAnnouncementPage = () => {
                 </TableHead>
                 <TableBody>
                   {filtered &&
-                    filtered.map(
-                      ([announcementId, announcement]) => (
-                        <TableRow
-                          key={announcementId}
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell component="th" scope="row">
-                            {announcementId}
-                          </TableCell>
-                          <TableCell align="center">
-                            <Button
-                              onClick={() =>
-                                handleNavigateToDetailPage(announcement.id)
-                              }
-                            >
-                              {announcement.title}
-                            </Button>
-                          </TableCell>
-                          <TableCell align="center">
-                            {toDate(announcement.startDate)}
-                          </TableCell>
-                          <TableCell align="center">
-                            {toDate(announcement.endDate)}
-                          </TableCell>
-                          <TableCell align="center">
-                            {announcement.status.label}
-                          </TableCell>
-                          <TableCell align="center">
-                            {announcement.author.name}
-                          </TableCell>
-                          <TableCell align="center">
-                            {toDate(announcement.createdAt)}
-                          </TableCell>
-                          <TableCell align="center">
-                            <Button
-                              onClick={() =>
-                                handleSelectAnnouncementImage(announcement.id)
-                              }
-                            >
-                              Open
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
+                    filtered.map(([announcementId, announcement]) => (
+                      <TableRow
+                        key={announcementId}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {announcementId}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button
+                            onClick={() =>
+                              handleNavigateToDetailPage(announcement.id)
+                            }
+                          >
+                            {announcement.title}
+                          </Button>
+                        </TableCell>
+                        <TableCell align="center">
+                          {toDate(announcement.startDate)}
+                        </TableCell>
+                        <TableCell align="center">
+                          {toDate(announcement.endDate)}
+                        </TableCell>
+                        <TableCell align="center">
+                          {announcement.status.label}
+                        </TableCell>
+                        <TableCell align="center">
+                          {announcement.author.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          {toDate(announcement.createdAt)}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button
+                            onClick={() =>
+                              handleSelectAnnouncementImage(announcement.id)
+                            }
+                          >
+                            Open
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
           </>
         ) : (
-          <CircularProgress />
+          <Box display="flex" justifyContent="center">
+            <CircularProgress />
+          </Box>
         )}
       </Box>
       <ViewAnnouncementImageModal
