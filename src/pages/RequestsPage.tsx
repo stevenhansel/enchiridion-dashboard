@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 
 import Box from "@mui/material/Box";
@@ -17,9 +17,11 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Snackbar from "@mui/material/Snackbar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import RemoveIcon from "@mui/icons-material/Remove";
+import IconButton from "@mui/material/IconButton";
 
 import {
   useGetRequestsQuery,
@@ -67,6 +69,7 @@ const toDate = (dateStr: string | undefined) =>
 
 const RequestsPage = (props: Props) => {
   const [selectByUser, setSelectByUser] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const { data: requestHash, isLoading, error } = useGetRequestsQuery(null);
   const [createRequest] = useCreateRequestMutation();
@@ -97,6 +100,35 @@ const RequestsPage = (props: Props) => {
 
     return null;
   };
+
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
+  const action = (
+    <>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </>
+  );
+
+ useEffect(() => {
+  if(error){
+    setErrorMessage("Requests Not Found")
+  }
+ }, [error])
 
   return (
     <Box>
@@ -291,6 +323,14 @@ const RequestsPage = (props: Props) => {
           </Box>
         )}
       </Box>
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message={errorMessage}
+        action={action}
+      />
+ 
     </Box>
   );
 };

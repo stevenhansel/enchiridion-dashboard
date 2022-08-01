@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
@@ -14,8 +14,11 @@ import {
   Button,
   TextField,
   CircularProgress,
+  Snackbar,
+  IconButton,
 } from "@mui/material";
 import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { useGetAnnouncementsQuery } from "../services/announcement";
 
@@ -24,12 +27,17 @@ const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
 
-  const { data: announcementHash, isLoading } = useGetAnnouncementsQuery(null);
+  const {
+    data: announcementHash,
+    isLoading,
+    error,
+  } = useGetAnnouncementsQuery(null);
 
   const [currentAnnouncementId, setCurrentAnnouncementId] =
     useState<string>("");
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [filterById, setFilterById] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
@@ -47,6 +55,36 @@ const ListAnnouncementPage = () => {
         announcement.title.toLowerCase().startsWith(filterById.toLowerCase()) ||
         announcementId.toString().startsWith(filterById)
     );
+
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
+  const action = (
+    <>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </>
+  );
+
+  useEffect(() => {
+    if (error) {
+      setErrorMessage("Announcements List Not Found");
+    }
+  }, [error]);
+
 
   return (
     <Box>
@@ -161,6 +199,13 @@ const ListAnnouncementPage = () => {
         announcementId={currentAnnouncementId}
         open={imageModalOpen}
         setOpen={setImageModalOpen}
+      />
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message={errorMessage}
+        action={action}
       />
     </Box>
   );

@@ -30,7 +30,6 @@ import CreateFloorModal from "../components/CreateFloorModal";
 
 import { useGetBuildingsQuery } from "../services/building";
 import { useGetFloorsQuery, useDeleteFloorMutation } from "../services/floor";
-import { boolean } from "yup";
 
 const ListFloorPage = () => {
   const {
@@ -44,8 +43,6 @@ const ListFloorPage = () => {
     error: getFloorsError,
   } = useGetFloorsQuery(null);
   const [deleteFloor] = useDeleteFloorMutation();
-
-  const [open, setOpen] = useState(false);
 
   const [filterById, setFilterById] = useState("");
   const [filterByBuilding, setFilterByBuilding] = useState<string | null>(null);

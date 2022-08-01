@@ -10,7 +10,7 @@ export const authApi = createApi({
       query: (data) => ({
         url: "/v1/auth/register",
         method: "POST",
-        data
+        data,
       }),
     }),
     login: builder.mutation({
@@ -49,19 +49,24 @@ export const authApi = createApi({
       }),
     }),
     changePassword: builder.mutation({
-      query: ({token, newPassword}) => ({
+      query: ({ token, newPassword }) => ({
         url: "/v1/auth/change-password",
         method: "PUT",
-        data: { token, newPassword }
-      })
+        data: { token, newPassword },
+      }),
     }),
     me: builder.query({
       query: () => ({
-        url: '/v1/me',
-      })
-    })
+        url: "/v1/me",
+      }),
+    }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation, useLogoutQuery, useEmailVerificationQuery, useMeQuery} =
-  authApi;
+export const {
+  useRegisterMutation,
+  useLoginMutation,
+  useLogoutQuery,
+  useEmailVerificationQuery,
+  useMeQuery,
+} = authApi;
