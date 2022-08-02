@@ -14,11 +14,9 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-  InputLabel,
-  MenuItem,
-  FormControl,
-  Select,
   Typography,
+  Stack,
+  Autocomplete,
   Snackbar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -58,7 +56,7 @@ const ListFloorPage = () => {
         (floor) =>
           (floor.name.toLowerCase().startsWith(filterById.toLowerCase()) ||
             floor.id.toString().startsWith(filterById)) &&
-          (filterByBuilding === floor.building.id.toString() ||
+          (filterByBuilding === floor.building.name.toString() ||
             filterByBuilding === null)
       )
     : [];
@@ -66,6 +64,10 @@ const ListFloorPage = () => {
   const handleDeleteAnnouncement = (floorId: string) => {
     deleteFloor({ floorId });
   };
+
+  const autocompleteBuilding = buildingHash ? Object.values(buildingHash).map((building) => (
+    building.name
+  )) : [];
 
   useEffect(() => {
     if (getBuildingsError) {
@@ -76,7 +78,7 @@ const ListFloorPage = () => {
   }, [getBuildingsError, getFloorsError]);
 
   const handleClose = (
-    event: React.SyntheticEvent | Event,
+    _: React.SyntheticEvent | Event,
     reason?: string
   ) => {
     if (reason === "clickaway") {
@@ -97,6 +99,8 @@ const ListFloorPage = () => {
       </IconButton>
     </>
   );
+
+  console.log(filterByBuilding);
 
   return (
     <Box>
@@ -128,34 +132,20 @@ const ListFloorPage = () => {
                 sx={{ width: 220 }}
               />
             </Box>
-            <Box sx={{ marginLeft: 1 }}>
-              <FormControl sx={{ width: 220 }}>
-                <InputLabel id="demo-simple-select-label">Building</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Building"
-                  onChange={(e, child) => {
-                    if ((child as any)?.props.value === "all-building") {
-                      setFilterByBuilding(null);
-                    } else {
-                      setFilterByBuilding((child as any)?.props.value);
-                    }
-                  }}
-                  defaultValue={""}
-                >
-                  <MenuItem value="all-building">All Campus</MenuItem>
-                  {buildingHash &&
-                    Object.entries(buildingHash).map(
-                      ([buildingId, building]) => (
-                        <MenuItem key={buildingId} value={buildingId}>
-                          {building.name}
-                        </MenuItem>
-                      )
-                    )}
-                </Select>
-              </FormControl>
+            <Box>
+              <Stack>
+                <Autocomplete
+                  options={autocompleteBuilding}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Building" />
+                  )}
+                  value={filterByBuilding}
+                  onChange={(_: any, newValue: string | null) => setFilterByBuilding(newValue)}
+                  sx={{ width: 150 }}
+                />
+              </Stack>
             </Box>
+
             <Box
               display="flex"
               flexDirection="row"
