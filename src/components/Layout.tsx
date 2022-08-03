@@ -116,7 +116,7 @@ export default function MiniDrawer(props: Props) {
   );
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [openProfile, setOpenProfile] = React.useState(true);
+  const [openProfile, setOpenProfile] = React.useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
