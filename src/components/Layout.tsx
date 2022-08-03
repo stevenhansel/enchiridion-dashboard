@@ -19,8 +19,13 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import { Link } from "react-router-dom";
 import Typography from "@mui/material/Typography";
+import Collapse from "@mui/material/Collapse";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
 import { RootState } from "../store";
+
+import LogoutButton from "./LogoutButton";
 
 const drawerWidth = 240;
 
@@ -104,21 +109,25 @@ type Props = {
   navigation: NavigationItem[];
 };
 
-console.log();
-
 export default function MiniDrawer(props: Props) {
   const profileName = useSelector((state: RootState) => state.profile?.name);
-  const profileRole = useSelector((state: RootState) => state.profile?.role.name);
+  const profileRole = useSelector(
+    (state: RootState) => state.profile?.role.name
+  );
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [openProfile, setOpenProfile] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
-    console.log(profileName);
   };
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleClick = () => {
+    setOpenProfile(!openProfile);
   };
 
   return (
@@ -151,22 +160,20 @@ export default function MiniDrawer(props: Props) {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <Typography
-          display="flex"
-          justifyContent="center"
-          sx={{ opacity: open ? 1 : 0, marginTop: 1 }}
-        >
-          {profileName}
-        </Typography>
-        <Box>
-          <Typography
-            display="flex"
-            justifyContent="center"
-            sx={{ opacity: open ? 1 : 0, marginTop: 1 }}
-          >
-            {profileRole}
-          </Typography>
-        </Box>
+        <List sx={{ opacity: open ? 1 : 0, marginTop: 1 }}>
+          <ListItemButton onClick={handleClick}>
+            <ListItemText primary={profileName} />
+            <ListItemText primary={profileRole} />
+            {openProfile ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={openProfile} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton sx={{ pl: 4 }}>
+                <LogoutButton />
+              </ListItemButton>
+            </List>
+          </Collapse>
+        </List>
         <List>
           {props.navigation.map(({ text, path, icon }) => (
             <Link
