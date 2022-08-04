@@ -73,8 +73,6 @@ const Login = (props: Props) => {
             userStatus: response.data.userStatus,
           })
         );
-        console.log(response);
-
         dispatch(login());
       } else {
         setErrorMessage(

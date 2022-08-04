@@ -22,8 +22,6 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const test = ["akuganteng71", "akuganteng72"];
-
 const DevicePage = (props: Props) => {
   const [filterById, setFilterById] = useState("");
   const navigate = useNavigate();
@@ -41,8 +39,6 @@ const DevicePage = (props: Props) => {
         device.name.toLowerCase().startsWith(filterById) ||
         deviceId.startsWith(filterById)
     );
-
-  console.log();
 
   return (
     <Box>

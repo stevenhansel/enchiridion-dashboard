@@ -69,6 +69,8 @@ const ListFloorPage = () => {
     building.name
   )) : [];
 
+  console.log(autocompleteBuilding);
+
   useEffect(() => {
     if (getBuildingsError) {
       setErrorMessage("Buildings Not Found");
@@ -99,8 +101,6 @@ const ListFloorPage = () => {
       </IconButton>
     </>
   );
-
-  console.log(filterByBuilding);
 
   return (
     <Box>
