@@ -80,19 +80,17 @@ const ListAnnouncementPage = () => {
     navigate(`/announcement/detail/${announcementId}`);
   };
 
-  const filteredAnnouncement = announcementHash
+  const filteredAnnouncements = announcementHash
     ? Object.values(announcementHash).filter(
         (announcement) =>
-          ((announcement.title
+          (announcement.title
             .toLowerCase()
             .startsWith(filterById.toLowerCase()) ||
-            announcement.id.toString().startsWith(filterById)) 
-            &&
-            (filterByAuthor === announcement.author.name ||
-              filterByAuthor === null) 
-              &&
-            filterByStatus === announcement.status.label) ||
-          filterByStatus === null
+            announcement.id.toString().startsWith(filterById)) &&
+          (filterByAuthor === announcement.author.name ||
+            filterByAuthor === null) &&
+          (filterByStatus === announcement.status.label ||
+            filterByStatus === null)
       )
     : [];
 
@@ -123,6 +121,8 @@ const ListAnnouncementPage = () => {
       </IconButton>
     </>
   );
+
+  console.log(filteredAnnouncements);
 
   useEffect(() => {
     if (error) {
@@ -179,7 +179,6 @@ const ListAnnouncementPage = () => {
                   sx={{ width: 150 }}
                 />
               </Box>
-
               <Box
                 display="flex"
                 flexDirection="row"
@@ -194,7 +193,7 @@ const ListAnnouncementPage = () => {
                 </Button>
               </Box>
             </Box>
-            {filteredAnnouncement && filteredAnnouncement.length > 0 ? (
+            {filteredAnnouncements && filteredAnnouncements.length > 0 ? (
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
@@ -210,52 +209,51 @@ const ListAnnouncementPage = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredAnnouncement &&
-                      filteredAnnouncement.map((announcement) => (
-                        <TableRow
-                          key={announcement.id}
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell component="th" scope="row">
-                            {announcement.id}
-                          </TableCell>
-                          <TableCell align="center">
-                            <Button
-                              onClick={() =>
-                                handleNavigateToDetailPage(announcement.id)
-                              }
-                            >
-                              {announcement.title}
-                            </Button>
-                          </TableCell>
-                          <TableCell align="center">
-                            {toDate(announcement.startDate)}
-                          </TableCell>
-                          <TableCell align="center">
-                            {toDate(announcement.endDate)}
-                          </TableCell>
-                          <TableCell align="center">
-                            {announcement.status.label}
-                          </TableCell>
-                          <TableCell align="center">
-                            {announcement.author.name}
-                          </TableCell>
-                          <TableCell align="center">
-                            {toDate(announcement.createdAt)}
-                          </TableCell>
-                          <TableCell align="center">
-                            <Button
-                              onClick={() =>
-                                handleSelectAnnouncementImage(announcement.id)
-                              }
-                            >
-                              Open
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                    {filteredAnnouncements.map((announcement) => (
+                      <TableRow
+                        key={announcement.id}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {announcement.id}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button
+                            onClick={() =>
+                              handleNavigateToDetailPage(announcement.id)
+                            }
+                          >
+                            {announcement.title}
+                          </Button>
+                        </TableCell>
+                        <TableCell align="center">
+                          {toDate(announcement.startDate)}
+                        </TableCell>
+                        <TableCell align="center">
+                          {toDate(announcement.endDate)}
+                        </TableCell>
+                        <TableCell align="center">
+                          {announcement.status.label}
+                        </TableCell>
+                        <TableCell align="center">
+                          {announcement.author.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          {toDate(announcement.createdAt)}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button
+                            onClick={() =>
+                              handleSelectAnnouncementImage(announcement.id)
+                            }
+                          >
+                            Open
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </TableContainer>

@@ -41,4 +41,4 @@ export const buildingApi = createApi({
   }),
 });
 
-export const { useGetBuildingsQuery } = buildingApi;
+export const { useGetBuildingsQuery, useCreateBuildingMutation } = buildingApi;

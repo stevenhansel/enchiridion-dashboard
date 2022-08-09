@@ -26,8 +26,15 @@ import CloseIcon from "@mui/icons-material/Close";
 import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
 
-import { useGetBuildingsQuery } from "../services/building";
-import { useGetFloorsQuery, useDeleteFloorMutation } from "../services/floor";
+import {
+  useGetBuildingsQuery,
+  useCreateBuildingMutation,
+} from "../services/building";
+import {
+  useGetFloorsQuery,
+  useDeleteFloorMutation,
+  useCreateFloorMutation,
+} from "../services/floor";
 
 const ListFloorPage = () => {
   const {
@@ -41,6 +48,7 @@ const ListFloorPage = () => {
     error: getFloorsError,
   } = useGetFloorsQuery(null);
   const [deleteFloor] = useDeleteFloorMutation();
+  const [createBuilding] = useCreateBuildingMutation();
 
   const [filterById, setFilterById] = useState("");
   const [filterByBuilding, setFilterByBuilding] = useState<string | null>(null);
@@ -65,11 +73,11 @@ const ListFloorPage = () => {
     deleteFloor({ floorId });
   };
 
-  const autocompleteBuilding = buildingHash ? Object.values(buildingHash).map((building) => (
-    building.name
-  )) : [];
+  const buildingOptions = buildingHash
+    ? Object.values(buildingHash).map((building) => building.name)
+    : [];
 
-  console.log(autocompleteBuilding);
+  console.log(buildingOptions);
 
   useEffect(() => {
     if (getBuildingsError) {
@@ -79,10 +87,7 @@ const ListFloorPage = () => {
     }
   }, [getBuildingsError, getFloorsError]);
 
-  const handleClose = (
-    _: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
     }
@@ -129,21 +134,21 @@ const ListFloorPage = () => {
                 onChange={(e) => {
                   setFilterById(e.target.value);
                 }}
-                sx={{ width: 220 }}
+                sx={{ width: 220, marginRight: 1 }}
               />
             </Box>
             <Box>
-              <Stack>
-                <Autocomplete
-                  options={autocompleteBuilding}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Building" />
-                  )}
-                  value={filterByBuilding}
-                  onChange={(_: any, newValue: string | null) => setFilterByBuilding(newValue)}
-                  sx={{ width: 150 }}
-                />
-              </Stack>
+              <Autocomplete
+                options={buildingOptions}
+                renderInput={(params) => (
+                  <TextField {...params} label="Building" />
+                )}
+                value={filterByBuilding}
+                onChange={(_: any, newValue: string | null) =>
+                  setFilterByBuilding(newValue)
+                }
+                sx={{ width: 150 }}
+              />
             </Box>
 
             <Box
