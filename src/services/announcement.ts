@@ -2,7 +2,8 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axios from "../utils/axiosInstance";
 
-import { Announcement } from "../types/store";
+import { Announcement, Pagination } from "../types/store";
+import { urlBuilder } from "../utils";
 
 export const announcementApi = createApi({
   reducerPath: "announcementApi",
@@ -10,29 +11,22 @@ export const announcementApi = createApi({
   tagTypes: ["Announcement"],
   endpoints: (builders) => ({
     getAnnouncements: builders.query<
-      Record<number, Announcement>,
-      { deviceId: number | null } | null
+      Pagination<Announcement>,
+      {
+        page?: number;
+        limit?: number;
+        deviceId?: number;
+        userId?: number;
+      } | null
     >({
-      query: (params) => {
-        let url = "/v1/announcements";
-        if (params !== null) {
-          const { deviceId } = params;
-
-          if (deviceId !== null) {
-            url += `?deviceId=${deviceId}`;
-          }
-        }
-        return { url };
-      },
+      query: (params) => ({ url: urlBuilder("/v1/announcements", params) }),
       providesTags: () => ["Announcement"],
-      transformResponse: (response) =>
-        response.contents.reduce(
-          (prev: Record<number, Announcement>, curr: Announcement) => ({
-            ...prev,
-            [curr.id]: curr,
-          }),
-          {}
-        ),
+      transformResponse: (response) => ({
+        hasNext: response.hasNext,
+        count: response.count,
+        totalPages: response.totalPages,
+        contents: response.contents,
+      }),
     }),
     getAnnouncementMedia: builders.query({
       query: ({ announcementId }) => ({

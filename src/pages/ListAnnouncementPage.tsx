@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
@@ -21,6 +21,8 @@ import {
 } from "@mui/material";
 import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
 import CloseIcon from "@mui/icons-material/Close";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import { useGetAnnouncementsQuery } from "../services/announcement";
 
@@ -52,16 +54,26 @@ const statuses: Status[] = [
   },
 ];
 
+type Author = {
+  id: number;
+  name: string;
+};
+
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
+
+const FETCH_LIMIT = 2;
 
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
 
+  const [page, setPage] = useState(1);
+
   const {
-    data: announcementHash,
+    data,
     isLoading,
     error,
-  } = useGetAnnouncementsQuery(null);
+    refetch,
+  } = useGetAnnouncementsQuery({ page, limit: FETCH_LIMIT });
 
   const [currentAnnouncementId, setCurrentAnnouncementId] =
     useState<string>("");
@@ -70,6 +82,8 @@ const ListAnnouncementPage = () => {
   const [filterByAuthor, setFilterByAuthor] = useState<string | null>(null);
   const [filterByStatus, setFilterByStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [options, setOptions] = useState<readonly Author[]>([]);
+  const [open, setOpen] = useState(false);
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
@@ -80,25 +94,33 @@ const ListAnnouncementPage = () => {
     navigate(`/announcement/detail/${announcementId}`);
   };
 
-  const filteredAnnouncements = announcementHash
-    ? Object.values(announcementHash).filter(
-        (announcement) =>
-          (announcement.title
-            .toLowerCase()
-            .startsWith(filterById.toLowerCase()) ||
-            announcement.id.toString().startsWith(filterById)) &&
-          (filterByAuthor === announcement.author.name ||
-            filterByAuthor === null) &&
-          (filterByStatus === announcement.status.label ||
-            filterByStatus === null)
-      )
-    : [];
+  const handlePaginationPreviousPage = useCallback(() => setPage((page) => page - 1), []);
+  const handlePaginationNextPage = useCallback(() => setPage((page) => page + 1), []);
 
-  const announcementOptions = announcementHash
-    ? Object.values(announcementHash).map(
-        (announcement) => announcement.author.name
-      )
-    : [];
+  // const filteredAnnouncements = announcementHash
+  //   ? Object.values(announcementHash).filter(
+  //       (announcement) =>
+  //         (announcement.title
+  //           .toLowerCase()
+  //           .startsWith(filterById.toLowerCase()) ||
+  //           announcement.id.toString().startsWith(filterById)) &&
+  //         (filterByAuthor === announcement.author.name ||
+  //           filterByAuthor === null) &&
+  //         (filterByStatus === announcement.status.label ||
+  //           filterByStatus === null)
+  //     )
+  //   : [];
+
+  // const announcementOptions = announcementHash
+  //   ? Array.from(
+  //       new Set(
+  //         Object.values(announcementHash).map((announcement) => ({
+  //           id: announcement.author.id,
+  //           name: announcement.author.name,
+  //         }))
+  //       )
+  //     )
+  //   : [];
 
   const statusOptions = statuses ? statuses.map((status) => status.label) : [];
 
@@ -122,13 +144,42 @@ const ListAnnouncementPage = () => {
     </>
   );
 
-  console.log(filteredAnnouncements);
+  const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
+  const isNextButtonDisabled = useMemo(() => {
+    if (!data) return true;
+
+    return page === data.totalPages;
+  }, [page, data]);
 
   useEffect(() => {
     if (error) {
       setErrorMessage("Announcements List Not Found");
     }
   }, [error]);
+
+  useEffect(() => {
+    let active: boolean = true;
+
+    if (!isLoading) {
+      return undefined;
+    }
+    if (active) {
+      // setOptions([...announcementOptions]);
+    }
+    return () => {
+      active = false;
+    };
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!open) {
+      setOptions([]);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    refetch();
+  }, [page]);
 
   return (
     <Box>
@@ -154,17 +205,32 @@ const ListAnnouncementPage = () => {
                 />
               </Box>
               <Box sx={{ marginLeft: 1 }}>
-                <Autocomplete
+                {/* <Autocomplete
+                  id="author"
+                  open={open}
+                  onOpen={() => {
+                    setOpen(true);
+                  }}
+                  onClose={() => {
+                    setOpen(false);
+                  }}
                   options={announcementOptions}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Author" />
-                  )}
-                  value={filterByAuthor}
-                  onChange={(_: any, newValue: string | null) =>
-                    setFilterByAuthor(newValue)
+                  isOptionEqualToValue={(option, value) =>
+                    option.name === value.name
                   }
+                  getOptionLabel={(option) => option.name}
+                  loading={!isLoading}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Asynchronous"
+                      InputProps={{
+                        ...params.InputProps,
+                      }}
+                    />
+                  )}
                   sx={{ width: 150 }}
-                />
+                /> */}
               </Box>
               <Box sx={{ marginLeft: 1 }}>
                 <Autocomplete
@@ -193,7 +259,7 @@ const ListAnnouncementPage = () => {
                 </Button>
               </Box>
             </Box>
-            {filteredAnnouncements && filteredAnnouncements.length > 0 ? (
+            {data && data.contents.length > 0 ? (
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
@@ -209,7 +275,7 @@ const ListAnnouncementPage = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredAnnouncements.map((announcement) => (
+                    {data.contents.map((announcement) => (
                       <TableRow
                         key={announcement.id}
                         sx={{
@@ -279,6 +345,20 @@ const ListAnnouncementPage = () => {
         message={errorMessage}
         action={action}
       />
+      <Box
+        sx={{ marginTop: 1 }}
+        display="flex"
+        justifyContent="center"
+        flexDirection="row"
+      >
+        <IconButton disabled={isPreviousButtonDisabled} onClick={handlePaginationPreviousPage}>
+          <NavigateBeforeIcon />
+        </IconButton>
+
+        <IconButton disabled={isNextButtonDisabled} onClick={handlePaginationNextPage}>
+          <NavigateNextIcon />
+        </IconButton>
+      </Box>
     </Box>
   );
 };

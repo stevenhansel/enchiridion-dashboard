@@ -7,6 +7,11 @@ import {
   DialogTitle,
   DialogContent,
   TextField,
+  InputLabel,
+  Select,
+  FormControl,
+  MenuItem,
+  Typography,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { useFormik } from "formik";
@@ -34,7 +39,7 @@ const CreateFloorModal = (props: Props) => {
   const { buildingHash, open, setOpen } = props;
 
   const [addNewFloor] = useCreateFloorMutation();
-  const [selectBuilding, setSelectBuilding] = useState<string>('');
+  const [selectBuilding, setSelectBuilding] = useState<string>("");
 
   const formik = useFormik<UpdateFloor>({
     initialValues: {
@@ -145,11 +150,7 @@ const CreateFloorModal = (props: Props) => {
                     <Button
                       variant="contained"
                       sx={{ marginBottom: 1 }}
-                      onClick={() =>
-                        setSelectBuilding(
-                          building.name
-                        )
-                      }
+                      onClick={() => setSelectBuilding(building.name)}
                     >
                       {building.name}
                     </Button>

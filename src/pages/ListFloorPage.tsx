@@ -77,8 +77,6 @@ const ListFloorPage = () => {
     ? Object.values(buildingHash).map((building) => building.name)
     : [];
 
-  console.log(buildingOptions);
-
   useEffect(() => {
     if (getBuildingsError) {
       setErrorMessage("Buildings Not Found");

@@ -1,5 +1,12 @@
 import { StringLiteral } from "typescript";
 
+export type Pagination<T> = {
+  hasNext: boolean;
+  count: number;
+  totalPages: number,
+  contents: T[],
+}
+
 export type BuildingFloorDevices = {
   name: string,
   floors: Floor[],

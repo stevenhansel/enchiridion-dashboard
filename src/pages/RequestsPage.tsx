@@ -16,6 +16,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Snackbar from "@mui/material/Snackbar";
 import CheckIcon from "@mui/icons-material/Check";
@@ -27,6 +28,8 @@ import {
   useGetRequestsQuery,
   useCreateRequestMutation,
 } from "../services/request";
+
+import { useGetAnnouncementsQuery } from "../services/announcement";
 
 type ActionButton = {
   label: string;
@@ -69,18 +72,45 @@ const toDate = (dateStr: string | undefined) =>
 
 const RequestsPage = (props: Props) => {
   const [selectByUser, setSelectByUser] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState('');
+  const [selectByAnnouncement, setSelectByAnnouncement] = useState<
+    string | null
+  >(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [filterByLSC, setFilterByLSC] = useState<boolean | null>(null);
 
-  const { data: requestHash, isLoading, error } = useGetRequestsQuery(null);
+  const {
+    data: requestHash,
+    isLoading: isGetRequestLoading,
+    error: getRequestError,
+  } = useGetRequestsQuery(null);
+  const {
+    data: announcementHash,
+    isLoading: isGetAnnouncementLoading,
+    error: getAnnouncementError,
+  } = useGetAnnouncementsQuery(null);
   const [createRequest] = useCreateRequestMutation();
+
+  const isLoading = isGetAnnouncementLoading && isGetRequestLoading;
+  
+  const error = getRequestError && getAnnouncementError;
 
   const filteredRequest = requestHash
     ? Object.values(requestHash).filter(
         (request) =>
           (selectByUser === request.action.label ||
-          selectByUser === "" ||
-          selectByUser === "All") 
+            selectByUser === "" ||
+            selectByUser === "All") &&
+          (selectByAnnouncement === request.announcement.title ||
+            selectByAnnouncement === null)
       )
+    : [];
+
+  // const announcementOptions = announcementHash 
+  //   ? Object.values(announcementHash).map((announcement) => announcement.title)
+  //   : [];
+
+  const requestStatusLSC = requestHash
+    ? Object.values(requestHash).map((request) => request.approvalStatus.lsc)
     : [];
 
   const userApprove = (requestId: string, requestStatus: boolean) => {
@@ -124,11 +154,11 @@ const RequestsPage = (props: Props) => {
     </>
   );
 
- useEffect(() => {
-  if(error){
-    setErrorMessage("Requests Not Found")
-  }
- }, [error])
+  useEffect(() => {
+    if (error) {
+      setErrorMessage("Requests Not Found");
+    }
+  }, [error]);
 
   return (
     <Box>
@@ -151,44 +181,19 @@ const RequestsPage = (props: Props) => {
                 sx={{ marginBottom: 2 }}
               />
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                <FormControl sx={{ width: 220 }}>
-                  <InputLabel id="announcement_filter">Announcement</InputLabel>
-                  <Select
-                    labelId="announcement_filter"
-                    id="announcement_filter"
-                    label="Announcement"
-                    defaultValue={""}
-                  >
-                    {requestHash &&
-                      Object.entries(requestHash).map(
-                        ([requestId, request]) => (
-                          <MenuItem key={requestId} value={requestId}>
-                            {request.announcement.title}
-                          </MenuItem>
-                        )
-                      )}
-                  </Select>
-                </FormControl>
-              </Box>
-              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                <FormControl sx={{ width: 220 }}>
-                  <InputLabel id="demo-simple-select-label">Author</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    label="Author"
-                    defaultValue={""}
-                  >
-                    {requestHash &&
-                      Object.entries(requestHash).map(
-                        ([requestId, request]) => (
-                          <MenuItem key={requestId} value={requestId}>
-                            {request.author.name}
-                          </MenuItem>
-                        )
-                      )}
-                  </Select>
-                </FormControl>
+                {/* <Autocomplete
+                  disablePortal
+                  id="announcement_filter"
+                  options={announcementOptions}
+                  sx={{ width: 220 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Announcement" />
+                  )}
+                  value={selectByAnnouncement}
+                  onChange={(_: any, newValue: string | null) =>
+                    setSelectByAnnouncement(newValue)
+                  }
+                /> */}
               </Box>
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <FormControl sx={{ width: 220 }}>
@@ -330,7 +335,6 @@ const RequestsPage = (props: Props) => {
         message={errorMessage}
         action={action}
       />
- 
     </Box>
   );
 };
