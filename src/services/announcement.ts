@@ -2,7 +2,9 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axios from "../utils/axiosInstance";
 
-import { Announcement, Pagination } from "../types/store";
+import { Announcement, Pagination, Author } from "../types/store";
+import { AnnouncementStatus } from "../types/constants";
+
 import { urlBuilder } from "../utils";
 
 export const announcementApi = createApi({
@@ -15,8 +17,11 @@ export const announcementApi = createApi({
       {
         page?: number;
         limit?: number;
-        deviceId?: number;
-        userId?: number;
+        query?: string;
+        status?: AnnouncementStatus | null,
+        userId?: number | null,
+        // deviceId?: number;
+        // userId?: number;
       } | null
     >({
       query: (params) => ({ url: urlBuilder("/v1/announcements", params) }),
@@ -61,4 +66,5 @@ export const {
   useGetAnnouncementsQuery,
   useGetAnnouncementMediaQuery,
   useGetAnnouncementDetailQuery,
+  useLazyGetAnnouncementsQuery,
 } = announcementApi;

@@ -16,74 +16,52 @@ import {
   CircularProgress,
   Snackbar,
   IconButton,
-  Autocomplete,
   Typography,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  FormControl,
+  InputLabel,
+  Autocomplete,
+  Stack,
 } from "@mui/material";
 import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
 import CloseIcon from "@mui/icons-material/Close";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
-import { useGetAnnouncementsQuery } from "../services/announcement";
-
-type Status = {
-  label: string;
-  value: string;
-};
-
-const statuses: Status[] = [
-  {
-    label: "Waiting for Status",
-    value: "waiting for status",
-  },
-  {
-    label: "Active",
-    value: "active",
-  },
-  {
-    label: "Rejected",
-    value: "rejected",
-  },
-  {
-    label: "Canceled",
-    value: "canceled",
-  },
-  {
-    label: "Done",
-    value: "done",
-  },
-];
-
-type Author = {
-  id: number;
-  name: string;
-};
+import { useLazyGetAnnouncementsQuery } from "../services/announcement";
+import { AnnouncementStatus } from "../types/constants";
+import { Author } from "../types/store";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
 
-const FETCH_LIMIT = 2;
+const FETCH_LIMIT = 20;
+const key = "id";
 
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
-
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useGetAnnouncementsQuery({ page, limit: FETCH_LIMIT });
-
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<AnnouncementStatus | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [userText, setUserText] = useState<Author | null>(null);
   const [currentAnnouncementId, setCurrentAnnouncementId] =
     useState<string>("");
   const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [filterById, setFilterById] = useState("");
-  const [filterByAuthor, setFilterByAuthor] = useState<string | null>(null);
-  const [filterByStatus, setFilterByStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [options, setOptions] = useState<readonly Author[]>([]);
   const [open, setOpen] = useState(false);
+
+  const getAnnouncementsQueryParams = {
+    page,
+    query,
+    status,
+    userId,
+    limit: FETCH_LIMIT,
+  };
+  const [getAnnouncements, { data, error, isLoading }] =
+    useLazyGetAnnouncementsQuery();
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
@@ -94,35 +72,18 @@ const ListAnnouncementPage = () => {
     navigate(`/announcement/detail/${announcementId}`);
   };
 
-  const handlePaginationPreviousPage = useCallback(() => setPage((page) => page - 1), []);
-  const handlePaginationNextPage = useCallback(() => setPage((page) => page + 1), []);
+  const handleSearch = useCallback(() => {
+    getAnnouncements(getAnnouncementsQueryParams);
+  }, [page, query, status, userId]);
 
-  // const filteredAnnouncements = announcementHash
-  //   ? Object.values(announcementHash).filter(
-  //       (announcement) =>
-  //         (announcement.title
-  //           .toLowerCase()
-  //           .startsWith(filterById.toLowerCase()) ||
-  //           announcement.id.toString().startsWith(filterById)) &&
-  //         (filterByAuthor === announcement.author.name ||
-  //           filterByAuthor === null) &&
-  //         (filterByStatus === announcement.status.label ||
-  //           filterByStatus === null)
-  //     )
-  //   : [];
-
-  // const announcementOptions = announcementHash
-  //   ? Array.from(
-  //       new Set(
-  //         Object.values(announcementHash).map((announcement) => ({
-  //           id: announcement.author.id,
-  //           name: announcement.author.name,
-  //         }))
-  //       )
-  //     )
-  //   : [];
-
-  const statusOptions = statuses ? statuses.map((status) => status.label) : [];
+  const handlePaginationPreviousPage = useCallback(
+    () => setPage((page) => page - 1),
+    []
+  );
+  const handlePaginationNextPage = useCallback(
+    () => setPage((page) => page + 1),
+    []
+  );
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -130,6 +91,19 @@ const ListAnnouncementPage = () => {
     }
     setErrorMessage("");
   };
+
+  const announcementOptions = Array.from(
+    new Set(data?.contents.map((option) => option.author))
+  );
+
+  const announcementUniqueByKey = Array.from(
+    new Map(
+      announcementOptions.map((announcement) => [
+        announcement[key],
+        announcement,
+      ])
+    ).values()
+  );
 
   const action = (
     <>
@@ -158,27 +132,7 @@ const ListAnnouncementPage = () => {
   }, [error]);
 
   useEffect(() => {
-    let active: boolean = true;
-
-    if (!isLoading) {
-      return undefined;
-    }
-    if (active) {
-      // setOptions([...announcementOptions]);
-    }
-    return () => {
-      active = false;
-    };
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (!open) {
-      setOptions([]);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    refetch();
+    getAnnouncements(getAnnouncementsQueryParams);
   }, [page]);
 
   return (
@@ -192,71 +146,113 @@ const ListAnnouncementPage = () => {
       >
         {!isLoading ? (
           <>
-            <Box display="flex">
-              <Box>
-                <TextField
-                  id="search"
-                  label="Search by title or ID"
-                  variant="outlined"
-                  onChange={(e) => {
-                    setFilterById(e.target.value);
-                  }}
-                  sx={{ width: 220 }}
-                />
-              </Box>
-              <Box sx={{ marginLeft: 1 }}>
-                {/* <Autocomplete
-                  id="author"
-                  open={open}
-                  onOpen={() => {
-                    setOpen(true);
-                  }}
-                  onClose={() => {
-                    setOpen(false);
-                  }}
-                  options={announcementOptions}
-                  isOptionEqualToValue={(option, value) =>
-                    option.name === value.name
-                  }
-                  getOptionLabel={(option) => option.name}
-                  loading={!isLoading}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Asynchronous"
-                      InputProps={{
-                        ...params.InputProps,
-                      }}
-                    />
-                  )}
-                  sx={{ width: 150 }}
-                /> */}
-              </Box>
-              <Box sx={{ marginLeft: 1 }}>
-                <Autocomplete
-                  options={statusOptions}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Status" />
-                  )}
-                  value={filterByStatus}
-                  onChange={(_: any, newValue: string | null) =>
-                    setFilterByStatus(newValue)
-                  }
-                  sx={{ width: 150 }}
-                />
-              </Box>
+            <Box>
               <Box
                 display="flex"
                 flexDirection="row"
-                justifyContent="flex-end"
+                justifyContent="flex-start"
                 width="100%"
               >
                 <Button
+                  size="large"
+                  sx={{ marginBottom: 3 }}
                   variant="contained"
                   onClick={() => navigate("/announcement/create")}
                 >
                   + Create
                 </Button>
+              </Box>
+              <Box display="flex">
+                <Box>
+                  <TextField
+                    id="search"
+                    label="Search by title"
+                    variant="outlined"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    sx={{ width: 220 }}
+                  />
+                </Box>
+
+                <Box sx={{ marginLeft: 1 }}>
+                  <Autocomplete
+                    id="author"
+                    open={open}
+                    onOpen={() => {
+                      setOpen(true);
+                    }}
+                    onClose={() => {
+                      setOpen(false);
+                    }}
+                    options={announcementUniqueByKey}
+                    getOptionLabel={(option) => option.name}
+                    isOptionEqualToValue={(option, value) =>
+                      option.name === value.name
+                    }
+                    onChange={(_: any, newValue: Author | null) => {
+                      if (newValue?.id && newValue?.name) {
+                        setUserId(newValue.id);
+                        setUserText(newValue);
+                      } else {
+                        setUserId(null);
+                        setUserText(null);
+                      }
+                    }}
+                    value={userText}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Author" />
+                    )}
+                    sx={{ width: 150 }}
+                  />
+                </Box>
+
+                <Box sx={{ marginLeft: 1 }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="announcement-status-select">
+                      Status
+                    </InputLabel>
+                    <Select
+                      id="announcement-status-select"
+                      sx={{ width: 220 }}
+                      value={status !== null ? status : ""}
+                      label="Status"
+                      onChange={(e: SelectChangeEvent) => {
+                        if (e.target.value === "") {
+                          setStatus(null);
+                        } else {
+                          setStatus(
+                            e.target.value as AnnouncementStatus | null
+                          );
+                        }
+                      }}
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      <MenuItem value={AnnouncementStatus.WaitingForApproval}>
+                        Waiting for Approval
+                      </MenuItem>
+                      <MenuItem value={AnnouncementStatus.Active}>
+                        Active
+                      </MenuItem>
+                      <MenuItem value={AnnouncementStatus.Done}>Done</MenuItem>
+                      <MenuItem value={AnnouncementStatus.Rejected}>
+                        Rejected
+                      </MenuItem>
+                      <MenuItem value={AnnouncementStatus.Canceled}>
+                        Canceled
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+                <Box display="flex">
+                  <Button
+                    size="large"
+                    sx={{ marginBottom: 3 }}
+                    variant="contained"
+                    onClick={handleSearch}
+                  >
+                    Search
+                  </Button>
+                </Box>
               </Box>
             </Box>
             {data && data.contents.length > 0 ? (
@@ -351,11 +347,17 @@ const ListAnnouncementPage = () => {
         justifyContent="center"
         flexDirection="row"
       >
-        <IconButton disabled={isPreviousButtonDisabled} onClick={handlePaginationPreviousPage}>
+        <IconButton
+          disabled={isPreviousButtonDisabled}
+          onClick={handlePaginationPreviousPage}
+        >
           <NavigateBeforeIcon />
         </IconButton>
 
-        <IconButton disabled={isNextButtonDisabled} onClick={handlePaginationNextPage}>
+        <IconButton
+          disabled={isNextButtonDisabled}
+          onClick={handlePaginationNextPage}
+        >
           <NavigateNextIcon />
         </IconButton>
       </Box>
