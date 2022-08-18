@@ -10,13 +10,14 @@ import { CreateAnnouncementFormValues } from "./form";
 import { validateFormikFields } from "./util";
 
 import { useGetBuildingsQuery } from "../../services/building";
-import { useGetFloorsQuery } from "../../services/floor";
+import { useLazyGetFloorsQuery } from "../../services/floor";
 
 const fields = ["devices"];
 
 const Step2 = () => {
-  const { data: buildingHash, isLoading: isBuildingLoading } = useGetBuildingsQuery(null);
-  const { data: floorHash } = useGetFloorsQuery(null);
+  const { data: buildingHash, isLoading: isBuildingLoading } =
+    useGetBuildingsQuery(null);
+  const [getFloors, { data: floorsData }] = useLazyGetFloorsQuery();
 
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
@@ -59,17 +60,24 @@ const Step2 = () => {
   useEffect(() => {
     fields.forEach((field) => validateField(field));
     // eslint-disable-next-line
-
   }, []);
-  useEffect (() => {
-    if(buildingHash !== undefined && isBuildingLoading === false){
+  useEffect(() => {
+    if (buildingHash !== undefined && isBuildingLoading === false) {
       const keys = Object.keys(buildingHash).map((key) => parseInt(key));
-      if(keys.length > 0){
+      if (keys.length > 0) {
         const firstBuildingId = buildingHash[keys[0]].id;
-        setCurrentBuildingId(firstBuildingId.toString())
+        setCurrentBuildingId(firstBuildingId.toString());
       }
     }
-  }, [isBuildingLoading])
+  }, [isBuildingLoading]);
+
+  useEffect(() => {
+    getFloors(null);
+  }, []);
+
+  const options = floorsData?.contents.map((content) => content);
+
+  console.log(options);
 
   return (
     <Box width="100%">
@@ -111,46 +119,46 @@ const Step2 = () => {
           }}
         >
           <Box>
-            {floorHash &&
-              Object.entries(floorHash)
-                .filter(
-                  ([_, floor]) =>
-                    currentBuildingId === floor.building.id.toString()
-                )
-                .map(([floorId, floor]) => (
-                  <Box key={floorId} display="flex">
-                    <Box
-                      sx={{
-                        minWidth: 100,
-                        flex: 1,
-                        marginRight: 1,
-                        marginBottom: 2,
-                      }}
-                    >
-                      {floor.name}
-                    </Box>
-                    <Box display="flex" flexWrap="wrap">
-                      {floor.devices.map((device) => (
-                        <Button
-                          key={device.id}
-                          onClick={() =>
-                            handleSelectDevice(device.id.toString())
-                          }
-                          //variant={values.devices.includes(device.id.toString()) ? 'contained' : 'text'}
-                          variant="contained"
-                          color={
-                            values.devices.includes(device.id.toString())
-                              ? "secondary"
-                              : "inactive"
-                          }
-                          sx={{ marginRight: 1, marginBottom: 1, width: 140 }}
-                        >
-                          {device.name}
-                        </Button>
-                      ))}
-                    </Box>
+            {floorsData?.contents
+              .filter(
+                (floor) => currentBuildingId === floor.building.id.toString()
+              )
+              .map((floor) => (
+                <Box key={floor.id} display="flex">
+                  <Box
+                    sx={{
+                      minWidth: 100,
+                      flex: 1,
+                      marginRight: 1,
+                      marginBottom: 2,
+                    }}
+                  >
+                    {floor.name}
                   </Box>
-                ))}
+                  <Box display="flex" flexWrap="wrap">
+                    {floor.devices.map((device) => (
+                      <Button
+                        key={device.id}
+                        onClick={() => handleSelectDevice(device.id.toString())}
+                        variant={
+                          values.devices.includes(device.id.toString())
+                            ? "contained"
+                            : "text"
+                        }
+                        // variant="contained"
+                        color={
+                          values.devices.includes(device.id.toString())
+                            ? "secondary"
+                            : "inactive"
+                        }
+                        sx={{ marginRight: 1, marginBottom: 1, width: 140 }}
+                      >
+                        {device.name}
+                      </Button>
+                    ))}
+                  </Box>
+                </Box>
+              ))}
           </Box>
         </Box>
       </Box>

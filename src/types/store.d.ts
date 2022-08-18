@@ -28,7 +28,7 @@ export type Announcement = {
   title: string;
   startDate: string;
   endDate: string;
-  status: Status;
+  status: Status; 
   author: Author;
   media: string;
   notes: string;

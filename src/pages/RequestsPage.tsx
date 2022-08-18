@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 
 import Box from "@mui/material/Box";
@@ -17,19 +17,26 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import IconButton from "@mui/material/IconButton";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Snackbar from "@mui/material/Snackbar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import RemoveIcon from "@mui/icons-material/Remove";
-import IconButton from "@mui/material/IconButton";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import {
-  useGetRequestsQuery,
   useCreateRequestMutation,
+  useLazyGetRequestsQuery,
 } from "../services/request";
 
-import { useGetAnnouncementsQuery } from "../services/announcement";
+import {
+  useGetAnnouncementsQuery,
+  useLazyGetAnnouncementsQuery,
+} from "../services/announcement";
+
+import { AnnouncementRequest } from "../types/store";
 
 type ActionButton = {
   label: string;
@@ -70,48 +77,41 @@ const actions: ActionButton[] = [
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
 
+const FETCH_LIMIT = 20;
+
 const RequestsPage = (props: Props) => {
   const [selectByUser, setSelectByUser] = useState<string>("");
-  const [selectByAnnouncement, setSelectByAnnouncement] = useState<
-    string | null
-  >(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [filterByLSC, setFilterByLSC] = useState<boolean | null>(null);
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
+  const [userId, setUserId] = useState<number | null>(null);
 
-  const {
-    data: requestHash,
-    isLoading: isGetRequestLoading,
-    error: getRequestError,
-  } = useGetRequestsQuery(null);
-  const {
-    data: announcementHash,
-    isLoading: isGetAnnouncementLoading,
-    error: getAnnouncementError,
-  } = useGetAnnouncementsQuery(null);
+  const getRequestQueryParams = {
+    page,
+    query,
+    userId,
+    limit: FETCH_LIMIT,
+  };
+
+  const [
+    getRequests,
+    {
+      data: requestsData,
+      isLoading: isGetRequestLoading,
+      error: getRequestError,
+    },
+  ] = useLazyGetRequestsQuery();
+  const [
+    getAnnouncements,
+    {
+      data: announcementsData,
+      isLoading: isGetAnnouncementLoading,
+      error: getAnnouncementError,
+    },
+  ] = useLazyGetAnnouncementsQuery();
   const [createRequest] = useCreateRequestMutation();
 
   const isLoading = isGetAnnouncementLoading && isGetRequestLoading;
-  
-  const error = getRequestError && getAnnouncementError;
-
-  const filteredRequest = requestHash
-    ? Object.values(requestHash).filter(
-        (request) =>
-          (selectByUser === request.action.label ||
-            selectByUser === "" ||
-            selectByUser === "All") &&
-          (selectByAnnouncement === request.announcement.title ||
-            selectByAnnouncement === null)
-      )
-    : [];
-
-  // const announcementOptions = announcementHash 
-  //   ? Object.values(announcementHash).map((announcement) => announcement.title)
-  //   : [];
-
-  const requestStatusLSC = requestHash
-    ? Object.values(requestHash).map((request) => request.approvalStatus.lsc)
-    : [];
 
   const userApprove = (requestId: string, requestStatus: boolean) => {
     createRequest({ requestId, requestStatus });
@@ -131,10 +131,36 @@ const RequestsPage = (props: Props) => {
     return null;
   };
 
-  const handleClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleSearch = useCallback(() => {
+    getRequests(getRequestQueryParams);
+  }, [page, userId]);
+
+  const announcementOptions = Array.from(
+    new Set(announcementsData?.contents.map((content) => content.author.id))
+  );
+
+  const options = requestsData?.contents.map((content) => content.approvalStatus); // testing
+
+  console.log(options); //testing
+
+  const handlePaginationPreviousPage = useCallback(
+    () => setPage((page) => page - 1),
+    [page]
+  );
+
+  const handlePaginationNextPage = useCallback(
+    () => setPage((page) => page + 1),
+    [page]
+  );
+
+  const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
+  const isNextButtonDisabled = useMemo(() => {
+    if (!requestsData) return true;
+
+    return page === requestsData.totalPages;
+  }, [page, requestsData]);
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
     }
@@ -155,10 +181,20 @@ const RequestsPage = (props: Props) => {
   );
 
   useEffect(() => {
-    if (error) {
-      setErrorMessage("Requests Not Found");
+    if (getRequestError) {
+      setErrorMessage("Requests Not Found!");
+    } else if (getAnnouncementError) {
+      setErrorMessage("Announcement Not Found!");
     }
-  }, [error]);
+  }, [getRequestError, getAnnouncementError]);
+
+  useEffect(() => {
+    getRequests(getRequestQueryParams);
+  }, [page]);
+
+  useEffect(() => {
+    getAnnouncements(null);
+  }, []);
 
   return (
     <Box>
@@ -178,10 +214,12 @@ const RequestsPage = (props: Props) => {
                 id="filled-basic"
                 label="Search by ID"
                 variant="outlined"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 sx={{ marginBottom: 2 }}
               />
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                {/* <Autocomplete
+                <Autocomplete
                   disablePortal
                   id="announcement_filter"
                   options={announcementOptions}
@@ -189,11 +227,11 @@ const RequestsPage = (props: Props) => {
                   renderInput={(params) => (
                     <TextField {...params} label="Announcement" />
                   )}
-                  value={selectByAnnouncement}
-                  onChange={(_: any, newValue: string | null) =>
-                    setSelectByAnnouncement(newValue)
+                  value={userId}
+                  onChange={(_: any, newValue: number | null) => 
+                    setUserId(newValue)
                   }
-                /> */}
+                />
               </Box>
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <FormControl sx={{ width: 220 }}>
@@ -229,6 +267,11 @@ const RequestsPage = (props: Props) => {
                   </Select>
                 </FormControl>
               </Box>
+              <Box>
+                <Button onClick={handleSearch} variant="contained">
+                  Search
+                </Button>
+              </Box>
             </Box>
             <Box sx={{ marginBottom: 1 }}>
               {actions &&
@@ -246,7 +289,7 @@ const RequestsPage = (props: Props) => {
                   </Button>
                 ))}
             </Box>
-            {filteredRequest && filteredRequest.length > 0 ? (
+            {requestsData && requestsData.contents.length > 0 ? (
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
@@ -263,7 +306,7 @@ const RequestsPage = (props: Props) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredRequest.map((request) => (
+                    {requestsData.contents.map((request) => (
                       <TableRow
                         key={request.id}
                         sx={{
@@ -335,6 +378,20 @@ const RequestsPage = (props: Props) => {
         message={errorMessage}
         action={action}
       />
+      <Box display="flex" justifyContent="center">
+        <IconButton
+          disabled={isPreviousButtonDisabled}
+          onClick={handlePaginationPreviousPage}
+        >
+          <NavigateBeforeIcon />
+        </IconButton>
+        <IconButton
+          disabled={isNextButtonDisabled}
+          onClick={handlePaginationNextPage}
+        >
+          <NavigateNextIcon />
+        </IconButton>
+      </Box>
     </Box>
   );
 };

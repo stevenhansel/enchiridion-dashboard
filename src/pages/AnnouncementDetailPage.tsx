@@ -6,7 +6,7 @@ import { Box, Button, CircularProgress, Typography } from "@mui/material";
 
 import { useGetAnnouncementDetailQuery } from "../services/announcement";
 import { useGetBuildingsQuery } from "../services/building";
-import { useGetFloorsQuery } from "../services/floor";
+import { useLazyGetFloorsQuery } from "../services/floor";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 
@@ -15,8 +15,8 @@ const AnnouncementDetailPage = () => {
 
   const { data: buildingHash, isLoading: isGetBuildingsLoading } =
     useGetBuildingsQuery(null);
-  const { data: floorHash, isLoading: isGetFloorsLoading } =
-    useGetFloorsQuery(null);
+  const [getFloors, { data: floorsData, isLoading: isGetFloorsLoading }] =
+    useLazyGetFloorsQuery();
   const { data: announcementHash, isLoading: isGetAnnouncementDetailLoading } =
     useGetAnnouncementDetailQuery(
       { announcementId },
@@ -32,15 +32,16 @@ const AnnouncementDetailPage = () => {
     isGetFloorsLoading ||
     isGetAnnouncementDetailLoading;
 
-  const floors = floorHash ? Object.values(floorHash) : [];
-  const buildings = buildingHash ? Object.values(buildingHash) : [];
-
   useEffect(() => {
     // TODO: Make mechanism that ensures initial current building id has device(s) in the announcement hash
     if (buildingHash && Object.keys(buildingHash).length > 0) {
       setCurrentBuildingId(Object.keys(buildingHash)[0]);
     }
   }, [buildingHash]);
+
+  useEffect(() => {
+    getFloors(null);
+  }, []);
 
   return (
     <Box display="flex" flexDirection="column">
@@ -115,7 +116,7 @@ const AnnouncementDetailPage = () => {
                     flexDirection: "column",
                   }}
                 >
-                  {buildings.map((building) => (
+                  {/* {buildingHash?.map((building) => (
                     <Button
                       key={building.id}
                       onClick={() =>
@@ -135,7 +136,7 @@ const AnnouncementDetailPage = () => {
                     >
                       {building.name}
                     </Button>
-                  ))}
+                  ))} */}
                 </Box>
                 <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
                 <Box
@@ -145,7 +146,7 @@ const AnnouncementDetailPage = () => {
                   }}
                 >
                   <Box>
-                    {floors
+                    {floorsData?.contents
                       .filter(
                         (floor) =>
                           currentBuildingId === floor.building.id.toString()

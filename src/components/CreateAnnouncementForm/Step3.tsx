@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 
 import { Box, Button, Typography } from "@mui/material";
 import { useFormikContext } from "formik";
@@ -7,24 +7,28 @@ import { CreateAnnouncementFormValues } from "./form";
 import { CreateAnnouncementFormContext } from "./context";
 
 import { useGetBuildingsQuery } from "../../services/building";
-import { useGetFloorsQuery } from "../../services/floor";
+import { useLazyGetFloorsQuery } from "../../services/floor";
 
-import { BuildingFloorDevices } from '../../types/store';
+import { BuildingFloorDevices } from "../../types/store";
 
 const Step3 = () => {
   const { data: buildingHash } = useGetBuildingsQuery(null);
-  const { data: floorHash } = useGetFloorsQuery(null);
+  const [getFloors, { data: floorsData, isLoading: isFloorLoading, error: floorError }] = useLazyGetFloorsQuery();
 
-  const { values, handleSubmit } = useFormikContext<CreateAnnouncementFormValues>();
+  useEffect(() => {
+    getFloors(null);
+  }, []);
+
+  const { values, handleSubmit } =
+    useFormikContext<CreateAnnouncementFormValues>();
   const { handlePrevStep } = useContext(CreateAnnouncementFormContext);
 
   const handlePrevSubmission = useCallback(() => {
     handlePrevStep();
   }, [handlePrevStep]);
 
-  const floors = floorHash ? Object.values(floorHash) : [];
   const buildingFloorDevices: Record<string, BuildingFloorDevices>  = buildingHash ? Object.values(buildingHash).reduce((prev, curr) => {
-    const filteredFloors = floors
+    const filteredFloors = floorsData?.contents
       .map((floor) => ({
         ...floor,
         devices: floor.devices.filter((device) => values.devices.includes(device.id.toString())),
@@ -55,21 +59,31 @@ const Step3 = () => {
           }}
         >
           <Box sx={{ marginBottom: 2 }}>
-            <Typography variant="h2" align="center">{values.title}</Typography>
+            <Typography variant="h2" align="center">
+              {values.title}
+            </Typography>
           </Box>
           <Box sx={{ marginBottom: 2 }}>
             {values.media ? (
               <img
                 alt="banner"
                 src={values.media.image.src}
-                style={{ width: '100%' }}
+                style={{ width: "100%" }}
               />
             ) : null}
           </Box>
-          <Box sx={{ marginBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              marginBottom: 2,
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
             <Box>
               <Typography>Start Date</Typography>
-              <Typography>{new Date(values.startDate).toDateString()}</Typography>
+              <Typography>
+                {new Date(values.startDate).toDateString()}
+              </Typography>
             </Box>
             <Box>
               <Typography>End Date</Typography>
@@ -123,11 +137,22 @@ const Step3 = () => {
             ))}
           </Box>
         </Box>
-        <Box display="flex" justifyContent="center" alignItems="center" sx={{marginTop: 1}}>
-          <Button variant="contained" sx={{marginRight: 1}} onClick={handlePrevSubmission}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ marginTop: 1 }}
+        >
+          <Button
+            variant="contained"
+            sx={{ marginRight: 1 }}
+            onClick={handlePrevSubmission}
+          >
             Previous
           </Button>
-          <Button variant="contained" onClick={() => handleSubmit()}>Submit</Button>
+          <Button variant="contained" onClick={() => handleSubmit()}>
+            Submit
+          </Button>
         </Box>
       </Box>
     </Box>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 
 import {
   Box,
@@ -15,13 +15,14 @@ import {
   IconButton,
   Tooltip,
   Typography,
-  Stack,
   Autocomplete,
   Snackbar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
@@ -30,60 +31,82 @@ import {
   useGetBuildingsQuery,
   useCreateBuildingMutation,
 } from "../services/building";
+
 import {
-  useGetFloorsQuery,
+  useLazyGetFloorsQuery,
   useDeleteFloorMutation,
   useCreateFloorMutation,
+  useGetFloorsQuery,
 } from "../services/floor";
 
+const FETCH_LIMIT = 20;
+
 const ListFloorPage = () => {
-  const {
-    data: buildingHash,
-    isLoading: isGetBuildingsLoading,
-    error: getBuildingsError,
-  } = useGetBuildingsQuery(null);
-  const {
-    data: floorHash,
-    isLoading: isGetFloorsLoading,
-    error: getFloorsError,
-  } = useGetFloorsQuery(null);
   const [deleteFloor] = useDeleteFloorMutation();
   const [createBuilding] = useCreateBuildingMutation();
 
-  const [filterById, setFilterById] = useState("");
-  const [filterByBuilding, setFilterByBuilding] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
+  const [author, setAuthor] = useState('');
+
   const [errorMessage, setErrorMessage] = useState("");
 
   const [openCreateFloor, setOpenCreateFloor] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
 
-  const isLoading = isGetBuildingsLoading && isGetFloorsLoading;
+  const getFloorsQueryParams = { page, query, limit: FETCH_LIMIT, author };
+  const [
+    getFloors,
+    { data: floorsData, error: floorsError, isLoading: isFloorsLoading },
+  ] = useLazyGetFloorsQuery();
 
-  const filteredFloors = floorHash
-    ? Object.values(floorHash).filter(
-        (floor) =>
-          (floor.name.toLowerCase().startsWith(filterById.toLowerCase()) ||
-            floor.id.toString().startsWith(filterById)) &&
-          (filterByBuilding === floor.building.name.toString() ||
-            filterByBuilding === null)
-      )
-    : [];
+  const {
+    data: buildingsData,
+    error: buildingsError,
+    isLoading: isBuildingsLoading,
+  } = useGetBuildingsQuery(null);
+
+  const isLoading = isFloorsLoading && isBuildingsLoading;
+
+  console.log(floorsData);
 
   const handleDeleteAnnouncement = (floorId: string) => {
     deleteFloor({ floorId });
   };
 
-  const buildingOptions = buildingHash
-    ? Object.values(buildingHash).map((building) => building.name)
-    : [];
+  const handleSearch = useCallback(
+    () => getFloors(getFloorsQueryParams),
+    [page, query, author]
+  );
+
+  const handlePaginationNextPage = useCallback(
+    () => setPage((page) => page + 1),
+    []
+  );
+
+  const handlePaginationPrevPage = useCallback(
+    () => setPage((page) => page - 1),
+    []
+  );
+
+  const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
+
+  const isNextButtonDisabled = useMemo(() => {
+    if (!floorsData) return true;
+    return page === floorsData.totalPages;
+  }, [page, floorsData]);
 
   useEffect(() => {
-    if (getBuildingsError) {
+    if (buildingsError) {
       setErrorMessage("Buildings Not Found");
-    } else if (getFloorsError) {
+    } else if (floorsError) {
       setErrorMessage("Floors Not Found");
     }
-  }, [getBuildingsError, getFloorsError]);
+  }, [buildingsError, floorsError]);
+
+  useEffect(() => {
+    getFloors(getFloorsQueryParams);
+  }, [page]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -108,34 +131,50 @@ const ListFloorPage = () => {
   return (
     <Box>
       <UpdateFloorModal
-        buildingHash={buildingHash}
+        buildingHash={buildingsData}
         open={openEditFloor}
         setOpen={setOpenEditFloor}
       />
       <CreateFloorModal
-        buildingHash={buildingHash}
+        buildingHash={buildingsData}
         open={openCreateFloor}
         setOpen={setOpenCreateFloor}
       />
+
       {isLoading ? (
         <Box display="flex" justifyContent="center">
           <CircularProgress />
         </Box>
       ) : (
         <Box>
+          <Box
+            display="flex"
+            flexDirection="row"
+            justifyContent="flex-start"
+            width="100%"
+          >
+            <Button
+              variant="contained"
+              onClick={() => setOpenCreateFloor(true)}
+              size="large"
+              sx={{ marginBottom: 3 }}
+            >
+              + Create
+            </Button>
+          </Box>
           <Box display="flex">
-            <Box>
+            <Box >
               <TextField
                 id="search"
-                label="Search by floorname or ID"
+                label="Search by floorname"
                 variant="outlined"
-                onChange={(e) => {
-                  setFilterById(e.target.value);
-                }}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 sx={{ width: 220, marginRight: 1 }}
               />
+              <Button onClick={handleSearch} variant="contained">Search</Button>
             </Box>
-            <Box>
+            {/* <Box>
               <Autocomplete
                 options={buildingOptions}
                 renderInput={(params) => (
@@ -147,23 +186,10 @@ const ListFloorPage = () => {
                 }
                 sx={{ width: 150 }}
               />
-            </Box>
-
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="flex-end"
-              width="100%"
-            >
-              <Button
-                variant="contained"
-                onClick={() => setOpenCreateFloor(true)}
-              >
-                + Create
-              </Button>
-            </Box>
+            </Box> */}
+            <Box display="flex" justifyContent="flex-end"></Box>
           </Box>
-          {filteredFloors && filteredFloors.length > 0 ? (
+          {floorsData && floorsData.contents.length > 0 ? (
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -176,7 +202,7 @@ const ListFloorPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredFloors.map((row) => (
+                  {floorsData.contents.map((row) => (
                     <TableRow
                       key={row.id}
                       sx={{
@@ -236,6 +262,26 @@ const ListFloorPage = () => {
         message={errorMessage}
         action={action}
       />
+      <Box
+        sx={{ marginTop: 1 }}
+        display="flex"
+        justifyContent="center"
+        flexDirection="row"
+      >
+        <IconButton
+          disabled={isPreviousButtonDisabled}
+          onClick={handlePaginationPrevPage}
+        >
+          <NavigateBeforeIcon />
+        </IconButton>
+
+        <IconButton
+          disabled={isNextButtonDisabled}
+          onClick={handlePaginationNextPage}
+        >
+          <NavigateNextIcon />
+        </IconButton>
+      </Box>
     </Box>
   );
 };

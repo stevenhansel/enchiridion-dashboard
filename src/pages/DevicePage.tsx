@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
@@ -13,30 +13,84 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { CircularProgress } from "@mui/material";
 import Link from "@mui/material/Link";
+import IconButton from "@mui/material/IconButton";
+import Snackbar from "@mui/material/Snackbar";
+import CloseIcon from "@mui/icons-material/Close";
+import Button from "@mui/material/Button";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
-import { useGetDevicesQuery } from "../services/device";
+import { useGetDevicesQuery, useLazyGetDevicesQuery } from "../services/device";
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const DevicePage = (props: Props) => {
-  const [filterById, setFilterById] = useState("");
+const FETCH_LIMIT = 20;
+
+const DevicePage = () => {
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  const { data: deviceHash, isLoading } = useGetDevicesQuery(null);
+  const getDeviceQueryParams = { page, query, limit: FETCH_LIMIT };
+  const [getDevices, { data, isLoading, error }] = useLazyGetDevicesQuery();
 
   const handleNavigateToDetailPage = (deviceId: number) => {
     navigate(`/device/detail/${deviceId}`);
   };
 
-  const filtered =
-    deviceHash &&
-    Object.entries(deviceHash).filter(
-      ([deviceId, device]) =>
-        device.name.toLowerCase().startsWith(filterById) ||
-        deviceId.startsWith(filterById)
-    );
+  const handleSearch = useCallback(
+    () => getDevices(getDeviceQueryParams),
+    [page, query]
+  );
+
+  const handlePaginationPreviousPage = useCallback(
+    () => setPage((page) => page - 1),
+    []
+  );
+
+  const handlePaginationNextPage = useCallback(
+    () => setPage((page) => page + 1),
+    []
+  );
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
+  const action = (
+    <>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </>
+  );
+const isPreviousButtonDisabled = useMemo(() => (page === 1), [page])
+  const isNextButtonDisabled = useMemo(() => {
+    if(!data) return true;
+
+    return page === data.totalPages;
+  }, [])
+
+  useEffect(() => {
+    getDevices(getDeviceQueryParams);
+  }, [page]);
+
+  useEffect(() => {
+    if (error) {
+      setErrorMessage("Device List not found!");
+    }
+  }, [error]);
 
   return (
     <Box>
@@ -48,13 +102,13 @@ const DevicePage = (props: Props) => {
                 id="search"
                 label="Search by device name or ID"
                 variant="outlined"
-                onChange={(e) => {
-                  setFilterById(e.target.value);
-                }}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 sx={{ width: 250 }}
               />
+              <Button onClick={handleSearch} variant="contained">Search</Button>
             </Box>
-           {filtered && filtered.length > 0 ? (
+            {data && data.contents.length > 0 ? (
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
@@ -67,10 +121,10 @@ const DevicePage = (props: Props) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filtered &&
-                      filtered.map(([deviceId, device]) => (
+                    {data &&
+                      data.contents.map((device) => (
                         <TableRow
-                          key={deviceId}
+                          key={device.id}
                           sx={{
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
@@ -109,6 +163,21 @@ const DevicePage = (props: Props) => {
           <CircularProgress />
         </Box>
       )}
+      <Box display="flex" justifyContent="center">
+        <IconButton disabled={isPreviousButtonDisabled} onClick={handlePaginationPreviousPage}>
+          <NavigateBeforeIcon />
+        </IconButton>
+        <IconButton disabled={isNextButtonDisabled} onClick={handlePaginationNextPage}>
+          <NavigateNextIcon />
+        </IconButton>
+      </Box>
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message={errorMessage}
+        action={action}
+      />
     </Box>
   );
 };

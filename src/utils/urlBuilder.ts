@@ -4,9 +4,7 @@ const urlBuilder = (
 ): string => {
   if (params === null) return url;
 
-  const entries = Object.entries(params).filter(
-    ([key, _]) => key !== undefined && key !== null
-  );
+  const entries = Object.entries(params).filter(([_, value]) => !!value);
   if (Object.keys(params).length > 0) {
     url += "?";
 
