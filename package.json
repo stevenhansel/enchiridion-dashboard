@@ -5,7 +5,7 @@
   "dependencies": {
     "@date-io/dayjs": "^2.14.0",
     "@emotion/react": "^11.9.0",
-    "@emotion/styled": "^11.8.1",
+    "@emotion/styled": "^11.10.0",
     "@fontsource/roboto": "^4.5.5",
     "@mui/icons-material": "^5.6.2",
     "@mui/material": "^5.7.0",
@@ -13,7 +13,7 @@
     "@reduxjs/toolkit": "^1.8.2",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^27.5.1",
     "@types/node": "^16.11.34",
     "@types/react": "^18.0.9",
