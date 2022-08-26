@@ -20,7 +20,7 @@ export const authApi = createApi({
         data: { email, password },
       }),
     }),
-    logout: builder.query({
+    logout: builder.query<null, null>({
       query: () => ({
         url: "/v1/logout",
       }),
@@ -67,6 +67,7 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useLogoutQuery,
+  useLazyLogoutQuery,
   useEmailVerificationQuery,
   useMeQuery,
 } = authApi;
