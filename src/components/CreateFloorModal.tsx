@@ -30,13 +30,13 @@ const validationSchema = yup.object({
 });
 
 type Props = {
-  buildingHash?: Record<number, Building>;
+  buildings: Building[] | undefined;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const CreateFloorModal = (props: Props) => {
-  const { buildingHash, open, setOpen } = props;
+  const { buildings, open, setOpen } = props;
 
   const [addNewFloor] = useCreateFloorMutation();
   const [selectBuilding, setSelectBuilding] = useState<string>("");
@@ -102,10 +102,9 @@ const CreateFloorModal = (props: Props) => {
                   }
                   defaultValue={""}
                 >
-                  {buildingHash &&
-                    Object.entries(buildingHash).map(
-                      ([buildingId, building]) => (
-                        <MenuItem key={buildingId} value={buildingId}>
+                  {buildings?.map(
+                      (building) => (
+                        <MenuItem key={building.id} value={building.id}>
                           {building.name}
                         </MenuItem>
                       )

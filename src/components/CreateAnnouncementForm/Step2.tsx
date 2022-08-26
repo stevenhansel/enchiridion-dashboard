@@ -64,15 +64,22 @@ const Step2 = () => {
     // eslint-disable-next-line
   }, []);
 
+  // useEffect(() => {
+  //   if (buildingHash !== undefined && isBuildingLoading === false) {
+  //     const keys = buildingHash
+  //     if (keys.length > 0) {
+  //       const firstBuildingId = buildingHash[keys[0]].id;
+  //       setCurrentBuildingId(firstBuildingId.toString());
+  //     }
+  //   }
+  // }, [isBuildingLoading]);
+
   useEffect(() => {
-    if (buildingHash !== undefined && isBuildingLoading === false) {
-      const keys = Object.keys(buildingHash).map((key) => parseInt(key));
-      if (keys.length > 0) {
-        const firstBuildingId = buildingHash[keys[0]].id;
-        setCurrentBuildingId(firstBuildingId.toString());
+    if(buildingHash !== undefined && isBuildingLoading === false && buildingHash.length > 0){
+        const firstBuildingId = buildingHash[0].id
+        setCurrentBuildingId(firstBuildingId.toString())
       }
-    }
-  }, [isBuildingLoading]);
+  }, [isBuildingLoading])
 
   useEffect(() => {
     getFloors(null);
@@ -93,18 +100,17 @@ const Step2 = () => {
             flexDirection: "column",
           }}
         >
-          {buildingHash &&
-            Object.entries(buildingHash).map(([buildingId, building]) => (
+          {buildingHash?.map((building) => (
               <Button
-                key={buildingId}
-                onClick={() => setCurrentBuildingId(buildingId.toString())}
+                key={building.id}
+                onClick={() => setCurrentBuildingId(building.id.toString())}
                 variant={
-                  currentBuildingId === buildingId.toString()
+                  currentBuildingId === building.id.toString()
                     ? "contained"
                     : "text"
                 }
                 color={
-                  currentBuildingId === buildingId.toString()
+                  currentBuildingId === building.id.toString()
                     ? "secondary"
                     : "inactive"
                 }
@@ -118,7 +124,7 @@ const Step2 = () => {
         <Box
           sx={{
             padding: 3,
-            flex: 1,
+            // flex: 1,
           }}
         >
           <Box>
@@ -149,7 +155,7 @@ const Step2 = () => {
                           variant={
                             values.devices.includes(device.id.toString())
                               ? "contained"
-                              : "text"
+                              : "outlined"
                           }
                           // variant="contained"
                           color={

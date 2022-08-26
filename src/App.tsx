@@ -104,11 +104,11 @@ function App() {
               path: "list-user",
               icon: <AccountBoxIcon />,
             },
-            {
-              text: "Roles",
-              path: "roles",
-              icon: <AccessibilityIcon />,
-            },
+            // {
+            //   text: "Roles",
+            //   path: "roles",
+            //   icon: <AccessibilityIcon />,
+            // },
             {
               text: "Requests",
               path: "requests",

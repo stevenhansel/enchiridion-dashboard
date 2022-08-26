@@ -139,7 +139,7 @@ const ListFloorPage = () => {
         setOpen={setOpenEditFloor}
       />
       <CreateFloorModal
-        buildingHash={buildingsData}
+        buildings={buildingsData}
         open={openCreateFloor}
         setOpen={setOpenCreateFloor}
       />

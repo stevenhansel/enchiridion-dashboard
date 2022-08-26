@@ -55,6 +55,7 @@ const CreateBuildingModal = (props: Props) => {
         <form onSubmit={formik.handleSubmit}>
           <Box>
             <TextField
+              autoComplete="off"
               margin="dense"
               id="name"
               label="Name"
