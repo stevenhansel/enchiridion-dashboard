@@ -157,6 +157,7 @@ const Login = (props: Props) => {
                   helperText={formik.touched.email && formik.errors.email}
                   variant="standard"
                   fullWidth
+                  autoComplete="off"
                 />
               </Box>
               <Box sx={{ marginBottom: 3 }}>
@@ -173,6 +174,7 @@ const Login = (props: Props) => {
                   helperText={formik.touched.password && formik.errors.password}
                   variant="standard"
                   type="password"
+                  autoComplete="off"
                   fullWidth
                 />
               </Box>

@@ -13,61 +13,24 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import { CircularProgress } from "@mui/material";
 
-type Users = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  reason: string;
-  approvalButton: string[];
-};
+import { useLazyGetUsersQuery } from "../services/users";
 
-const usersData: Users[] = [
-  {
-    id: 1,
-    name: "Lukas",
-    email: "lukas.linardi@binus.ac.id",
-    role: "Student",
-    status: "Waiting for Approval",
-    reason: "want to create hate speech",
-    approvalButton: ["Approved", "Reject"],
-  },
-  {
-    id: 2,
-    name: "Steven",
-    email: "steven.hansel@binus.ac.id",
-    role: "Admin",
-    status: "Approved",
-    reason: "test",
-    approvalButton: ["Approved", "Reject"],
-  },
-];
+const FETCH_LIMIT = 20;
 
 const ListUsersPage = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [users, setUsers] = useState<Users[]>(usersData);
-  const [foundUsers, setFoundUsers] = useState(users);
-  
-  const filterUsersById = (e: any) => {
-    const keyword = e.target.value;
+  const [getUsers, { data, isLoading, error }] = useLazyGetUsersQuery();
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
 
-    if (keyword !== "") {
-      const result = users.filter((user) => {
-        return (
-          user.id.toString().startsWith(keyword) ||
-          user.name.toLowerCase().startsWith(keyword.toLowerCase())
-        );
-      });
-      setFoundUsers(result);
-    } else {
-      setFoundUsers(users);
-    }
-  };
+  const getUsersQueryParams = { page, limit: FETCH_LIMIT, query };
+
+  useEffect(() => {
+    getUsers(getUsersQueryParams);
+  }, [page]);
 
   return (
     <Box>
-      <Box
+      {/* <Box
         style={{
           display: "flex",
           flexDirection: "column",
@@ -119,21 +82,11 @@ const ListUsersPage = () => {
                       align="justify"
                       style={{ display: "flex", flexDirection: "row" }}
                     >
-                      {row.approvalButton.map((approval) => (
-                        <TableRow
-                          key={approval}
-                          style={{
-                            display: "flex",
-                            justifyContent: "flex-start",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Button variant="outlined" sx={{ marginRight: 1 }}>
-                            {approval}
-                          </Button>
-                        </TableRow>
-                      ))}
-                    </TableCell>
+                      <TableRow>
+                    <Button variant="contained" sx={{marginRight: 1}}>Approve</Button>
+                    <Button variant="contained">Reject</Button>
+                      </TableRow>
+                   </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -142,7 +95,7 @@ const ListUsersPage = () => {
         ) : (
           <Typography>No results found!</Typography>
         )}
-      </Box>
+      </Box> */}
     </Box>
   );
 };

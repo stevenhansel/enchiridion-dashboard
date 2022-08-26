@@ -22,7 +22,7 @@ export const authApi = createApi({
     }),
     logout: builder.query({
       query: () => ({
-        url: "/v1/auth/logout",
+        url: "/v1/logout",
       }),
     }),
     refresh: builder.mutation({

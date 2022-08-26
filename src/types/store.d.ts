@@ -105,7 +105,6 @@ export type Permissions = {
 export type Role = {
   id: number;
   name: string;
-  permissions: Permissions[];
 }
 
 export type UserStatus = {
@@ -146,4 +145,14 @@ export type Request = {
 export type Action = {
   action: string;
   status: boolean;
+}
+
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: Role; 
+  status: Status;
+  isEmailConfirmed: boolean,
+  registrationReason: string | null,
 }

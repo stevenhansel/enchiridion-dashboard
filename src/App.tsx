@@ -99,16 +99,16 @@ function App() {
               path: "floor",
               icon: <BalconyIcon />,
             },
-            // {
-            //   text: "List User",
-            //   path: "list-user",
-            //   icon: <AccountBoxIcon />,
-            // },
-            // {
-            //   text: "Roles",
-            //   path: "roles",
-            //   icon: <AccessibilityIcon />,
-            // },
+            {
+              text: "List User",
+              path: "list-user",
+              icon: <AccountBoxIcon />,
+            },
+            {
+              text: "Roles",
+              path: "roles",
+              icon: <AccessibilityIcon />,
+            },
             {
               text: "Requests",
               path: "requests",
