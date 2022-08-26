@@ -75,12 +75,12 @@ const DevicePage = () => {
       </IconButton>
     </>
   );
-const isPreviousButtonDisabled = useMemo(() => (page === 1), [page])
+  const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
-    if(!data) return true;
+    if (!data) return true;
 
     return page === data.totalPages;
-  }, [])
+  }, []);
 
   useEffect(() => {
     getDevices(getDeviceQueryParams);
@@ -102,11 +102,14 @@ const isPreviousButtonDisabled = useMemo(() => (page === 1), [page])
                 id="search"
                 label="Search by device name or ID"
                 variant="outlined"
+                autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 sx={{ width: 250 }}
               />
-              <Button onClick={handleSearch} variant="contained">Search</Button>
+              <Button onClick={handleSearch} variant="contained">
+                Search
+              </Button>
             </Box>
             {data && data.contents.length > 0 ? (
               <TableContainer component={Paper}>
@@ -164,10 +167,19 @@ const isPreviousButtonDisabled = useMemo(() => (page === 1), [page])
         </Box>
       )}
       <Box display="flex" justifyContent="center">
-        <IconButton disabled={isPreviousButtonDisabled} onClick={handlePaginationPreviousPage}>
+        <IconButton
+          disabled={isPreviousButtonDisabled}
+          onClick={handlePaginationPreviousPage}
+        >
           <NavigateBeforeIcon />
         </IconButton>
-        <IconButton disabled={isNextButtonDisabled} onClick={handlePaginationNextPage}>
+        <Box display="flex" alignItems="center">
+          {page}
+        </Box>
+        <IconButton
+          disabled={isNextButtonDisabled}
+          onClick={handlePaginationNextPage}
+        >
           <NavigateNextIcon />
         </IconButton>
       </Box>

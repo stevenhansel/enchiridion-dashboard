@@ -164,6 +164,7 @@ const Step1 = () => {
         <Typography>Notes tambahan</Typography>
         <TextField
           fullWidth
+          autoComplete="off"
           id="notes"
           name="notes"
           variant="outlined"

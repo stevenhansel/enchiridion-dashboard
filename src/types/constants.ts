@@ -18,5 +18,6 @@ export enum ApprovalStatus {
   Approved = 'true',
   Rejected = 'false',
   Unchecked = 'null',
+  All = '',
 }
 

@@ -40,6 +40,7 @@ const CreateFloorModal = (props: Props) => {
 
   const [addNewFloor] = useCreateFloorMutation();
   const [selectBuilding, setSelectBuilding] = useState<string>("");
+  const [selectBuildingId, setSelectBuildingId] = useState<string>("");
 
   const formik = useFormik<UpdateFloor>({
     initialValues: {
@@ -50,7 +51,6 @@ const CreateFloorModal = (props: Props) => {
     onSubmit: (values) => {
       addNewFloor(values);
       setOpen(false);
-      console.log("submitted");
     },
   });
 
@@ -75,7 +75,7 @@ const CreateFloorModal = (props: Props) => {
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
             />
-            {/* <Box sx={{ marginBottom: 2 }}>
+            <Box sx={{ marginBottom: 2 }}>
               <FormControl sx={{ width: 220 }}>
                 <InputLabel
                   id="building"
@@ -119,43 +119,6 @@ const CreateFloorModal = (props: Props) => {
                   </Typography>
                 ) : null}
               </FormControl>
-            </Box> */}
-            <Box>
-              <TextField
-                margin="dense"
-                id="building"
-                label="Building"
-                fullWidth
-                variant="standard"
-                sx={{ marginBottom: 2 }}
-                value={selectBuilding}
-                onChange={(e) =>
-                  formik.setFieldValue(
-                    "buildingId",
-                    parseInt(e.target.value, 10)
-                  )
-                }
-                error={
-                  formik.touched.buildingId && Boolean(formik.errors.buildingId)
-                }
-                helperText={
-                  formik.touched.buildingId && formik.errors.buildingId
-                }
-              />
-            </Box>
-            <Box display="flex" flexDirection="column">
-              {buildingHash &&
-                Object.entries(buildingHash).map(([buildingId, building]) => (
-                  <Box key={buildingId}>
-                    <Button
-                      variant="contained"
-                      sx={{ marginBottom: 1 }}
-                      onClick={() => setSelectBuilding(building.name)}
-                    >
-                      {building.name}
-                    </Button>
-                  </Box>
-                ))}
             </Box>
             <Box>
               <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>

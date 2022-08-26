@@ -31,17 +31,11 @@ import {
   useLazyGetRequestsQuery,
 } from "../services/request";
 
-import {
-  useGetAnnouncementsQuery,
-  useLazyGetAnnouncementsQuery,
-} from "../services/announcement";
+import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
-import { AnnouncementRequest } from "../types/store";
+import { ActionButton, Author, AnnouncementRequest } from "../types/store";
 
-type ActionButton = {
-  label: string;
-  value: string;
-};
+import { ApprovalStatus } from "../types/constants";
 
 type Props = {
   children?: React.ReactNode;
@@ -49,7 +43,7 @@ type Props = {
 
 const actions: ActionButton[] = [
   {
-    label: "All",
+    label: "",
     value: "all",
   },
   {
@@ -57,7 +51,7 @@ const actions: ActionButton[] = [
     value: "create",
   },
   {
-    label: "Change Date",
+    label: "ChangeDate",
     value: "change date",
   },
   {
@@ -65,11 +59,11 @@ const actions: ActionButton[] = [
     value: "delete",
   },
   {
-    label: "Change Content",
+    label: "ChangeContent",
     value: "change content",
   },
   {
-    label: "Change Devices",
+    label: "ChangeDevices",
     value: "change devices",
   },
 ];
@@ -79,17 +73,33 @@ const toDate = (dateStr: string | undefined) =>
 
 const FETCH_LIMIT = 20;
 
+const key = "id";
+
 const RequestsPage = (props: Props) => {
-  const [selectByUser, setSelectByUser] = useState<string>("");
+  const [actionType, setActionType] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
+  const [userText, setUserText] = useState<Author | null>(null);
+  const [announcementId, setAnnouncementId] = useState<number | null>(null);
+  const [announcementText, setAnnouncementText] =
+    useState<AnnouncementRequest | null>(null);
+  const [approvedByLsc, setApprovedByLsc] = useState<boolean | null>(null);
+  const [approvedByLscText, setApprovedByLscText] = useState<string | null>(
+    null
+  );
+  const [approvedByBm, setApprovedByBm] = useState<boolean | null>(null);
+  const [approvedByBmText, setApprovedByBmText] = useState<string | null>(null);
 
   const getRequestQueryParams = {
     page,
     query,
     userId,
+    announcementId,
+    actionType,
+    approvedByLsc,
+    approvedByBm,
     limit: FETCH_LIMIT,
   };
 
@@ -101,6 +111,7 @@ const RequestsPage = (props: Props) => {
       error: getRequestError,
     },
   ] = useLazyGetRequestsQuery();
+
   const [
     getAnnouncements,
     {
@@ -133,15 +144,29 @@ const RequestsPage = (props: Props) => {
 
   const handleSearch = useCallback(() => {
     getRequests(getRequestQueryParams);
-  }, [page, userId]);
+    getAnnouncements(getRequestQueryParams);
+  }, [page, userId, announcementId, actionType, approvedByLsc, approvedByBm]);
 
-  const announcementOptions = Array.from(
-    new Set(announcementsData?.contents.map((content) => content.author.id))
+  const authorOptions = announcementsData?.contents.map(
+    (content) => content.author
   );
 
-  const options = requestsData?.contents.map((content) => content.approvalStatus); // testing
+  const authorUniqueByKey = Array.from(
+    new Map(authorOptions?.map((author) => [author[key], author])).values()
+  );
 
-  console.log(options); //testing
+  const announcementOptions = announcementsData?.contents.map(
+    (content) => content
+  );
+
+  const announcementUniqueByKey = Array.from(
+    new Map(
+      announcementOptions?.map((announcement) => [
+        announcement[key],
+        announcement,
+      ])
+    ).values()
+  );
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
@@ -214,27 +239,63 @@ const RequestsPage = (props: Props) => {
                 id="filled-basic"
                 label="Search by ID"
                 variant="outlined"
+                autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                sx={{ marginBottom: 2 }}
+                sx={{ marginBottom: 2, width: 140 }}
               />
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <Autocomplete
                   disablePortal
-                  id="announcement_filter"
-                  options={announcementOptions}
-                  sx={{ width: 220 }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Announcement" />
-                  )}
-                  value={userId}
-                  onChange={(_: any, newValue: number | null) => 
-                    setUserId(newValue)
+                  id="author-filter"
+                  options={authorUniqueByKey}
+                  getOptionLabel={(option) => option.name}
+                  isOptionEqualToValue={(option, value) =>
+                    option.name === value.name
                   }
+                  sx={{ width: 150 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Author" />
+                  )}
+                  value={userText}
+                  onChange={(_: any, newValue: Author | null) => {
+                    if (newValue?.id && newValue?.name) {
+                      setUserId(newValue.id);
+                      setUserText(newValue);
+                    } else {
+                      setUserId(null);
+                      setUserText(null);
+                    }
+                  }}
                 />
               </Box>
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                <FormControl sx={{ width: 220 }}>
+                <Autocomplete
+                  disablePortal
+                  id="announcement_filter"
+                  options={announcementUniqueByKey}
+                  getOptionLabel={(option) => option.title}
+                  isOptionEqualToValue={(option, value) =>
+                    option.title === value.title
+                  }
+                  sx={{ width: 160 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Announcement" />
+                  )}
+                  value={announcementText}
+                  onChange={(_: any, newValue: AnnouncementRequest | null) => {
+                    if (newValue?.id && newValue?.title) {
+                      setAnnouncementId(newValue.id);
+                      setAnnouncementText(newValue);
+                    } else {
+                      setAnnouncementId(null);
+                      setAnnouncementText(null);
+                    }
+                  }}
+                />
+              </Box>
+              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                <FormControl sx={{ width: 165 }}>
                   <InputLabel id="announcement_filter">
                     Condition by LSC
                   </InputLabel>
@@ -242,16 +303,30 @@ const RequestsPage = (props: Props) => {
                     labelId="announcement_filter"
                     id="announcement_filter"
                     label="Condition by LSC"
-                    defaultValue={""}
+                    value={approvedByLscText !== null ? approvedByLscText : ""}
+                    onChange={(e: SelectChangeEvent) => {
+                      if (e.target.value === "Approved") {
+                        setApprovedByLsc(true);
+                        setApprovedByLscText(e.target.value);
+                      }
+                      if (e.target.value === "Rejected") {
+                        setApprovedByLsc(false);
+                        setApprovedByLscText(e.target.value);
+                      }
+                      if (e.target.value === "All") {
+                        setApprovedByLsc(null);
+                        setApprovedByLscText(e.target.value);
+                      }
+                    }}
                   >
-                    <MenuItem>Approved</MenuItem>
-                    <MenuItem>Rejected</MenuItem>
-                    <MenuItem>Unchecked</MenuItem>
+                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="Approved">Approved</MenuItem>
+                    <MenuItem value="Rejected">Rejected</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                <FormControl sx={{ width: 220 }}>
+                <FormControl sx={{ width: 165 }}>
                   <InputLabel id="announcement_filter">
                     Condition by BM
                   </InputLabel>
@@ -259,11 +334,24 @@ const RequestsPage = (props: Props) => {
                     labelId="announcement_filter"
                     id="announcement_filter"
                     label="Condition by LSC"
-                    defaultValue={""}
+                    onChange={(e: SelectChangeEvent) => {
+                      if (e.target.value === "All") {
+                        setApprovedByBm(null);
+                        setApprovedByBmText(e.target.value);
+                      }
+                      if (e.target.value === "Approved") {
+                        setApprovedByBm(true);
+                        setApprovedByBmText(e.target.value);
+                      }
+                      if (e.target.value === "Rejected") {
+                        setApprovedByBm(false);
+                        setApprovedByBmText(e.target.value);
+                      }
+                    }}
                   >
-                    <MenuItem>Approved</MenuItem>
-                    <MenuItem>Rejected</MenuItem>
-                    <MenuItem>Unchecked</MenuItem>
+                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="Approved">Approved</MenuItem>
+                    <MenuItem value="Rejected">Rejected</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
@@ -278,14 +366,14 @@ const RequestsPage = (props: Props) => {
                 actions.map((action, index) => (
                   <Button
                     key={index}
-                    onClick={() => setSelectByUser(action.label)}
+                    onClick={() => setActionType(action.label)}
                     variant={
-                      selectByUser === action.label ? "contained" : "outlined"
+                      actionType === action.label ? "contained" : "outlined"
                     }
                     sx={{ marginRight: 2 }}
-                    value={action.value}
+                    value={actionType}
                   >
-                    {action.label}
+                    {action.value}
                   </Button>
                 ))}
             </Box>
@@ -341,6 +429,7 @@ const RequestsPage = (props: Props) => {
                           <Button
                             variant="contained"
                             sx={{ marginRight: 1 }}
+                            color="error"
                             onClick={() =>
                               userApprove(request.id.toString(), false)
                             }
@@ -348,7 +437,8 @@ const RequestsPage = (props: Props) => {
                             Reject
                           </Button>
                           <Button
-                            variant="outlined"
+                            variant="contained"
+                            color="success"
                             onClick={() =>
                               userApprove(request.id.toString(), true)
                             }
@@ -385,6 +475,9 @@ const RequestsPage = (props: Props) => {
         >
           <NavigateBeforeIcon />
         </IconButton>
+        <Box display="flex" alignItems="center">
+          {page}
+        </Box>
         <IconButton
           disabled={isNextButtonDisabled}
           onClick={handlePaginationNextPage}

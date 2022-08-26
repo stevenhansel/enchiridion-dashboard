@@ -18,6 +18,10 @@ export const requestApi = createApi({
         limit?: number;
         query?: string;
         userId?: number | null,
+        announcementId?: number | null,
+        actionType?: string | null,
+        approvedByLsc?: boolean | null,
+        approvedByBm?: boolean | null,
       } | null
     >({
       query: (params) => ({ url: urlBuilder("/v1/requests", params) }),

@@ -167,6 +167,7 @@ const ListAnnouncementPage = () => {
                     id="search"
                     label="Search by title"
                     variant="outlined"
+                    autoComplete="off"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     sx={{ width: 220 }}
@@ -351,8 +352,10 @@ const ListAnnouncementPage = () => {
           onClick={handlePaginationPreviousPage}
         >
           <NavigateBeforeIcon />
-        </IconButton>
-
+      </IconButton>
+      <Box display="flex" alignItems="center">
+        {page}
+      </Box>
         <IconButton
           disabled={isNextButtonDisabled}
           onClick={handlePaginationNextPage}

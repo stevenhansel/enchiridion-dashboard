@@ -16,7 +16,6 @@ export const floorApi = createApi({
         page?: number;
         limit?: number;
         query?: string;
-        author?: string;
       } | null
     >({
       query: (params) => ({ url: urlBuilder("v1/floors", params) }),

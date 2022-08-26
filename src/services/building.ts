@@ -23,10 +23,10 @@ export const buildingApi = createApi({
       ),
     }),
     createBuilding: builders.mutation({
-      query: ({ name, buildingId }) => ({
+      query: ({ name }) => ({
         url: "/v1/buildings",
         method: "POST",
-        data: { name, buildingId },
+        data: { name },
       }),
       invalidatesTags: () => ["Building"],
     }),

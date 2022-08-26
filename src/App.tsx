@@ -133,14 +133,14 @@ function App() {
                 </UserStatusWrapper>
               }
             />
-            {/* <Route
+            <Route
               path="/announcement/detail/:announcementId"
               element={
                 <UserStatusWrapper>
                   <AnnouncementDetailPage />
                 </UserStatusWrapper>
               }
-            /> */}
+            />
             <Route
               path="/device"
               element={

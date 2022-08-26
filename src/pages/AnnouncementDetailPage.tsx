@@ -116,19 +116,19 @@ const AnnouncementDetailPage = () => {
                     flexDirection: "column",
                   }}
                 >
-                  {/* {buildingHash?.map((building) => (
+                  {buildingHash && Object.entries(buildingHash).map(([buildingId, building]) => (
                     <Button
-                      key={building.id}
+                      key={buildingId}
                       onClick={() =>
-                        setCurrentBuildingId(building.id.toString())
+                        setCurrentBuildingId(buildingId.toString())
                       }
                       variant={
-                        currentBuildingId === building.id.toString()
+                        currentBuildingId === buildingId.toString()
                           ? "contained"
                           : "text"
                       }
                       color={
-                        currentBuildingId === building.id.toString()
+                        currentBuildingId === buildingId.toString()
                           ? "secondary"
                           : "inactive"
                       }
@@ -136,7 +136,7 @@ const AnnouncementDetailPage = () => {
                     >
                       {building.name}
                     </Button>
-                  ))} */}
+                  ))}
                 </Box>
                 <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
                 <Box

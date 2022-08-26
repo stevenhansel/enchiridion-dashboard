@@ -7,6 +7,11 @@ export type Pagination<T> = {
   contents: T[],
 }
 
+export type ActionButton = {
+  label: string;
+  value: string;
+};
+
 export type BuildingFloorDevices = {
   name: string,
   floors: Floor[],

@@ -26,6 +26,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
+import CreateBuildingModal from "../components/CreateBuildingModal";
 
 import {
   useGetBuildingsQuery,
@@ -36,8 +37,9 @@ import {
   useLazyGetFloorsQuery,
   useDeleteFloorMutation,
   useCreateFloorMutation,
-  useGetFloorsQuery,
 } from "../services/floor";
+
+import { Building } from "../types/store";
 
 const FETCH_LIMIT = 20;
 
@@ -47,14 +49,18 @@ const ListFloorPage = () => {
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
-  const [author, setAuthor] = useState('');
+  const [author, setAuthor] = useState("");
+
+  const [buildingId, setBuildingId] = useState<number | null>(null);
+  const [buildingText, setBuildingText] = useState<Building | null>(null);
 
   const [errorMessage, setErrorMessage] = useState("");
 
   const [openCreateFloor, setOpenCreateFloor] = useState(false);
+  const [openCreateBuilding, setOpenCreateBuilding] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
 
-  const getFloorsQueryParams = { page, query, limit: FETCH_LIMIT, author };
+  const getFloorsQueryParams = { page, query, limit: FETCH_LIMIT, buildingId };
   const [
     getFloors,
     { data: floorsData, error: floorsError, isLoading: isFloorsLoading },
@@ -68,16 +74,13 @@ const ListFloorPage = () => {
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
 
-  console.log(floorsData);
-
   const handleDeleteAnnouncement = (floorId: string) => {
     deleteFloor({ floorId });
   };
 
-  const handleSearch = useCallback(
-    () => getFloors(getFloorsQueryParams),
-    [page, query, author]
-  );
+  const handleSearch = useCallback(() => {
+    getFloors(getFloorsQueryParams);
+  }, [page, query, author, buildingId]);
 
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
@@ -140,7 +143,10 @@ const ListFloorPage = () => {
         open={openCreateFloor}
         setOpen={setOpenCreateFloor}
       />
-
+      <CreateBuildingModal
+        open={openCreateBuilding}
+        setOpen={setOpenCreateBuilding}
+      />
       {isLoading ? (
         <Box display="flex" justifyContent="center">
           <CircularProgress />
@@ -159,35 +165,55 @@ const ListFloorPage = () => {
               size="large"
               sx={{ marginBottom: 3 }}
             >
-              + Create
+              + Create Floor
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => setOpenCreateBuilding(true)}
+              size="large"
+              sx={{ marginBottom: 3, marginLeft: 1 }}
+            >
+              + Create Building 
             </Button>
           </Box>
           <Box display="flex">
-            <Box >
+            <Box>
               <TextField
                 id="search"
                 label="Search by floorname"
                 variant="outlined"
+                autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 sx={{ width: 220, marginRight: 1 }}
               />
-              <Button onClick={handleSearch} variant="contained">Search</Button>
             </Box>
-            {/* <Box>
-              <Autocomplete
-                options={buildingOptions}
+            <Box display="flex" justifyContent="flex-end">
+              {/* <Autocomplete
+                options={buildingsData}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) =>
+                  option.name === value.name
+                }
+                onChange={(_: any, newValue: Building | null) => {
+                  if (newValue?.id && newValue?.name) {
+                    setBuildingId(newValue?.id);
+                    setBuildingText(newValue);
+                  } else {
+                    setBuildingId(null);
+                    setBuildingText(null);
+                  }
+                }}
                 renderInput={(params) => (
                   <TextField {...params} label="Building" />
                 )}
-                value={filterByBuilding}
-                onChange={(_: any, newValue: string | null) =>
-                  setFilterByBuilding(newValue)
-                }
+                value={buildingText}
                 sx={{ width: 150 }}
-              />
-            </Box> */}
-            <Box display="flex" justifyContent="flex-end"></Box>
+              /> */}
+              <Button onClick={handleSearch} variant="contained">
+                Search
+              </Button>
+            </Box>
           </Box>
           {floorsData && floorsData.contents.length > 0 ? (
             <TableContainer component={Paper}>
@@ -220,13 +246,11 @@ const ListFloorPage = () => {
                       </TableCell>
                       <TableCell align="center">
                         {row.devices.map((device) => (
-                          <Button
-                            key={device.id}
-                            variant="outlined"
-                            sx={{ marginRight: 1 }}
-                          >
-                            {device.name}
-                          </Button>
+                          <Tooltip key={device.id} title={device.description}>
+                            <Button variant="outlined" sx={{ marginRight: 1 }}>
+                              {device.name}
+                            </Button>
+                          </Tooltip>
                         ))}
                       </TableCell>
                       <TableCell align="center">
@@ -274,7 +298,9 @@ const ListFloorPage = () => {
         >
           <NavigateBeforeIcon />
         </IconButton>
-
+        <Box display="flex" alignItems="center">
+          {page}
+        </Box>
         <IconButton
           disabled={isNextButtonDisabled}
           onClick={handlePaginationNextPage}

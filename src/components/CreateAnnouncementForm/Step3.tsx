@@ -13,11 +13,7 @@ import { BuildingFloorDevices } from "../../types/store";
 
 const Step3 = () => {
   const { data: buildingHash } = useGetBuildingsQuery(null);
-  const [getFloors, { data: floorsData, isLoading: isFloorLoading, error: floorError }] = useLazyGetFloorsQuery();
-
-  useEffect(() => {
-    getFloors(null);
-  }, []);
+  const [getFloors, { data: floorsData }] = useLazyGetFloorsQuery();
 
   const { values, handleSubmit } =
     useFormikContext<CreateAnnouncementFormValues>();
@@ -27,22 +23,36 @@ const Step3 = () => {
     handlePrevStep();
   }, [handlePrevStep]);
 
-  const buildingFloorDevices: Record<string, BuildingFloorDevices>  = buildingHash ? Object.values(buildingHash).reduce((prev, curr) => {
-    const filteredFloors = floorsData?.contents
-      .map((floor) => ({
-        ...floor,
-        devices: floor.devices.filter((device) => values.devices.includes(device.id.toString())),
-      }))
-      .filter((floor) => (curr.id === floor.building.id && floor.devices.length > 0));
+  const buildingFloorDevices: Record<string, BuildingFloorDevices> =
+    buildingHash
+      ? Object.values(buildingHash).reduce((prev, curr) => {
+          const filteredFloors = floorsData?.contents
+            .map((floor) => ({
+              ...floor,
+              devices: floor.devices.filter((device) =>
+                values.devices.includes(device.id.toString())
+              ),
+            }))
+            .filter(
+              (floor) =>
+                curr.id === floor.building.id && floor.devices.length > 0
+            );
 
-    return {
-      ...prev,
-      [curr.id]: {
-        name: curr.name,
-        floors: filteredFloors,
-      },
-    }
-  }, {}) : {};
+          return {
+            ...prev,
+            [curr.id]: {
+              name: curr.name,
+              floors: filteredFloors,
+            },
+          };
+        }, {})
+      : {};
+
+  useEffect(() => {
+    getFloors(null);
+  }, []);
+
+  console.log(floorsData)
 
   return (
     <Box display="flex" flexDirection="column">
@@ -99,43 +109,39 @@ const Step3 = () => {
           <Typography display="flex" fontWeight="bold">
             Device
           </Typography>
-          <Box>
-            {Object.entries(buildingFloorDevices).map(([buildingId, building]) => (
-              <React.Fragment key={buildingId}>
-                {building.floors.length > 0 ? (
-                  <Box>
-                    <Typography>
-                      {`• ${building.name}`}
-                    </Typography>
+          {/* <Box>
+            {Object.entries(buildingFloorDevices).map(
+              ([buildingId, building]) => (
+                <React.Fragment key={buildingId}>
+                  {building.floors.length > 0 ? (
                     <Box>
-                      {building.floors.map((floor) => (
-                        <Box
-                          key={`building-${buildingId}-floor-${floor.id}`}
-                          pl={2}
-                        >
-                          <Typography>
-                            {`• ${floor.name}`}
-                          </Typography>
-                          <Box>
-                            {floor.devices.map((device) => (
-                              <Box
-                                key={`building-${buildingId}-floor-${floor.id}-device-${device.id}`}
-                                pl={2}
-                              >
-                                <Typography>
-                                  {`• ${device.name}`}
-                                </Typography>
-                              </Box>
-                            ))}
+                      <Typography>{`• ${building.name}`}</Typography>
+                      <Box>
+                        {building.floors.map((floor) => (
+                          <Box
+                            key={`building-${buildingId}-floor-${floor.id}`}
+                            pl={2}
+                          >
+                            <Typography>{`• ${floor.name}`}</Typography>
+                            <Box>
+                              {floor.devices.map((device) => (
+                                <Box
+                                  key={`building-${buildingId}-floor-${floor.id}-device-${device.id}`}
+                                  pl={2}
+                                >
+                                  <Typography>{`• ${device.name}`}</Typography>
+                                </Box>
+                              ))}
+                            </Box>
                           </Box>
-                        </Box>
-                      ))}
+                        ))}
+                      </Box>
                     </Box>
-                  </Box>
-                ) : null}
-              </React.Fragment>
-            ))}
-          </Box>
+                  ) : null}
+                </React.Fragment>
+              )
+            )}
+          </Box> */}
         </Box>
         <Box
           display="flex"

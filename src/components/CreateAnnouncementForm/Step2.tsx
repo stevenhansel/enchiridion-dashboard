@@ -2,15 +2,15 @@ import React, { useCallback, useEffect, useContext, useState } from "react";
 import cloneDeep from "lodash/cloneDeep";
 import { useFormikContext } from "formik";
 
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, Tooltip } from "@mui/material";
 import { red } from "@mui/material/colors";
 
 import { CreateAnnouncementFormContext } from "./context";
 import { CreateAnnouncementFormValues } from "./form";
 import { validateFormikFields } from "./util";
 
-import { useGetBuildingsQuery } from "../../services/building";
 import { useLazyGetFloorsQuery } from "../../services/floor";
+import { useGetBuildingsQuery } from "../../services/building";
 
 const fields = ["devices"];
 
@@ -26,6 +26,8 @@ const Step2 = () => {
   const { handleNextStep, handlePrevStep } = useContext(
     CreateAnnouncementFormContext
   );
+
+    console.log(floorsData);
 
   const handleSelectDevice = useCallback(
     (selectedDeviceId: string) => {
@@ -61,6 +63,7 @@ const Step2 = () => {
     fields.forEach((field) => validateField(field));
     // eslint-disable-next-line
   }, []);
+
   useEffect(() => {
     if (buildingHash !== undefined && isBuildingLoading === false) {
       const keys = Object.keys(buildingHash).map((key) => parseInt(key));
@@ -74,10 +77,6 @@ const Step2 = () => {
   useEffect(() => {
     getFloors(null);
   }, []);
-
-  const options = floorsData?.contents.map((content) => content);
-
-  console.log(options);
 
   return (
     <Box width="100%">
@@ -98,12 +97,16 @@ const Step2 = () => {
             Object.entries(buildingHash).map(([buildingId, building]) => (
               <Button
                 key={buildingId}
-                onClick={() => setCurrentBuildingId(buildingId)}
+                onClick={() => setCurrentBuildingId(buildingId.toString())}
                 variant={
-                  currentBuildingId === buildingId ? "contained" : "text"
+                  currentBuildingId === buildingId.toString()
+                    ? "contained"
+                    : "text"
                 }
                 color={
-                  currentBuildingId === buildingId ? "secondary" : "inactive"
+                  currentBuildingId === buildingId.toString()
+                    ? "secondary"
+                    : "inactive"
                 }
                 sx={{ marginBottom: 1 }}
               >
@@ -137,24 +140,28 @@ const Step2 = () => {
                   </Box>
                   <Box display="flex" flexWrap="wrap">
                     {floor.devices.map((device) => (
-                      <Button
-                        key={device.id}
-                        onClick={() => handleSelectDevice(device.id.toString())}
-                        variant={
-                          values.devices.includes(device.id.toString())
-                            ? "contained"
-                            : "text"
-                        }
-                        // variant="contained"
-                        color={
-                          values.devices.includes(device.id.toString())
-                            ? "secondary"
-                            : "inactive"
-                        }
-                        sx={{ marginRight: 1, marginBottom: 1, width: 140 }}
-                      >
-                        {device.name}
-                      </Button>
+                      <Tooltip key={device.id} title={device.description}>
+                        <Button
+                          key={device.id}
+                          onClick={() =>
+                            handleSelectDevice(device.id.toString())
+                          }
+                          variant={
+                            values.devices.includes(device.id.toString())
+                              ? "contained"
+                              : "text"
+                          }
+                          // variant="contained"
+                          color={
+                            values.devices.includes(device.id.toString())
+                              ? "secondary"
+                              : "inactive"
+                          }
+                          sx={{ marginRight: 1, marginBottom: 1, width: 140 }}
+                        >
+                          {device.name}
+                        </Button>
+                      </Tooltip>
                     ))}
                   </Box>
                 </Box>
