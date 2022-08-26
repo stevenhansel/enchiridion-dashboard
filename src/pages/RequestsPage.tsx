@@ -75,7 +75,7 @@ const RequestsPage = (props: Props) => {
   const [
     getRequests,
     {
-      data: requestsData,
+      data: requests,
       isLoading: isGetRequestLoading,
       error: getRequestError,
     },
@@ -149,10 +149,10 @@ const RequestsPage = (props: Props) => {
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
-    if (!requestsData) return true;
+    if (!requests) return true;
 
-    return page === requestsData.totalPages;
-  }, [page, requestsData]);
+    return page === requests.totalPages;
+  }, [page, requests]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -339,7 +339,7 @@ const RequestsPage = (props: Props) => {
                   </Button>
                 ))}
             </Box>
-            {requestsData && requestsData.contents.length > 0 ? (
+            {requests && requests.contents.length > 0 ? (
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
@@ -356,7 +356,7 @@ const RequestsPage = (props: Props) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {requestsData.contents.map((request) => (
+                    {requests.contents.map((request) => (
                       <TableRow
                         key={request.id}
                         sx={{
