@@ -42,6 +42,7 @@ import {
 import { Building } from "../types/store";
 
 const FETCH_LIMIT = 20;
+const key = "id";
 
 const ListFloorPage = () => {
   const [deleteFloor] = useDeleteFloorMutation();
@@ -63,11 +64,11 @@ const ListFloorPage = () => {
   const getFloorsQueryParams = { page, query, limit: FETCH_LIMIT, buildingId };
   const [
     getFloors,
-    { data: floorsData, error: floorsError, isLoading: isFloorsLoading },
+    { data: floors, error: floorsError, isLoading: isFloorsLoading },
   ] = useLazyGetFloorsQuery();
 
   const {
-    data: buildingsData,
+    data: buildings,
     error: buildingsError,
     isLoading: isBuildingsLoading,
   } = useGetBuildingsQuery(null);
@@ -95,9 +96,22 @@ const ListFloorPage = () => {
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
 
   const isNextButtonDisabled = useMemo(() => {
-    if (!floorsData) return true;
-    return page === floorsData.totalPages;
-  }, [page, floorsData]);
+    if (!floors) return true;
+    return page === floors.totalPages;
+  }, [page, floors]);
+
+const buildingOptions = Array.from(
+    new Set(buildings?.map((option) => option))
+  );
+
+  const buildingUniqueByKey = Array.from(
+    new Map(
+      buildingOptions.map((building) => [
+        building[key],
+        building,
+      ])
+    ).values()
+  );
 
   useEffect(() => {
     if (buildingsError) {
@@ -134,12 +148,12 @@ const ListFloorPage = () => {
   return (
     <Box>
       <UpdateFloorModal
-        buildingHash={buildingsData}
+        buildingHash={buildings}
         open={openEditFloor}
         setOpen={setOpenEditFloor}
       />
       <CreateFloorModal
-        buildings={buildingsData}
+        buildings={buildings}
         open={openCreateFloor}
         setOpen={setOpenCreateFloor}
       />
@@ -189,8 +203,8 @@ const ListFloorPage = () => {
               />
             </Box>
             <Box display="flex" justifyContent="flex-end">
-              {/* <Autocomplete
-                options={buildingsData}
+              <Autocomplete
+                options={buildingUniqueByKey}
                 getOptionLabel={(option) => option.name}
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
@@ -209,13 +223,13 @@ const ListFloorPage = () => {
                 )}
                 value={buildingText}
                 sx={{ width: 150 }}
-              /> */}
+              />
               <Button onClick={handleSearch} variant="contained">
                 Search
               </Button>
             </Box>
           </Box>
-          {floorsData && floorsData.contents.length > 0 ? (
+          {floors && floors.contents.length > 0 ? (
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -228,7 +242,7 @@ const ListFloorPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {floorsData.contents.map((row) => (
+                  {floors.contents.map((row) => (
                     <TableRow
                       key={row.id}
                       sx={{
