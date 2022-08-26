@@ -1,10 +1,4 @@
-// export enum AnnouncementStatus {
-//   WaitingForApproval = "waiting_for_approval",
-//   Active = "active",
-//   Rejected = "rejected",
-//   Canceled = "canceled",
-//   Done = "done",
-// }
+import { ActionButton} from "../types/store";
 
 export enum AnnouncementStatus {
   WaitingForApproval = "WaitingForApproval",
@@ -17,7 +11,32 @@ export enum AnnouncementStatus {
 export enum ApprovalStatus {
   Approved = 'true',
   Rejected = 'false',
-  Unchecked = 'null',
-  All = '',
+  All = 'null',
 }
 
+export const actions: ActionButton[] = [
+  {
+    label: "",
+    value: "all",
+  },
+  {
+    label: "Create",
+    value: "create",
+  },
+  {
+    label: "ChangeDate",
+    value: "change date",
+  },
+  {
+    label: "Delete",
+    value: "delete",
+  },
+  {
+    label: "ChangeContent",
+    value: "change content",
+  },
+  {
+    label: "ChangeDevices",
+    value: "change devices",
+  },
+];

@@ -33,40 +33,13 @@ import {
 
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
-import { ActionButton, Author, AnnouncementRequest } from "../types/store";
+import { Author, AnnouncementRequest } from "../types/store";
 
-import { ApprovalStatus } from "../types/constants";
+import { actions } from '../types/constants';
 
 type Props = {
   children?: React.ReactNode;
 };
-
-const actions: ActionButton[] = [
-  {
-    label: "",
-    value: "all",
-  },
-  {
-    label: "Create",
-    value: "create",
-  },
-  {
-    label: "ChangeDate",
-    value: "change date",
-  },
-  {
-    label: "Delete",
-    value: "delete",
-  },
-  {
-    label: "ChangeContent",
-    value: "change content",
-  },
-  {
-    label: "ChangeDevices",
-    value: "change devices",
-  },
-];
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -86,11 +59,7 @@ const RequestsPage = (props: Props) => {
   const [announcementText, setAnnouncementText] =
     useState<AnnouncementRequest | null>(null);
   const [approvedByLsc, setApprovedByLsc] = useState<boolean | null>(null);
-  const [approvedByLscText, setApprovedByLscText] = useState<string | null>(
-    null
-  );
   const [approvedByBm, setApprovedByBm] = useState<boolean | null>(null);
-  const [approvedByBmText, setApprovedByBmText] = useState<string | null>(null);
 
   const getRequestQueryParams = {
     page,
@@ -303,19 +272,15 @@ const RequestsPage = (props: Props) => {
                     labelId="announcement_filter"
                     id="announcement_filter"
                     label="Condition by LSC"
-                    value={approvedByLscText !== null ? approvedByLscText : ""}
                     onChange={(e: SelectChangeEvent) => {
                       if (e.target.value === "Approved") {
                         setApprovedByLsc(true);
-                        setApprovedByLscText(e.target.value);
                       }
                       if (e.target.value === "Rejected") {
                         setApprovedByLsc(false);
-                        setApprovedByLscText(e.target.value);
                       }
                       if (e.target.value === "All") {
                         setApprovedByLsc(null);
-                        setApprovedByLscText(e.target.value);
                       }
                     }}
                   >
@@ -337,15 +302,12 @@ const RequestsPage = (props: Props) => {
                     onChange={(e: SelectChangeEvent) => {
                       if (e.target.value === "All") {
                         setApprovedByBm(null);
-                        setApprovedByBmText(e.target.value);
                       }
                       if (e.target.value === "Approved") {
                         setApprovedByBm(true);
-                        setApprovedByBmText(e.target.value);
                       }
                       if (e.target.value === "Rejected") {
                         setApprovedByBm(false);
-                        setApprovedByBmText(e.target.value);
                       }
                     }}
                   >
