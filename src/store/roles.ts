@@ -15,7 +15,6 @@ const rolesSlice = createSlice({
   initialState: initialState as RolesState | null,
   reducers: {
     setRoles(_, action: PayloadAction<RolesState>) {
-      console.log(action.payload, "payload")
       return {
         ...action.payload,
       };
