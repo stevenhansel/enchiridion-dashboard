@@ -5,6 +5,7 @@ import { buildingApi } from './building';
 import { announcementApi } from './announcement'
 import { requestApi } from './request';
 import { deviceApi } from './device';
+import { userApi } from './user';
 
 export type ApiErrorResponse = {
   status: string,
@@ -19,6 +20,7 @@ export const apiReducers = {
   [announcementApi.reducerPath]: announcementApi.reducer,
   [requestApi.reducerPath]: requestApi.reducer,
   [deviceApi.reducerPath]: deviceApi.reducer,
+  [userApi.reducerPath]: userApi.reducer,
 }
 
 export const apiMiddlewares = [
@@ -29,4 +31,5 @@ export const apiMiddlewares = [
   announcementApi.middleware,
   requestApi.middleware,
   deviceApi.middleware,
+  userApi.middleware,
 ];
