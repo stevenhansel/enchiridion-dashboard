@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axios from "../utils/axiosInstance";
+import { urlBuilder } from '../utils';
 
 import { Building } from "../types/store";
 
@@ -10,8 +11,8 @@ export const buildingApi = createApi({
   tagTypes: ["Building"],
   endpoints: (builders) => ({
     getBuildings: builders.query<Building[], null>({
-      query: () => ({
-        url: "/v1/buildings",
+      query: (params) => ({
+        url: urlBuilder('/v1/buildings', params)
       }),
       providesTags: () => ["Building"],
       transformResponse: (response) => response.contents.map((content: Building) => ({

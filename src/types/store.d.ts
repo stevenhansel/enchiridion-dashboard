@@ -7,6 +7,20 @@ export type Pagination<T> = {
   contents: T[],
 }
 
+export type Role = {
+  name: string;
+  value: string;
+  description: string;
+};
+
+export type RegisterForm = {
+  name: string,
+  email: string,
+  password: string,
+  reason: string,
+  role: string | null,
+};
+
 export type ActionButton = {
   label: string;
   value: string;

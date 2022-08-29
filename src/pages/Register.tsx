@@ -5,43 +5,30 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-  Box, 
-  Button, 
-  Typography, 
-  CssBaseline, 
-  TextField, 
-  InputLabel, 
-  FormControl, 
-  MenuItem, 
+  Box,
+  Button,
+  Typography,
+  CssBaseline,
+  TextField,
+  InputLabel,
+  FormControl,
+  MenuItem,
   IconButton,
   Snackbar,
-  CircularProgress, 
+  CircularProgress,
   Select,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
 import { AppDispatch, RootState } from "../store";
-import { setRoles } from "../store/roles";
 
-import { ApiErrorResponse } from "../services";
-import { authApi } from "../services/auth";
-import { rolesApi } from "../services/roles";
+import { useRegisterMutation } from "../services/auth";
+import { useLazyGetRolesQuery, rolesApi } from "../services/roles";
 
-import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import { RegisterForm } from "../types/store";
 
-type Role = {
-  id: number;
-  name: string;
-};
-
-type RegisterForm = {
-  name: string,
-  email: string,
-  password: string,
-  reason: string,
-  roleId: number | null,
-};
+import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
 const validationSchema = yup.object({
   name: yup
@@ -56,7 +43,7 @@ const validationSchema = yup.object({
     .string()
     .min(8, "Password should be of minimum 8 characters length")
     .required("Password is required"),
-  roleId: yup.number().required(),
+  role: yup.string().required(),
 });
 
 const Register = () => {
@@ -64,32 +51,13 @@ const Register = () => {
   const navigate = useNavigate();
 
   const rolesState = useSelector((state: RootState) => state.roles);
+  
+  const [getRoles, { data, isLoading, error }] = useLazyGetRolesQuery();
 
   const [isReady, setIsReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleRegister = useCallback(async (values: RegisterForm): Promise<void> => {
-    setIsLoading(true);
-
-    const response = await dispatch(
-      authApi.endpoints.register.initiate({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        roleId: values.roleId,
-        registrationReason: values.reason,
-      }),
-    );
-
-    if ('data' in response) {
-      navigate(`/register/${values.email}`);
-    } else {
-      setErrorMessage('data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
-    }
-
-    setIsLoading(false);
-  }, [dispatch, navigate]);
+  const [register] = useRegisterMutation();
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -97,48 +65,28 @@ const Register = () => {
       email: "",
       password: "",
       reason: "",
-      roleId: null,
+      role: null,
     },
     validationSchema: validationSchema,
-    onSubmit: handleRegister,
+    onSubmit: (values) => {
+      register(values);
+    },
   });
 
   const handleChange = (e: SelectChangeEvent) => {
-    formik.setFieldValue('roleId', parseInt(e.target.value, 10));
+    formik.setFieldValue("role", e.target.value as string);
   };
 
-  const fetchRoles = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-
-    const response = await dispatch(rolesApi.endpoints.getRoles.initiate(''));
-
-    if ('data' in response) {
-      const roles: Record<number, Role> = response.data.contents.reduce((accumulator: any, current: any) => {
-        accumulator[current.id] = { id: current.id, name: current.name };
-        return accumulator
-      }, {});
-
-      dispatch(setRoles(roles));
-    } else {
-      setErrorMessage(response.error && 'data' in response.error ? (response.error.data as ApiErrorResponse).messages[0] : 'Network Error');
-    } 
-
-    setIsReady(true);
-    setIsLoading(false);
-  }, [dispatch]);
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
-    setErrorMessage('');
+    setErrorMessage("");
   };
 
   useEffect(() => {
-    fetchRoles();
+    getRoles(null);
   }, []);
-
-  console.log(rolesState);
 
   return (
     <React.Fragment>
@@ -165,7 +113,7 @@ const Register = () => {
             right: "50%",
           }}
         >
-          {isReady && rolesState && Object.keys(rolesState).length > 0 ? (
+          {data && data.length > 0 ? (
             <form onSubmit={formik.handleSubmit}>
               <Box
                 sx={{
@@ -214,13 +162,15 @@ const Register = () => {
                   <TextField
                     id="password"
                     name="password"
-                    onChange={(event) =>
-                      formik.setFieldValue("password", event.target.value)
+                    onChange={(e) =>
+                      formik.setFieldValue("password", e.target.value)
                     }
                     error={
                       formik.touched.password && Boolean(formik.errors.password)
                     }
-                    helperText={formik.touched.password && formik.errors.password}
+                    helperText={
+                      formik.touched.password && formik.errors.password
+                    }
                     variant="standard"
                     type="password"
                     fullWidth
@@ -232,7 +182,9 @@ const Register = () => {
                     id="reason"
                     name="reason"
                     variant="standard"
-                    onChange={(event) => formik.setFieldValue("reason", event.target.value)}
+                    onChange={(event) =>
+                      formik.setFieldValue("reason", event.target.value)
+                    }
                     error={
                       formik.touched.reason && Boolean(formik.errors.reason)
                     }
@@ -250,18 +202,19 @@ const Register = () => {
                     <Select
                       labelId="role"
                       id="role"
-                      value={formik.values.roleId ? formik.values.roleId.toString() : undefined}
                       label="Role"
+                      value={formik.values.role !== null ? formik.values.role : ""}
+                      defaultValue=""
                       onChange={handleChange}
                       error={
-                        formik.touched.roleId && Boolean(formik.errors.roleId)
+                        formik.touched.role && Boolean(formik.errors.role)
                       }
                     >
-                      {rolesState && Object.values(rolesState).map((role: Role) => (
-                        <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
+                      {data.map((role) => (
+                        <MenuItem key={role.value} value={role.value}>{role.name}</MenuItem>
                       ))}
                     </Select>
-                    {formik.touched.roleId && formik.errors.roleId ? (<Typography sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F", }}>Role is required</Typography>) : (null)}
+                    {formik.touched.role && formik.errors.role ? (<Typography sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F", }}>Role is required</Typography>) : (null)}
                   </FormControl>
                 </Box>
                 <Box
@@ -270,14 +223,12 @@ const Register = () => {
                   alignItems="center"
                   flexDirection="column"
                 >
-                   <Button
+                  <Button
                     variant="contained"
                     disabled={isLoading}
                     type="submit"
                     sx={{ marginBottom: 0.5 }}
-                    endIcon={(
-                      isLoading && <CircularProgress />
-                    )}
+                    endIcon={isLoading && <CircularProgress />}
                   >
                     Daftar
                   </Button>
@@ -287,15 +238,15 @@ const Register = () => {
             </form>
           ) : (
             <div>
-                <CircularProgress />
+              <CircularProgress />
             </div>
           )}
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage('')}
+            onClose={() => setErrorMessage("")}
             message={errorMessage}
-            action={(
+            action={
               <IconButton
                 size="small"
                 aria-label="close"
@@ -304,7 +255,7 @@ const Register = () => {
               >
                 <CloseIcon fontSize="small" />
               </IconButton>
-            )}
+            }
           />
         </div>
       </Box>

@@ -35,7 +35,7 @@ import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
 import { Author, AnnouncementRequest } from "../types/store";
 
-import { actions } from '../types/constants';
+import { actions } from "../types/constants";
 
 type Props = {
   children?: React.ReactNode;
@@ -59,7 +59,9 @@ const RequestsPage = (props: Props) => {
   const [announcementText, setAnnouncementText] =
     useState<AnnouncementRequest | null>(null);
   const [approvedByLsc, setApprovedByLsc] = useState<boolean | null>(null);
+  const [approvedByLscText, setApprovedByLscText] = useState("");
   const [approvedByBm, setApprovedByBm] = useState<boolean | null>(null);
+  const [approvedByBmText, setApprovedByBmText] = useState("");
 
   const getRequestQueryParams = {
     page,
@@ -74,11 +76,7 @@ const RequestsPage = (props: Props) => {
 
   const [
     getRequests,
-    {
-      data: requests,
-      isLoading: isGetRequestLoading,
-      error: getRequestError,
-    },
+    { data: requests, isLoading: isGetRequestLoading, error: getRequestError },
   ] = useLazyGetRequestsQuery();
 
   const [
@@ -272,15 +270,19 @@ const RequestsPage = (props: Props) => {
                     labelId="announcement_filter"
                     id="announcement_filter"
                     label="Condition by LSC"
+                    value={approvedByLscText !== null ? approvedByLscText : ""}
                     onChange={(e: SelectChangeEvent) => {
                       if (e.target.value === "Approved") {
                         setApprovedByLsc(true);
+                        setApprovedByLscText(e.target.value);
                       }
                       if (e.target.value === "Rejected") {
                         setApprovedByLsc(false);
+                        setApprovedByLscText(e.target.value);
                       }
                       if (e.target.value === "All") {
                         setApprovedByLsc(null);
+                        setApprovedByLscText(e.target.value);
                       }
                     }}
                   >
@@ -299,15 +301,19 @@ const RequestsPage = (props: Props) => {
                     labelId="announcement_filter"
                     id="announcement_filter"
                     label="Condition by LSC"
+                    value={approvedByBmText !== null ? approvedByBmText : ""}
                     onChange={(e: SelectChangeEvent) => {
                       if (e.target.value === "All") {
                         setApprovedByBm(null);
+                        setApprovedByBmText(e.target.value);
                       }
                       if (e.target.value === "Approved") {
                         setApprovedByBm(true);
+                        setApprovedByBmText(e.target.value);
                       }
                       if (e.target.value === "Rejected") {
                         setApprovedByBm(false);
+                        setApprovedByBmText(e.target.value);
                       }
                     }}
                   >

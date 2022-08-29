@@ -2,9 +2,10 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axios from "../utils/axiosInstance";
 
-import { User, Pagination } from "../types/store";
+import { User, Pagination, Action } from "../types/store";
 
 import { urlBuilder } from "../utils";
+import { number } from "yup";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -18,6 +19,7 @@ export const userApi = createApi({
         limit?: number;
         query?: string;
         status?: string;
+        role?: string | null;
       } | null
     >({
       query: (params) => ({
@@ -31,7 +33,18 @@ export const userApi = createApi({
         contents: response.contents,
       }),
     }),
+    approveRejectUser: builders.mutation<
+      Action,
+      { userId: string; userStatus: boolean }
+    >({
+      query: ({ userId, userStatus }) => ({
+        url: `v1/users/${userId}/approval`,
+        method: "PUT",
+        data: { action: userStatus ? "approve" : "reject" },
+      }),
+      invalidatesTags: () => ["User"],
+    }),
   }),
 });
 
-export const { useLazyGetUsersQuery } = userApi;
+export const { useLazyGetUsersQuery, useApproveRejectUserMutation } = userApi;
