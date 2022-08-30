@@ -26,6 +26,7 @@ import {
 import { useLazyGetRolesQuery } from "../services/roles";
 
 import { Role } from "../types/store";
+import Layout from "../components/Layout";
 
 const FETCH_LIMIT = 20;
 const key = "value";
@@ -75,8 +76,6 @@ const ListUsersPage = () => {
     new Map(roleOptions.map((role) => [role[key], role])).values()
   );
 
-  console.log(roleUniqueByKey);
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
@@ -116,7 +115,7 @@ const ListUsersPage = () => {
   }, [isUserError]);
 
   return (
-    <Box>
+    <Layout>
       <Box
         style={{
           display: "flex",
@@ -256,7 +255,7 @@ const ListUsersPage = () => {
         message={errorMessage}
         action={action}
       />
-    </Box>
+    </Layout>
   );
 };
 

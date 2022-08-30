@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import {
   Box,
@@ -8,12 +8,23 @@ import {
 } from "@mui/material";
 
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import { RootState } from '../store';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-type Props = {
-  children?: React.ReactNode;
-};
+const WaitingApprovalPage = () => {
+  const navigate = useNavigate();
 
-const WaitingApprovalPage = (props: Props) => {
+  const profile = useSelector((state: RootState) => state.profile);
+
+  useEffect(() => {
+    if (profile) {
+      const { userStatus } = profile
+      if (userStatus.value !== 'waiting_for_approval') {
+        navigate('/');
+      }
+    }
+  }, [navigate, profile]);
   return (
     <React.Fragment>
       <CssBaseline />

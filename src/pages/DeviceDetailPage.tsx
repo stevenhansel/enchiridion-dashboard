@@ -4,59 +4,25 @@ import dayjs from "dayjs";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import ImageList from "@mui/material/ImageList";
-import ImageListItem from "@mui/material/ImageListItem";
 
 import { useGetDeviceDetailQuery } from "../services/device";
-import { useGetAnnouncementsQuery } from "../services/announcement";
-
-type Props = {
-  children?: React.ReactNode;
-};
+import Layout from "../components/Layout";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
 
-const DeviceDetailPage = (props: Props) => {
+const DeviceDetailPage = () => {
   const { deviceId = "" } = useParams();
 
-  const { data: deviceDetailHash, isLoading: isGetDeviceDetailLoading } =
-    useGetDeviceDetailQuery(
-      { deviceId },
-      {
-        skip: deviceId === "",
-      }
-    );
-
-  const {
-    data: announcementHash,
-    isLoading: isGetAnnouncementLoading,
-    error: getAnnouncementError,
-  } = useGetAnnouncementsQuery(null);
-
-  const itemData = [
+  const { data: deviceDetailHash } = useGetDeviceDetailQuery(
+    { deviceId },
     {
-      img: "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e",
-      title: "Breakfast",
-    },
-    {
-      img: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d",
-      title: "Burger",
-    },
-    {
-      img: "https://images.unsplash.com/photo-1522770179533-24471fcdba45",
-      title: "Camera",
-    },
-  ];
-
-  // const getDeviceDetail = useCallback( async (): Promise<void> => {
-  //   const response = await dispatch(deviceApi.endpoints.getDeviceDetail.initiate(""))
-
-  //   console.log(response);
-  // }, [])
+      skip: deviceId === "",
+    }
+  );
 
   return (
-    <Box>
+    <Layout>
       <Typography align="center" variant="h5" fontWeight="bold">
         {deviceDetailHash?.name}
       </Typography>
@@ -98,7 +64,7 @@ const DeviceDetailPage = (props: Props) => {
         {/* {announcementHash && Object.entries(announcementHash).map(([announcementId, announcement]) => (
                       ))} */}
       </Box>
-    </Box>
+    </Layout>
   );
 };
 

@@ -6,9 +6,8 @@ import { Box, CssBaseline, Typography, CircularProgress } from "@mui/material";
 
 import { AppDispatch } from "../store";
 import { setProfile } from "../store/profile";
-import { login } from "../store/auth";
 
-import { ApiErrorResponse } from "../services";
+import { ApiErrorResponse } from "../services/error";
 import { authApi } from "../services/auth";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
@@ -42,10 +41,10 @@ const VerificationCallbackPage = (_: Props) => {
           email: response.data.email,
           profilePicture: response.data.profilePicture,
           role: response.data.role,
+          isEmailConfirmed: response.data.isEmailConfirmed,
           userStatus: response.data.userStatus,
         })
       );
-      dispatch(login());
     } else {
       setErrorMessage(
         "data" in response.error

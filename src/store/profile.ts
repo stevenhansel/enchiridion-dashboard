@@ -8,6 +8,7 @@ export type ProfileState = {
   email: string;
   profilePicture: string | null;
   role: Role; 
+  isEmailConfirmed: boolean;
   userStatus: UserStatus;
 }
 
@@ -25,7 +26,8 @@ const profileSlice = createSlice({
         email: action.payload.email,
         profilePicture: action.payload.profilePicture,
         role: action.payload.role,
-        userStatus: action.payload.userStatus
+        isEmailConfirmed: action.payload.isEmailConfirmed, 
+        userStatus: action.payload.userStatus,
       };
     },
     resetProfile() {

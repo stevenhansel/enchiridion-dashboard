@@ -7,10 +7,6 @@ import { requestApi } from './request';
 import { deviceApi } from './device';
 import { userApi } from './user';
 
-export type ApiErrorResponse = {
-  status: string,
-  messages: string[],
-};
 
 export const apiReducers = {
   [authApi.reducerPath]: authApi.reducer,

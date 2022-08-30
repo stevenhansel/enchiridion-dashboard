@@ -36,10 +36,7 @@ import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 import { Author, AnnouncementRequest } from "../types/store";
 
 import { actions } from "../types/constants";
-
-type Props = {
-  children?: React.ReactNode;
-};
+import Layout from "../components/Layout";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -48,7 +45,7 @@ const FETCH_LIMIT = 20;
 
 const key = "id";
 
-const RequestsPage = (props: Props) => {
+const RequestsPage = () => {
   const [actionType, setActionType] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
   const [page, setPage] = useState(1);
@@ -189,7 +186,7 @@ const RequestsPage = (props: Props) => {
   }, []);
 
   return (
-    <Box>
+    <Layout>
       <Box
         style={{
           display: "flex",
@@ -453,7 +450,7 @@ const RequestsPage = (props: Props) => {
           <NavigateNextIcon />
         </IconButton>
       </Box>
-    </Box>
+    </Layout>
   );
 };
 

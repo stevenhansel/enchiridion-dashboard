@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import { ApiErrorResponse } from "../services";
+import { ApiErrorResponse } from "../services/error";
 import { useGetAnnouncementMediaQuery } from "../services/announcement";
 
 type Props = {

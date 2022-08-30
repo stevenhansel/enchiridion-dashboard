@@ -20,11 +20,8 @@ import Button from "@mui/material/Button";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
-import { useGetDevicesQuery, useLazyGetDevicesQuery } from "../services/device";
-
-type Props = {
-  children?: React.ReactNode;
-};
+import { useLazyGetDevicesQuery } from "../services/device";
+import Layout from "../components/Layout";
 
 const FETCH_LIMIT = 20;
 
@@ -93,7 +90,7 @@ const DevicePage = () => {
   }, [error]);
 
   return (
-    <Box>
+    <Layout>
       {!isLoading ? (
         <>
           <Box display="flex" flexDirection="column" width="100%">
@@ -190,7 +187,7 @@ const DevicePage = () => {
         message={errorMessage}
         action={action}
       />
-    </Box>
+    </Layout>
   );
 };
 

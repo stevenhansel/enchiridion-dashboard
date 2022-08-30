@@ -36,17 +36,16 @@ import {
 import {
   useLazyGetFloorsQuery,
   useDeleteFloorMutation,
-  useCreateFloorMutation,
 } from "../services/floor";
 
 import { Building } from "../types/store";
+import Layout from "../components/Layout";
 
 const FETCH_LIMIT = 20;
 const key = "id";
 
 const ListFloorPage = () => {
   const [deleteFloor] = useDeleteFloorMutation();
-  const [createBuilding] = useCreateBuildingMutation();
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -146,7 +145,7 @@ const buildingOptions = Array.from(
   );
 
   return (
-    <Box>
+    <Layout>
       <UpdateFloorModal
         buildingHash={buildings}
         open={openEditFloor}
@@ -322,7 +321,7 @@ const buildingOptions = Array.from(
           <NavigateNextIcon />
         </IconButton>
       </Box>
-    </Box>
+    </Layout>
   );
 };
 

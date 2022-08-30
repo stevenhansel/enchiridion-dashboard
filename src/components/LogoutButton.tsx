@@ -1,24 +1,25 @@
-import React, { useEffect } from "react";
-
-import { useDispatch } from "react-redux";
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import { Button } from "@mui/material";
 
 import { useLazyLogoutQuery } from "../services/auth";
-
-import { logout } from "../store/auth";
-import { AppDispatch } from "../store";
+import { resetProfile } from "../store/profile";
 
 const LogoutButton = () => {
-  const dispatch: AppDispatch = useDispatch();
-  const [userLogout, { data, isLoading, error }] = useLazyLogoutQuery();
+  const dispatch = useDispatch();
+  const [logout] = useLazyLogoutQuery();
 
   const navigate = useNavigate();
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    try {
+      await logout(null).unwrap();
+      dispatch(resetProfile());
+    } catch (err) {
+
+    }
     navigate("/");
-    userLogout(null);
   };
 
   return (

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import {
   Box,
@@ -17,10 +17,9 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 
 import { AppDispatch } from "../store";
-import { login } from "../store/auth";
 import { setProfile } from "../store/profile";
 
-import { ApiErrorResponse } from "../services";
+import { ApiErrorResponse } from "../services/error";
 import { authApi } from "../services/auth";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
@@ -71,9 +70,9 @@ const Login = (props: Props) => {
             profilePicture: response.data.profilePicture,
             role: response.data.role,
             userStatus: response.data.userStatus,
+            isEmailConfirmed: response.data.isEmailConfirmed,
           })
         );
-        dispatch(login());
       } else {
         setErrorMessage(
           "data" in response.error

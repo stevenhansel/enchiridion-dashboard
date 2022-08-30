@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useDispatch } from 'react-redux';
-import { logout } from "../store/auth";
 import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
@@ -12,6 +11,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
+import Layout from "../components/Layout";
 
 type Props = {
   children?: React.ReactNode;
@@ -30,7 +30,6 @@ const UserProfilePage = (props: Props) => {
 
   const handleLogout = () => {
     navigate("/login");
-    dispatch(logout());
   }
 
   const handleMenu = (event: any) => {
@@ -42,7 +41,7 @@ const UserProfilePage = (props: Props) => {
   };
 
   return (
-    <Box>
+    <Layout>
       <Box
         display="flex"
         flexDirection="row"
@@ -159,7 +158,7 @@ const UserProfilePage = (props: Props) => {
         </Button>
         <Button variant="outlined">Edit</Button>
       </Box>
-    </Box>
+    </Layout>
   );
 };
 

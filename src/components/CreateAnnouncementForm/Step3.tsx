@@ -52,8 +52,6 @@ const Step3 = () => {
     getFloors(null);
   }, []);
 
-  console.log(floorsData)
-
   return (
     <Box display="flex" flexDirection="column">
       <Box

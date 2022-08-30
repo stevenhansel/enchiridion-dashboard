@@ -17,15 +17,48 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Link } from "react-router-dom";
-import Typography from "@mui/material/Typography";
+import { Link, useNavigate } from "react-router-dom";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
+import HomeIcon from "@mui/icons-material/Home";
+import TvIcon from "@mui/icons-material/Tv";
+import BalconyIcon from "@mui/icons-material/Balcony";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+
 import { RootState } from "../store";
 
 import LogoutButton from "./LogoutButton";
+
+const navigations = [
+  {
+    text: "Announcement",
+    path: "",
+    icon: <HomeIcon />,
+  },
+  {
+    text: "Device",
+    path: "device",
+    icon: <TvIcon />,
+  },
+  {
+    text: "Floor",
+    path: "floor",
+    icon: <BalconyIcon />,
+  },
+  {
+    text: "List User",
+    path: "list-user",
+    icon: <AccountBoxIcon />,
+  },
+  {
+    text: "Requests",
+    path: "requests",
+    icon: <AssignmentIcon />,
+  },
+];
 
 const drawerWidth = 240;
 
@@ -98,22 +131,14 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-type NavigationItem = {
-  text: string;
-  path: string;
-  icon: React.ReactElement;
-};
-
 type Props = {
   children: React.ReactNode;
-  navigation: NavigationItem[];
 };
 
-export default function MiniDrawer(props: Props) {
-  const profileName = useSelector((state: RootState) => state.profile?.name);
-  const profileRole = useSelector(
-    (state: RootState) => state.profile?.role.name
-  );
+export default function Layout(props: Props) {
+  const navigate = useNavigate();
+  const profile = useSelector((state: RootState) => state.profile);
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [openProfile, setOpenProfile] = React.useState(false);
@@ -129,6 +154,17 @@ export default function MiniDrawer(props: Props) {
   const handleClick = () => {
     setOpenProfile(!openProfile);
   };
+
+  React.useEffect(() => {
+    if (profile) {
+      const { userStatus } = profile;
+      if (userStatus.value === "waiting_for_approval") {
+        navigate("/waiting-for-approval");
+      }
+    } else {
+      navigate("/login");
+    }
+  }, [profile]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -162,8 +198,8 @@ export default function MiniDrawer(props: Props) {
         <Divider />
         <List sx={{ opacity: open ? 1 : 0, marginTop: 1 }}>
           <ListItemButton onClick={handleClick}>
-            <ListItemText primary={profileName} />
-            <ListItemText primary={profileRole} />
+            <ListItemText primary={profile?.name} />
+            <ListItemText primary={profile?.role.name} />
             {openProfile ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
           <Collapse in={openProfile} timeout="auto" unmountOnExit>
@@ -175,10 +211,10 @@ export default function MiniDrawer(props: Props) {
           </Collapse>
         </List>
         <List>
-          {props.navigation.map(({ text, path, icon }) => (
+          {navigations.map(({ text, path, icon }) => (
             <Link
               key={text}
-              to={path}
+              to={`/${path}`}
               style={{ textDecoration: "none", color: "rgba(0, 0, 0, 0.87)" }}
             >
               <ListItem key={text} disablePadding sx={{ display: "block" }}>

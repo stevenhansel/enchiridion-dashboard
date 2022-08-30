@@ -32,6 +32,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 import { AnnouncementStatus } from "../types/constants";
 import { Author } from "../types/store";
+import Layout from "../components/Layout";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
 
@@ -135,7 +136,7 @@ const ListAnnouncementPage = () => {
   }, [page]);
 
   return (
-    <Box>
+    <Layout>
       <Box
         sx={{
           alignItems: "center",
@@ -352,10 +353,10 @@ const ListAnnouncementPage = () => {
           onClick={handlePaginationPreviousPage}
         >
           <NavigateBeforeIcon />
-      </IconButton>
-      <Box display="flex" alignItems="center">
-        {page}
-      </Box>
+        </IconButton>
+        <Box display="flex" alignItems="center">
+          {page}
+        </Box>
         <IconButton
           disabled={isNextButtonDisabled}
           onClick={handlePaginationNextPage}
@@ -363,7 +364,7 @@ const ListAnnouncementPage = () => {
           <NavigateNextIcon />
         </IconButton>
       </Box>
-    </Box>
+    </Layout>
   );
 };
 

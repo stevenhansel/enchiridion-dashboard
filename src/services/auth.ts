@@ -27,7 +27,7 @@ export const authApi = createApi({
       }),
       invalidatesTags: () => ["Auth"],
     }),
-    logout: builder.query<null, null>({
+    logout: builder.query({
       query: () => ({
         url: "/v1/logout",
       }),
@@ -79,6 +79,7 @@ export const authApi = createApi({
 
 export const {
   useRegisterMutation,
+  
   useLoginMutation,
   useLogoutQuery,
   useLazyLogoutQuery,

@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 
 import {
   Box,
@@ -21,15 +20,13 @@ import {
 import { SelectChangeEvent } from "@mui/material/Select";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { AppDispatch, RootState } from "../store";
-
 import { useRegisterMutation } from "../services/auth";
-import { useLazyGetRolesQuery, rolesApi } from "../services/roles";
+import { useLazyGetRolesQuery } from "../services/roles";
 
 import { RegisterForm } from "../types/store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
-import { ApiErrorResponse } from "../services";
+import { isApiError, isReduxError } from "../services/error";
 
 const validationSchema = yup.object({
   name: yup
@@ -47,18 +44,15 @@ const validationSchema = yup.object({
   role: yup.string().required(),
 });
 
+
 const Register = () => {
-  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
 
-  const rolesState = useSelector((state: RootState) => state.roles);
+  const [getRoles, { data, isLoading }] = useLazyGetRolesQuery();
 
-  const [getRoles, { data, isLoading, error }] = useLazyGetRolesQuery();
-
-  const [isReady, setIsReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [register, { error: isRegisterError }] = useRegisterMutation();
+  const [register] = useRegisterMutation();
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -69,8 +63,22 @@ const Register = () => {
       role: null,
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      register(values);
+    onSubmit: async (values, { setFieldError }) => {
+      try {
+        await register(values).unwrap();
+        navigate(`/register/${values.email}`);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { errorCode, messages } = err.data;
+          const [message] = messages;
+
+          if (errorCode === "EMAIL_ALREADY_EXISTS") {
+            setFieldError("email", message);
+          } else if (errorCode === "ROLE_NOT_FOUND") {
+            setFieldError("role", message);
+          }
+        }
+      }
     },
   });
 
@@ -86,14 +94,8 @@ const Register = () => {
   };
 
   useEffect(() => {
-    if (isRegisterError && "data" in isRegisterError) {
-      setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0]);
-    }
-  }, [isRegisterError]);
-
-  useEffect(() => {
     getRoles(null);
-  }, []);
+  }, [getRoles]);
 
   return (
     <React.Fragment>
@@ -139,8 +141,9 @@ const Register = () => {
                   Register
                 </Typography>
                 <Box sx={{ marginBottom: 3 }}>
-                  <Typography>Nama</Typography>
+                  <Typography>Name</Typography>
                   <TextField
+                    autoComplete="off"
                     id="name"
                     name="name"
                     onChange={formik.handleChange}
@@ -153,6 +156,7 @@ const Register = () => {
                 <Box sx={{ marginBottom: 3 }}>
                   <Typography>Email</Typography>
                   <TextField
+                    autoComplete="off"
                     id="email"
                     name="email"
                     onChange={(e) =>
@@ -167,7 +171,8 @@ const Register = () => {
                 <Box sx={{ marginBottom: 3 }}>
                   <Typography>Password</Typography>
                   <TextField
-                    id="password"
+                   autoComplete="off"
+                   id="password"
                     name="password"
                     onChange={(e) =>
                       formik.setFieldValue("password", e.target.value)
@@ -184,8 +189,9 @@ const Register = () => {
                   />
                 </Box>
                 <Box sx={{ marginBottom: 5 }}>
-                  <Typography>Alasan untuk daftar</Typography>
+                  <Typography>Registration Reason</Typography>
                   <TextField
+                    autoComplete="off"
                     id="reason"
                     name="reason"
                     variant="standard"

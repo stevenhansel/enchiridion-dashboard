@@ -27,8 +27,6 @@ const Step2 = () => {
     CreateAnnouncementFormContext
   );
 
-    console.log(floorsData);
-
   const handleSelectDevice = useCallback(
     (selectedDeviceId: string) => {
       const selectedDeviceIndex = values.devices.findIndex(

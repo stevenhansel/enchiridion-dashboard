@@ -7,6 +7,7 @@ import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { useGetAnnouncementDetailQuery } from "../services/announcement";
 import { useGetBuildingsQuery } from "../services/building";
 import { useLazyGetFloorsQuery } from "../services/floor";
+import Layout from "../components/Layout";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 
@@ -44,162 +45,167 @@ const AnnouncementDetailPage = () => {
   }, []);
 
   return (
-    <Box display="flex" flexDirection="column">
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="column"
-      >
-        {isLoading && <CircularProgress />}
-        {!isLoading && (
-          <Box
-            sx={{
-              marginTop: 5,
-              p: 2,
-            }}
-          >
-            <Box sx={{ marginBottom: 2 }}>
-              <Typography variant="h2" align="center">
-                {announcementHash?.title}
-              </Typography>
-            </Box>
-            <Box sx={{ marginBottom: 2 }}>
-              {announcementHash?.media ? (
-                <img
-                  alt="banner"
-                  src={announcementHash.media}
-                  style={{ width: "100%" }}
-                />
-              ) : null}
-            </Box>
+    <Layout>
+      <Box display="flex" flexDirection="column">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="column"
+        >
+          {isLoading && <CircularProgress />}
+          {!isLoading && (
             <Box
               sx={{
-                marginBottom: 2,
-                display: "flex",
-                justifyContent: "space-between",
+                marginTop: 5,
+                p: 2,
               }}
             >
-              <Box>
-                <Typography>Start Date</Typography>
-                <Typography>{toDate(announcementHash!.startDate)}</Typography>
+              <Box sx={{ marginBottom: 2 }}>
+                <Typography variant="h2" align="center">
+                  {announcementHash?.title}
+                </Typography>
               </Box>
-              <Box>
-                <Typography>End Date</Typography>
-                <Typography>{toDate(announcementHash!.endDate)}</Typography>
+              <Box sx={{ marginBottom: 2 }}>
+                {announcementHash?.media ? (
+                  <img
+                    alt="banner"
+                    src={announcementHash.media}
+                    style={{ width: "100%" }}
+                  />
+                ) : null}
               </Box>
-            </Box>
-            <Box sx={{ marginBottom: 2 }}>
-              <Typography display="flex">Author</Typography>
-              <Typography>{announcementHash!.author.name}</Typography>
-            </Box>
-            <Box sx={{ marginBottom: 2 }}>
-              <Typography display="flex" fontWeight="bold">
-                Notes
-              </Typography>
-              <Typography>{announcementHash!.notes}</Typography>
-            </Box>
-            <Typography display="flex" fontWeight="bold">
-              Device
-            </Typography>
-            <Box>
               <Box
                 sx={{
+                  marginBottom: 2,
                   display: "flex",
-                  border: "1px solid #c4c4c4",
+                  justifyContent: "space-between",
                 }}
               >
-                <Box
-                  sx={{
-                    padding: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  {buildingHash && Object.entries(buildingHash).map(([buildingId, building]) => (
-                    <Button
-                      key={buildingId}
-                      onClick={() =>
-                        setCurrentBuildingId(buildingId.toString())
-                      }
-                      variant={
-                        currentBuildingId === buildingId.toString()
-                          ? "contained"
-                          : "text"
-                      }
-                      color={
-                        currentBuildingId === buildingId.toString()
-                          ? "secondary"
-                          : "inactive"
-                      }
-                      sx={{ marginBottom: 1 }}
-                    >
-                      {building.name}
-                    </Button>
-                  ))}
+                <Box>
+                  <Typography>Start Date</Typography>
+                  <Typography>{toDate(announcementHash!.startDate)}</Typography>
                 </Box>
-                <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
+                <Box>
+                  <Typography>End Date</Typography>
+                  <Typography>{toDate(announcementHash!.endDate)}</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ marginBottom: 2 }}>
+                <Typography display="flex">Author</Typography>
+                <Typography>{announcementHash!.author.name}</Typography>
+              </Box>
+              <Box sx={{ marginBottom: 2 }}>
+                <Typography display="flex" fontWeight="bold">
+                  Notes
+                </Typography>
+                <Typography>{announcementHash!.notes}</Typography>
+              </Box>
+              <Typography display="flex" fontWeight="bold">
+                Device
+              </Typography>
+              <Box>
                 <Box
                   sx={{
-                    padding: 3,
-                    flex: 1,
+                    display: "flex",
+                    border: "1px solid #c4c4c4",
                   }}
                 >
-                  <Box>
-                    {floorsData?.contents
-                      .filter(
-                        (floor) =>
-                          currentBuildingId === floor.building.id.toString()
-                      )
-                      .map((floor) => (
-                        <Box key={floor.id} display="flex">
-                          <Box
-                            sx={{
-                              minWidth: 100,
-                              flex: 1,
-                              marginRight: 1,
-                              marginBottom: 2,
-                            }}
+                  <Box
+                    sx={{
+                      padding: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    {buildingHash &&
+                      Object.entries(buildingHash).map(
+                        ([buildingId, building]) => (
+                          <Button
+                            key={buildingId}
+                            onClick={() =>
+                              setCurrentBuildingId(buildingId.toString())
+                            }
+                            variant={
+                              currentBuildingId === buildingId.toString()
+                                ? "contained"
+                                : "text"
+                            }
+                            color={
+                              currentBuildingId === buildingId.toString()
+                                ? "secondary"
+                                : "inactive"
+                            }
+                            sx={{ marginBottom: 1 }}
                           >
-                            {floor.name}
+                            {building.name}
+                          </Button>
+                        )
+                      )}
+                  </Box>
+                  <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
+                  <Box
+                    sx={{
+                      padding: 3,
+                      flex: 1,
+                    }}
+                  >
+                    <Box>
+                      {floorsData?.contents
+                        .filter(
+                          (floor) =>
+                            currentBuildingId === floor.building.id.toString()
+                        )
+                        .map((floor) => (
+                          <Box key={floor.id} display="flex">
+                            <Box
+                              sx={{
+                                minWidth: 100,
+                                flex: 1,
+                                marginRight: 1,
+                                marginBottom: 2,
+                              }}
+                            >
+                              {floor.name}
+                            </Box>
+                            <Box display="flex" flexWrap="wrap">
+                              {floor.devices.map((device) => (
+                                <Button
+                                  key={device.id}
+                                  onClick={() => {}}
+                                  //variant={values.devices.includes(device.id.toString()) ? 'contained' : 'text'}
+                                  variant="contained"
+                                  color={
+                                    announcementHash!.devices
+                                      .map(
+                                        (announcementDevice) =>
+                                          announcementDevice.id
+                                      )
+                                      .includes(device.id)
+                                      ? "secondary"
+                                      : "inactive"
+                                  }
+                                  sx={{
+                                    marginRight: 1,
+                                    marginBottom: 1,
+                                    width: 140,
+                                  }}
+                                >
+                                  {device.name}
+                                </Button>
+                              ))}
+                            </Box>
                           </Box>
-                          <Box display="flex" flexWrap="wrap">
-                            {floor.devices.map((device) => (
-                              <Button
-                                key={device.id}
-                                onClick={() => {}}
-                                //variant={values.devices.includes(device.id.toString()) ? 'contained' : 'text'}
-                                variant="contained"
-                                color={
-                                  announcementHash!.devices
-                                    .map(
-                                      (announcementDevice) =>
-                                        announcementDevice.id
-                                    )
-                                    .includes(device.id)
-                                    ? "secondary"
-                                    : "inactive"
-                                }
-                                sx={{
-                                  marginRight: 1,
-                                  marginBottom: 1,
-                                  width: 140,
-                                }}
-                              >
-                                {device.name}
-                              </Button>
-                            ))}
-                          </Box>
-                        </Box>
-                      ))}
+                        ))}
+                    </Box>
                   </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
-        )}
+          )}
+        </Box>
       </Box>
-    </Box>
+    </Layout>
   );
 };
 

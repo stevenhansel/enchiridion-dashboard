@@ -1,10 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
-export type ApiErrorResponse = {
-  code: string;
-  messages: string[];
-};
-
 const instance = axios.create({
   baseURL: "https://enchiridion.stevenhansel.com/dashboard",
   headers: {

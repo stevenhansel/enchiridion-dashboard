@@ -15,7 +15,7 @@ import {
 
 import { AppDispatch } from "../../store";
 
-import { ApiErrorResponse } from "../../services";
+import { ApiErrorResponse } from "../../services/error";
 import { announcementApi } from "../../services/announcement";
 
 import Step1 from "./Step1";

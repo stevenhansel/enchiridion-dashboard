@@ -2,13 +2,11 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import { apiReducers, apiMiddlewares } from '../services';
 
-import authReducer from './auth';
 import profileReducer from './profile';
 import rolesReducer from './roles';
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,
     profile: profileReducer,
     roles: rolesReducer,
     ...apiReducers,
