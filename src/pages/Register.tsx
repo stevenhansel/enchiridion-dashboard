@@ -29,6 +29,7 @@ import { useLazyGetRolesQuery, rolesApi } from "../services/roles";
 import { RegisterForm } from "../types/store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import { ApiErrorResponse } from "../services";
 
 const validationSchema = yup.object({
   name: yup
@@ -51,13 +52,13 @@ const Register = () => {
   const navigate = useNavigate();
 
   const rolesState = useSelector((state: RootState) => state.roles);
-  
+
   const [getRoles, { data, isLoading, error }] = useLazyGetRolesQuery();
 
   const [isReady, setIsReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [register] = useRegisterMutation();
+  const [register, { error: isRegisterError }] = useRegisterMutation();
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -83,6 +84,12 @@ const Register = () => {
     }
     setErrorMessage("");
   };
+
+  useEffect(() => {
+    if (isRegisterError && "data" in isRegisterError) {
+      setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0]);
+    }
+  }, [isRegisterError]);
 
   useEffect(() => {
     getRoles(null);
@@ -194,27 +201,35 @@ const Register = () => {
                 </Box>
                 <Box>
                   <FormControl fullWidth sx={{ marginBottom: 5 }}>
-                    <InputLabel
-                      id="role"
-                    >
-                      Role
-                    </InputLabel>
+                    <InputLabel id="role">Role</InputLabel>
                     <Select
                       labelId="role"
                       id="role"
                       label="Role"
-                      value={formik.values.role !== null ? formik.values.role : ""}
+                      value={
+                        formik.values.role !== null ? formik.values.role : ""
+                      }
                       defaultValue=""
                       onChange={handleChange}
-                      error={
-                        formik.touched.role && Boolean(formik.errors.role)
-                      }
+                      error={formik.touched.role && Boolean(formik.errors.role)}
                     >
                       {data.map((role) => (
-                        <MenuItem key={role.value} value={role.value}>{role.name}</MenuItem>
+                        <MenuItem key={role.value} value={role.value}>
+                          {role.name}
+                        </MenuItem>
                       ))}
                     </Select>
-                    {formik.touched.role && formik.errors.role ? (<Typography sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F", }}>Role is required</Typography>) : (null)}
+                    {formik.touched.role && formik.errors.role ? (
+                      <Typography
+                        sx={{
+                          fontSize: 12,
+                          marginTop: 0.3754,
+                          color: "#D32F2F",
+                        }}
+                      >
+                        Role is required
+                      </Typography>
+                    ) : null}
                   </FormControl>
                 </Box>
                 <Box
