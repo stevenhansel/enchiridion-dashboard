@@ -24,7 +24,6 @@ const ForgotPassword = () => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      //   alert(JSON.stringify(values, null, 2));
       navigate("/reset_password");
     },
   });

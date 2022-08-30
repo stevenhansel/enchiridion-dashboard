@@ -197,7 +197,7 @@ const ListUsersPage = () => {
                       style={{ display: "flex", flexDirection: "row" }}
                     >
                       {profile.status.value === "approved" ? (
-                        ""
+                        null
                       ) : (
                         <Box>
                           <Button
