@@ -17,7 +17,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -50,7 +50,7 @@ const navigations = [
   },
   {
     text: "List User",
-    path: "list-user",
+    path: "user",
     icon: <AccountBoxIcon />,
   },
   {
@@ -137,6 +137,7 @@ type Props = {
 
 export default function Layout(props: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
 
   const theme = useTheme();
@@ -155,16 +156,35 @@ export default function Layout(props: Props) {
     setOpenProfile(!openProfile);
   };
 
+  const hasPermission = React.useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+    // TODO: add all view permissions
+    if (
+      (location.pathname === "/user" &&
+        !permissions.includes("view_list_user")) ||
+      (location.pathname === "/" &&
+        !permissions.includes("view_list_announcement"))
+    ) {
+      return false;
+    }
+
+    return true;
+  }, [profile, location.pathname]);
+
   React.useEffect(() => {
     if (profile) {
       const { userStatus } = profile;
+
       if (userStatus.value === "waiting_for_approval") {
         navigate("/waiting-for-approval");
       }
     } else {
       navigate("/login");
     }
-  }, [profile]);
+  }, [profile, location, navigate]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -243,7 +263,7 @@ export default function Layout(props: Props) {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
-        {props.children}
+        {hasPermission ? props.children : <p>Forbbiden</p>}
       </Box>
     </Box>
   );

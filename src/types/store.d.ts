@@ -1,5 +1,3 @@
-import { StringLiteral } from "typescript";
-
 export type Pagination<T> = {
   hasNext: boolean;
   count: number;
@@ -12,6 +10,17 @@ export type Role = {
   value: string;
   description: string;
 };
+
+export type UserRole = {
+  name: string;
+  description: String,
+  permissions: Permission[];
+};
+
+export type Permission = {
+  label: string;
+  value: string;
+}
 
 export type RegisterForm = {
   name: string,

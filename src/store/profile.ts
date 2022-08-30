@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { Role, UserStatus } from '../types/store';
+import { UserRole, UserStatus } from '../types/store';
 
 export type ProfileState = {
   id: number;
   name: string;
   email: string;
   profilePicture: string | null;
-  role: Role; 
+  role: UserRole; 
   isEmailConfirmed: boolean;
   userStatus: UserStatus;
 }

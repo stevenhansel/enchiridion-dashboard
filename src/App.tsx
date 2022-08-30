@@ -88,7 +88,7 @@ function App() {
             element={<DeviceDetailPage />}
           />
           <Route path="/floor" element={<ListFloorPage />} />
-          <Route path="/list-user" element={<ListUsersPage />} />
+          <Route path="/user" element={<ListUsersPage />} />
           <Route path="/requests" element={<RequestsPage />} />
           {/** <Route path="/profile" element={<UserProfilePage />} />*/}
           <Route
