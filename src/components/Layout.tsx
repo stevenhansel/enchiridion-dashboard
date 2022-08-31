@@ -146,8 +146,6 @@ export default function Layout(props: Props) {
   const [open, setOpen] = React.useState(false);
   const [openProfile, setOpenProfile] = React.useState(false);
 
-  console.log(deviceId);
-
   const handleDrawerOpen = () => {
     setOpen(true);
   };

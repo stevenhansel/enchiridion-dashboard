@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
 
 import {
   Box,
@@ -42,6 +43,8 @@ import { Building } from "../types/store";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
+import { RootState } from "../store";
+
 const FETCH_LIMIT = 20;
 const key = "id";
 
@@ -75,6 +78,8 @@ const ListFloorPage = () => {
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
 
+  const profile = useSelector((state: RootState) => state.profile);
+
   const handleDeleteAnnouncement = (floorId: string) => {
     deleteFloor({ floorId });
   };
@@ -100,23 +105,37 @@ const ListFloorPage = () => {
     return page === floors.totalPages;
   }, [page, floors]);
 
-const buildingOptions = Array.from(
+  const buildingOptions = Array.from(
     new Set(buildings?.map((option) => option))
   );
 
   const buildingUniqueByKey = Array.from(
     new Map(
-      buildingOptions.map((building) => [
-        building[key],
-        building,
-      ])
+      buildingOptions.map((building) => [building[key], building])
     ).values()
   );
 
+  const hasPermission = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (
+      permissions.includes("create_floor") ||
+      permissions.includes("update_floor") ||
+      permissions.includes("delete_floor") ||
+      permissions.includes("create_building")
+    ) {
+      return true;
+    }
+    return false;
+  }, [profile]);
+
   useEffect(() => {
-    if (buildingsError && 'data' in buildingsError) {
+    if (buildingsError && "data" in buildingsError) {
       setErrorMessage((buildingsError.data as ApiErrorResponse).messages[0]);
-    } else if (floorsError && 'data' in floorsError) {
+    } else if (floorsError && "data" in floorsError) {
       setErrorMessage((floorsError.data as ApiErrorResponse).messages[0]);
     }
   }, [buildingsError, floorsError]);
@@ -167,29 +186,31 @@ const buildingOptions = Array.from(
         </Box>
       ) : (
         <Box>
-          <Box
-            display="flex"
-            flexDirection="row"
-            justifyContent="flex-start"
-            width="100%"
-          >
-            <Button
-              variant="contained"
-              onClick={() => setOpenCreateFloor(true)}
-              size="large"
-              sx={{ marginBottom: 3 }}
+          {hasPermission ? (
+            <Box
+              display="flex"
+              flexDirection="row"
+              justifyContent="flex-start"
+              width="100%"
             >
-              + Create Floor
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => setOpenCreateBuilding(true)}
-              size="large"
-              sx={{ marginBottom: 3, marginLeft: 1 }}
-            >
-              + Create Building 
-            </Button>
-          </Box>
+              <Button
+                variant="contained"
+                onClick={() => setOpenCreateFloor(true)}
+                size="large"
+                sx={{ marginBottom: 3 }}
+              >
+                + Create Floor
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => setOpenCreateBuilding(true)}
+                size="large"
+                sx={{ marginBottom: 3, marginLeft: 1 }}
+              >
+                + Create Building
+              </Button>
+            </Box>
+          ) : null}
           <Box display="flex">
             <Box>
               <TextField
@@ -224,6 +245,8 @@ const buildingOptions = Array.from(
                 value={buildingText}
                 sx={{ width: 150 }}
               />
+            </Box>
+            <Box>
               <Button onClick={handleSearch} variant="contained">
                 Search
               </Button>
@@ -254,7 +277,14 @@ const buildingOptions = Array.from(
                       </TableCell>
                       <TableCell align="center">{row.name}</TableCell>
                       <TableCell align="center">
-                        <Button variant="outlined" sx={{ marginRight: 1 }}>
+                        <Button
+                          variant="contained"
+                          color="inherit"
+                          sx={{
+                            marginRight: 1,
+                            backgroundColor: row.building.color,
+                          }}
+                        >
                           {row.building.name}
                         </Button>
                       </TableCell>
@@ -268,20 +298,26 @@ const buildingOptions = Array.from(
                         ))}
                       </TableCell>
                       <TableCell align="center">
-                        <Tooltip title="Delete">
-                          <IconButton
-                            onClick={() =>
-                              handleDeleteAnnouncement(row.id.toString())
-                            }
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit">
-                          <IconButton onClick={() => setOpenEditFloor(true)}>
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
+                        {hasPermission ? (
+                          <>
+                            <Tooltip title="Delete">
+                              <IconButton
+                                onClick={() =>
+                                  handleDeleteAnnouncement(row.id.toString())
+                                }
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Edit">
+                              <IconButton
+                                onClick={() => setOpenEditFloor(true)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}

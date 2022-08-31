@@ -28,7 +28,6 @@ type Props = {
 
 type CreateBuilding = {
   name: string;
-  color: string;
 }
 
 const CreateBuildingModal = (props: Props) => {
@@ -39,12 +38,12 @@ const CreateBuildingModal = (props: Props) => {
   const formik = useFormik<CreateBuilding>({
     initialValues: {
       name: "",
-      color: "",
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       addNewBuilding(values);
       setOpen(false);
+      console.log("submitted!")
     },
   });
 

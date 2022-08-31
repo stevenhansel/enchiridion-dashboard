@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import { RootState } from "../store";
 
 import {
   Box,
@@ -42,6 +45,7 @@ const key = "id";
 
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
+  const profile = useSelector((state: RootState) => state.profile);
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -76,6 +80,18 @@ const ListAnnouncementPage = () => {
   const handleSearch = useCallback(() => {
     getAnnouncements(getAnnouncementsQueryParams);
   }, [page, query, status, userId]);
+
+  const hasPermission = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (permissions.includes("create_announcement")) {
+      return true;
+    }
+    return false;
+  }, [profile]);
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
@@ -127,9 +143,9 @@ const ListAnnouncementPage = () => {
   }, [page, data]);
 
   useEffect(() => {
-    if (error && 'data' in error) {
+    if (error && "data" in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
-    } 
+    }
   }, [error]);
 
   useEffect(() => {
@@ -154,14 +170,16 @@ const ListAnnouncementPage = () => {
                 justifyContent="flex-start"
                 width="100%"
               >
-                <Button
-                  size="large"
-                  sx={{ marginBottom: 3 }}
-                  variant="contained"
-                  onClick={() => navigate("/announcement/create")}
-                >
-                  + Create
-                </Button>
+                {hasPermission ? (
+                  <Button
+                    size="large"
+                    sx={{ marginBottom: 3 }}
+                    variant="contained"
+                    onClick={() => navigate("/announcement/create")}
+                  >
+                    + Create
+                  </Button>
+                ) : null}
               </Box>
               <Box display="flex">
                 <Box>
@@ -175,7 +193,6 @@ const ListAnnouncementPage = () => {
                     sx={{ width: 220 }}
                   />
                 </Box>
-
                 <Box sx={{ marginLeft: 1 }}>
                   <Autocomplete
                     id="author"

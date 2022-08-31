@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -29,6 +30,8 @@ import { Role } from "../types/store";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
+import { RootState } from "../store";
+
 const FETCH_LIMIT = 20;
 const key = "value";
 
@@ -52,6 +55,8 @@ const ListUsersPage = () => {
   const getUsersQueryParams = { page, limit: FETCH_LIMIT, query, role };
 
   const isLoading = isUserLoading && isRoleLoading;
+
+  const profile = useSelector((p: RootState) => p.profile);
 
   const handleSearch = useCallback(() => {
     getUsers(getUsersQueryParams);
@@ -104,13 +109,25 @@ const ListUsersPage = () => {
     return page === users.totalPages;
   }, [page, users]);
 
+  const hasPermission = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((permission) => permission.value);
+
+    if (permissions.includes("update_user_approval")) {
+      return false;
+    }
+    return true;
+  }, [profile]);
+
   useEffect(() => {
     getUsers(getUsersQueryParams);
     getRoles(null);
   }, [page]);
 
   useEffect(() => {
-    if (isUserError && 'data' in isUserError) {
+    if (isUserError && "data" in isUserError) {
       setErrorMessage((isUserError.data as ApiErrorResponse).messages[0]);
     }
   }, [isUserError]);
@@ -197,9 +214,7 @@ const ListUsersPage = () => {
                       align="center"
                       style={{ display: "flex", flexDirection: "row" }}
                     >
-                      {profile.status.value === "approved" ? (
-                        null
-                      ) : (
+                      {(profile.status.value === "approved" || hasPermission) ? null : (
                         <Box>
                           <Button
                             variant="contained"
