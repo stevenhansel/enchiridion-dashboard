@@ -33,6 +33,7 @@ import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 import { AnnouncementStatus } from "../types/constants";
 import { Author } from "../types/store";
 import Layout from "../components/Layout";
+import { ApiErrorResponse } from "../services/error";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
 
@@ -126,9 +127,9 @@ const ListAnnouncementPage = () => {
   }, [page, data]);
 
   useEffect(() => {
-    if (error) {
-      setErrorMessage("Announcements List Not Found");
-    }
+    if (error && 'data' in error) {
+      setErrorMessage((error.data as ApiErrorResponse).messages[0]);
+    } 
   }, [error]);
 
   useEffect(() => {

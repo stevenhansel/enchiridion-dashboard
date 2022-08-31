@@ -14,11 +14,11 @@ const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 const AnnouncementDetailPage = () => {
   const { announcementId = "" } = useParams();
 
-  const { data: buildingHash, isLoading: isGetBuildingsLoading } =
+  const { data: buildings, isLoading: isGetBuildingsLoading } =
     useGetBuildingsQuery(null);
   const [getFloors, { data: floorsData, isLoading: isGetFloorsLoading }] =
     useLazyGetFloorsQuery();
-  const { data: announcementHash, isLoading: isGetAnnouncementDetailLoading } =
+  const { data: announcements, isLoading: isGetAnnouncementDetailLoading } =
     useGetAnnouncementDetailQuery(
       { announcementId },
       {
@@ -35,10 +35,10 @@ const AnnouncementDetailPage = () => {
 
   useEffect(() => {
     // TODO: Make mechanism that ensures initial current building id has device(s) in the announcement hash
-    if (buildingHash && Object.keys(buildingHash).length > 0) {
-      setCurrentBuildingId(Object.keys(buildingHash)[0]);
+    if (buildings && Object.keys(buildings).length > 0) {
+      setCurrentBuildingId(Object.keys(buildings)[0]);
     }
-  }, [buildingHash]);
+  }, [buildings]);
 
   useEffect(() => {
     getFloors(null);
@@ -63,14 +63,14 @@ const AnnouncementDetailPage = () => {
             >
               <Box sx={{ marginBottom: 2 }}>
                 <Typography variant="h2" align="center">
-                  {announcementHash?.title}
+                  {announcements?.title}
                 </Typography>
               </Box>
               <Box sx={{ marginBottom: 2 }}>
-                {announcementHash?.media ? (
+                {announcements?.media ? (
                   <img
                     alt="banner"
-                    src={announcementHash.media}
+                    src={announcements.media}
                     style={{ width: "100%" }}
                   />
                 ) : null}
@@ -84,22 +84,22 @@ const AnnouncementDetailPage = () => {
               >
                 <Box>
                   <Typography>Start Date</Typography>
-                  <Typography>{toDate(announcementHash!.startDate)}</Typography>
+                  <Typography>{toDate(announcements!.startDate)}</Typography>
                 </Box>
                 <Box>
                   <Typography>End Date</Typography>
-                  <Typography>{toDate(announcementHash!.endDate)}</Typography>
+                  <Typography>{toDate(announcements!.endDate)}</Typography>
                 </Box>
               </Box>
               <Box sx={{ marginBottom: 2 }}>
                 <Typography display="flex">Author</Typography>
-                <Typography>{announcementHash!.author.name}</Typography>
+                <Typography>{announcements!.author.name}</Typography>
               </Box>
               <Box sx={{ marginBottom: 2 }}>
                 <Typography display="flex" fontWeight="bold">
                   Notes
                 </Typography>
-                <Typography>{announcementHash!.notes}</Typography>
+                <Typography>{announcements!.notes}</Typography>
               </Box>
               <Typography display="flex" fontWeight="bold">
                 Device
@@ -118,8 +118,8 @@ const AnnouncementDetailPage = () => {
                       flexDirection: "column",
                     }}
                   >
-                    {buildingHash &&
-                      Object.entries(buildingHash).map(
+                    {buildings &&
+                      Object.entries(buildings).map(
                         ([buildingId, building]) => (
                           <Button
                             key={buildingId}
@@ -176,7 +176,7 @@ const AnnouncementDetailPage = () => {
                                   //variant={values.devices.includes(device.id.toString()) ? 'contained' : 'text'}
                                   variant="contained"
                                   color={
-                                    announcementHash!.devices
+                                    announcements!.devices
                                       .map(
                                         (announcementDevice) =>
                                           announcementDevice.id

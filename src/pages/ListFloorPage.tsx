@@ -40,6 +40,7 @@ import {
 
 import { Building } from "../types/store";
 import Layout from "../components/Layout";
+import { ApiErrorResponse } from "../services/error";
 
 const FETCH_LIMIT = 20;
 const key = "id";
@@ -113,10 +114,10 @@ const buildingOptions = Array.from(
   );
 
   useEffect(() => {
-    if (buildingsError) {
-      setErrorMessage("Buildings Not Found");
-    } else if (floorsError) {
-      setErrorMessage("Floors Not Found");
+    if (buildingsError && 'data' in buildingsError) {
+      setErrorMessage((buildingsError.data as ApiErrorResponse).messages[0]);
+    } else if (floorsError && 'data' in floorsError) {
+      setErrorMessage((floorsError.data as ApiErrorResponse).messages[0]);
     }
   }, [buildingsError, floorsError]);
 

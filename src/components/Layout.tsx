@@ -1,6 +1,7 @@
 import * as React from "react";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -139,10 +140,13 @@ export default function Layout(props: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
+  const { announcementId = "", deviceId = "" } = useParams();
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [openProfile, setOpenProfile] = React.useState(false);
+
+  console.log(deviceId);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -163,16 +167,27 @@ export default function Layout(props: Props) {
     const permissions = role.permissions.map((p) => p.value);
     // TODO: add all view permissions
     if (
+      (location.pathname === "/" &&
+        !permissions.includes("view_list_announcement")) ||
+      (location.pathname === "/device" &&
+        !permissions.includes("view_list_device")) ||
+      (location.pathname === "/floor" &&
+        !permissions.includes("view_list_Floor")) ||
       (location.pathname === "/user" &&
         !permissions.includes("view_list_user")) ||
-      (location.pathname === "/" &&
-        !permissions.includes("view_list_announcement"))
+      (location.pathname === "/requests" &&
+        !permissions.includes("view_list_request")) ||
+      (location.pathname === `/announcement/detail/${announcementId}` &&
+        !permissions.includes("view_announcement_detail")) ||
+      (location.pathname === `/device/detail/${deviceId}` &&
+      !permissions.includes("view_device_detail"))
     ) {
       return false;
     }
-
     return true;
   }, [profile, location.pathname]);
+
+  console.log(profile);
 
   React.useEffect(() => {
     if (profile) {

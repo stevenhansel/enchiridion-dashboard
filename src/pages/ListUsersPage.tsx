@@ -27,6 +27,7 @@ import { useLazyGetRolesQuery } from "../services/roles";
 
 import { Role } from "../types/store";
 import Layout from "../components/Layout";
+import { ApiErrorResponse } from "../services/error";
 
 const FETCH_LIMIT = 20;
 const key = "value";
@@ -109,8 +110,8 @@ const ListUsersPage = () => {
   }, [page]);
 
   useEffect(() => {
-    if (isUserError) {
-      setErrorMessage("Users List not Found!");
+    if (isUserError && 'data' in isUserError) {
+      setErrorMessage((isUserError.data as ApiErrorResponse).messages[0]);
     }
   }, [isUserError]);
 
