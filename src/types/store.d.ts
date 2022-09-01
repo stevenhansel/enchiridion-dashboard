@@ -121,7 +121,13 @@ export type Floor = {
 
 export type UpdateFloor = {
   name: string;
-  buildingId: number | null;
+  floorId: string;
+  buildingId: string;
+}
+
+export type CreateFloor = {
+  name: string;
+  buildingId: string;
 }
 
 export type PaginatedFloors = {

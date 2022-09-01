@@ -14,7 +14,7 @@ const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 const AnnouncementDetailPage = () => {
   const { announcementId = "" } = useParams();
 
-  const { data: buildings, isLoading: isGetBuildingsLoading } =
+  const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
   const [getFloors, { data: floorsData, isLoading: isGetFloorsLoading }] =
     useLazyGetFloorsQuery();
@@ -29,16 +29,27 @@ const AnnouncementDetailPage = () => {
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
   const isLoading =
-    isGetBuildingsLoading ||
+    isBuildingLoading ||
     isGetFloorsLoading ||
     isGetAnnouncementDetailLoading;
 
+  // useEffect(() => {
+  //   // TODO: Make mechanism that ensures initial current building id has device(s) in the announcement hash
+  //   if (buildings && Object.keys(buildings).length > 0) {
+  //     setCurrentBuildingId(Object.keys(buildings)[1]);
+  //   }
+  // }, [buildings]);
+
   useEffect(() => {
-    // TODO: Make mechanism that ensures initial current building id has device(s) in the announcement hash
-    if (buildings && Object.keys(buildings).length > 0) {
-      setCurrentBuildingId(Object.keys(buildings)[0]);
+    if (
+      buildings !== undefined &&
+      isBuildingLoading === false &&
+      buildings.length > 0
+    ) {
+      const firstBuildingId = buildings[0].id;
+      setCurrentBuildingId(firstBuildingId.toString());
     }
-  }, [buildings]);
+  }, []);
 
   useEffect(() => {
     getFloors(null);
@@ -119,29 +130,27 @@ const AnnouncementDetailPage = () => {
                     }}
                   >
                     {buildings &&
-                      Object.entries(buildings).map(
-                        ([buildingId, building]) => (
-                          <Button
-                            key={buildingId}
-                            onClick={() =>
-                              setCurrentBuildingId(buildingId.toString())
-                            }
-                            variant={
-                              currentBuildingId === buildingId.toString()
-                                ? "contained"
-                                : "text"
-                            }
-                            color={
-                              currentBuildingId === buildingId.toString()
-                                ? "secondary"
-                                : "inactive"
-                            }
-                            sx={{ marginBottom: 1 }}
-                          >
-                            {building.name}
-                          </Button>
-                        )
-                      )}
+                      buildings.map((building) => (
+                        <Button
+                          key={building.id}
+                          onClick={() =>
+                            setCurrentBuildingId(building.id.toString())
+                          }
+                          variant={
+                            currentBuildingId === building.id.toString()
+                              ? "contained"
+                              : "text"
+                          }
+                          color={
+                            currentBuildingId === building.id.toString()
+                              ? "secondary"
+                              : "inactive"
+                          }
+                          sx={{ marginBottom: 1 }}
+                        >
+                          {building.name}
+                        </Button>
+                      ))}
                   </Box>
                   <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
                   <Box

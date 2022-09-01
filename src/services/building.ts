@@ -41,6 +41,14 @@ export const buildingApi = createApi({
       }),
       invalidatesTags: () => ["Building"],
     }),
+    deleteBuilding: builders.mutation<number, { buildingId: number }>({
+      query: ({ buildingId }) => ({
+        url: `v1/buildings/${buildingId}`,
+        method: "DELETE",
+        data: {buildingId},
+      }),
+      invalidatesTags: () => ["Building"],
+    }),
   }),
 });
 
@@ -48,4 +56,5 @@ export const {
   useGetBuildingsQuery,
   useCreateBuildingMutation,
   useUpdateBuildingMutation,
+  useDeleteBuildingMutation,
 } = buildingApi;

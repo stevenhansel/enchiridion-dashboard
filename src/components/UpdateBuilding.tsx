@@ -25,6 +25,8 @@ import {
   useUpdateBuildingMutation,
 } from "../services/building";
 
+import { useLazyGetFloorsQuery } from "../services/floor";
+
 import { colorBuilding } from "../types/constants";
 import { ApiErrorResponse } from "../services/error";
 
@@ -49,6 +51,7 @@ type Props = {
 
 const UpdateBuilding = (props: Props) => {
   const [errorMessage, setErrorMessage] = useState("");
+  const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
   const { data, isLoading, error } = useGetBuildingsQuery(null);
   const [updateBuilding, { error: isUpdateBuildingsError }] =
     useUpdateBuildingMutation();
@@ -62,6 +65,8 @@ const UpdateBuilding = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       updateBuilding(values);
+      getFloors(null);
+      props.setOpen(false);
     },
   });
 
@@ -71,6 +76,8 @@ const UpdateBuilding = (props: Props) => {
     }
     setErrorMessage("");
   };
+
+  // useEffect(() => {}, [floors]);
 
   const action = (
     <>

@@ -54,6 +54,7 @@ const CreateBuilding = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       addNewBuilding(values);
+      props.setOpen(false);
     },
   });
 

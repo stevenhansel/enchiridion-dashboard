@@ -13,8 +13,9 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import CreateBuilding from '../components/CreateBuilding';
-import UpdateBuilding from '../components/UpdateBuilding';
+import CreateBuilding from "../components/CreateBuilding";
+import UpdateBuilding from "../components/UpdateBuilding";
+import DeleteBuilding from "../components/DeleteBuilding";
 
 type Props = {
   open: boolean;
@@ -36,7 +37,7 @@ const BuildingModal = (props: Props) => {
               <Typography>Create Building</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <CreateBuilding setOpen={props.setOpen}/>
+              <CreateBuilding setOpen={props.setOpen} />
             </AccordionDetails>
           </Accordion>
           <Accordion>
@@ -48,10 +49,22 @@ const BuildingModal = (props: Props) => {
               <Typography>Update Building</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <UpdateBuilding setOpen={props.setOpen}/>
+              <UpdateBuilding setOpen={props.setOpen} />
             </AccordionDetails>
           </Accordion>
-          <Box>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography>Delete Building</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <DeleteBuilding />
+            </AccordionDetails>
+          </Accordion>
+          <Box sx={{marginTop: 1}}>
             <Button variant="contained" onClick={() => props.setOpen(false)}>
               Close
             </Button>

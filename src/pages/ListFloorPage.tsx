@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
 
 import {
   Box,
@@ -19,6 +23,9 @@ import {
   Typography,
   Autocomplete,
   Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -28,7 +35,6 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
-import CreateBuilding from "../components/CreateBuilding";
 import BuildingModal from "../components/BuildingModal";
 
 import {
@@ -65,6 +71,7 @@ const ListFloorPage = () => {
   const [openCreateFloor, setOpenCreateFloor] = useState(false);
   const [openCreateBuilding, setOpenCreateBuilding] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
+  const [floorId, setFloorId] = useState("");
 
   const getFloorsQueryParams = { page, query, limit: FETCH_LIMIT, buildingId };
   const [
@@ -82,9 +89,9 @@ const ListFloorPage = () => {
 
   const profile = useSelector((state: RootState) => state.profile);
 
-  const handleDeleteAnnouncement = (floorId: string) => {
+  const handleDeleteAnnouncement = useCallback((floorId: string) => {
     deleteFloor({ floorId });
-  };
+  }, []);
 
   const handleSearch = useCallback(() => {
     getFloors(getFloorsQueryParams);
@@ -99,6 +106,11 @@ const ListFloorPage = () => {
     () => setPage((page) => page - 1),
     []
   );
+
+  const handleSelectFloor = useCallback((floorId: string) => {
+    setOpenEditFloor(true);
+    setFloorId(floorId);
+  }, [floorId, openEditFloor]);
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
 
@@ -117,17 +129,37 @@ const ListFloorPage = () => {
     ).values()
   );
 
-  const hasPermissionFloor = useMemo(() => {
+  const hasPermissionCreateFloor = useMemo(() => {
     if (!profile) return false;
     const { role } = profile;
 
     const permissions = role.permissions.map((p) => p.value);
 
-    if (
-      permissions.includes("create_floor") ||
-      permissions.includes("update_floor") ||
-      permissions.includes("delete_floor")
-    ) {
+    if (permissions.includes("create_floor")) {
+      return true;
+    }
+    return false;
+  }, [profile]);
+
+  const hasPermissionUpdateFloor = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (permissions.includes("update_floor")) {
+      return true;
+    }
+    return false;
+  }, [profile]);
+
+  const hasPermissionDeleteFloor = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (permissions.includes("delete_floor")) {
       return true;
     }
     return false;
@@ -187,12 +219,32 @@ const ListFloorPage = () => {
         open={openCreateBuilding}
         setOpen={setOpenCreateBuilding}
       />
-      <CreateFloorModal
-        buildings={buildings}
-        open={openCreateFloor}
-        setOpen={setOpenCreateFloor}
-      />
-      <UpdateFloorModal open={openEditFloor} setOpen={setOpenEditFloor} />
+      <Dialog open={openEditFloor} onClose={() => setOpenEditFloor(false)}>
+        <DialogTitle>Update Floor</DialogTitle>
+        <DialogContent>
+          <UpdateFloorModal setOpen={setOpenEditFloor} floorId={floorId}/>
+          <Button
+            variant="contained"
+            component="label"
+            onClick={() => setOpenEditFloor(false)}
+          >
+           Close 
+          </Button>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={openCreateFloor} onClose={() => setOpenCreateFloor(false)}>
+        <DialogTitle>Create Floor</DialogTitle>
+        <DialogContent>
+          <CreateFloorModal setOpen={setOpenCreateFloor}/>
+          <Button
+            variant="contained"
+            component="label"
+            onClick={() => setOpenCreateFloor(false)}
+          >
+           Close 
+          </Button>
+        </DialogContent>
+      </Dialog>
       {isLoading ? (
         <Box display="flex" justifyContent="center">
           <CircularProgress />
@@ -205,7 +257,7 @@ const ListFloorPage = () => {
             justifyContent="flex-start"
             width="100%"
           >
-            {hasPermissionFloor ? (
+            {hasPermissionCreateFloor ? (
               <Button
                 variant="contained"
                 onClick={() => setOpenCreateFloor(true)}
@@ -313,7 +365,7 @@ const ListFloorPage = () => {
                         ))}
                       </TableCell>
                       <TableCell align="center">
-                        {hasPermissionFloor ? (
+                        {hasPermissionDeleteFloor ? (
                           <>
                             <Tooltip title="Delete">
                               <IconButton
@@ -324,9 +376,15 @@ const ListFloorPage = () => {
                                 <DeleteIcon />
                               </IconButton>
                             </Tooltip>
+                          </>
+                        ) : null}
+                        {hasPermissionUpdateFloor ? (
+                          <>
                             <Tooltip title="Edit">
                               <IconButton
-                                onClick={() => setOpenEditFloor(true)}
+                                onClick={() =>
+                                  handleSelectFloor(row.id.toString())
+                                }
                               >
                                 <EditIcon />
                               </IconButton>

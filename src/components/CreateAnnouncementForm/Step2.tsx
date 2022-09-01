@@ -15,9 +15,9 @@ import { useGetBuildingsQuery } from "../../services/building";
 const fields = ["devices"];
 
 const Step2 = () => {
-  const { data: buildingHash, isLoading: isBuildingLoading } =
+  const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
-  const [getFloors, { data: floorsData }] = useLazyGetFloorsQuery();
+  const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
 
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
@@ -62,19 +62,9 @@ const Step2 = () => {
     // eslint-disable-next-line
   }, []);
 
-  // useEffect(() => {
-  //   if (buildingHash !== undefined && isBuildingLoading === false) {
-  //     const keys = buildingHash
-  //     if (keys.length > 0) {
-  //       const firstBuildingId = buildingHash[keys[0]].id;
-  //       setCurrentBuildingId(firstBuildingId.toString());
-  //     }
-  //   }
-  // }, [isBuildingLoading]);
-
   useEffect(() => {
-    if(buildingHash !== undefined && isBuildingLoading === false && buildingHash.length > 0){
-        const firstBuildingId = buildingHash[0].id
+    if(buildings !== undefined && isBuildingLoading === false && buildings.length > 0){
+        const firstBuildingId = buildings[0].id
         setCurrentBuildingId(firstBuildingId.toString())
       }
   }, [isBuildingLoading])
@@ -98,7 +88,7 @@ const Step2 = () => {
             flexDirection: "column",
           }}
         >
-          {buildingHash?.map((building) => (
+          {buildings && buildings.map((building) => (
               <Button
                 key={building.id}
                 onClick={() => setCurrentBuildingId(building.id.toString())}
@@ -126,7 +116,7 @@ const Step2 = () => {
           }}
         >
           <Box>
-            {floorsData?.contents
+            {floors && floors?.contents
               .filter(
                 (floor) => currentBuildingId === floor.building.id.toString()
               )

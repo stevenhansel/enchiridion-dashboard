@@ -29,7 +29,7 @@ export const floorApi = createApi({
     }),
     createFloor: builders.mutation<
       UpdateFloor,
-      { name: string; buildingId: number | null }
+      { name: string; buildingId: string }
     >({
       query: ({ name, buildingId }) => ({
         url: "/v1/floors",
@@ -40,12 +40,12 @@ export const floorApi = createApi({
     }),
     updateFloor: builders.mutation<
       UpdateFloor,
-      { name: string; buildingId: number | null }
+      { name: string; floorId: string; buildingId: string }
     >({
-      query: ({ name, buildingId }) => ({
-        url: `/v1/floors/${buildingId}`,
+      query: ({ name, floorId, buildingId }) => ({
+        url: `/v1/floors/${floorId}`,
         method: "PUT",
-        data: { name, buildingId },
+        data: { name, floorId, buildingId },
       }),
       invalidatesTags: () => ["Floor"],
     }),
