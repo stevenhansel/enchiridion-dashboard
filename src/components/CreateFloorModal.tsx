@@ -39,8 +39,6 @@ const CreateFloorModal = (props: Props) => {
   const { buildings, open, setOpen } = props;
 
   const [addNewFloor] = useCreateFloorMutation();
-  const [selectBuilding, setSelectBuilding] = useState<string>("");
-  const [selectBuildingId, setSelectBuildingId] = useState<string>("");
 
   const formik = useFormik<UpdateFloor>({
     initialValues: {

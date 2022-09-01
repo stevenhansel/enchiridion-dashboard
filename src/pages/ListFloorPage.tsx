@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 import {
   Box,
@@ -27,7 +28,8 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
-import CreateBuildingModal from "../components/CreateBuildingModal";
+import CreateBuilding from "../components/CreateBuilding";
+import BuildingModal from "../components/BuildingModal";
 
 import {
   useGetBuildingsQuery,
@@ -115,7 +117,7 @@ const ListFloorPage = () => {
     ).values()
   );
 
-  const hasPermission = useMemo(() => {
+  const hasPermissionFloor = useMemo(() => {
     if (!profile) return false;
     const { role } = profile;
 
@@ -124,8 +126,23 @@ const ListFloorPage = () => {
     if (
       permissions.includes("create_floor") ||
       permissions.includes("update_floor") ||
-      permissions.includes("delete_floor") ||
-      permissions.includes("create_building")
+      permissions.includes("delete_floor")
+    ) {
+      return true;
+    }
+    return false;
+  }, [profile]);
+
+  const hasPermissionBuilding = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (
+      permissions.includes("create_building") ||
+      permissions.includes("update_building") ||
+      permissions.includes("update_building")
     ) {
       return true;
     }
@@ -166,33 +183,29 @@ const ListFloorPage = () => {
 
   return (
     <Layout>
-      <UpdateFloorModal
-        buildingHash={buildings}
-        open={openEditFloor}
-        setOpen={setOpenEditFloor}
+      <BuildingModal
+        open={openCreateBuilding}
+        setOpen={setOpenCreateBuilding}
       />
       <CreateFloorModal
         buildings={buildings}
         open={openCreateFloor}
         setOpen={setOpenCreateFloor}
       />
-      <CreateBuildingModal
-        open={openCreateBuilding}
-        setOpen={setOpenCreateBuilding}
-      />
+      <UpdateFloorModal open={openEditFloor} setOpen={setOpenEditFloor} />
       {isLoading ? (
         <Box display="flex" justifyContent="center">
           <CircularProgress />
         </Box>
       ) : (
         <Box>
-          {hasPermission ? (
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="flex-start"
-              width="100%"
-            >
+          <Box
+            display="flex"
+            flexDirection="row"
+            justifyContent="flex-start"
+            width="100%"
+          >
+            {hasPermissionFloor ? (
               <Button
                 variant="contained"
                 onClick={() => setOpenCreateFloor(true)}
@@ -201,16 +214,18 @@ const ListFloorPage = () => {
               >
                 + Create Floor
               </Button>
+            ) : null}
+            {hasPermissionBuilding ? (
               <Button
                 variant="contained"
                 onClick={() => setOpenCreateBuilding(true)}
                 size="large"
                 sx={{ marginBottom: 3, marginLeft: 1 }}
               >
-                + Create Building
+                Building Menu
               </Button>
-            </Box>
-          ) : null}
+            ) : null}
+          </Box>
           <Box display="flex">
             <Box>
               <TextField
@@ -298,7 +313,7 @@ const ListFloorPage = () => {
                         ))}
                       </TableCell>
                       <TableCell align="center">
-                        {hasPermission ? (
+                        {hasPermissionFloor ? (
                           <>
                             <Tooltip title="Delete">
                               <IconButton

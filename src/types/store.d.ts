@@ -11,6 +11,18 @@ export type Role = {
   description: string;
 };
 
+export type Color ={
+  id: number;
+  name: string;
+  color: string;
+}
+
+export type UpdateBuilding = {
+  name: string;
+  buildingId: string;
+  color: string;  
+} 
+
 export type UserRole = {
   name: string;
   description: String,
