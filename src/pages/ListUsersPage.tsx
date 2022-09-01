@@ -170,7 +170,7 @@ const ListUsersPage = () => {
                 }
               }}
               renderInput={(params) => (
-                <TextField {...params} label="Building" />
+                <TextField {...params} label="Role" />
               )}
               value={roleName}
               sx={{ width: 150 }}
