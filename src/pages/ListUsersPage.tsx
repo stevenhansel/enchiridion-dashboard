@@ -17,6 +17,10 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { CircularProgress } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
@@ -52,7 +56,7 @@ const ListUsersPage = () => {
   const [role, setRole] = useState<string | null>(null);
   const [roleName, setRoleName] = useState<Role | null>(null);
 
-  const getUsersQueryParams = { page, limit: FETCH_LIMIT, query, role };
+  const getUsersQueryParams = { page, limit: FETCH_LIMIT, query, role, status };
 
   const isLoading = isUserLoading && isRoleLoading;
 
@@ -60,7 +64,7 @@ const ListUsersPage = () => {
 
   const handleSearch = useCallback(() => {
     getUsers(getUsersQueryParams);
-  }, [query, role]);
+  }, [query, role, status]);
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
@@ -132,17 +136,11 @@ const ListUsersPage = () => {
     }
   }, [isUserError]);
 
+  console.log(status);
+
   return (
     <Layout>
-      <Box
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
-          width: "100%",
-        }}
-      >
+      <Box>
         <Box display="flex">
           <TextField
             id="filled-basic"
@@ -171,8 +169,29 @@ const ListUsersPage = () => {
               }}
               renderInput={(params) => <TextField {...params} label="Role" />}
               value={roleName}
-              sx={{ width: 150 }}
+              sx={{ width: 150, marginRight: 1 }}
             />
+          </Box>
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth>
+              <InputLabel id="status">Status</InputLabel>
+              <Select
+                labelId="status"
+                id="status"
+                value={status}
+                label="Age"
+                onChange={(e: SelectChangeEvent) => {
+                  setStatus(e.target.value as string);
+                }}
+              >
+                <MenuItem value={""}>None</MenuItem>
+                <MenuItem value={"waiting_for_approval"}>
+                  Waiting for Approval
+                </MenuItem>
+                <MenuItem value={"approved"}>Approved</MenuItem>
+                <MenuItem value={"rejected"}>Rejected</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
           <Box>
             <Button variant="contained" onClick={handleSearch}>
@@ -183,65 +202,91 @@ const ListUsersPage = () => {
         {isLoading ? (
           <CircularProgress />
         ) : users && users.contents.length > 0 ? (
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell align="center">Name</TableCell>
-                  <TableCell align="center">Email</TableCell>
-                  <TableCell align="center">Role</TableCell>
-                  <TableCell align="center">Status</TableCell>
-                  <TableCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.contents.map((profile) => (
-                  <TableRow
-                    key={profile.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {profile.id}
-                    </TableCell>
-                    <TableCell align="center">{profile.name} </TableCell>
-                    <TableCell align="center">{profile.email} </TableCell>
-                    <TableCell align="center">{profile.role.name}</TableCell>
-                    <TableCell align="center">{profile.status.label}</TableCell>
-                    <TableCell
-                      align="center"
-                      style={{ display: "flex", flexDirection: "row" }}
-                    >
-                      {profile.status.value === "approved" ||
-                      hasPermission ? null : (
-                        <Box>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            sx={{ marginRight: 1 }}
-                            onClick={() =>
-                              userApprove(profile.id.toString(), true)
-                            }
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() =>
-                              userApprove(profile.id.toString(), false)
-                            }
-                          >
-                            Reject
-                          </Button>
-                        </Box>
-                      )}
-                    </TableCell>
+          <>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell align="center">Name</TableCell>
+                    <TableCell align="center">Email</TableCell>
+                    <TableCell align="center">Role</TableCell>
+                    <TableCell align="center">Status</TableCell>
+                    <TableCell />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {users.contents.map((profile) => (
+                    <TableRow
+                      key={profile.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {profile.id}
+                      </TableCell>
+                      <TableCell align="center">{profile.name} </TableCell>
+                      <TableCell align="center">{profile.email} </TableCell>
+                      <TableCell align="center">{profile.role.name}</TableCell>
+                      <TableCell align="center">
+                        {profile.status.label}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        style={{ display: "flex", flexDirection: "row" }}
+                      >
+                        {profile.status.value === "approved" ||
+                        hasPermission ? null : (
+                          <Box>
+                            <Button
+                              variant="contained"
+                              color="success"
+                              sx={{ marginRight: 1 }}
+                              onClick={() =>
+                                userApprove(profile.id.toString(), true)
+                              }
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              onClick={() =>
+                                userApprove(profile.id.toString(), false)
+                              }
+                            >
+                              Reject
+                            </Button>
+                          </Box>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Box
+              display="flex"
+              justifyContent="center"
+              flexDirection="row"
+              sx={{ marginTop: 1 }}
+            >
+              <IconButton
+                disabled={isPreviousButtonDisabled}
+                onClick={handlePaginationPreviousPage}
+              >
+                <NavigateBeforeIcon />
+              </IconButton>
+              <Box display="flex" alignItems="center">
+                {page}
+              </Box>
+              <IconButton
+                disabled={isNextButtonDisabled}
+                onClick={handlePaginationNextPage}
+              >
+                <NavigateNextIcon />
+              </IconButton>
+            </Box>
+          </>
         ) : (
           <Typography>No results found!</Typography>
         )}
@@ -253,28 +298,6 @@ const ListUsersPage = () => {
         message={errorMessage}
         action={action}
       />
-      <Box
-        display="flex"
-        justifyContent="center"
-        flexDirection="row"
-        sx={{ marginTop: 1 }}
-      >
-        <IconButton
-          disabled={isPreviousButtonDisabled}
-          onClick={handlePaginationPreviousPage}
-        >
-          <NavigateBeforeIcon />
-        </IconButton>
-        <Box display="flex" alignItems="center">
-          {page}
-        </Box>
-        <IconButton
-          disabled={isNextButtonDisabled}
-          onClick={handlePaginationNextPage}
-        >
-          <NavigateNextIcon />
-        </IconButton>
-      </Box>
     </Layout>
   );
 };

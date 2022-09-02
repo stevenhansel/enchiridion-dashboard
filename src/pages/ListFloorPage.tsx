@@ -32,10 +32,7 @@ import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
 import BuildingModal from "../components/BuildingModal";
 
-import {
-  useGetBuildingsQuery,
-  useCreateBuildingMutation,
-} from "../services/building";
+import { useGetBuildingsQuery } from "../services/building";
 
 import {
   useLazyGetFloorsQuery,
@@ -304,83 +301,110 @@ const ListFloorPage = () => {
             </Box>
           </Box>
           {floors && floors.contents.length > 0 ? (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell align="center">Floor Name</TableCell>
-                    <TableCell align="center">Building</TableCell>
-                    <TableCell align="center">Devices</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {floors.contents.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      sx={{
-                        "&:last-child td, &:last-child th": { border: 0 },
-                      }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {row.id}
-                      </TableCell>
-                      <TableCell align="center">{row.name}</TableCell>
-                      <TableCell align="center">
-                        <Button
-                          variant="contained"
-                          color="inherit"
-                          sx={{
-                            marginRight: 1,
-                            backgroundColor: row.building.color,
-                          }}
-                        >
-                          {row.building.name}
-                        </Button>
-                      </TableCell>
-                      <TableCell align="center">
-                        {row.devices.map((device) => (
-                          <Tooltip key={device.id} title={device.description}>
-                            <Button variant="outlined" sx={{ marginRight: 1 }}>
-                              {device.name}
-                            </Button>
-                          </Tooltip>
-                        ))}
-                      </TableCell>
-                      <TableCell align="center">
-                        {hasPermissionDeleteFloor ? (
-                          <>
-                            <Tooltip title="Delete">
-                              <IconButton
-                                onClick={() =>
-                                  handleDeleteAnnouncement(row.id.toString())
-                                }
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        ) : null}
-                        {hasPermissionUpdateFloor ? (
-                          <>
-                            <Tooltip title="Edit">
-                              <IconButton
-                                onClick={() =>
-                                  handleSelectFloor(row.id.toString())
-                                }
-                              >
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        ) : null}
-                      </TableCell>
+            <>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell align="center">Floor Name</TableCell>
+                      <TableCell align="center">Building</TableCell>
+                      <TableCell align="center">Devices</TableCell>
+                      <TableCell />
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {floors.contents.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {row.id}
+                        </TableCell>
+                        <TableCell align="center">{row.name}</TableCell>
+                        <TableCell align="center">
+                          <Button
+                            variant="contained"
+                            color="inherit"
+                            sx={{
+                              marginRight: 1,
+                              backgroundColor: row.building.color,
+                            }}
+                          >
+                            {row.building.name}
+                          </Button>
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.devices.map((device) => (
+                            <Tooltip key={device.id} title={device.description}>
+                              <Button
+                                variant="outlined"
+                                sx={{ marginRight: 1 }}
+                              >
+                                {device.name}
+                              </Button>
+                            </Tooltip>
+                          ))}
+                        </TableCell>
+                        <TableCell align="center">
+                          {hasPermissionDeleteFloor ? (
+                            <>
+                              <Tooltip title="Delete">
+                                <IconButton
+                                  onClick={() =>
+                                    handleDeleteAnnouncement(row.id.toString())
+                                  }
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          ) : null}
+                          {hasPermissionUpdateFloor ? (
+                            <>
+                              <Tooltip title="Edit">
+                                <IconButton
+                                  onClick={() =>
+                                    handleSelectFloor(row.id.toString())
+                                  }
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          ) : null}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Box
+                sx={{ marginTop: 1 }}
+                display="flex"
+                justifyContent="center"
+                flexDirection="row"
+              >
+                <IconButton
+                  disabled={isPreviousButtonDisabled}
+                  onClick={handlePaginationPrevPage}
+                >
+                  <NavigateBeforeIcon />
+                </IconButton>
+                <Box display="flex" alignItems="center">
+                  {page}
+                </Box>
+                <IconButton
+                  disabled={isNextButtonDisabled}
+                  onClick={handlePaginationNextPage}
+                >
+                  <NavigateNextIcon />
+                </IconButton>
+              </Box>
+            </>
           ) : (
             <Typography>Not Found!</Typography>
           )}
@@ -393,28 +417,6 @@ const ListFloorPage = () => {
         message={errorMessage}
         action={action}
       />
-      <Box
-        sx={{ marginTop: 1 }}
-        display="flex"
-        justifyContent="center"
-        flexDirection="row"
-      >
-        <IconButton
-          disabled={isPreviousButtonDisabled}
-          onClick={handlePaginationPrevPage}
-        >
-          <NavigateBeforeIcon />
-        </IconButton>
-        <Box display="flex" alignItems="center">
-          {page}
-        </Box>
-        <IconButton
-          disabled={isNextButtonDisabled}
-          onClick={handlePaginationNextPage}
-        >
-          <NavigateNextIcon />
-        </IconButton>
-      </Box>
     </Layout>
   );
 };

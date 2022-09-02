@@ -20,8 +20,6 @@ export const announcementApi = createApi({
         query?: string;
         status?: AnnouncementStatus | null,
         userId?: number | null,
-        // deviceId?: number;
-        // userId?: number;
       } | null
     >({
       query: (params) => ({ url: urlBuilder("/v1/announcements", params) }),

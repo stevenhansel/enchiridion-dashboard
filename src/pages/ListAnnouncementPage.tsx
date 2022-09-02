@@ -275,69 +275,93 @@ const ListAnnouncementPage = () => {
               </Box>
             </Box>
             {data && data.contents.length > 0 ? (
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell align="center">Title</TableCell>
-                      <TableCell align="center">Start Date</TableCell>
-                      <TableCell align="center">End Date</TableCell>
-                      <TableCell align="center">Status</TableCell>
-                      <TableCell align="center">Author</TableCell>
-                      <TableCell align="center">Created At</TableCell>
-                      <TableCell align="center">Media</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data.contents.map((announcement) => (
-                      <TableRow
-                        key={announcement.id}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {announcement.id}
-                        </TableCell>
-                        <TableCell align="center">
-                          <Button
-                            onClick={() =>
-                              handleNavigateToDetailPage(announcement.id)
-                            }
-                          >
-                            {announcement.title}
-                          </Button>
-                        </TableCell>
-                        <TableCell align="center">
-                          {toDate(announcement.startDate)}
-                        </TableCell>
-                        <TableCell align="center">
-                          {toDate(announcement.endDate)}
-                        </TableCell>
-                        <TableCell align="center">
-                          {announcement.status.label}
-                        </TableCell>
-                        <TableCell align="center">
-                          {announcement.author.name}
-                        </TableCell>
-                        <TableCell align="center">
-                          {toDate(announcement.createdAt)}
-                        </TableCell>
-                        <TableCell align="center">
-                          <Button
-                            onClick={() =>
-                              handleSelectAnnouncementImage(announcement.id)
-                            }
-                          >
-                            Open
-                          </Button>
-                        </TableCell>
+              <>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>ID</TableCell>
+                        <TableCell align="center">Title</TableCell>
+                        <TableCell align="center">Start Date</TableCell>
+                        <TableCell align="center">End Date</TableCell>
+                        <TableCell align="center">Status</TableCell>
+                        <TableCell align="center">Author</TableCell>
+                        <TableCell align="center">Created At</TableCell>
+                        <TableCell align="center">Media</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {data.contents.map((announcement) => (
+                        <TableRow
+                          key={announcement.id}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {announcement.id}
+                          </TableCell>
+                          <TableCell align="center">
+                            <Button
+                              onClick={() =>
+                                handleNavigateToDetailPage(announcement.id)
+                              }
+                            >
+                              {announcement.title}
+                            </Button>
+                          </TableCell>
+                          <TableCell align="center">
+                            {toDate(announcement.startDate)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {toDate(announcement.endDate)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {announcement.status.label}
+                          </TableCell>
+                          <TableCell align="center">
+                            {announcement.author.name}
+                          </TableCell>
+                          <TableCell align="center">
+                            {toDate(announcement.createdAt)}
+                          </TableCell>
+                          <TableCell align="center">
+                            <Button
+                              onClick={() =>
+                                handleSelectAnnouncementImage(announcement.id)
+                              }
+                            >
+                              Open
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Box
+                  sx={{ marginTop: 1 }}
+                  display="flex"
+                  justifyContent="center"
+                  flexDirection="row"
+                >
+                  <IconButton
+                    disabled={isPreviousButtonDisabled}
+                    onClick={handlePaginationPreviousPage}
+                  >
+                    <NavigateBeforeIcon />
+                  </IconButton>
+                  <Box display="flex" alignItems="center">
+                    {page}
+                  </Box>
+                  <IconButton
+                    disabled={isNextButtonDisabled}
+                    onClick={handlePaginationNextPage}
+                  >
+                    <NavigateNextIcon />
+                  </IconButton>
+                </Box>
+              </>
             ) : (
               <Typography>Not Found!</Typography>
             )}
@@ -360,28 +384,6 @@ const ListAnnouncementPage = () => {
         message={errorMessage}
         action={action}
       />
-      <Box
-        sx={{ marginTop: 1 }}
-        display="flex"
-        justifyContent="center"
-        flexDirection="row"
-      >
-        <IconButton
-          disabled={isPreviousButtonDisabled}
-          onClick={handlePaginationPreviousPage}
-        >
-          <NavigateBeforeIcon />
-        </IconButton>
-        <Box display="flex" alignItems="center">
-          {page}
-        </Box>
-        <IconButton
-          disabled={isNextButtonDisabled}
-          onClick={handlePaginationNextPage}
-        >
-          <NavigateNextIcon />
-        </IconButton>
-      </Box>
     </Layout>
   );
 };
