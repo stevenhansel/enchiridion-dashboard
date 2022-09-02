@@ -48,7 +48,7 @@ const UpdateFloorModal = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       editFloor(values);
-      props.setOpen(false)
+      props.setOpen(false);
     },
   });
 
@@ -121,6 +121,13 @@ const UpdateFloorModal = (props: Props) => {
         <Box>
           <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
             OK
+          </Button>
+          <Button
+            variant="contained"
+            component="label"
+            onClick={() => props.setOpen(false)}
+          >
+            Close
           </Button>
         </Box>
       </Box>

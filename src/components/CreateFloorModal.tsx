@@ -115,6 +115,13 @@ const CreateFloorModal = (props: Props) => {
           <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
             OK
           </Button>
+          <Button
+            variant="contained"
+            component="label"
+            onClick={() => props.setOpen(false)}
+          >
+            Close
+          </Button>
         </Box>
       </Box>
     </form>

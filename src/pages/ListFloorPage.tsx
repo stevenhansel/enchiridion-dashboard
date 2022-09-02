@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -107,10 +102,13 @@ const ListFloorPage = () => {
     []
   );
 
-  const handleSelectFloor = useCallback((floorId: string) => {
-    setOpenEditFloor(true);
-    setFloorId(floorId);
-  }, [floorId, openEditFloor]);
+  const handleSelectFloor = useCallback(
+    (floorId: string) => {
+      setOpenEditFloor(true);
+      setFloorId(floorId);
+    },
+    [floorId, openEditFloor]
+  );
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
 
@@ -222,27 +220,13 @@ const ListFloorPage = () => {
       <Dialog open={openEditFloor} onClose={() => setOpenEditFloor(false)}>
         <DialogTitle>Update Floor</DialogTitle>
         <DialogContent>
-          <UpdateFloorModal setOpen={setOpenEditFloor} floorId={floorId}/>
-          <Button
-            variant="contained"
-            component="label"
-            onClick={() => setOpenEditFloor(false)}
-          >
-           Close 
-          </Button>
+          <UpdateFloorModal setOpen={setOpenEditFloor} floorId={floorId} />
         </DialogContent>
       </Dialog>
       <Dialog open={openCreateFloor} onClose={() => setOpenCreateFloor(false)}>
         <DialogTitle>Create Floor</DialogTitle>
         <DialogContent>
-          <CreateFloorModal setOpen={setOpenCreateFloor}/>
-          <Button
-            variant="contained"
-            component="label"
-            onClick={() => setOpenCreateFloor(false)}
-          >
-           Close 
-          </Button>
+          <CreateFloorModal setOpen={setOpenCreateFloor} />
         </DialogContent>
       </Dialog>
       {isLoading ? (

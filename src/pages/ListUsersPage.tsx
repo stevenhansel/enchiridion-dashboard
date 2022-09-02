@@ -169,9 +169,7 @@ const ListUsersPage = () => {
                   setRoleName(null);
                 }
               }}
-              renderInput={(params) => (
-                <TextField {...params} label="Role" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Role" />}
               value={roleName}
               sx={{ width: 150 }}
             />
@@ -214,7 +212,8 @@ const ListUsersPage = () => {
                       align="center"
                       style={{ display: "flex", flexDirection: "row" }}
                     >
-                      {(profile.status.value === "approved" || hasPermission) ? null : (
+                      {profile.status.value === "approved" ||
+                      hasPermission ? null : (
                         <Box>
                           <Button
                             variant="contained"
@@ -246,23 +245,6 @@ const ListUsersPage = () => {
         ) : (
           <Typography>No results found!</Typography>
         )}
-        <Box display="flex" justifyContent="center">
-          <IconButton
-            disabled={isPreviousButtonDisabled}
-            onClick={handlePaginationPreviousPage}
-          >
-            <NavigateBeforeIcon />
-          </IconButton>
-          <Box display="flex" alignItems="center">
-            {page}
-          </Box>
-          <IconButton
-            disabled={isNextButtonDisabled}
-            onClick={handlePaginationNextPage}
-          >
-            <NavigateNextIcon />
-          </IconButton>
-        </Box>
       </Box>
       <Snackbar
         open={Boolean(errorMessage)}
@@ -271,6 +253,28 @@ const ListUsersPage = () => {
         message={errorMessage}
         action={action}
       />
+      <Box
+        display="flex"
+        justifyContent="center"
+        flexDirection="row"
+        sx={{ marginTop: 1 }}
+      >
+        <IconButton
+          disabled={isPreviousButtonDisabled}
+          onClick={handlePaginationPreviousPage}
+        >
+          <NavigateBeforeIcon />
+        </IconButton>
+        <Box display="flex" alignItems="center">
+          {page}
+        </Box>
+        <IconButton
+          disabled={isNextButtonDisabled}
+          onClick={handlePaginationNextPage}
+        >
+          <NavigateNextIcon />
+        </IconButton>
+      </Box>
     </Layout>
   );
 };
