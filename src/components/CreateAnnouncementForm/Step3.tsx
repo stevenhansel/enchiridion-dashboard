@@ -9,9 +9,7 @@ import { CreateAnnouncementFormContext } from "./context";
 import { useGetBuildingsQuery } from "../../services/building";
 import { useLazyGetFloorsQuery } from "../../services/floor";
 
-import { BuildingFloorDevices } from "../../types/store";
-
-import { Building, Floor } from "../../types/store";
+import { Floor } from "../../types/store";
 
 const Step3 = () => {
   const { data: buildings } = useGetBuildingsQuery(null);
@@ -87,13 +85,13 @@ const Step3 = () => {
             }}
           >
             <Box>
-              <Typography>Start Date</Typography>
+              <Typography fontWeight="bold">Start Date</Typography>
               <Typography>
                 {new Date(values.startDate).toDateString()}
               </Typography>
             </Box>
             <Box>
-              <Typography>End Date</Typography>
+              <Typography fontWeight="bold">End Date</Typography>
               <Typography>{new Date(values.endDate).toDateString()}</Typography>
             </Box>
           </Box>

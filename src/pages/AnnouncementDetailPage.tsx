@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Typography, Tooltip } from "@mui/material";
 
 import { useGetAnnouncementDetailQuery } from "../services/announcement";
 import { useGetBuildingsQuery } from "../services/building";
@@ -30,13 +30,6 @@ const AnnouncementDetailPage = () => {
 
   const isLoading =
     isBuildingLoading || isGetFloorsLoading || isGetAnnouncementDetailLoading;
-
-  // useEffect(() => {
-  //   // TODO: Make mechanism that ensures initial current building id has device(s) in the announcement hash
-  //   if (buildings && Object.keys(buildings).length > 0) {
-  //     setCurrentBuildingId(Object.keys(buildings)[1]);
-  //   }
-  // }, [buildings]);
 
   useEffect(() => {
     if (
@@ -185,29 +178,28 @@ const AnnouncementDetailPage = () => {
                             </Box>
                             <Box display="flex" flexWrap="wrap">
                               {floor.devices.map((device) => (
-                                <Button
-                                  key={device.id}
-                                  onClick={() => {}}
-                                  //variant={values.devices.includes(device.id.toString()) ? 'contained' : 'text'}
-                                  variant="contained"
-                                  color={
-                                    announcements!.devices
-                                      .map(
-                                        (announcementDevice) =>
-                                          announcementDevice.id
-                                      )
-                                      .includes(device.id)
-                                      ? "secondary"
-                                      : "inactive"
-                                  }
-                                  sx={{
-                                    marginRight: 1,
-                                    marginBottom: 1,
-                                    width: 140,
-                                  }}
-                                >
-                                  {device.name}
-                                </Button>
+                                <Tooltip key={device.id} title={device.description}>
+                                  <Button
+                                    variant="contained"
+                                    color={
+                                      announcements!.devices
+                                        .map(
+                                          (announcementDevice) =>
+                                            announcementDevice.id
+                                        )
+                                        .includes(device.id)
+                                        ? "secondary"
+                                        : "inactive"
+                                    }
+                                    sx={{
+                                      marginRight: 1,
+                                      marginBottom: 1,
+                                      width: 140,
+                                    }}
+                                  >
+                                    {device.name}
+                                  </Button>
+                                </Tooltip>
                               ))}
                             </Box>
                           </Box>

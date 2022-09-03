@@ -64,60 +64,80 @@ const BuildingModal = (props: Props) => {
     return false;
   }, [profile]);
 
+  const hasPermission = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (
+      permissions.includes("create_building") &&
+      permissions.includes("update_building") &&
+      permissions.includes("delete_building")
+    ) {
+      return true;
+    }
+    return false;
+  }, [profile]);
+
   return (
     <>
-      <Dialog open={props.open} onClose={() => props.setOpen(false)}>
-        <DialogTitle>Building Menu</DialogTitle>
-        <DialogContent>
-          {hasPermissionCreateBuilding ? (
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography>Create Building</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <CreateBuilding setOpen={props.setOpen} />
-              </AccordionDetails>
-            </Accordion>
-          ) : null}
-          {hasPermissionUpdateBuilding ? (
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography>Update Building</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <UpdateBuilding setOpen={props.setOpen} />
-              </AccordionDetails>
-            </Accordion>
-          ) : null}
-          {hasPermissionDeleteBuilding ? (
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel3a-content"
-                id="panel3a-header"
-              >
-                <Typography>Delete Building</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <DeleteBuilding />
-              </AccordionDetails>
-            </Accordion>
-          ) : null}
-          <Box sx={{ marginTop: 1 }}>
-            <Button variant="contained" onClick={() => props.setOpen(false)}>
-              Close
-            </Button>
-          </Box>
-        </DialogContent>
-      </Dialog>
+      {hasPermission ? (
+        <Dialog open={props.open} onClose={() => props.setOpen(false)}>
+          <DialogTitle>Building Menu</DialogTitle>
+          <DialogContent>
+            {hasPermissionCreateBuilding ? (
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography>Create Building</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <CreateBuilding setOpen={props.setOpen} />
+                </AccordionDetails>
+              </Accordion>
+            ) : null}
+            {hasPermissionUpdateBuilding ? (
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel2a-content"
+                  id="panel2a-header"
+                >
+                  <Typography>Update Building</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <UpdateBuilding setOpen={props.setOpen} />
+                </AccordionDetails>
+              </Accordion>
+            ) : null}
+            {hasPermissionDeleteBuilding ? (
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel3a-content"
+                  id="panel3a-header"
+                >
+                  <Typography>Delete Building</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <DeleteBuilding />
+                </AccordionDetails>
+              </Accordion>
+            ) : null}
+            <Box sx={{ marginTop: 1 }}>
+              <Button variant="contained" onClick={() => props.setOpen(false)}>
+                Close
+              </Button>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Typography>Forbidden</Typography>
+      )}
     </>
   );
 };
