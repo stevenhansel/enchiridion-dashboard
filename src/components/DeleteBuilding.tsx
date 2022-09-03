@@ -10,7 +10,11 @@ import { useGetBuildingsQuery } from "../services/building";
 import { ApiErrorResponse } from "../services/error";
 
 const DeleteBuilding = () => {
-  const { data: buildings, isLoading, error } = useGetBuildingsQuery(null);
+  const {
+    data: buildings,
+    isLoading,
+    error: isGetBuildingsError,
+  } = useGetBuildingsQuery(null);
   const [deleteBuilding, { error: isDeleteBuildingError }] =
     useDeleteBuildingMutation();
   const [errorMessage, setErrorMessage] = useState("");
@@ -45,6 +49,11 @@ const DeleteBuilding = () => {
         (isDeleteBuildingError.data as ApiErrorResponse).messages[0]
       );
     }
+    if (isGetBuildingsError && "data" in isGetBuildingsError) {
+      setErrorMessage(
+        (isGetBuildingsError.data as ApiErrorResponse).messages[0]
+      );
+    }
   }, [isDeleteBuildingError]);
 
   return (
@@ -53,10 +62,9 @@ const DeleteBuilding = () => {
         <Box display="flex" flexDirection="column">
           {buildings &&
             buildings.map((building) => (
-              <Box sx={{ marginBottom: 1 }}>
+              <Box key={building.id} sx={{ marginBottom: 1 }}>
                 <Card sx={{ backgroundColor: building.color }}>
                   <Box
-                    key={building.id}
                     display="flex"
                     justifyContent="space-between"
                     alignItems="center"

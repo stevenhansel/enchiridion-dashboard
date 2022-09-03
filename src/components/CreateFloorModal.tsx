@@ -65,6 +65,7 @@ const CreateFloorModal = (props: Props) => {
           label="Name"
           fullWidth
           variant="standard"
+          autoComplete="off"
           sx={{ marginBottom: 2 }}
           onChange={(e) => formik.setFieldValue("name", e.target.value)}
           error={formik.touched.name && Boolean(formik.errors.name)}

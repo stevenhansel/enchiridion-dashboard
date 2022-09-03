@@ -122,19 +122,6 @@ const ListAnnouncementPage = () => {
     ).values()
   );
 
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
-
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
     if (!data) return true;
@@ -382,7 +369,16 @@ const ListAnnouncementPage = () => {
         autoHideDuration={6000}
         onClose={handleClose}
         message={errorMessage}
-        action={action}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleClose}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
       />
     </Layout>
   );

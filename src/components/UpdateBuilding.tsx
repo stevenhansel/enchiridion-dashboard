@@ -52,7 +52,11 @@ type Props = {
 const UpdateBuilding = (props: Props) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
-  const { data, isLoading, error } = useGetBuildingsQuery(null);
+  const {
+    data,
+    isLoading,
+    error: isGetBuildingsError,
+  } = useGetBuildingsQuery(null);
   const [updateBuilding, { error: isUpdateBuildingsError }] =
     useUpdateBuildingMutation();
 
@@ -65,7 +69,6 @@ const UpdateBuilding = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       updateBuilding(values);
-      getFloors(null);
       props.setOpen(false);
     },
   });
@@ -76,8 +79,6 @@ const UpdateBuilding = (props: Props) => {
     }
     setErrorMessage("");
   };
-
-  // useEffect(() => {}, [floors]);
 
   const action = (
     <>
@@ -96,6 +97,11 @@ const UpdateBuilding = (props: Props) => {
     if (isUpdateBuildingsError && "data" in isUpdateBuildingsError) {
       setErrorMessage(
         (isUpdateBuildingsError.data as ApiErrorResponse).messages[0]
+      );
+    }
+    if (isGetBuildingsError && "data" in isGetBuildingsError) {
+      setErrorMessage(
+        (isGetBuildingsError.data as ApiErrorResponse).messages[0]
       );
     }
   }, [isUpdateBuildingsError]);

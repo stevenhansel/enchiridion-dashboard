@@ -93,19 +93,6 @@ const ListUsersPage = () => {
     setErrorMessage("");
   };
 
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
-
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
     if (!users) return true;
@@ -136,15 +123,13 @@ const ListUsersPage = () => {
     }
   }, [isUserError]);
 
-  console.log(status);
-
   return (
     <Layout>
       <Box>
         <Box display="flex">
           <TextField
             id="filled-basic"
-            label="Search by ID"
+            label="Search by ID or Name"
             variant="outlined"
             autoComplete="off"
             value={query}
@@ -194,7 +179,7 @@ const ListUsersPage = () => {
             </FormControl>
           </Box>
           <Box>
-            <Button variant="contained" onClick={handleSearch}>
+            <Button variant="contained" onClick={handleSearch} size="large">
               Search
             </Button>
           </Box>
@@ -207,7 +192,7 @@ const ListUsersPage = () => {
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>ID</TableCell>
+                    <TableCell align="center">ID</TableCell>
                     <TableCell align="center">Name</TableCell>
                     <TableCell align="center">Email</TableCell>
                     <TableCell align="center">Role</TableCell>
@@ -216,51 +201,53 @@ const ListUsersPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {users.contents.map((profile) => (
-                    <TableRow
-                      key={profile.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {profile.id}
-                      </TableCell>
-                      <TableCell align="center">{profile.name} </TableCell>
-                      <TableCell align="center">{profile.email} </TableCell>
-                      <TableCell align="center">{profile.role.name}</TableCell>
-                      <TableCell align="center">
-                        {profile.status.label}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        style={{ display: "flex", flexDirection: "row" }}
+                  {users &&
+                    users.contents.map((profile) => (
+                      <TableRow
+                        key={profile.id}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
                       >
-                        {profile.status.value === "approved" ||
-                        hasPermission ? null : (
-                          <Box>
-                            <Button
-                              variant="contained"
-                              color="success"
-                              sx={{ marginRight: 1 }}
-                              onClick={() =>
-                                userApprove(profile.id.toString(), true)
-                              }
-                            >
-                              Approve
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="error"
-                              onClick={() =>
-                                userApprove(profile.id.toString(), false)
-                              }
-                            >
-                              Reject
-                            </Button>
-                          </Box>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell component="th" scope="row">
+                          {profile.id}
+                        </TableCell>
+                        <TableCell align="center">{profile.name} </TableCell>
+                        <TableCell align="center">{profile.email} </TableCell>
+                        <TableCell align="center">
+                          {profile.role.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          {profile.status.label}
+                        </TableCell>
+                        <TableCell align="center">
+                          {profile.status.value === "approved" ||
+                          hasPermission ? null : (
+                            <>
+                              <Button
+                                variant="contained"
+                                color="success"
+                                sx={{ marginRight: 1 }}
+                                onClick={() =>
+                                  userApprove(profile.id.toString(), true)
+                                }
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() =>
+                                  userApprove(profile.id.toString(), false)
+                                }
+                              >
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -296,7 +283,16 @@ const ListUsersPage = () => {
         autoHideDuration={6000}
         onClose={handleClose}
         message={errorMessage}
-        action={action}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleClose}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
       />
     </Layout>
   );

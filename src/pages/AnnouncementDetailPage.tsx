@@ -29,9 +29,7 @@ const AnnouncementDetailPage = () => {
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
   const isLoading =
-    isBuildingLoading ||
-    isGetFloorsLoading ||
-    isGetAnnouncementDetailLoading;
+    isBuildingLoading || isGetFloorsLoading || isGetAnnouncementDetailLoading;
 
   // useEffect(() => {
   //   // TODO: Make mechanism that ensures initial current building id has device(s) in the announcement hash
@@ -49,7 +47,7 @@ const AnnouncementDetailPage = () => {
       const firstBuildingId = buildings[0].id;
       setCurrentBuildingId(firstBuildingId.toString());
     }
-  }, []);
+  }, [buildings]);
 
   useEffect(() => {
     getFloors(null);
@@ -94,16 +92,18 @@ const AnnouncementDetailPage = () => {
                 }}
               >
                 <Box>
-                  <Typography>Start Date</Typography>
+                  <Typography fontWeight="bold">Start Date</Typography>
                   <Typography>{toDate(announcements!.startDate)}</Typography>
                 </Box>
                 <Box>
-                  <Typography>End Date</Typography>
+                  <Typography fontWeight="bold">End Date</Typography>
                   <Typography>{toDate(announcements!.endDate)}</Typography>
                 </Box>
               </Box>
               <Box sx={{ marginBottom: 2 }}>
-                <Typography display="flex">Author</Typography>
+                <Typography display="flex" fontWeight="bold">
+                  Author
+                </Typography>
                 <Typography>{announcements!.author.name}</Typography>
               </Box>
               <Box sx={{ marginBottom: 2 }}>
@@ -111,6 +111,12 @@ const AnnouncementDetailPage = () => {
                   Notes
                 </Typography>
                 <Typography>{announcements!.notes}</Typography>
+              </Box>
+              <Box sx={{ marginBottom: 2 }}>
+                <Typography display="flex" fontWeight="bold">
+                  Status
+                </Typography>
+                <Typography>{announcements!.status.label}</Typography>
               </Box>
               <Typography display="flex" fontWeight="bold">
                 Device
