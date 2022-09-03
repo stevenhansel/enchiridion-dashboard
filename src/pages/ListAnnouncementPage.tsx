@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import debounce from "lodash/debounce";
 
 import { RootState } from "../store";
 
@@ -34,14 +35,18 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 import { AnnouncementStatus } from "../types/constants";
-import { Author } from "../types/store";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
+import { useLazyGetUsersQuery } from "../services/user";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
 
 const FETCH_LIMIT = 20;
-const key = "id";
+
+type UserFilterOption = {
+  id: number;
+  name: string;
+};
 
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
@@ -50,23 +55,32 @@ const ListAnnouncementPage = () => {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<AnnouncementStatus | null>(null);
-  const [userId, setUserId] = useState<number | null>(null);
-  const [userText, setUserText] = useState<Author | null>(null);
+  const [userFilter, setUserFilter] = useState<UserFilterOption | null>(null);
+
+  const [isUserFilterLoading, setIsUserFilterLoading] = useState(false);
+  const [userFilterOptions, setUserFilterOptions] = useState<
+    UserFilterOption[]
+  >([]);
+
   const [currentAnnouncementId, setCurrentAnnouncementId] =
     useState<string>("");
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [open, setOpen] = useState(false);
 
-  const getAnnouncementsQueryParams = {
-    page,
-    query,
-    status,
-    userId,
-    limit: FETCH_LIMIT,
-  };
+  const getAnnouncementsQueryParams = useMemo(
+    () => ({
+      page,
+      query,
+      status,
+      userId: userFilter !== null ? userFilter.id : null,
+      limit: FETCH_LIMIT,
+    }),
+    [page, query, status, userFilter]
+  );
   const [getAnnouncements, { data, error, isLoading }] =
     useLazyGetAnnouncementsQuery();
+
+  const [getUsers] = useLazyGetUsersQuery();
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
@@ -79,7 +93,7 @@ const ListAnnouncementPage = () => {
 
   const handleSearch = useCallback(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-  }, [page, query, status, userId]);
+  }, [getAnnouncements, getAnnouncementsQueryParams]);
 
   const hasPermission = useMemo(() => {
     if (!profile) return false;
@@ -102,25 +116,25 @@ const ListAnnouncementPage = () => {
     []
   );
 
+  const getUsersDelayed = useMemo(() => {
+    return debounce((query: string) => {
+      getUsers({ query, limit: 5 }).then(({ data }) => {
+        setUserFilterOptions(
+          data !== undefined
+            ? data.contents.map((u) => ({ id: u.id, name: u.name }))
+            : []
+        );
+        setIsUserFilterLoading(false);
+      });
+    }, 2000);
+  }, [getUsers]);
+
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
     }
     setErrorMessage("");
   };
-
-  const announcementOptions = Array.from(
-    new Set(data?.contents.map((option) => option.author))
-  );
-
-  const announcementUniqueByKey = Array.from(
-    new Map(
-      announcementOptions.map((announcement) => [
-        announcement[key],
-        announcement,
-      ])
-    ).values()
-  );
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
@@ -182,33 +196,43 @@ const ListAnnouncementPage = () => {
                 </Box>
                 <Box sx={{ marginLeft: 1 }}>
                   <Autocomplete
-                    id="author"
-                    open={open}
-                    onOpen={() => {
-                      setOpen(true);
-                    }}
-                    onClose={() => {
-                      setOpen(false);
-                    }}
-                    options={announcementUniqueByKey}
+                    loading={isUserFilterLoading}
+                    options={userFilterOptions}
                     getOptionLabel={(option) => option.name}
                     isOptionEqualToValue={(option, value) =>
                       option.name === value.name
                     }
-                    onChange={(_: any, newValue: Author | null) => {
-                      if (newValue?.id && newValue?.name) {
-                        setUserId(newValue.id);
-                        setUserText(newValue);
-                      } else {
-                        setUserId(null);
-                        setUserText(null);
+                    sx={{ width: 220 }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Author"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <React.Fragment>
+                              {isUserFilterLoading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </React.Fragment>
+                          ),
+                        }}
+                      />
+                    )}
+                    value={userFilter}
+                    onChange={(_, inputValue) => {
+                      setUserFilterOptions([]);
+                      setUserFilter(inputValue);
+                    }}
+                    onInputChange={(_, newInputValue, reason) => {
+                      if (reason === "input") {
+                        setIsUserFilterLoading(true);
+                        setUserFilterOptions([]);
+
+                        getUsersDelayed(newInputValue);
                       }
                     }}
-                    value={userText}
-                    renderInput={(params) => (
-                      <TextField {...params} label="Author" />
-                    )}
-                    sx={{ width: 150 }}
                   />
                 </Box>
 
