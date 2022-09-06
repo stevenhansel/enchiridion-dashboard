@@ -163,7 +163,6 @@ export default function Layout(props: Props) {
     const { role } = profile;
 
     const permissions = role.permissions.map((p) => p.value);
-    // TODO: add all view permissions
     if (
       (location.pathname === "/" &&
         !permissions.includes("view_list_announcement")) ||
@@ -184,8 +183,6 @@ export default function Layout(props: Props) {
     }
     return true;
   }, [profile, location.pathname]);
-
-  console.log(profile);
 
   React.useEffect(() => {
     if (profile) {

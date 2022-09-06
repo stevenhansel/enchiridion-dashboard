@@ -56,6 +56,7 @@ const ListAnnouncementPage = () => {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<AnnouncementStatus | null>(null);
   const [userFilter, setUserFilter] = useState<UserFilterOption | null>(null);
+  const [open, setOpen] = useState(false);
 
   const [isUserFilterLoading, setIsUserFilterLoading] = useState(false);
   const [userFilterOptions, setUserFilterOptions] = useState<
@@ -77,10 +78,21 @@ const ListAnnouncementPage = () => {
     }),
     [page, query, status, userFilter]
   );
-  const [getAnnouncements, { data, error, isLoading }] =
-    useLazyGetAnnouncementsQuery();
+  const [
+    getAnnouncements,
+    {
+      data: announcements,
+      error: isAnnouncementsError,
+      isLoading: isAnnouncementsLoading,
+    },
+  ] = useLazyGetAnnouncementsQuery();
 
-  const [getUsers] = useLazyGetUsersQuery();
+  const [
+    getUsers,
+    { data, isLoading: isGetUsersLoading, error: isUsersError },
+  ] = useLazyGetUsersQuery();
+
+  const isLoading = isAnnouncementsLoading && isGetUsersLoading;
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
@@ -93,7 +105,15 @@ const ListAnnouncementPage = () => {
 
   const handleSearch = useCallback(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-  }, [getAnnouncements, getAnnouncementsQueryParams]);
+    getUsers({ query, limit: 5 }).then(({ data }) => {
+      setUserFilterOptions(
+        data !== undefined
+          ? data.contents.map((u) => ({ id: u.id, name: u.name }))
+          : []
+      );
+      setIsUserFilterLoading(false);
+    });
+  }, [getUsers, getAnnouncements, getAnnouncementsQueryParams]);
 
   const hasPermission = useMemo(() => {
     if (!profile) return false;
@@ -144,14 +164,28 @@ const ListAnnouncementPage = () => {
   }, [page, data]);
 
   useEffect(() => {
-    if (error && "data" in error) {
-      setErrorMessage((error.data as ApiErrorResponse).messages[0]);
+    if (isAnnouncementsError && "data" in isAnnouncementsError) {
+      setErrorMessage(
+        (isAnnouncementsError.data as ApiErrorResponse).messages[0]
+      );
     }
-  }, [error]);
+    if (isUsersError && "data" in isUsersError) {
+      setErrorMessage((isUsersError.data as ApiErrorResponse).messages[0]);
+    }
+  }, [isAnnouncementsError]);
 
   useEffect(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-  }, [page]);
+    getUsers(null).then(({ data }) => {
+      setUserFilterOptions(
+        data !== undefined
+          ? data?.contents.map((u) => ({ id: u.id, name: u.name }))
+          : []
+      );
+    });
+  }, [page, getUsers]);
+
+  console.log(userFilterOptions);
 
   return (
     <Layout>
@@ -229,13 +263,11 @@ const ListAnnouncementPage = () => {
                       if (reason === "input") {
                         setIsUserFilterLoading(true);
                         setUserFilterOptions([]);
-
                         getUsersDelayed(newInputValue);
                       }
                     }}
                   />
                 </Box>
-
                 <Box sx={{ marginLeft: 1 }}>
                   <FormControl fullWidth>
                     <InputLabel id="announcement-status-select">
@@ -285,7 +317,7 @@ const ListAnnouncementPage = () => {
                 </Box>
               </Box>
             </Box>
-            {data && data.contents.length > 0 ? (
+            {announcements && announcements.contents.length > 0 ? (
               <>
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -302,7 +334,7 @@ const ListAnnouncementPage = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {data.contents.map((announcement) => (
+                      {announcements?.contents.map((announcement) => (
                         <TableRow
                           key={announcement.id}
                           sx={{

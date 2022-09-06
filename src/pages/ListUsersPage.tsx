@@ -48,7 +48,8 @@ const ListUsersPage = () => {
     getRoles,
     { data: roles, isLoading: isRoleLoading, error: isRoleError },
   ] = useLazyGetRolesQuery();
-  const [approveRejectUser] = useApproveRejectUserMutation();
+  const [approveRejectUser, { error: isApproveRejectUserError }] =
+    useApproveRejectUserMutation();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
@@ -120,6 +121,11 @@ const ListUsersPage = () => {
   useEffect(() => {
     if (isUserError && "data" in isUserError) {
       setErrorMessage((isUserError.data as ApiErrorResponse).messages[0]);
+    }
+    if (isApproveRejectUserError && "data" in isApproveRejectUserError) {
+      setErrorMessage(
+        (isApproveRejectUserError.data as ApiErrorResponse).messages[0]
+      );
     }
   }, [isUserError]);
 
