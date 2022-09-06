@@ -176,13 +176,17 @@ const ListAnnouncementPage = () => {
 
   useEffect(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-    getUsers(null).then(({ data }) => {
-      setUserFilterOptions(
-        data !== undefined
-          ? data?.contents.map((u) => ({ id: u.id, name: u.name }))
-          : []
-      );
-    });
+    if (announcements !== undefined || null) {
+      getUsers(null).then(({ data }) => {
+        setUserFilterOptions(
+          data !== undefined
+            ? data?.contents.map((u) => ({ id: u.id, name: u.name }))
+            : []
+        );
+      });
+    } else {
+      setUserFilterOptions([]);
+    }
   }, [page, getUsers]);
 
   console.log(userFilterOptions);
