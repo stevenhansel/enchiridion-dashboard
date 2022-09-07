@@ -64,6 +64,7 @@ const ListUsersPage = () => {
   >([]);
   const [roleFilter, setRoleFilter] = useState<RoleFilterOption | null>(null);
   const [isRoleFilterLoading, setIsRoleFilterLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const getUsersQueryParams = useMemo(
     () => ({
@@ -81,17 +82,6 @@ const ListUsersPage = () => {
 
   const handleSearch = useCallback(() => {
     getUsers(getUsersQueryParams);
-    getRoles({ query, limit: 5 }).then(({ data }) => {
-      setRoleFilterOptions(
-        data !== undefined
-          ? data.map((r) => ({
-              name: r.name,
-              value: r.value,
-              description: r.description,
-            }))
-          : []
-      );
-    });
   }, [query, status, roleFilter]);
 
   const handlePaginationPreviousPage = useCallback(
@@ -120,6 +110,22 @@ const ListUsersPage = () => {
       });
     }, 2000);
   }, [getRoles]);
+
+  const handleOpenAutocomplete = () => {
+    getRoles({ query, limit: 5 }).then(({ data }) => {
+      setRoleFilterOptions(
+        data !== undefined
+          ? data.map((r) => ({
+              name: r.name,
+              value: r.value,
+              description: r.description,
+            }))
+          : []
+      );
+      setIsRoleFilterLoading(false);
+    });
+    setOpen(true);
+  };
 
   const userApprove = (userId: string, userStatus: boolean) => {
     approveRejectUser({ userId, userStatus });
@@ -177,6 +183,8 @@ const ListUsersPage = () => {
     }
   }, [isUserError]);
 
+  console.log(open);
+
   return (
     <Layout>
       <Box>
@@ -194,6 +202,11 @@ const ListUsersPage = () => {
             <Autocomplete
               options={roleFilterOptions}
               loading={isRoleLoading}
+              open={open}
+              onOpen={handleOpenAutocomplete}
+              onClose={() => {
+                setOpen(false);
+              }}
               getOptionLabel={(option) => option.name}
               isOptionEqualToValue={(option, value) =>
                 option.name === value.name
