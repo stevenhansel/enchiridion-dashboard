@@ -10,7 +10,10 @@ export const buildingApi = createApi({
   baseQuery: axios(),
   tagTypes: ["Building"],
   endpoints: (builders) => ({
-    getBuildings: builders.query<Building[], null>({
+    getBuildings: builders.query<
+      Building[],
+      { query: string; limit: number } | null
+    >({
       query: (params) => ({
         url: urlBuilder("/v1/buildings", params),
       }),
@@ -45,7 +48,7 @@ export const buildingApi = createApi({
       query: ({ buildingId }) => ({
         url: `v1/buildings/${buildingId}`,
         method: "DELETE",
-        data: {buildingId},
+        data: { buildingId },
       }),
       invalidatesTags: () => ["Building"],
     }),
@@ -54,6 +57,7 @@ export const buildingApi = createApi({
 
 export const {
   useGetBuildingsQuery,
+  useLazyGetBuildingsQuery,
   useCreateBuildingMutation,
   useUpdateBuildingMutation,
   useDeleteBuildingMutation,

@@ -133,7 +133,7 @@ const ListAnnouncementPage = () => {
 
     const permissions = role.permissions.map((p) => p.value);
 
-    if (permissions.includes("view_list_user")) {
+    if (permissions.includes("view_list_building")) {
       return true;
     }
     return false;
@@ -197,7 +197,7 @@ const ListAnnouncementPage = () => {
         );
       });
     }
-  }, []);
+  }, [page]);
 
   return (
     <Layout>

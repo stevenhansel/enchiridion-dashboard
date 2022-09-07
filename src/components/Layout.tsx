@@ -275,7 +275,7 @@ export default function Layout(props: Props) {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
-        {hasPermission ? props.children : <p>Forbbiden</p>}
+        {hasPermission ? props.children : <p>Forbidden</p>}
       </Box>
     </Box>
   );

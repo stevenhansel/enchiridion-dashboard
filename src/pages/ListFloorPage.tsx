@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
+import { debounce } from "lodash";
 
 import {
   Box,
@@ -32,18 +33,22 @@ import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
 import BuildingModal from "../components/BuildingModal";
 
-import { useGetBuildingsQuery } from "../services/building";
+import {
+  useGetBuildingsQuery,
+  useLazyGetBuildingsQuery,
+} from "../services/building";
 
 import {
   useLazyGetFloorsQuery,
   useDeleteFloorMutation,
 } from "../services/floor";
 
-import { Building } from "../types/store";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
 import { RootState } from "../store";
+
+import { UserFilterOption } from "../types/store";
 
 const FETCH_LIMIT = 20;
 const key = "id";
@@ -53,10 +58,14 @@ const ListFloorPage = () => {
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
-  const [author, setAuthor] = useState("");
+  const [buildingFilterOptions, setBuildingFilterOptions] = useState<
+    UserFilterOption[]
+  >([]);
 
-  const [buildingId, setBuildingId] = useState<number | null>(null);
-  const [buildingText, setBuildingText] = useState<Building | null>(null);
+  const [isBuildingFilterLoading, setIsBuildingFilterLoading] = useState(false);
+  const [buildingFilter, setBuildingFilter] = useState<UserFilterOption | null>(
+    null
+  );
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -65,17 +74,21 @@ const ListFloorPage = () => {
   const [openEditFloor, setOpenEditFloor] = useState(false);
   const [floorId, setFloorId] = useState("");
 
-  const getFloorsQueryParams = { page, query, limit: FETCH_LIMIT, buildingId };
+  const getFloorsQueryParams = {
+    page,
+    buildingId: buildingFilter !== null ? buildingFilter.id : null,
+    limit: FETCH_LIMIT,
+    query,
+  };
   const [
     getFloors,
     { data: floors, error: floorsError, isLoading: isFloorsLoading },
   ] = useLazyGetFloorsQuery();
 
-  const {
-    data: buildings,
-    error: buildingsError,
-    isLoading: isBuildingsLoading,
-  } = useGetBuildingsQuery(null);
+  const [
+    getBuildings,
+    { data: buildings, error: buildingsError, isLoading: isBuildingsLoading },
+  ] = useLazyGetBuildingsQuery();
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
 
@@ -87,7 +100,20 @@ const ListFloorPage = () => {
 
   const handleSearch = useCallback(() => {
     getFloors(getFloorsQueryParams);
-  }, [page, query, author, buildingId]);
+    if (hasPermissionViewBuilding) {
+      getBuildings(null).then(({ data }) => {
+        setBuildingFilterOptions(
+          data !== undefined
+            ? data.map((b) => ({
+                id: b.id,
+                name: b.name,
+              }))
+            : []
+        );
+        setIsBuildingFilterLoading(false);
+      });
+    }
+  }, [getFloorsQueryParams]);
 
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
@@ -98,6 +124,22 @@ const ListFloorPage = () => {
     () => setPage((page) => page - 1),
     []
   );
+
+  const getBuildingDelayed = useMemo(() => {
+    return debounce((query: string) => {
+      getBuildings({ query, limit: 5 }).then(({ data }) => {
+        setBuildingFilterOptions(
+          data !== undefined
+            ? data.map((b) => ({
+                id: b.id,
+                name: b.name,
+              }))
+            : []
+        );
+        setIsBuildingFilterLoading(false);
+      });
+    }, 2000);
+  }, [getBuildings]);
 
   const handleSelectFloor = useCallback(
     (floorId: string) => {
@@ -113,16 +155,6 @@ const ListFloorPage = () => {
     if (!floors) return true;
     return page === floors.totalPages;
   }, [page, floors]);
-
-  const buildingOptions = Array.from(
-    new Set(buildings?.map((option) => option))
-  );
-
-  const buildingUniqueByKey = Array.from(
-    new Map(
-      buildingOptions.map((building) => [building[key], building])
-    ).values()
-  );
 
   const hasPermissionCreateFloor = useMemo(() => {
     if (!profile) return false;
@@ -167,10 +199,21 @@ const ListFloorPage = () => {
     const permissions = role.permissions.map((p) => p.value);
 
     if (
-      permissions.includes("create_building") && 
-      permissions.includes("update_building") && 
+      permissions.includes("create_building") &&
+      permissions.includes("update_building") &&
       permissions.includes("update_building")
     ) {
+      return true;
+    }
+    return false;
+  }, [profile]);
+
+  const hasPermissionViewBuilding = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (permissions.includes("view_list_building")) {
       return true;
     }
     return false;
@@ -186,6 +229,18 @@ const ListFloorPage = () => {
 
   useEffect(() => {
     getFloors(getFloorsQueryParams);
+    if (hasPermissionViewBuilding) {
+      getBuildings(null).then(({ data }) => {
+        setBuildingFilterOptions(
+          data !== undefined
+            ? data.map((b) => ({
+                id: b.id,
+                name: b.name,
+              }))
+            : []
+        );
+      });
+    }
   }, [page]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -258,29 +313,49 @@ const ListFloorPage = () => {
                 sx={{ width: 220, marginRight: 1 }}
               />
             </Box>
-            <Box display="flex" justifyContent="flex-end">
-              <Autocomplete
-                options={buildingUniqueByKey}
-                getOptionLabel={(option) => option.name}
-                isOptionEqualToValue={(option, value) =>
-                  option.name === value.name
-                }
-                onChange={(_: any, newValue: Building | null) => {
-                  if (newValue?.id && newValue?.name) {
-                    setBuildingId(newValue?.id);
-                    setBuildingText(newValue);
-                  } else {
-                    setBuildingId(null);
-                    setBuildingText(null);
+            {hasPermissionViewBuilding ? (
+              <Box display="flex" justifyContent="flex-end">
+                <Autocomplete
+                  options={buildingFilterOptions}
+                  loading={isBuildingFilterLoading}
+                  getOptionLabel={(option) => option.name}
+                  isOptionEqualToValue={(option, value) =>
+                    option.name === value.name
                   }
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Building" />
-                )}
-                value={buildingText}
-                sx={{ width: 150 }}
-              />
-            </Box>
+                  onChange={(_, inputValue) => {
+                    setBuildingFilterOptions([]);
+                    setBuildingFilter(inputValue);
+                  }}
+                  onInputChange={(_, newInputValue, reason) => {
+                    if (reason == "input") {
+                      setBuildingFilterOptions([]);
+                      setIsBuildingFilterLoading(true);
+                      getBuildingDelayed(newInputValue);
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Building"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <React.Fragment>
+                            {isBuildingFilterLoading ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </React.Fragment>
+                        ),
+                      }}
+                    />
+                  )}
+                  value={buildingFilter}
+                  sx={{ width: 150 }}
+                />
+              </Box>
+            ) : null}
+
             <Box>
               <Button onClick={handleSearch} variant="contained" size="large">
                 Search
