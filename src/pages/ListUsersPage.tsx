@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
+import debounce from "lodash/debounce";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -30,14 +31,18 @@ import {
 } from "../services/user";
 import { useLazyGetRolesQuery } from "../services/roles";
 
-import { Role } from "../types/store";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
 import { RootState } from "../store";
 
 const FETCH_LIMIT = 20;
-const key = "value";
+
+type RoleFilterOption = {
+  value: string;
+  name: string;
+  description: string;
+};
 
 const ListUsersPage = () => {
   const [
@@ -54,18 +59,40 @@ const ListUsersPage = () => {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [role, setRole] = useState<string | null>(null);
-  const [roleName, setRoleName] = useState<Role | null>(null);
+  const [roleFilterOptions, setRoleFilterOptions] = useState<
+    RoleFilterOption[]
+  >([]);
+  const [roleFilter, setRoleFilter] = useState<RoleFilterOption | null>(null);
+  const [isRoleFilterLoading, setIsRoleFilterLoading] = useState(false);
 
-  const getUsersQueryParams = { page, limit: FETCH_LIMIT, query, role, status };
-
+  const getUsersQueryParams = useMemo(
+    () => ({
+      page,
+      limit: FETCH_LIMIT,
+      query,
+      role: roleFilter !== null ? roleFilter.value : "",
+      status,
+    }),
+    [page, query, roleFilter, status]
+  );
   const isLoading = isUserLoading && isRoleLoading;
 
   const profile = useSelector((p: RootState) => p.profile);
 
   const handleSearch = useCallback(() => {
     getUsers(getUsersQueryParams);
-  }, [query, role, status]);
+    getRoles({ query, limit: 5 }).then(({ data }) => {
+      setRoleFilterOptions(
+        data !== undefined
+          ? data.map((r) => ({
+              name: r.name,
+              value: r.value,
+              description: r.description,
+            }))
+          : []
+      );
+    });
+  }, [query, status, roleFilter]);
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
@@ -77,15 +104,26 @@ const ListUsersPage = () => {
     [page]
   );
 
+  const getRoleDelayed = useMemo(() => {
+    return debounce((query: string) => {
+      getRoles({ query, limit: 5 }).then(({ data }) => {
+        setRoleFilterOptions(
+          data !== undefined
+            ? data.map((r) => ({
+                name: r.name,
+                value: r.value,
+                description: r.description,
+              }))
+            : []
+        );
+        setIsRoleFilterLoading(false);
+      });
+    }, 2000);
+  }, [getRoles]);
+
   const userApprove = (userId: string, userStatus: boolean) => {
     approveRejectUser({ userId, userStatus });
   };
-
-  const roleOptions = Array.from(new Set(roles?.map((option) => option)));
-
-  const roleUniqueByKey = Array.from(
-    new Map(roleOptions.map((role) => [role[key], role])).values()
-  );
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -115,7 +153,17 @@ const ListUsersPage = () => {
 
   useEffect(() => {
     getUsers(getUsersQueryParams);
-    getRoles(null);
+    getRoles({ query, limit: 5 }).then(({ data }) => {
+      setRoleFilterOptions(
+        data !== undefined
+          ? data.map((r) => ({
+              name: r.name,
+              value: r.value,
+              description: r.description,
+            }))
+          : []
+      );
+    });
   }, [page]);
 
   useEffect(() => {
@@ -144,22 +192,41 @@ const ListUsersPage = () => {
           />
           <Box>
             <Autocomplete
-              options={roleUniqueByKey}
+              options={roleFilterOptions}
+              loading={isRoleLoading}
               getOptionLabel={(option) => option.name}
               isOptionEqualToValue={(option, value) =>
                 option.name === value.name
               }
-              onChange={(_: any, newValue: Role | null) => {
-                if (newValue?.value && newValue?.name) {
-                  setRole(newValue.value);
-                  setRoleName(newValue);
-                } else {
-                  setRole(null);
-                  setRoleName(null);
+              onChange={(_, newValue) => {
+                setRoleFilter(newValue);
+                setRoleFilterOptions([]);
+              }}
+              onInputChange={(_, newInputValue, reason) => {
+                if (reason === "input") {
+                  getRoleDelayed(newInputValue);
+                  setRoleFilterOptions([]);
+                  setIsRoleFilterLoading(true);
                 }
               }}
-              renderInput={(params) => <TextField {...params} label="Role" />}
-              value={roleName}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Role"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {isRoleFilterLoading ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+              value={roleFilter}
               sx={{ width: 150, marginRight: 1 }}
             />
           </Box>

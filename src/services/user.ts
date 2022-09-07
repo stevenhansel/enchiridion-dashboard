@@ -19,7 +19,7 @@ export const userApi = createApi({
         limit?: number;
         query?: string;
         status?: string;
-        role?: string | null;
+        role?: string; 
       } | null
     >({
       query: (params) => ({
