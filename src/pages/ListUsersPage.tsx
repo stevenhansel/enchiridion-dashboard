@@ -111,7 +111,7 @@ const ListUsersPage = () => {
     }, 2000);
   }, [getRoles]);
 
-  const handleOpenAutocomplete = () => {
+  const handleOpenAutocomplete = useCallback(() => {
     getRoles({ query, limit: 5 }).then(({ data }) => {
       setRoleFilterOptions(
         data !== undefined
@@ -125,7 +125,7 @@ const ListUsersPage = () => {
       setIsRoleFilterLoading(false);
     });
     setOpen(true);
-  };
+  }, [open]);
 
   const userApprove = (userId: string, userStatus: boolean) => {
     approveRejectUser({ userId, userStatus });
@@ -159,18 +159,23 @@ const ListUsersPage = () => {
 
   useEffect(() => {
     getUsers(getUsersQueryParams);
-    getRoles({ query, limit: 5 }).then(({ data }) => {
-      setRoleFilterOptions(
-        data !== undefined
-          ? data.map((r) => ({
-              name: r.name,
-              value: r.value,
-              description: r.description,
-            }))
-          : []
-      );
-    });
   }, [page]);
+
+  useEffect(() => {
+    if (open) {
+      getRoles({ limit: 5 }).then(({ data }) => {
+        setRoleFilterOptions(
+          data !== undefined
+            ? data.map((r) => ({
+                name: r.name,
+                value: r.value,
+                description: r.description,
+              }))
+            : []
+        );
+      });
+    }
+  }, [open]);
 
   useEffect(() => {
     if (isUserError && "data" in isUserError) {
@@ -185,8 +190,6 @@ const ListUsersPage = () => {
       setErrorMessage((isRoleError.data as ApiErrorResponse).messages[0]);
     }
   }, [isUserError]);
-
-  console.log(open);
 
   return (
     <Layout>

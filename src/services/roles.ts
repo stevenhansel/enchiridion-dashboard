@@ -10,7 +10,7 @@ export const rolesApi = createApi({
   baseQuery: axios(),
   tagTypes: ["Roles"],
   endpoints: (builder) => ({
-    getRoles: builder.query<Role[], {query: string; limit: number;} | null>({
+    getRoles: builder.query<Role[], {query?: string; limit?: number;} | null>({
       query: (params) => ({
         url: urlBuilder('/v1/roles', params)
       }),

@@ -73,6 +73,7 @@ const ListFloorPage = () => {
   const [openCreateBuilding, setOpenCreateBuilding] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
   const [floorId, setFloorId] = useState("");
+  const [open, setOpen] = useState(false);
 
   const getFloorsQueryParams = {
     page,
@@ -229,8 +230,11 @@ const ListFloorPage = () => {
 
   useEffect(() => {
     getFloors(getFloorsQueryParams);
-    if (hasPermissionViewBuilding) {
-      getBuildings(null).then(({ data }) => {
+  }, [page]);
+
+  useEffect(() => {
+    if (hasPermissionViewBuilding && open) {
+      getBuildings({limit: 5}).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
@@ -241,7 +245,7 @@ const ListFloorPage = () => {
         );
       });
     }
-  }, [page]);
+  }, [open]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -317,6 +321,13 @@ const ListFloorPage = () => {
               <Box display="flex" justifyContent="flex-end">
                 <Autocomplete
                   options={buildingFilterOptions}
+                  open={open}
+                  onOpen={() => {
+                    setOpen(true);
+                  }}
+                  onClose={() => {
+                    setOpen(false);
+                  }}
                   loading={isBuildingFilterLoading}
                   getOptionLabel={(option) => option.name}
                   isOptionEqualToValue={(option, value) =>

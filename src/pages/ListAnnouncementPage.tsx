@@ -88,7 +88,7 @@ const ListAnnouncementPage = () => {
 
   const [
     getUsers,
-    { data, isLoading: isGetUsersLoading, error: isUsersError },
+    { data: users, isLoading: isGetUsersLoading, error: isUsersError },
   ] = useLazyGetUsersQuery();
 
   const isLoading = isAnnouncementsLoading && isGetUsersLoading;
@@ -105,20 +105,6 @@ const ListAnnouncementPage = () => {
   const handleSearch = useCallback(() => {
     getAnnouncements(getAnnouncementsQueryParams);
   }, [getAnnouncements, getAnnouncementsQueryParams]);
-
-  const handleOpenAutocomplete = useCallback(() => {
-    if (hasPermissionViewUserList) {
-      getUsers({ query, limit: 5 }).then(({ data }) => {
-        setUserFilterOptions(
-          data !== undefined
-            ? data.contents.map((u) => ({ id: u.id, name: u.name }))
-            : []
-        );
-        setIsUserFilterLoading(false);
-      });
-    }
-    setOpen(true);
-  }, [open]);
 
   const hasPermissionCreateAnnouncement = useMemo(() => {
     if (!profile) return false;
@@ -138,7 +124,7 @@ const ListAnnouncementPage = () => {
 
     const permissions = role.permissions.map((p) => p.value);
 
-    if (permissions.includes("view_list_building")) {
+    if (permissions.includes("view_list_user")) {
       return true;
     }
     return false;
@@ -148,6 +134,7 @@ const ListAnnouncementPage = () => {
     () => setPage((page) => page - 1),
     []
   );
+
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
     []
@@ -175,10 +162,10 @@ const ListAnnouncementPage = () => {
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
-    if (!data) return true;
+    if (!users) return true;
 
-    return page === data.totalPages;
-  }, [page, data]);
+    return page === users.totalPages;
+  }, [page, users]);
 
   useEffect(() => {
     if (isAnnouncementsError && "data" in isAnnouncementsError) {
@@ -194,6 +181,18 @@ const ListAnnouncementPage = () => {
   useEffect(() => {
     getAnnouncements(getAnnouncementsQueryParams);
   }, [page]);
+
+  useEffect(() => {
+    if (hasPermissionViewUserList && open) {
+      getUsers({limit: 5}).then(({ data }) => {
+        setUserFilterOptions(
+          data !== undefined
+            ? data.contents.map((u) => ({ id: u.id, name: u.name }))
+            : []
+        );
+      });
+    }
+  }, [getUsers, open]);
 
   return (
     <Layout>
@@ -242,7 +241,9 @@ const ListAnnouncementPage = () => {
                       loading={isUserFilterLoading}
                       options={userFilterOptions}
                       open={open}
-                      onOpen={handleOpenAutocomplete}
+                      onOpen={() => {
+                        setOpen(true);
+                      }}
                       onClose={() => {
                         setOpen(false);
                       }}

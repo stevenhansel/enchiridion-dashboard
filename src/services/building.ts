@@ -12,7 +12,7 @@ export const buildingApi = createApi({
   endpoints: (builders) => ({
     getBuildings: builders.query<
       Building[],
-      { query: string; limit: number } | null
+      { query?: string; limit?: number } | null
     >({
       query: (params) => ({
         url: urlBuilder("/v1/buildings", params),
