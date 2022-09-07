@@ -181,6 +181,9 @@ const ListUsersPage = () => {
         (isApproveRejectUserError.data as ApiErrorResponse).messages[0]
       );
     }
+    if (isRoleError && "data" in isRoleError) {
+      setErrorMessage((isRoleError.data as ApiErrorResponse).messages[0]);
+    }
   }, [isUserError]);
 
   console.log(open);
