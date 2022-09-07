@@ -64,6 +64,7 @@ const ListAnnouncementPage = () => {
     useState<string>("");
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [open, setOpen] = useState(false);
 
   const getAnnouncementsQueryParams = useMemo(
     () => ({
@@ -103,6 +104,9 @@ const ListAnnouncementPage = () => {
 
   const handleSearch = useCallback(() => {
     getAnnouncements(getAnnouncementsQueryParams);
+  }, [getAnnouncements, getAnnouncementsQueryParams]);
+
+  const handleOpenAutocomplete = useCallback(() => {
     if (hasPermissionViewUserList) {
       getUsers({ query, limit: 5 }).then(({ data }) => {
         setUserFilterOptions(
@@ -113,7 +117,8 @@ const ListAnnouncementPage = () => {
         setIsUserFilterLoading(false);
       });
     }
-  }, [getUsers, getAnnouncements, getAnnouncementsQueryParams]);
+    setOpen(true);
+  }, [open]);
 
   const hasPermissionCreateAnnouncement = useMemo(() => {
     if (!profile) return false;
@@ -188,15 +193,6 @@ const ListAnnouncementPage = () => {
 
   useEffect(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-    if (hasPermissionViewUserList) {
-      getUsers(null).then(({ data }) => {
-        setUserFilterOptions(
-          data !== undefined
-            ? data?.contents.map((u) => ({ id: u.id, name: u.name }))
-            : []
-        );
-      });
-    }
   }, [page]);
 
   return (
@@ -245,6 +241,11 @@ const ListAnnouncementPage = () => {
                     <Autocomplete
                       loading={isUserFilterLoading}
                       options={userFilterOptions}
+                      open={open}
+                      onOpen={handleOpenAutocomplete}
+                      onClose={() => {
+                        setOpen(false);
+                      }}
                       getOptionLabel={(option) => option.name}
                       isOptionEqualToValue={(option, value) =>
                         option.name === value.name
