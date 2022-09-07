@@ -167,8 +167,8 @@ const ListFloorPage = () => {
     const permissions = role.permissions.map((p) => p.value);
 
     if (
-      permissions.includes("create_building") ||
-      permissions.includes("update_building") ||
+      permissions.includes("create_building") && 
+      permissions.includes("update_building") && 
       permissions.includes("update_building")
     ) {
       return true;

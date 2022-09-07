@@ -196,6 +196,8 @@ export default function Layout(props: Props) {
     }
   }, [profile, location, navigate]);
 
+  console.log(profile);
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />

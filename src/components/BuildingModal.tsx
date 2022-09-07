@@ -135,9 +135,7 @@ const BuildingModal = (props: Props) => {
             </Box>
           </DialogContent>
         </Dialog>
-      ) : (
-        <Typography>Forbidden</Typography>
-      )}
+      ) : null}
     </>
   );
 };

@@ -5,6 +5,11 @@ export type Pagination<T> = {
   contents: T[],
 }
 
+export type UserFilterOption = {
+  id: number;
+  name: string;
+}
+
 export type Role = {
   name: string;
   value: string;
@@ -124,6 +129,7 @@ export type UpdateFloor = {
   floorId: string;
   buildingId: string;
 }
+
 
 export type CreateFloor = {
   name: string;

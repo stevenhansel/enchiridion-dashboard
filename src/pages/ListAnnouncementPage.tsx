@@ -33,20 +33,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
-import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 import { AnnouncementStatus } from "../types/constants";
-import Layout from "../components/Layout";
+import { UserFilterOption } from "../types/store";
+
 import { ApiErrorResponse } from "../services/error";
 import { useLazyGetUsersQuery } from "../services/user";
+import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
-const toDate = (dateStr: string) => dayjs(dateStr).format("DD MM YYYY");
+import Layout from "../components/Layout";
+
+const toDate = (dateStr: string) => dayjs(dateStr).format("ddd, MMM D, YYYY");
 
 const FETCH_LIMIT = 20;
-
-type UserFilterOption = {
-  id: number;
-  name: string;
-};
 
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
@@ -56,7 +54,6 @@ const ListAnnouncementPage = () => {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<AnnouncementStatus | null>(null);
   const [userFilter, setUserFilter] = useState<UserFilterOption | null>(null);
-  const [open, setOpen] = useState(false);
 
   const [isUserFilterLoading, setIsUserFilterLoading] = useState(false);
   const [userFilterOptions, setUserFilterOptions] = useState<
@@ -78,6 +75,7 @@ const ListAnnouncementPage = () => {
     }),
     [page, query, status, userFilter]
   );
+
   const [
     getAnnouncements,
     {
@@ -105,23 +103,37 @@ const ListAnnouncementPage = () => {
 
   const handleSearch = useCallback(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-    getUsers({ query, limit: 5 }).then(({ data }) => {
-      setUserFilterOptions(
-        data !== undefined
-          ? data.contents.map((u) => ({ id: u.id, name: u.name }))
-          : []
-      );
-      setIsUserFilterLoading(false);
-    });
+    if (hasPermissionViewUserList) {
+      getUsers({ query, limit: 5 }).then(({ data }) => {
+        setUserFilterOptions(
+          data !== undefined
+            ? data.contents.map((u) => ({ id: u.id, name: u.name }))
+            : []
+        );
+        setIsUserFilterLoading(false);
+      });
+    }
   }, [getUsers, getAnnouncements, getAnnouncementsQueryParams]);
 
-  const hasPermission = useMemo(() => {
+  const hasPermissionCreateAnnouncement = useMemo(() => {
     if (!profile) return false;
     const { role } = profile;
 
     const permissions = role.permissions.map((p) => p.value);
 
     if (permissions.includes("create_announcement")) {
+      return true;
+    }
+    return false;
+  }, [profile]);
+
+  const hasPermissionViewUserList = useMemo(() => {
+    if (!profile) return false;
+    const { role } = profile;
+
+    const permissions = role.permissions.map((p) => p.value);
+
+    if (permissions.includes("view_list_user")) {
       return true;
     }
     return false;
@@ -172,11 +184,11 @@ const ListAnnouncementPage = () => {
     if (isUsersError && "data" in isUsersError) {
       setErrorMessage((isUsersError.data as ApiErrorResponse).messages[0]);
     }
-  }, [isAnnouncementsError]);
+  }, [isAnnouncementsError, isUsersError]);
 
   useEffect(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-    if (announcements !== undefined || null) {
+    if (hasPermissionViewUserList) {
       getUsers(null).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
@@ -184,12 +196,8 @@ const ListAnnouncementPage = () => {
             : []
         );
       });
-    } else {
-      setUserFilterOptions([]);
     }
-  }, [page, getUsers]);
-
-  console.log(userFilterOptions);
+  }, []);
 
   return (
     <Layout>
@@ -209,7 +217,7 @@ const ListAnnouncementPage = () => {
                 justifyContent="flex-start"
                 width="100%"
               >
-                {hasPermission ? (
+                {hasPermissionCreateAnnouncement ? (
                   <Button
                     size="large"
                     sx={{ marginBottom: 3 }}
@@ -232,46 +240,49 @@ const ListAnnouncementPage = () => {
                     sx={{ width: 220 }}
                   />
                 </Box>
-                <Box sx={{ marginLeft: 1 }}>
-                  <Autocomplete
-                    loading={isUserFilterLoading}
-                    options={userFilterOptions}
-                    getOptionLabel={(option) => option.name}
-                    isOptionEqualToValue={(option, value) =>
-                      option.name === value.name
-                    }
-                    sx={{ width: 220 }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Author"
-                        InputProps={{
-                          ...params.InputProps,
-                          endAdornment: (
-                            <React.Fragment>
-                              {isUserFilterLoading ? (
-                                <CircularProgress color="inherit" size={20} />
-                              ) : null}
-                              {params.InputProps.endAdornment}
-                            </React.Fragment>
-                          ),
-                        }}
-                      />
-                    )}
-                    value={userFilter}
-                    onChange={(_, inputValue) => {
-                      setUserFilterOptions([]);
-                      setUserFilter(inputValue);
-                    }}
-                    onInputChange={(_, newInputValue, reason) => {
-                      if (reason === "input") {
-                        setIsUserFilterLoading(true);
-                        setUserFilterOptions([]);
-                        getUsersDelayed(newInputValue);
+                {hasPermissionViewUserList ? (
+                  <Box sx={{ marginLeft: 1 }}>
+                    <Autocomplete
+                      loading={isUserFilterLoading}
+                      options={userFilterOptions}
+                      getOptionLabel={(option) => option.name}
+                      isOptionEqualToValue={(option, value) =>
+                        option.name === value.name
                       }
-                    }}
-                  />
-                </Box>
+                      sx={{ width: 220 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Author"
+                          InputProps={{
+                            ...params.InputProps,
+                            endAdornment: (
+                              <React.Fragment>
+                                {isUserFilterLoading ? (
+                                  <CircularProgress color="inherit" size={20} />
+                                ) : null}
+                                {params.InputProps.endAdornment}
+                              </React.Fragment>
+                            ),
+                          }}
+                        />
+                      )}
+                      value={userFilter}
+                      onChange={(_, inputValue) => {
+                        setUserFilterOptions([]);
+                        setUserFilter(inputValue);
+                      }}
+                      onInputChange={(_, newInputValue, reason) => {
+                        if (reason === "input") {
+                          setIsUserFilterLoading(true);
+                          setUserFilterOptions([]);
+                          getUsersDelayed(newInputValue);
+                        }
+                      }}
+                    />
+                  </Box>
+                ) : null}
+
                 <Box sx={{ marginLeft: 1 }}>
                   <FormControl fullWidth>
                     <InputLabel id="announcement-status-select">

@@ -380,22 +380,22 @@ const RequestsPage = () => {
                         <TableCell align="center">
                           <Button
                             variant="contained"
+                            color="success"
                             sx={{ marginRight: 1 }}
+                            onClick={() =>
+                              userApprove(request.id.toString(), true)
+                            }
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            variant="contained"
                             color="error"
                             onClick={() =>
                               userApprove(request.id.toString(), false)
                             }
                           >
                             Reject
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            onClick={() =>
-                              userApprove(request.id.toString(), true)
-                            }
-                          >
-                            Approve
                           </Button>
                         </TableCell>
                       </TableRow>
