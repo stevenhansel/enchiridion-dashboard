@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 
 import Box from "@mui/material/Box";
@@ -38,6 +39,9 @@ import { Author, AnnouncementRequest } from "../types/store";
 import { actions } from "../types/constants";
 import Layout from "../components/Layout";
 
+import { RootState } from "../store";
+import { ApiErrorResponse } from "../services/error";
+
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
 
@@ -60,6 +64,8 @@ const RequestsPage = () => {
   const [approvedByBm, setApprovedByBm] = useState<boolean | null>(null);
   const [approvedByBmText, setApprovedByBmText] = useState("");
 
+  const profile = useSelector((state: RootState) => state.profile);
+
   const getRequestQueryParams = {
     page,
     query,
@@ -73,7 +79,11 @@ const RequestsPage = () => {
 
   const [
     getRequests,
-    { data: requests, isLoading: isGetRequestLoading, error: getRequestError },
+    {
+      data: requests,
+      isLoading: isGetRequestLoading,
+      error: isGetRequestError,
+    },
   ] = useLazyGetRequestsQuery();
 
   const [
@@ -81,10 +91,12 @@ const RequestsPage = () => {
     {
       data: announcementsData,
       isLoading: isGetAnnouncementLoading,
-      error: getAnnouncementError,
+      error: isGetAnnouncementError,
     },
   ] = useLazyGetAnnouncementsQuery();
-  const [createRequest] = useCreateRequestMutation();
+
+  const [createRequest, { error: isCreateRequestError }] =
+    useCreateRequestMutation();
 
   const isLoading = isGetAnnouncementLoading && isGetRequestLoading;
 
@@ -157,12 +169,13 @@ const RequestsPage = () => {
   };
 
   useEffect(() => {
-    if (getRequestError) {
-      setErrorMessage("Requests Not Found!");
-    } else if (getAnnouncementError) {
-      setErrorMessage("Announcement Not Found!");
+    if (isGetRequestError && "data" in isGetRequestError) {
+      setErrorMessage((isGetRequestError.data as ApiErrorResponse).messages[0]);
     }
-  }, [getRequestError, getAnnouncementError]);
+    if (isGetAnnouncementError && 'data' in isGetAnnouncementError) {
+      setErrorMessage((isGetAnnouncementError.data as ApiErrorResponse).messages[0]);
+    }
+  }, [isGetRequestError, isGetAnnouncementError]);
 
   useEffect(() => {
     getRequests(getRequestQueryParams);
@@ -378,25 +391,32 @@ const RequestsPage = () => {
                           {renderApprovalStatus(request.approvalStatus.bm)}
                         </TableCell>
                         <TableCell align="center">
-                          <Button
-                            variant="contained"
-                            color="success"
-                            sx={{ marginRight: 1 }}
-                            onClick={() =>
-                              userApprove(request.id.toString(), true)
-                            }
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() =>
-                              userApprove(request.id.toString(), false)
-                            }
-                          >
-                            Reject
-                          </Button>
+                          {(profile?.role.name === "LSC" &&
+                            request.approvalStatus.lsc !== null) ||
+                          (profile?.role.name === "BM" &&
+                            request.approvalStatus.bm === null) ? (
+                            <>
+                              <Button
+                                variant="contained"
+                                color="success"
+                                sx={{ marginRight: 1 }}
+                                onClick={() =>
+                                  userApprove(request.id.toString(), true)
+                                }
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() =>
+                                  userApprove(request.id.toString(), false)
+                                }
+                              >
+                                Reject
+                              </Button>
+                            </>
+                          ) : null}
                         </TableCell>
                       </TableRow>
                     ))}

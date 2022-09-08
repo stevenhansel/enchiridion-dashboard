@@ -157,7 +157,7 @@ export default function Layout(props: Props) {
   const handleClick = () => {
     setOpenProfile(!openProfile);
   };
-
+  
   const hasPermission = React.useMemo(() => {
     if (!profile) return false;
     const { role } = profile;

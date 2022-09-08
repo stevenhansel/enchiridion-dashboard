@@ -101,19 +101,6 @@ const ListFloorPage = () => {
 
   const handleSearch = useCallback(() => {
     getFloors(getFloorsQueryParams);
-    if (hasPermissionViewBuilding) {
-      getBuildings(null).then(({ data }) => {
-        setBuildingFilterOptions(
-          data !== undefined
-            ? data.map((b) => ({
-                id: b.id,
-                name: b.name,
-              }))
-            : []
-        );
-        setIsBuildingFilterLoading(false);
-      });
-    }
   }, [getFloorsQueryParams]);
 
   const handlePaginationNextPage = useCallback(
@@ -234,7 +221,7 @@ const ListFloorPage = () => {
 
   useEffect(() => {
     if (hasPermissionViewBuilding && open) {
-      getBuildings({limit: 5}).then(({ data }) => {
+      getBuildings({ limit: 5 }).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
