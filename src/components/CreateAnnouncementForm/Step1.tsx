@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import { useFormikContext } from "formik";
-import dayjs from 'dayjs';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 
 import { CreateAnnouncementFormContext } from "./context";
 import { CreateAnnouncementFormValues } from "./form";
@@ -170,8 +170,14 @@ const Step1 = () => {
           variant="outlined"
           value={values.notes}
           onChange={(e) => setFieldValue("notes", e.target.value)}
+          error={touched.notes && Boolean(errors.notes)}
         />
       </Box>
+      {touched.notes && errors.notes ? (
+        <Typography variant="caption" color={red[700]} fontSize="">
+          {errors.notes}
+        </Typography>
+      ) : null}
 
       <Box display="flex" justifyContent="center" alignItems="center">
         <Button variant="contained" onClick={handleNextSubmission}>

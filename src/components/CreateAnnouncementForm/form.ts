@@ -44,6 +44,6 @@ export const validationSchema = yup.object({
       return schema;
     })
     .required('End date is required'),
-  notes: yup.string(),
+  notes: yup.string().required("You must fill the notes"),
   devices: yup.array().min(1, 'You must select atleast 1 device').required(),
 });
