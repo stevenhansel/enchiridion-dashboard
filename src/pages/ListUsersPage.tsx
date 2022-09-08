@@ -108,7 +108,7 @@ const ListUsersPage = () => {
         );
         setIsRoleFilterLoading(false);
       });
-    }, 2000);
+    }, 250);
   }, [getRoles]);
 
   const handleOpenAutocomplete = useCallback(() => {

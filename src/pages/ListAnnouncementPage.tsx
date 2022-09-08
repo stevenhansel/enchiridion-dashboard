@@ -150,7 +150,7 @@ const ListAnnouncementPage = () => {
         );
         setIsUserFilterLoading(false);
       });
-    }, 2000);
+    }, 250);
   }, [getUsers]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {

@@ -126,7 +126,7 @@ const ListFloorPage = () => {
         );
         setIsBuildingFilterLoading(false);
       });
-    }, 2000);
+    }, 250);
   }, [getBuildings]);
 
   const handleSelectFloor = useCallback(
