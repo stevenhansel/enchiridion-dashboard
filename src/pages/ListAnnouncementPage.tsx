@@ -309,6 +309,9 @@ const ListAnnouncementPage = () => {
                       <MenuItem value={AnnouncementStatus.WaitingForApproval}>
                         Waiting for Approval
                       </MenuItem>
+                       <MenuItem value={AnnouncementStatus.WaitingForSync}>
+                        Waiting for Sync 
+                      </MenuItem>
                       <MenuItem value={AnnouncementStatus.Active}>
                         Active
                       </MenuItem>

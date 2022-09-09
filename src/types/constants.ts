@@ -1,11 +1,12 @@
 import { ActionButton, Color } from "../types/store";
 
 export enum AnnouncementStatus {
-  WaitingForApproval = "WaitingForApproval",
-  Active = "Active",
-  Rejected = "Rejected",
-  Canceled = "Canceled",
-  Done = "Done",
+  WaitingForApproval = "waiting_for_approval",
+  WaitingForSync = "waiting_for_sync",
+  Active = "active",
+  Rejected = "rejected",
+  Canceled = "canceled",
+  Done = "done",
 }
 
 export enum ApprovalStatus {
