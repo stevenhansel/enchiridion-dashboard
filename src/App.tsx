@@ -23,6 +23,7 @@ import { ApiErrorResponse } from "./services/error";
 
 import { authApi } from "./services/auth";
 import { AppDispatch, RootState } from "./store";
+import { Permission } from "./types/store";
 
 function App() {
   const isAuthenticated = useSelector(

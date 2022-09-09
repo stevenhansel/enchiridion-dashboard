@@ -49,11 +49,18 @@ import { ApiErrorResponse } from "../services/error";
 import { RootState } from "../store";
 
 import { UserFilterOption } from "../types/store";
+import { usePermission } from "../hooks";
 
 const FETCH_LIMIT = 20;
-const key = "id";
 
 const ListFloorPage = () => {
+  const hasPermissionCreateFloor = usePermission("create_floor");
+  const hasPermissionUpdateFloor = usePermission("update_floor");
+  const hasPermissionDeleteFloor = usePermission("delete_floor");
+
+  const hasPermissionMutateBuilding = usePermission("create_building", "update_building", "delete_building");
+  const hasPermissionViewBuilding = usePermission("view_list_building");
+
   const [deleteFloor] = useDeleteFloorMutation();
 
   const [page, setPage] = useState(1);
@@ -144,69 +151,6 @@ const ListFloorPage = () => {
     return page === floors.totalPages;
   }, [page, floors]);
 
-  const hasPermissionCreateFloor = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (permissions.includes("create_floor")) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
-  const hasPermissionUpdateFloor = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (permissions.includes("update_floor")) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
-  const hasPermissionDeleteFloor = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (permissions.includes("delete_floor")) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
-  const hasPermissionBuilding = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (
-      permissions.includes("create_building") &&
-      permissions.includes("update_building") &&
-      permissions.includes("update_building")
-    ) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
-  const hasPermissionViewBuilding = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (permissions.includes("view_list_building")) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
   useEffect(() => {
     if (buildingsError && "data" in buildingsError) {
       setErrorMessage((buildingsError.data as ApiErrorResponse).messages[0]);
@@ -281,7 +225,7 @@ const ListFloorPage = () => {
                 + Create Floor
               </Button>
             ) : null}
-            {hasPermissionBuilding ? (
+            {hasPermissionMutateBuilding ? (
               <Button
                 variant="contained"
                 onClick={() => setOpenCreateBuilding(true)}
