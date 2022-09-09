@@ -17,28 +17,24 @@ export enum ApprovalStatus {
 
 export const actions: ActionButton[] = [
   {
-    label: "",
-    value: "all",
+    label: "all",
+    value: "",
   },
   {
     label: "Create",
     value: "create",
   },
   {
-    label: "ChangeDate",
-    value: "change date",
-  },
-  {
     label: "Delete",
     value: "delete",
   },
   {
-    label: "ChangeContent",
-    value: "change content",
+    label: "Extend Date",
+    value: "extend_date",
   },
   {
-    label: "ChangeDevices",
-    value: "change devices",
+    label: "Change Devices",
+    value: "change_devices",
   },
 ];
 

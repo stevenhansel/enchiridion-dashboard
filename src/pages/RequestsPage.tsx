@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
+import debounce from "lodash/debounce";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -21,6 +22,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import IconButton from "@mui/material/IconButton";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Snackbar from "@mui/material/Snackbar";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -34,7 +37,9 @@ import {
 
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
-import { Author, AnnouncementRequest } from "../types/store";
+import { useLazyGetUsersQuery } from "../services/user";
+
+import { Author, AnnouncementRequest, UserFilterOption } from "../types/store";
 
 import { actions } from "../types/constants";
 import Layout from "../components/Layout";
@@ -50,27 +55,37 @@ const FETCH_LIMIT = 20;
 const key = "id";
 
 const RequestsPage = () => {
+  const [openUserFilter, setOpenUserFilter] = useState(false);
+  const [openAnnouncementFilter, setOpenAnnouncementFilter] = useState(false);
   const [actionType, setActionType] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
-  const [userId, setUserId] = useState<number | null>(null);
-  const [userText, setUserText] = useState<Author | null>(null);
-  const [announcementId, setAnnouncementId] = useState<number | null>(null);
-  const [announcementText, setAnnouncementText] =
-    useState<AnnouncementRequest | null>(null);
   const [approvedByLsc, setApprovedByLsc] = useState<boolean | null>(null);
   const [approvedByLscText, setApprovedByLscText] = useState("");
   const [approvedByBm, setApprovedByBm] = useState<boolean | null>(null);
   const [approvedByBmText, setApprovedByBmText] = useState("");
+  const [userFilter, setUserFilter] = useState<UserFilterOption | null>(null);
+  const [userFilterOptions, setUserFilterOptions] = useState<
+    UserFilterOption[]
+  >([]);
+  const [isUserFilterLoading, setIsUserFilterLoading] = useState(false);
+
+  const [announcementFilter, setAnnouncementFilter] =
+    useState<UserFilterOption | null>(null);
+  const [announcementFilterOptions, setAnnouncementFilterOptions] = useState<
+    UserFilterOption[]
+  >([]);
+  const [isAnnouncementFilterLoading, setIsAnnouncementFilterLoading] =
+    useState(false);
 
   const profile = useSelector((state: RootState) => state.profile);
 
   const getRequestQueryParams = {
     page,
     query,
-    userId,
-    announcementId,
+    userId: userFilter !== null ? userFilter.id : null,
+    announcementId: announcementFilter !== null ? announcementFilter.id : null,
     actionType,
     approvedByLsc,
     approvedByBm,
@@ -89,11 +104,16 @@ const RequestsPage = () => {
   const [
     getAnnouncements,
     {
-      data: announcementsData,
+      data: announcements,
       isLoading: isGetAnnouncementLoading,
       error: isGetAnnouncementError,
     },
   ] = useLazyGetAnnouncementsQuery();
+
+  const [
+    getUsers,
+    { data: users, isLoading: isGetUserLoading, error: isGetUserError },
+  ] = useLazyGetUsersQuery();
 
   const [createRequest, { error: isCreateRequestError }] =
     useCreateRequestMutation();
@@ -120,20 +140,48 @@ const RequestsPage = () => {
 
   const handleSearch = useCallback(() => {
     getRequests(getRequestQueryParams);
-    getAnnouncements(getRequestQueryParams);
-  }, [page, userId, announcementId, actionType, approvedByLsc, approvedByBm]);
+  }, [
+    page,
+    userFilter,
+    announcementFilter,
+    actionType,
+    approvedByLsc,
+    approvedByBm,
+  ]);
 
-  const authorOptions = announcementsData?.contents.map(
-    (content) => content.author
-  );
+  const getUserDelayed = useMemo(() => {
+    return debounce((query: string) => {
+      getUsers({ query, limit: 5 }).then(({ data }) => {
+        setUserFilterOptions(
+          data !== undefined
+            ? data.contents.map((u) => ({
+                id: u.id,
+                name: u.name,
+              }))
+            : []
+        );
+        setIsUserFilterLoading(false);
+      });
+    }, 250);
+  }, [getUsers]);
 
-  const authorUniqueByKey = Array.from(
-    new Map(authorOptions?.map((author) => [author[key], author])).values()
-  );
+  const getAnnouncementDelayed = useMemo(() => {
+    return debounce((query: string) => {
+      getAnnouncements({ query, limit: 5 }).then(({ data }) => {
+        setAnnouncementFilterOptions(
+          data !== undefined
+            ? data.contents.map((a) => ({
+                id: a.id,
+                name: a.title,
+              }))
+            : []
+        );
+        setIsAnnouncementFilterLoading(false);
+      });
+    }, 250);
+  }, [getAnnouncements]);
 
-  const announcementOptions = announcementsData?.contents.map(
-    (content) => content
-  );
+  const announcementOptions = announcements?.contents.map((content) => content);
 
   const announcementUniqueByKey = Array.from(
     new Map(
@@ -172,8 +220,10 @@ const RequestsPage = () => {
     if (isGetRequestError && "data" in isGetRequestError) {
       setErrorMessage((isGetRequestError.data as ApiErrorResponse).messages[0]);
     }
-    if (isGetAnnouncementError && 'data' in isGetAnnouncementError) {
-      setErrorMessage((isGetAnnouncementError.data as ApiErrorResponse).messages[0]);
+    if (isGetAnnouncementError && "data" in isGetAnnouncementError) {
+      setErrorMessage(
+        (isGetAnnouncementError.data as ApiErrorResponse).messages[0]
+      );
     }
   }, [isGetRequestError, isGetAnnouncementError]);
 
@@ -182,8 +232,36 @@ const RequestsPage = () => {
   }, [page]);
 
   useEffect(() => {
-    getAnnouncements(null);
-  }, []);
+    if (openUserFilter) {
+      getUsers({ limit: 5 }).then(({ data }) => {
+        setUserFilterOptions(
+          data !== undefined
+            ? data.contents.map((u) => ({
+                id: u.id,
+                name: u.name,
+              }))
+            : []
+        );
+      });
+    }
+  }, [openUserFilter, getUsers]);
+
+  useEffect(() => {
+    if (openAnnouncementFilter) {
+      getAnnouncements({ limit: 5 }).then(({ data }) => {
+        setAnnouncementFilterOptions(
+          data !== undefined
+            ? data.contents.map((u) => ({
+                id: u.id,
+                name: u.title,
+              }))
+            : []
+        );
+      });
+    }
+  }, [openAnnouncementFilter, getAnnouncements]);
+
+  console.log(announcementFilterOptions);
 
   return (
     <Layout>
@@ -212,23 +290,46 @@ const RequestsPage = () => {
                 <Autocomplete
                   disablePortal
                   id="author-filter"
-                  options={authorUniqueByKey}
+                  open={openUserFilter}
+                  onOpen={() => {
+                    setOpenUserFilter(true);
+                  }}
+                  onClose={() => {
+                    setOpenUserFilter(false);
+                  }}
+                  options={userFilterOptions}
                   getOptionLabel={(option) => option.name}
                   isOptionEqualToValue={(option, value) =>
                     option.name === value.name
                   }
                   sx={{ width: 150 }}
                   renderInput={(params) => (
-                    <TextField {...params} label="Author" />
+                    <TextField
+                      {...params}
+                      label="Author"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <React.Fragment>
+                            {isUserFilterLoading ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </React.Fragment>
+                        ),
+                      }}
+                    />
                   )}
-                  value={userText}
-                  onChange={(_: any, newValue: Author | null) => {
-                    if (newValue?.id && newValue?.name) {
-                      setUserId(newValue.id);
-                      setUserText(newValue);
-                    } else {
-                      setUserId(null);
-                      setUserText(null);
+                  value={userFilter}
+                  onChange={(_, newValue) => {
+                    setUserFilterOptions([]);
+                    setUserFilter(newValue);
+                  }}
+                  onInputChange={(_, newInputValue, reason) => {
+                    if (reason === "input") {
+                      setUserFilterOptions([]);
+                      getUserDelayed(newInputValue);
+                      setIsUserFilterLoading(true);
                     }
                   }}
                 />
@@ -236,36 +337,58 @@ const RequestsPage = () => {
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <Autocomplete
                   disablePortal
-                  id="announcement_filter"
-                  options={announcementUniqueByKey}
-                  getOptionLabel={(option) => option.title}
+                  id="announcement-filter"
+                  open={openAnnouncementFilter}
+                  onOpen={() => {
+                    setOpenAnnouncementFilter(true);
+                  }}
+                  onClose={() => {
+                    setOpenAnnouncementFilter(false);
+                  }}
+                  options={announcementFilterOptions}
+                  getOptionLabel={(option) => option.name}
                   isOptionEqualToValue={(option, value) =>
-                    option.title === value.title
+                    option.name === value.name
                   }
-                  sx={{ width: 160 }}
+                  sx={{ width: 150 }}
                   renderInput={(params) => (
-                    <TextField {...params} label="Announcement" />
+                    <TextField
+                      {...params}
+                      label="Announcement"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <React.Fragment>
+                            {isAnnouncementFilterLoading ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </React.Fragment>
+                        ),
+                      }}
+                    />
                   )}
-                  value={announcementText}
-                  onChange={(_: any, newValue: AnnouncementRequest | null) => {
-                    if (newValue?.id && newValue?.title) {
-                      setAnnouncementId(newValue.id);
-                      setAnnouncementText(newValue);
-                    } else {
-                      setAnnouncementId(null);
-                      setAnnouncementText(null);
+                  value={announcementFilter}
+                  onChange={(_, newValue) => {
+                    setAnnouncementFilterOptions([]);
+                    setAnnouncementFilter(newValue);
+                  }}
+                  onInputChange={(_, newInputValue, reason) => {
+                    if (reason === "input") {
+                      setAnnouncementFilterOptions([]);
+                      getAnnouncementDelayed(newInputValue);
+                      setIsAnnouncementFilterLoading(true);
                     }
                   }}
                 />
               </Box>
+
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <FormControl sx={{ width: 165 }}>
-                  <InputLabel id="announcement_filter">
-                    Condition by LSC
-                  </InputLabel>
+                  <InputLabel id="lsc_filter">Condition by LSC</InputLabel>
                   <Select
-                    labelId="announcement_filter"
-                    id="announcement_filter"
+                    labelId="lsc_filter"
+                    id="lsc_filter"
                     label="Condition by LSC"
                     value={approvedByLscText !== null ? approvedByLscText : ""}
                     onChange={(e: SelectChangeEvent) => {
@@ -291,12 +414,10 @@ const RequestsPage = () => {
               </Box>
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <FormControl sx={{ width: 165 }}>
-                  <InputLabel id="announcement_filter">
-                    Condition by BM
-                  </InputLabel>
+                  <InputLabel id="">Condition by BM</InputLabel>
                   <Select
-                    labelId="announcement_filter"
-                    id="announcement_filter"
+                    labelId="bm_filter"
+                    id="bm_filter"
                     label="Condition by LSC"
                     value={approvedByBmText !== null ? approvedByBmText : ""}
                     onChange={(e: SelectChangeEvent) => {
@@ -327,20 +448,24 @@ const RequestsPage = () => {
               </Box>
             </Box>
             <Box sx={{ marginBottom: 1 }}>
-              {actions &&
-                actions.map((action, index) => (
-                  <Button
-                    key={index}
-                    onClick={() => setActionType(action.label)}
-                    variant={
-                      actionType === action.label ? "contained" : "outlined"
-                    }
-                    sx={{ marginRight: 2 }}
-                    value={actionType}
-                  >
-                    {action.value}
-                  </Button>
-                ))}
+              <Card sx={{ bgcolor: "#D2E4EF" }}>
+                <CardActions>
+                  {actions &&
+                    actions.map((action, index) => (
+                      <Button
+                        key={index}
+                        onClick={() => setActionType(action.value)}
+                        variant={
+                          actionType === action.value ? "contained" : "text"
+                        }
+                        sx={{ marginRight: 2 }}
+                        value={actionType}
+                      >
+                        {action.label}
+                      </Button>
+                    ))}
+                </CardActions>
+              </Card>
             </Box>
             {requests && requests.contents.length > 0 ? (
               <TableContainer component={Paper}>
