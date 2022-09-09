@@ -46,6 +46,8 @@ import Layout from "../components/Layout";
 
 import { RootState } from "../store";
 import { ApiErrorResponse } from "../services/error";
+import { usePermission } from "../hooks";
+import { has } from "lodash";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -55,6 +57,10 @@ const FETCH_LIMIT = 20;
 const key = "id";
 
 const RequestsPage = () => {
+  const hasUpdateRequestApprovalPermission = usePermission(
+    "update_request_approval"
+  );
+
   const [openUserFilter, setOpenUserFilter] = useState(false);
   const [openAnnouncementFilter, setOpenAnnouncementFilter] = useState(false);
   const [actionType, setActionType] = useState<string>("");
@@ -516,10 +522,9 @@ const RequestsPage = () => {
                           {renderApprovalStatus(request.approvalStatus.bm)}
                         </TableCell>
                         <TableCell align="center">
-                          {(profile?.role.name === "LSC" &&
-                            request.approvalStatus.lsc !== null) ||
-                          (profile?.role.name === "BM" &&
-                            request.approvalStatus.bm === null) ? (
+                          {hasUpdateRequestApprovalPermission &&
+                          (request.approvalStatus.bm === null ||
+                            request.approvalStatus.lsc === null) ? (
                             <>
                               <Button
                                 variant="contained"
