@@ -1,14 +1,14 @@
 export type Pagination<T> = {
   hasNext: boolean;
   count: number;
-  totalPages: number,
-  contents: T[],
-}
+  totalPages: number;
+  contents: T[];
+};
 
 export type UserFilterOption = {
   id: number;
   name: string;
-}
+};
 
 export type Role = {
   name: string;
@@ -16,35 +16,35 @@ export type Role = {
   description: string;
 };
 
-export type Color ={
+export type Color = {
   id: number;
   name: string;
   color: string;
-}
+};
 
 export type UpdateBuilding = {
   name: string;
   buildingId: string;
-  color: string;  
-} 
+  color: string;
+};
 
 export type UserRole = {
   name: string;
-  description: String,
+  description: String;
   permissions: Permission[];
 };
 
 export type Permission = {
   label: string;
   value: string;
-}
+};
 
 export type RegisterForm = {
-  name: string,
-  email: string,
-  password: string,
-  reason: string,
-  role: string | null,
+  name: string;
+  email: string;
+  password: string;
+  reason: string;
+  role: string | null;
 };
 
 export type ActionButton = {
@@ -53,8 +53,8 @@ export type ActionButton = {
 };
 
 export type BuildingFloorDevices = {
-  name: string,
-  floors: Floor[],
+  name: string;
+  floors: Floor[];
 };
 
 // @announcement
@@ -73,7 +73,7 @@ export type Announcement = {
   title: string;
   startDate: string;
   endDate: string;
-  status: Status; 
+  status: Status;
   author: Author;
   media: string;
   notes: string;
@@ -128,13 +128,12 @@ export type UpdateFloor = {
   name: string;
   floorId: string;
   buildingId: string;
-}
-
+};
 
 export type CreateFloor = {
   name: string;
   buildingId: string;
-}
+};
 
 export type PaginatedFloors = {
   hasNext: boolean;
@@ -147,32 +146,32 @@ export type PaginatedFloors = {
 export type Permissions = {
   id: number;
   name: string;
-}
+};
 
 export type UserStatus = {
   value: string;
   label: string;
-}
+};
 
 export type AnnouncementRequest = {
   id: number;
   title: string;
-}
+};
 
 export type AuthorRequest = {
   id: number;
   name: string;
-}
+};
 
 export type ApprovalRequest = {
   lsc: boolean | null;
   bm: boolean | null;
-}
+};
 
 export type ActionRequest = {
   label: string;
   value: string;
-}
+};
 
 export type Request = {
   id: number;
@@ -182,19 +181,27 @@ export type Request = {
   action: ActionRequest;
   description: string;
   createdAt: string;
-}
+};
 
 export type Action = {
   action: string;
   status: boolean;
-}
+};
+
+export type ActionCreateRequest = {
+  action: string;
+  announcementId: number;
+  extendedEndDate: string | null;
+  description: string | null;
+  deviceIds: number[] | null;
+};
 
 export type User = {
   id: number;
   name: string;
   email: string;
-  role: Role; 
+  role: Role;
   status: Status;
-  isEmailConfirmed: boolean,
-  registrationReason: string | null,
-}
+  isEmailConfirmed: boolean;
+  registrationReason: string | null;
+};

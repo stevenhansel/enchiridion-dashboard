@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import debounce from "lodash/debounce";
 
@@ -31,7 +30,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import {
-  useCreateRequestMutation,
+  useApproveRejectRequestMutation,
   useLazyGetRequestsQuery,
 } from "../services/request";
 
@@ -39,15 +38,13 @@ import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
 import { useLazyGetUsersQuery } from "../services/user";
 
-import { Author, AnnouncementRequest, UserFilterOption } from "../types/store";
+import { UserFilterOption } from "../types/store";
 
 import { actions } from "../types/constants";
 import Layout from "../components/Layout";
 
-import { RootState } from "../store";
 import { ApiErrorResponse } from "../services/error";
 import { usePermission } from "../hooks";
-import { has } from "lodash";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -85,8 +82,6 @@ const RequestsPage = () => {
   const [isAnnouncementFilterLoading, setIsAnnouncementFilterLoading] =
     useState(false);
 
-  const profile = useSelector((state: RootState) => state.profile);
-
   const getRequestQueryParams = {
     page,
     query,
@@ -121,13 +116,13 @@ const RequestsPage = () => {
     { data: users, isLoading: isGetUserLoading, error: isGetUserError },
   ] = useLazyGetUsersQuery();
 
-  const [createRequest, { error: isCreateRequestError }] =
-    useCreateRequestMutation();
+  const [approveRejectRequest, { error: isCreateRequestError }] =
+    useApproveRejectRequestMutation();
 
   const isLoading = isGetAnnouncementLoading && isGetRequestLoading;
 
   const userApprove = (requestId: string, requestStatus: boolean) => {
-    createRequest({ requestId, requestStatus });
+    approveRejectRequest({ requestId, requestStatus });
   };
 
   const renderApprovalStatus = (

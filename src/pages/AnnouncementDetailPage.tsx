@@ -2,22 +2,44 @@ import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 
-import { Box, Button, CircularProgress, Typography, Tooltip } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Typography,
+  Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 import { useGetAnnouncementDetailQuery } from "../services/announcement";
 import { useGetBuildingsQuery } from "../services/building";
 import { useLazyGetFloorsQuery } from "../services/floor";
+import { useLazyGetRequestsQuery } from "../services/request";
+
 import Layout from "../components/Layout";
+import CreateRequestModal from "../components/CreateRequestModal";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 
 const AnnouncementDetailPage = () => {
   const { announcementId = "" } = useParams();
+  const [open, setOpen] = useState(false);
 
   const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
-  const [getFloors, { data: floorsData, isLoading: isGetFloorsLoading }] =
+
+  const [getFloors, { data: floors, isLoading: isGetFloorsLoading }] =
     useLazyGetFloorsQuery();
+
   const { data: announcements, isLoading: isGetAnnouncementDetailLoading } =
     useGetAnnouncementDetailQuery(
       { announcementId },
@@ -26,10 +48,33 @@ const AnnouncementDetailPage = () => {
       }
     );
 
+  const [
+    getRequests,
+    {
+      data: requests,
+      error: isGetRequestError,
+      isLoading: isGetRequestLoading,
+    },
+  ] = useLazyGetRequestsQuery();
+
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
   const isLoading =
     isBuildingLoading || isGetFloorsLoading || isGetAnnouncementDetailLoading;
+
+  const renderApprovalStatus = (
+    approval: boolean | null
+  ): JSX.Element | null => {
+    if (approval === null) {
+      return <RemoveIcon />;
+    } else if (approval === true) {
+      return <CheckIcon />;
+    } else if (approval === false) {
+      return <CloseIcon />;
+    }
+
+    return null;
+  };
 
   useEffect(() => {
     if (
@@ -44,6 +89,7 @@ const AnnouncementDetailPage = () => {
 
   useEffect(() => {
     getFloors(null);
+    getRequests(null);
   }, []);
 
   return (
@@ -91,6 +137,11 @@ const AnnouncementDetailPage = () => {
                 <Box>
                   <Typography fontWeight="bold">End Date</Typography>
                   <Typography>{toDate(announcements!.endDate)}</Typography>
+                  <CreateRequestModal
+                    date={new Date(announcements!.endDate)}
+                    open={open}
+                    setOpen={setOpen}
+                  />
                 </Box>
               </Box>
               <Box sx={{ marginBottom: 2 }}>
@@ -119,6 +170,7 @@ const AnnouncementDetailPage = () => {
                   sx={{
                     display: "flex",
                     border: "1px solid #c4c4c4",
+                    marginBottom: 2,
                   }}
                 >
                   <Box
@@ -159,7 +211,7 @@ const AnnouncementDetailPage = () => {
                     }}
                   >
                     <Box>
-                      {floorsData?.contents
+                      {floors?.contents
                         .filter(
                           (floor) =>
                             currentBuildingId === floor.building.id.toString()
@@ -178,7 +230,10 @@ const AnnouncementDetailPage = () => {
                             </Box>
                             <Box display="flex" flexWrap="wrap">
                               {floor.devices.map((device) => (
-                                <Tooltip key={device.id} title={device.description}>
+                                <Tooltip
+                                  key={device.id}
+                                  title={device.description}
+                                >
                                   <Button
                                     variant="contained"
                                     color={
@@ -208,6 +263,73 @@ const AnnouncementDetailPage = () => {
                   </Box>
                 </Box>
               </Box>
+              <Box sx={{ marginBottom: 2 }}>
+                <Typography display="flex" fontWeight="bold">
+                  Request
+                </Typography>
+                <Button
+                  onClick={() => {
+                    setOpen(true);
+                  }}
+                  variant="contained"
+                  size="large"
+                >
+                  + Create Request
+                </Button>
+              </Box>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell align="center">Announcement</TableCell>
+                      <TableCell align="center">Author</TableCell>
+                      <TableCell align="center">Action</TableCell>
+                      <TableCell align="center">Description</TableCell>
+                      <TableCell align="center">Created at</TableCell>
+                      <TableCell align="center">LSC</TableCell>
+                      <TableCell align="center">BM</TableCell>
+                      <TableCell />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {requests &&
+                      requests.contents.map((request) => (
+                        <TableRow
+                          key={request.id}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell>{request.id}</TableCell>
+                          <TableCell align="center">
+                            {request.announcement.title}
+                          </TableCell>
+                          <TableCell align="center">
+                            {request.author.name}
+                          </TableCell>
+                          <TableCell align="center">
+                            <Button variant="contained">
+                              {request.action.label}
+                            </Button>
+                          </TableCell>
+                          <TableCell align="center">
+                            {request.description}
+                          </TableCell>
+                          <TableCell align="center">
+                            {toDate(request.createdAt)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {renderApprovalStatus(request.approvalStatus.lsc)}
+                          </TableCell>
+                          <TableCell align="center">
+                            {renderApprovalStatus(request.approvalStatus.bm)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Box>
           )}
         </Box>

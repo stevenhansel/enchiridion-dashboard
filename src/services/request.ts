@@ -2,7 +2,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axios from "../utils/axiosInstance";
 
-import { Request, Action, Pagination, AnnouncementRequest } from "../types/store";
+import {
+  Request,
+  Action,
+  Pagination,
+  ActionCreateRequest,
+} from "../types/store";
 
 import { urlBuilder } from "../utils";
 
@@ -17,11 +22,11 @@ export const requestApi = createApi({
         page?: number;
         limit?: number;
         query?: string;
-        userId?: number | null,
-        announcementId?: number | null,
-        actionType?: string | null,
-        approvedByLsc?: boolean | null,
-        approvedByBm?: boolean | null,
+        userId?: number | null;
+        announcementId?: number | null;
+        actionType?: string | null;
+        approvedByLsc?: boolean | null;
+        approvedByBm?: boolean | null;
       } | null
     >({
       query: (params) => ({ url: urlBuilder("/v1/requests", params) }),
@@ -33,7 +38,7 @@ export const requestApi = createApi({
         contents: response.contents,
       }),
     }),
-    createRequest: builders.mutation<
+    approveRejectRequest: builders.mutation<
       Action,
       { requestId: string; requestStatus: boolean }
     >({
@@ -44,7 +49,35 @@ export const requestApi = createApi({
       }),
       invalidatesTags: () => ["Request"],
     }),
+    createRequest: builders.mutation<
+      ActionCreateRequest,
+      {
+        action: string;
+        announcementId: number;
+        description: string | null;
+        extendedEndDate: string | null;
+        deviceIds: number[] | null;
+      }
+    >({
+      query: ({
+        action,
+        announcementId,
+        description,
+        extendedEndDate,
+        deviceIds,
+      }) => ({
+        url: "/v1/requests",
+        method: "POST",
+        data: { action, announcementId, description, extendedEndDate, deviceIds },
+      }),
+      invalidatesTags: () => ["Request"],
+    }),
   }),
 });
 
-export const { useGetRequestsQuery, useCreateRequestMutation, useLazyGetRequestsQuery } = requestApi;
+export const {
+  useGetRequestsQuery,
+  useApproveRejectRequestMutation,
+  useLazyGetRequestsQuery,
+  useCreateRequestMutation,
+} = requestApi;

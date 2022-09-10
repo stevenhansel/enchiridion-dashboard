@@ -63,6 +63,8 @@ const Step1 = () => {
     },
     [setFieldValue]
   );
+  
+  console.log(values.startDate);
 
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);

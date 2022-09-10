@@ -73,6 +73,7 @@ const Step2 = () => {
     getFloors(null);
   }, []);
 
+
   return (
     <Box width="100%">
       <Box

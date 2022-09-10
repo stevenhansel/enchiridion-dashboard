@@ -11,17 +11,19 @@ import {
   Tabs,
 } from "@mui/material";
 
-import CreateBuilding from "../components/CreateBuilding";
+import ExtendDate from "../components/ExtendDate";
 import UpdateBuilding from "../components/UpdateBuilding";
 import DeleteBuilding from "../components/DeleteBuilding";
 
 import { RootState } from "../store";
 
 import usePermission from "../hooks/usePermission";
+import { CreateAnnouncementFormContext } from "./CreateAnnouncementForm/context";
 
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  date: Date;
 };
 
 type TabPanelProps = {
@@ -57,7 +59,7 @@ const a11yProps = (index: number) => {
   };
 };
 
-const BuildingModal = (props: Props) => {
+const CreateRequestModal = (props: Props) => {
   const [value, setValue] = useState(0);
   const profile = useSelector((p: RootState) => p.profile);
 
@@ -91,10 +93,7 @@ const BuildingModal = (props: Props) => {
   return (
     <>
       {hasPermission ? (
-        <Dialog
-          open={props.open}
-          onClose={() => props.setOpen(false)}
-        >
+        <Dialog open={props.open} onClose={() => props.setOpen(false)}>
           <DialogTitle>Building Menu</DialogTitle>
           <DialogContent>
             <Tabs
@@ -103,7 +102,7 @@ const BuildingModal = (props: Props) => {
               aria-label="basic tabs example"
             >
               {hasPermissionCreateBuilding ? (
-                <Tab label="Create Building" {...a11yProps(0)} />
+                <Tab label="Extend Date" {...a11yProps(0)} />
               ) : null}
               {hasPermissionUpdateBuilding ? (
                 <Tab label="Update Building" {...a11yProps(1)} />
@@ -113,9 +112,9 @@ const BuildingModal = (props: Props) => {
               ) : null}
             </Tabs>
             {hasPermissionCreateBuilding ? (
-              <TabPanel value={value} index={0}>
-                <CreateBuilding setOpen={props.setOpen} />
-              </TabPanel>
+                <TabPanel value={value} index={0}>
+                  <ExtendDate setOpen={props.setOpen} date={props.date} />
+                </TabPanel>
             ) : null}
             {hasPermissionUpdateBuilding ? (
               <TabPanel value={value} index={1}>
@@ -139,4 +138,4 @@ const BuildingModal = (props: Props) => {
   );
 };
 
-export default BuildingModal;
+export default CreateRequestModal;
