@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect } from "react";
 import { useFormikContext } from "formik";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
@@ -12,10 +13,9 @@ import { CreateAnnouncementFormValues } from "./form";
 import { validateFormikFields } from "./util";
 
 dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 
 const fields = ["title", "media", "startDate", "endDate", "notes"];
-
-const today = dayjs();
 
 const Step1 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
@@ -135,9 +135,17 @@ const Step1 = () => {
           label="Start Date Announcement"
           inputFormat="MM/dd/yyyy"
           value={values.startDate}
-          onChange={(newDate) => setFieldValue("startDate", newDate)}
+          onChange={(newStartDate) => {
+            let newEndDate = values.endDate;
+            if (newStartDate && dayjs(newStartDate).isSameOrAfter(newEndDate)) {
+              newEndDate = dayjs(newStartDate).add(1, "day").toDate();
+            }
+
+            setFieldValue("startDate", newStartDate);
+            setFieldValue("endDate", newEndDate);
+          }}
           renderInput={(params) => <TextField {...params} />}
-          shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
+          shouldDisableDate={(date) => dayjs(date).isBefore(dayjs().subtract(1, 'day'))}
         />
       </Box>
       {touched.startDate && errors.startDate ? (
@@ -153,7 +161,7 @@ const Step1 = () => {
           value={values.endDate}
           onChange={(newDate) => setFieldValue("endDate", newDate)}
           renderInput={(params) => <TextField {...params} />}
-          shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
+          shouldDisableDate={(date) => dayjs(date).isSameOrBefore(values.startDate || dayjs())}
         />
       </Box>
       {touched.endDate && errors.endDate ? (
