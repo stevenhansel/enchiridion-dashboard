@@ -100,8 +100,6 @@ const ListFloorPage = () => {
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
 
-  const profile = useSelector((state: RootState) => state.profile);
-
   const handleDeleteAnnouncement = useCallback((floorId: string) => {
     deleteFloor({ floorId });
   }, []);
