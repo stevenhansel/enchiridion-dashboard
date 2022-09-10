@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
 import { debounce } from "lodash";
 
 import {
@@ -45,8 +44,6 @@ import {
 
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
-
-import { RootState } from "../store";
 
 import { UserFilterOption } from "../types/store";
 import { usePermission } from "../hooks";

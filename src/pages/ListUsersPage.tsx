@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
 import debounce from "lodash/debounce";
 
 import Box from "@mui/material/Box";
@@ -29,12 +28,13 @@ import {
   useLazyGetUsersQuery,
   useApproveRejectUserMutation,
 } from "../services/user";
+
 import { useLazyGetRolesQuery } from "../services/roles";
 
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
-import { RootState } from "../store";
+import usePermission from "../hooks/usePermission";
 
 const FETCH_LIMIT = 20;
 
@@ -77,8 +77,6 @@ const ListUsersPage = () => {
     [page, query, roleFilter, status]
   );
   const isLoading = isUserLoading && isRoleLoading;
-
-  const profile = useSelector((p: RootState) => p.profile);
 
   const handleSearch = useCallback(() => {
     getUsers(getUsersQueryParams);
@@ -145,17 +143,7 @@ const ListUsersPage = () => {
     return page === users.totalPages;
   }, [page, users]);
 
-  const hasPermission = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((permission) => permission.value);
-
-    if (permissions.includes("update_user_approval")) {
-      return false;
-    }
-    return true;
-  }, [profile]);
+  const hasPermissionUpdateUserApproval = usePermission("update_user_approval");
 
   useEffect(() => {
     getUsers(getUsersQueryParams);
@@ -313,8 +301,8 @@ const ListUsersPage = () => {
                           {profile.status.label}
                         </TableCell>
                         <TableCell align="center">
-                          {profile.status.value === "approved" ||
-                          hasPermission ? null : (
+                          {profile.status.value === "approved" && 
+                          hasPermissionUpdateUserApproval ? null : (
                             <>
                               <Button
                                 variant="contained"

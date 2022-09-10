@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import debounce from "lodash/debounce";
-
-import { RootState } from "../store";
 
 import {
   Box,
@@ -42,14 +39,14 @@ import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
 import Layout from "../components/Layout";
 
+import usePermission from "../hooks/usePermission";
+
 const toDate = (dateStr: string) => dayjs(dateStr).format("ddd, MMM D, YYYY");
 
 const FETCH_LIMIT = 20;
 
 const ListAnnouncementPage = () => {
   const navigate = useNavigate();
-  const profile = useSelector((state: RootState) => state.profile);
-
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<AnnouncementStatus | null>(null);
@@ -106,29 +103,8 @@ const ListAnnouncementPage = () => {
     getAnnouncements(getAnnouncementsQueryParams);
   }, [getAnnouncements, getAnnouncementsQueryParams]);
 
-  const hasPermissionCreateAnnouncement = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (permissions.includes("create_announcement")) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
-  const hasPermissionViewUserList = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (permissions.includes("view_list_user")) {
-      return true;
-    }
-    return false;
-  }, [profile]);
+  const hasPermissionCreateAnnouncement = usePermission("create_announcement"); 
+  const hasPermissionViewUserList = usePermission("view_list_user");
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
