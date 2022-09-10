@@ -85,8 +85,6 @@ const RequestsPage = () => {
   const [isAnnouncementFilterLoading, setIsAnnouncementFilterLoading] =
     useState(false);
 
-  const profile = useSelector((state: RootState) => state.profile);
-
   const getRequestQueryParams = {
     page,
     query,

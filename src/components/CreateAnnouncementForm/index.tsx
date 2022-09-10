@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import dayjs from 'dayjs';
 import { Formik } from "formik";
 import { useDispatch } from "react-redux";
@@ -80,7 +80,7 @@ const CreateAnnouncementForm = () => {
     navigate('/');
   }, []);
 
-  const renderForm = useCallback((): JSX.Element | null => {
+  const form = useMemo(() => {
     if (activeStep === 0) {
       return <Step1 />;
     } else if (activeStep === 1) {
@@ -89,10 +89,8 @@ const CreateAnnouncementForm = () => {
       return <Step3 />;
     }
 
-    return null;
-  }, [activeStep]);
-
-  const form = renderForm();
+    return <Step1 />
+  }, [activeStep])
 
   return (
     <Formik
