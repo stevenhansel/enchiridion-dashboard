@@ -13,7 +13,7 @@ import {
 
 import ExtendDate from "../components/ExtendDate";
 import UpdateBuilding from "../components/UpdateBuilding";
-import DeleteBuilding from "../components/DeleteBuilding";
+import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
 
 import { RootState } from "../store";
 
@@ -108,7 +108,7 @@ const CreateRequestModal = (props: Props) => {
                 <Tab label="Update Building" {...a11yProps(1)} />
               ) : null}
               {hasPermissionDeleteBuilding ? (
-                <Tab label="Delete Building" {...a11yProps(2)} />
+                <Tab label="Delete Request" {...a11yProps(2)} />
               ) : null}
             </Tabs>
             {hasPermissionCreateBuilding ? (
@@ -123,7 +123,7 @@ const CreateRequestModal = (props: Props) => {
             ) : null}
             {hasPermissionDeleteBuilding ? (
               <TabPanel value={value} index={2}>
-                <DeleteBuilding />
+                <DeleteAnnouncementRequest setOpen={props.setOpen} />
               </TabPanel>
             ) : null}
             <Box sx={{ marginTop: 1 }}>
