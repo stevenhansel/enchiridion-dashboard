@@ -10,6 +10,12 @@ export type UserFilterOption = {
   name: string;
 };
 
+export type CreateDevice = {
+  name: string;
+  description: string;
+  floorId: number | null;
+}
+
 export type Role = {
   name: string;
   value: string;
@@ -193,7 +199,7 @@ export type ActionCreateRequest = {
   announcementId: number;
   extendedEndDate: string | null;
   description: string | null;
-  deviceIds: number[] | null;
+  deviceIds: number[];
 };
 
 export type User = {

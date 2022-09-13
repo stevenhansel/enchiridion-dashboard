@@ -12,13 +12,12 @@ import {
 } from "@mui/material";
 
 import ExtendDate from "../components/ExtendDate";
-import UpdateBuilding from "../components/UpdateBuilding";
+import ChangeDeviceRequest from "../components/ChangeDeviceRequest";
 import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
 
 import { RootState } from "../store";
 
 import usePermission from "../hooks/usePermission";
-import { CreateAnnouncementFormContext } from "./CreateAnnouncementForm/context";
 
 type Props = {
   open: boolean;
@@ -93,8 +92,12 @@ const CreateRequestModal = (props: Props) => {
   return (
     <>
       {hasPermission ? (
-        <Dialog open={props.open} onClose={() => props.setOpen(false)}>
-          <DialogTitle>Building Menu</DialogTitle>
+        <Dialog
+          open={props.open}
+          onClose={() => props.setOpen(false)}
+          PaperProps={{sx: {width: "100%", height: "100%"}}} 
+        >
+          <DialogTitle>Create Request</DialogTitle>
           <DialogContent>
             <Tabs
               value={value}
@@ -112,13 +115,13 @@ const CreateRequestModal = (props: Props) => {
               ) : null}
             </Tabs>
             {hasPermissionCreateBuilding ? (
-                <TabPanel value={value} index={0}>
-                  <ExtendDate setOpen={props.setOpen} date={props.date} />
-                </TabPanel>
+              <TabPanel value={value} index={0}>
+                <ExtendDate setOpen={props.setOpen} date={props.date} />
+              </TabPanel>
             ) : null}
             {hasPermissionUpdateBuilding ? (
               <TabPanel value={value} index={1}>
-                <UpdateBuilding setOpen={props.setOpen} />
+                <ChangeDeviceRequest setOpen={props.setOpen} />
               </TabPanel>
             ) : null}
             {hasPermissionDeleteBuilding ? (
