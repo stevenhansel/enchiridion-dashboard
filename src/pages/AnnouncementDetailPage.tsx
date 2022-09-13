@@ -33,6 +33,7 @@ const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 const AnnouncementDetailPage = () => {
   const { announcementId = "" } = useParams();
   const [open, setOpen] = useState(false);
+  const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
   const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
@@ -57,7 +58,6 @@ const AnnouncementDetailPage = () => {
     },
   ] = useLazyGetRequestsQuery();
 
-  const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
   const isLoading =
     isBuildingLoading || isGetFloorsLoading || isGetAnnouncementDetailLoading;
@@ -228,7 +228,7 @@ const AnnouncementDetailPage = () => {
                             >
                               {floor.name}
                             </Box>
-                            <Box display="flex" flexWrap="wrap">
+                            <Box display="flex" >
                               {floor.devices.map((device) => (
                                 <Tooltip
                                   key={device.id}

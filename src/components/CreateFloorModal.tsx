@@ -3,9 +3,6 @@ import React, { useState } from "react";
 import {
   Box,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   TextField,
   InputLabel,
   Select,
@@ -53,8 +50,6 @@ const CreateFloorModal = (props: Props) => {
   const handleChange = (e: SelectChangeEvent) => {
     formik.setFieldValue("buildingId", parseInt(e.target.value, 10));
   };
-
-  console.log(formik.values);
 
   return (
     <form onSubmit={formik.handleSubmit}>

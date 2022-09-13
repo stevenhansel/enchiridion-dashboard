@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash/debounce";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
 
 import {
   Box,
@@ -46,6 +48,8 @@ const toDate = (dateStr: string) => dayjs(dateStr).format("ddd, MMM D, YYYY");
 const FETCH_LIMIT = 20;
 
 const ListAnnouncementPage = () => {
+  const profile = useSelector((state: RootState) => state.profile);
+  console.log(profile);
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");

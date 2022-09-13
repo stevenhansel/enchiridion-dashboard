@@ -2,9 +2,9 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axios from "../utils/axiosInstance";
 
-import { DeviceDetail, Device, Pagination } from "../types/store";
+import { DeviceDetail, Device, Pagination, CreateDevice } from "../types/store";
 
-import { urlBuilder } from '../utils';
+import { urlBuilder } from "../utils";
 
 export const deviceApi = createApi({
   reducerPath: "deviceApi",
@@ -32,9 +32,21 @@ export const deviceApi = createApi({
       query: ({ deviceId }) => ({
         url: `v1/devices/${deviceId}`,
       }),
-      providesTags: ['Device'],
+      providesTags: ["Device"],
+    }),
+    createDevice: builders.mutation({
+      query: ({ name, description, floorId }) => ({
+        url: "v1/devices",
+        method: "POST",
+        data: { name, description, floorId },
+      }),
     }),
   }),
 });
 
-export const { useGetDevicesQuery, useGetDeviceDetailQuery, useLazyGetDevicesQuery } = deviceApi;
+export const {
+  useGetDevicesQuery,
+  useGetDeviceDetailQuery,
+  useLazyGetDevicesQuery,
+  useCreateDeviceMutation,
+} = deviceApi;

@@ -11,6 +11,9 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
 import { CircularProgress } from "@mui/material";
 import Link from "@mui/material/Link";
 import IconButton from "@mui/material/IconButton";
@@ -23,10 +26,12 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { useLazyGetDevicesQuery } from "../services/device";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
+import CreateDeviceModal from "../components/CreateDeviceModal";
 
 const FETCH_LIMIT = 20;
 
 const DevicePage = () => {
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
@@ -61,18 +66,6 @@ const DevicePage = () => {
     setErrorMessage("");
   };
 
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
     if (!data) return true;
@@ -107,6 +100,17 @@ const DevicePage = () => {
               />
               <Button onClick={handleSearch} size="large" variant="contained">
                 Search
+              </Button>
+            </Box>
+            <Box>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                + Create Device
               </Button>
             </Box>
             {data && data.contents.length > 0 ? (
@@ -178,6 +182,17 @@ const DevicePage = () => {
             ) : (
               <Typography>Not Found!</Typography>
             )}
+            <Dialog
+              open={open}
+              onClose={() => {
+                setOpen(false);
+              }}
+            >
+              <DialogTitle>Create Device</DialogTitle>
+              <DialogContent>
+                <CreateDeviceModal setOpen={setOpen}/>
+              </DialogContent>
+            </Dialog>
           </Box>
         </>
       ) : (
@@ -191,7 +206,18 @@ const DevicePage = () => {
         autoHideDuration={6000}
         onClose={handleClose}
         message={errorMessage}
-        action={action}
+        action={
+          <>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </>
+        }
       />
     </Layout>
   );

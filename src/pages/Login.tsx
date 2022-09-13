@@ -2,7 +2,8 @@ import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
 
 import {
   Box,
@@ -46,6 +47,8 @@ const validationSchema = yup.object({
 
 const Login = (props: Props) => {
   const dispatch: AppDispatch = useDispatch();
+  const profile = useSelector((state: RootState) => state.profile);
+  console.log(profile);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -85,6 +88,7 @@ const Login = (props: Props) => {
     },
     [dispatch]
   );
+
 
   const formik = useFormik({
     initialValues: {
@@ -164,8 +168,8 @@ const Login = (props: Props) => {
                 <TextField
                   id="password"
                   name="password"
-                  onChange={(event) =>
-                    formik.setFieldValue("password", event.target.value)
+                  onChange={(e) =>
+                    formik.setFieldValue("password", e.target.value)
                   }
                   error={
                     formik.touched.password && Boolean(formik.errors.password)

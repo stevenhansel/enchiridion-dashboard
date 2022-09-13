@@ -46,6 +46,8 @@ const Step2 = () => {
     [values, setFieldValue]
   );
 
+  console.log(values.devices);
+
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
     if (errors.length > 0) return;
@@ -146,7 +148,6 @@ const Step2 = () => {
                               ? "contained"
                               : "outlined"
                           }
-                          // variant="contained"
                           color={
                             values.devices.includes(device.id.toString())
                               ? "secondary"

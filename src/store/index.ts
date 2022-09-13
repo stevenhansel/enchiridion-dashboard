@@ -4,11 +4,13 @@ import { apiReducers, apiMiddlewares } from '../services';
 
 import profileReducer from './profile';
 import rolesReducer from './roles';
+import createDeviceReducer from './device';
 
 const store = configureStore({
   reducer: {
     profile: profileReducer,
     roles: rolesReducer,
+    createDevice: createDeviceReducer,
     ...apiReducers,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(...apiMiddlewares),
