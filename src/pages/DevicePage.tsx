@@ -109,6 +109,7 @@ const DevicePage = () => {
                 onClick={() => {
                   setOpen(true);
                 }}
+                sx={{ marginBottom: 1 }}
               >
                 + Create Device
               </Button>
@@ -190,7 +191,7 @@ const DevicePage = () => {
             >
               <DialogTitle>Create Device</DialogTitle>
               <DialogContent>
-                <CreateDeviceModal setOpen={setOpen}/>
+                <CreateDeviceModal setOpen={setOpen} />
               </DialogContent>
             </Dialog>
           </Box>

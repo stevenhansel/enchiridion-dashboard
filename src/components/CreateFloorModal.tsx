@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import debounce from "lodash/debounce";
 
 import {
   Box,
@@ -9,15 +10,17 @@ import {
   FormControl,
   MenuItem,
   Typography,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
 import { useCreateFloorMutation } from "../services/floor";
-import { useGetBuildingsQuery } from "../services/building";
+import { useLazyGetBuildingsQuery } from "../services/building";
 
-import { Building, CreateFloor } from "../types/store";
+import { CreateFloor, UserFilterOption } from "../types/store";
 
 const validationSchema = yup.object({
   name: yup
@@ -32,8 +35,17 @@ type Props = {
 };
 
 const CreateFloorModal = (props: Props) => {
-  const { data, isLoading, error } = useGetBuildingsQuery(null);
+  const [getBuildings, { data, isLoading, error }] = useLazyGetBuildingsQuery();
   const [addNewFloor] = useCreateFloorMutation();
+
+  const [open, setOpen] = useState(false);
+  const [buildingFilter, setBuildingFilter] = useState<UserFilterOption | null>(
+    null
+  );
+  const [buildingFilterOptions, setBuildingFilterOptions] = useState<
+    UserFilterOption[]
+  >([]);
+  const [isBuildingFilterLoading, setIsBuildingFilterLoading] = useState(false);
 
   const formik = useFormik<CreateFloor>({
     initialValues: {
@@ -51,6 +63,37 @@ const CreateFloorModal = (props: Props) => {
     formik.setFieldValue("buildingId", parseInt(e.target.value, 10));
   };
 
+  const getBuildingDelayed = useMemo(() => {
+    return debounce((query: string) => {
+      getBuildings({ limit: 5 }).then(({ data }) =>
+        setBuildingFilterOptions(
+          data !== undefined
+            ? data.map((b) => ({
+                id: b.id,
+                name: b.name,
+              }))
+            : []
+        )
+      );
+      setIsBuildingFilterLoading(false);
+    }, 250);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      getBuildings({ limit: 5 }).then(({ data }) =>
+        setBuildingFilterOptions(
+          data !== undefined
+            ? data.map((b) => ({
+                id: b.id,
+                name: b.name,
+              }))
+            : []
+        )
+      );
+    }
+  }, [open]);
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box>
@@ -67,46 +110,59 @@ const CreateFloorModal = (props: Props) => {
           helperText={formik.touched.name && formik.errors.name}
         />
         <Box sx={{ marginBottom: 2 }}>
-          <FormControl sx={{ width: 220 }}>
-            <InputLabel
-              id="building"
-              error={
-                formik.touched.buildingId && Boolean(formik.errors.buildingId)
+          <Autocomplete
+            open={open}
+            onClose={() => {
+              setOpen(false);
+            }}
+            onOpen={() => {
+              setOpen(true);
+            }}
+            options={buildingFilterOptions}
+            value={buildingFilter}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
+            onChange={(_, inputValue) => {
+              setBuildingFilterOptions([]);
+              setBuildingFilter(inputValue);
+            }}
+            onInputChange={(_, newInputValue, reason) => {
+              if (reason === "input") {
+                getBuildingDelayed(newInputValue);
+                setBuildingFilterOptions([]);
+                setIsBuildingFilterLoading(true);
               }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Building"
+                error={
+                  formik.touched.buildingId && Boolean(formik.errors.buildingId)
+                }
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <React.Fragment>
+                      {isBuildingFilterLoading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </React.Fragment>
+                  ),
+                }}
+              />
+            )}
+          />
+          {formik.touched.buildingId && formik.errors.buildingId ? (
+            <Typography
+              sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F" }}
             >
-              Building
-            </InputLabel>
-            <Select
-              labelId="building"
-              id="building"
-              label="Building"
-              onChange={handleChange}
-              value={
-                formik.values.buildingId
-                  ? formik.values.buildingId.toString()
-                  : ""
-              }
-              error={
-                formik.touched.buildingId && Boolean(formik.errors.buildingId)
-              }
-              defaultValue={""}
-            >
-              {data &&
-                data.map((building) => (
-                  <MenuItem key={building.id} value={building.id}>
-                    {building.name}
-                  </MenuItem>
-                ))}
-            </Select>
-            {formik.touched.buildingId && formik.errors.buildingId ? (
-              <Typography
-                sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F" }}
-              >
-                Building is required
-              </Typography>
-            ) : null}
-          </FormControl>
+              Building is required
+            </Typography>
+          ) : null}
         </Box>
+
         <Box>
           <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
             OK
