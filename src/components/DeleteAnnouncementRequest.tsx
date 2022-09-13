@@ -32,7 +32,7 @@ const DeleteAnnouncementRequest = (props: Props) => {
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
       description: description, 
-      deviceIds: null,
+      deviceIds: [],
     },
     onSubmit: (values) => {
       createRequest(values);
