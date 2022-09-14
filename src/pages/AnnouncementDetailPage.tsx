@@ -28,10 +28,13 @@ import { useLazyGetRequestsQuery } from "../services/request";
 import Layout from "../components/Layout";
 import CreateRequestModal from "../components/CreateRequestModal";
 
+import { usePermission } from "../hooks";
+
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 
 const AnnouncementDetailPage = () => {
   const { announcementId = "" } = useParams();
+  const hasCreateRequestPermission = usePermission("create_request");
   const [open, setOpen] = useState(false);
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
@@ -271,15 +274,17 @@ const AnnouncementDetailPage = () => {
                 <Typography display="flex" fontWeight="bold">
                   Request
                 </Typography>
-                <Button
-                  onClick={() => {
-                    setOpen(true);
-                  }}
-                  variant="contained"
-                  size="large"
-                >
-                  + Create Request
-                </Button>
+                {hasCreateRequestPermission ? (
+                  <Button
+                    onClick={() => {
+                      setOpen(true);
+                    }}
+                    variant="contained"
+                    size="large"
+                  >
+                    + Create Request
+                  </Button>
+                ) : null}
               </Box>
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
