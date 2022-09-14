@@ -26,6 +26,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { CreateDevice, UserFilterOption } from "../types/store";
 import { AppDispatch } from "../store";
 import { deviceApi } from "../services/device";
+import { isApiError, isReduxError } from "../services/error";
 import { setCreateDevice } from "../store/device";
 import { ApiErrorResponse } from "../services/error";
 import { RootState } from "../store";
@@ -67,6 +68,7 @@ const CreateDeviceModal = (props: Props) => {
   const [getFloors, { data }] = useLazyGetFloorsQuery();
 
   const device = useSelector((state: RootState) => state.createDevice);
+  console.log(device);
 
   const getBuildingDelayed = useMemo(() => {
     return debounce((query: string) => {
@@ -105,8 +107,6 @@ const CreateDeviceModal = (props: Props) => {
     }, 250);
   }, [buildingFilter, query]);
 
-  console.log(device);
-
   const handleCreateDevice = useCallback(
     async (values: CreateDevice): Promise<void> => {
       const response = await dispatch(
@@ -125,12 +125,14 @@ const CreateDeviceModal = (props: Props) => {
             secretAccessKey: response.data.secretAccessKey,
           })
         );
+        setState(true);
       } else {
         setErrorMessage(
           "data" in response.error
             ? (response.error.data as ApiErrorResponse).messages[0]
             : "Network Error"
         );
+        setState(false);
       }
     },
     [dispatch]
@@ -143,10 +145,16 @@ const CreateDeviceModal = (props: Props) => {
       floorId: null,
     },
     validationSchema: validationSchema,
-    onSubmit: handleCreateDevice,
+    onSubmit: (values) => {
+      handleCreateDevice(values);
+    },
   });
 
-  console.log(formik.values);
+  console.log(state);
+
+  // useEffect(() => {
+  //   if(formik.isSubmitting === false)
+  // }, [])
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -186,75 +194,150 @@ const CreateDeviceModal = (props: Props) => {
         );
       });
     }
-  }, [openFloorFilter, buildingFilter]);
+  }, [getFloors, openFloorFilter, buildingFilter]);
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Box>
+      {state ? (
         <Box>
-          <TextField
-            id="name"
-            label="Name"
-            variant="outlined"
-            autoComplete="off"
-            onChange={(e) => formik.setFieldValue("name", e.target.value)}
-            error={formik.touched.name && Boolean(formik.errors.name)}
-            helperText={formik.touched.name && formik.errors.name}
-            sx={{ width: 220, marginRight: 1, marginBottom: 1 }}
-          />
+          <Typography>NOTICE!</Typography>
+          <Typography>
+            {" "}
+            Please Screenshot the access code and give them to BM! dont lose
+            them!{" "}
+          </Typography>
+          <Typography>The ID: {device?.id}</Typography>
+          <Typography>Access Key ID: {device?.accessKeyId}</Typography>
+          <Typography>Secret Key: {device?.secretAccessKey}</Typography>
+          <Button
+            onClick={() => {
+              props.setOpen(false);
+            }}
+            variant="contained"
+          >
+            Ok
+          </Button>
         </Box>
-        <Box>
-          <TextField
-            id="description"
-            label="Description"
-            variant="outlined"
-            autoComplete="off"
-            onChange={(e) =>
-              formik.setFieldValue("description", e.target.value)
-            }
-            error={
-              formik.touched.description && Boolean(formik.errors.description)
-            }
-            helperText={formik.touched.description && formik.errors.description}
-            sx={{ width: 220, marginRight: 1, marginBottom: 1 }}
-          />
-        </Box>
-        <Box>
+      ) : (
+        <>
           <Box>
+            <TextField
+              id="name"
+              label="Name"
+              variant="outlined"
+              autoComplete="off"
+              onChange={(e) => formik.setFieldValue("name", e.target.value)}
+              error={formik.touched.name && Boolean(formik.errors.name)}
+              helperText={formik.touched.name && formik.errors.name}
+              sx={{ width: 220, marginRight: 1, marginBottom: 1 }}
+            />
+          </Box>
+          <Box>
+            <TextField
+              id="description"
+              label="Description"
+              variant="outlined"
+              autoComplete="off"
+              onChange={(e) =>
+                formik.setFieldValue("description", e.target.value)
+              }
+              error={
+                formik.touched.description && Boolean(formik.errors.description)
+              }
+              helperText={
+                formik.touched.description && formik.errors.description
+              }
+              sx={{ width: 220, marginRight: 1, marginBottom: 1 }}
+            />
+          </Box>
+          <Box>
+            <Box>
+              <Autocomplete
+                options={buildingFilterOptions}
+                open={openBuildingFilter}
+                onOpen={() => {
+                  setOpenBuildingFilter(true);
+                }}
+                onClose={() => {
+                  setOpenBuildingFilter(false);
+                }}
+                loading={isBuildingFilterLoading}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) =>
+                  option.name === value.name
+                }
+                onChange={(_, inputValue) => {
+                  setBuildingFilterOptions([]);
+                  setBuildingFilter(inputValue);
+                }}
+                onInputChange={(_, newInputValue, reason) => {
+                  if (reason == "input") {
+                    setBuildingFilterOptions([]);
+                    setIsBuildingFilterLoading(true);
+                    getBuildingDelayed(newInputValue);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Building"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <React.Fragment>
+                          {isBuildingFilterLoading ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </React.Fragment>
+                      ),
+                    }}
+                  />
+                )}
+                value={buildingFilter}
+                sx={{ width: 150, marginBottom: 1 }}
+              />
+            </Box>
             <Autocomplete
-              options={buildingFilterOptions}
-              open={openBuildingFilter}
+              options={floorFilterOptions}
+              loading={isFloorFilterLoading}
+              disabled={buildingFilter === null ? true : false}
+              open={openFloorFilter}
               onOpen={() => {
-                setOpenBuildingFilter(true);
+                setOpenFloorFilter(true);
               }}
               onClose={() => {
-                setOpenBuildingFilter(false);
+                setOpenFloorFilter(false);
               }}
-              loading={isBuildingFilterLoading}
               getOptionLabel={(option) => option.name}
               isOptionEqualToValue={(option, value) =>
                 option.name === value.name
               }
               onChange={(_, inputValue) => {
-                setBuildingFilterOptions([]);
-                setBuildingFilter(inputValue);
+                setFloorFilterOptions([]);
+                setFloorFilter(inputValue);
+                formik.setFieldValue("floorId", inputValue?.id);
               }}
               onInputChange={(_, newInputValue, reason) => {
                 if (reason == "input") {
-                  setBuildingFilterOptions([]);
-                  setIsBuildingFilterLoading(true);
-                  getBuildingDelayed(newInputValue);
+                  setFloorFilterOptions([]);
+                  setIsFloorFilterLoading(true);
+                  getFloorDelayed(newInputValue);
                 }
               }}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Building"
+                  label="Floor"
+                  error={
+                    formik.touched.floorId && Boolean(formik.errors.floorId)
+                  }
+                  helperText={formik.touched.floorId && formik.errors.floorId}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
                       <React.Fragment>
-                        {isBuildingFilterLoading ? (
+                        {isFloorFilterLoading ? (
                           <CircularProgress color="inherit" size={20} />
                         ) : null}
                         {params.InputProps.endAdornment}
@@ -263,69 +346,28 @@ const CreateDeviceModal = (props: Props) => {
                   }}
                 />
               )}
-              value={buildingFilter}
+              value={floorFilter}
               sx={{ width: 150, marginBottom: 1 }}
             />
           </Box>
-          <Autocomplete
-            options={floorFilterOptions}
-            loading={isFloorFilterLoading}
-            disabled={buildingFilter === null ? true : false}
-            open={openFloorFilter}
-            onOpen={() => {
-              setOpenFloorFilter(true);
+        </>
+      )}
+      {state ? null : (
+        <>
+          <Button variant="contained" sx={{ marginRight: 1 }} type="submit">
+            Ok
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              props.setOpen(false);
             }}
-            onClose={() => {
-              setOpenFloorFilter(false);
-            }}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
-            onChange={(_, inputValue) => {
-              setFloorFilterOptions([]);
-              setFloorFilter(inputValue);
-              formik.setFieldValue("floorId", inputValue?.id)
-            }}
-            onInputChange={(_, newInputValue, reason) => {
-              if (reason == "input") {
-                setFloorFilterOptions([]);
-                setIsFloorFilterLoading(true);
-                getFloorDelayed(newInputValue);
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Floor"
-                error={formik.touched.floorId && Boolean(formik.errors.floorId)}
-                helperText={formik.touched.floorId && formik.errors.floorId}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <React.Fragment>
-                      {isFloorFilterLoading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </React.Fragment>
-                  ),
-                }}
-              />
-            )}
-            value={floorFilter}
-            sx={{ width: 150, marginBottom: 1 }}
-          />
-        </Box>
-        <Button variant="contained" sx={{ marginRight: 1 }} type="submit">
-          Ok
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            props.setOpen(false);
-          }}
-        >
-          Cancel
-        </Button>
+          >
+            Cancel
+          </Button>
+        </>
+      )}
+      <Box>
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}

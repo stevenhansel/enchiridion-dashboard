@@ -57,7 +57,6 @@ const RequestsPage = () => {
   const hasUpdateRequestApprovalPermission = usePermission(
     "update_request_approval"
   );
-
   const [openUserFilter, setOpenUserFilter] = useState(false);
   const [openAnnouncementFilter, setOpenAnnouncementFilter] = useState(false);
   const [actionType, setActionType] = useState<string>("");
@@ -230,7 +229,7 @@ const RequestsPage = () => {
 
   useEffect(() => {
     getRequests(getRequestQueryParams);
-  }, [page]);
+  }, [getRequests, page]);
 
   useEffect(() => {
     if (openUserFilter) {
@@ -245,7 +244,7 @@ const RequestsPage = () => {
         );
       });
     }
-  }, [openUserFilter, getUsers]);
+  }, [getUsers, openUserFilter]);
 
   useEffect(() => {
     if (openAnnouncementFilter) {

@@ -50,8 +50,6 @@ const FETCH_LIMIT = 20;
 const ListAnnouncementPage = () => {
   const hasViewAnnouncementDetail = usePermission("view_list_announcement");
   const hasViewAnnouncementMedia = usePermission("view_permission_media");
-  const profile = useSelector((state: RootState) => state.profile);
-  console.log(profile);
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -162,7 +160,7 @@ const ListAnnouncementPage = () => {
 
   useEffect(() => {
     getAnnouncements(getAnnouncementsQueryParams);
-  }, [page]);
+  }, [getAnnouncements, page]);
 
   useEffect(() => {
     if (hasPermissionViewUserList && open) {

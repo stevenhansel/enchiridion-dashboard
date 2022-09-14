@@ -274,7 +274,7 @@ const AnnouncementDetailPage = () => {
                 <Typography display="flex" fontWeight="bold">
                   Request
                 </Typography>
-                {hasCreateRequestPermission ? (
+                {hasCreateRequestPermission && announcements?.status.value === "active" ? (
                   <Button
                     onClick={() => {
                       setOpen(true);

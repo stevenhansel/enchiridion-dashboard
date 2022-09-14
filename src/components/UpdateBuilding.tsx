@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 import {
   Box,
@@ -13,22 +13,29 @@ import {
   FormControl,
   Snackbar,
   IconButton,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import debounce from "lodash/debounce";
 
 import {
-  useGetBuildingsQuery,
+  useLazyGetBuildingsQuery,
   useUpdateBuildingMutation,
 } from "../services/building";
 
 import { useLazyGetFloorsQuery } from "../services/floor";
 
 import { colorBuilding } from "../types/constants";
+import { UserFilterOption } from "../types/store";
+
 import { ApiErrorResponse } from "../services/error";
+
+import { usePermission } from "../hooks";
 
 const validationSchema = yup.object({
   name: yup
@@ -51,14 +58,47 @@ type Props = {
 
 const UpdateBuilding = (props: Props) => {
   const [errorMessage, setErrorMessage] = useState("");
+  const [open, setOpen] = useState(false);
+  const [buildingFilterOptions, setBuildingFilterOptions] = useState<
+    UserFilterOption[]
+  >([]);
+
+  const [isBuildingFilterLoading, setIsBuildingFilterLoading] = useState(false);
+  const [buildingFilter, setBuildingFilter] = useState<UserFilterOption | null>(
+    null
+  );
+
+  const hasPermissionViewBuilding = usePermission("view_list_building");
+
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
-  const {
-    data,
-    isLoading,
-    error: isGetBuildingsError,
-  } = useGetBuildingsQuery(null);
+
+  const [
+    getBuildings,
+    {
+      data: buildings,
+      error: isGetBuildingsError,
+      isLoading: isBuildingsLoading,
+    },
+  ] = useLazyGetBuildingsQuery();
+
   const [updateBuilding, { error: isUpdateBuildingsError }] =
     useUpdateBuildingMutation();
+
+  const getBuildingDelayed = useMemo(() => {
+    return debounce((query: string) => {
+      getBuildings({ query, limit: 5 }).then(({ data }) => {
+        setBuildingFilterOptions(
+          data !== undefined
+            ? data.map((b) => ({
+                id: b.id,
+                name: b.name,
+              }))
+            : []
+        );
+        setIsBuildingFilterLoading(false);
+      });
+    }, 250);
+  }, [getBuildings]);
 
   const formik = useFormik<CreateBuildingType>({
     initialValues: {
@@ -105,6 +145,23 @@ const UpdateBuilding = (props: Props) => {
       );
     }
   }, [isUpdateBuildingsError]);
+
+  useEffect(() => {
+    if (hasPermissionViewBuilding && open) {
+      getBuildings({
+        limit: 5,
+      }).then(({ data }) => {
+        setBuildingFilterOptions(
+          data !== undefined
+            ? data.map((b) => ({
+                id: b.id,
+                name: b.name,
+              }))
+            : []
+        );
+      });
+    }
+  }, [hasPermissionViewBuilding, buildingFilter, open]);
 
   return (
     <>
@@ -158,48 +215,50 @@ const UpdateBuilding = (props: Props) => {
           </Box>
           <Box>
             <Box sx={{ minWidth: 120, marginBottom: 1 }}>
-              <FormControl fullWidth>
-                <InputLabel id="building">Building</InputLabel>
-                <Select
-                  labelId="building"
-                  id="building"
-                  defaultValue=""
-                  value={
-                    formik.values.buildingId !== null
-                      ? formik.values.buildingId
-                      : ""
+              <Autocomplete
+                options={buildingFilterOptions}
+                open={open}
+                onOpen={() => {
+                  setOpen(true);
+                }}
+                onClose={() => {
+                  setOpen(false);
+                }}
+                loading={isBuildingFilterLoading}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) =>
+                  option.name === value.name
+                }
+                onChange={(_, inputValue) => {
+                  setBuildingFilterOptions([]);
+                  setBuildingFilter(inputValue);
+                }}
+                onInputChange={(_, newInputValue, reason) => {
+                  if (reason == "input") {
+                    setBuildingFilterOptions([]);
+                    setIsBuildingFilterLoading(true);
+                    getBuildingDelayed(newInputValue);
                   }
-                  onChange={(e: SelectChangeEvent) => {
-                    formik.setFieldValue("buildingId", e.target.value);
-                  }}
-                  label="Building"
-                  error={
-                    formik.touched.buildingId &&
-                    Boolean(formik.errors.buildingId)
-                  }
-                >
-                  {data &&
-                    data.map((building) => (
-                      <MenuItem
-                        key={building.id}
-                        value={building.id.toString()}
-                      >
-                        {building.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-                {formik.touched.buildingId && formik.errors.buildingId ? (
-                  <Typography
-                    sx={{
-                      fontSize: 12,
-                      marginTop: 0.3754,
-                      color: "#D32F2F",
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Building"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <React.Fragment>
+                          {isBuildingFilterLoading ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </React.Fragment>
+                      ),
                     }}
-                  >
-                    Choose the building please
-                  </Typography>
-                ) : null}
-              </FormControl>
+                  />
+                )}
+                value={buildingFilter}
+              />
             </Box>
             <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
               OK

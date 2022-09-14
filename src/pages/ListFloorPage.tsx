@@ -33,7 +33,6 @@ import CreateFloorModal from "../components/CreateFloorModal";
 import BuildingModal from "../components/BuildingModal";
 
 import {
-  useGetBuildingsQuery,
   useLazyGetBuildingsQuery,
 } from "../services/building";
 
@@ -103,7 +102,7 @@ const ListFloorPage = () => {
 
   const handleSearch = useCallback(() => {
     getFloors(getFloorsQueryParams);
-  }, [getFloorsQueryParams]);
+  }, [getFloors, getFloorsQueryParams]);
 
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
@@ -171,7 +170,7 @@ const ListFloorPage = () => {
         );
       });
     }
-  }, [open]);
+  }, [hasPermissionViewBuilding, getBuildings, open]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
