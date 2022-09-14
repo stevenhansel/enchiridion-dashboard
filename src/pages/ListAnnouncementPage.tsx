@@ -48,6 +48,8 @@ const toDate = (dateStr: string) => dayjs(dateStr).format("ddd, MMM D, YYYY");
 const FETCH_LIMIT = 20;
 
 const ListAnnouncementPage = () => {
+  const hasViewAnnouncementDetail = usePermission("view_list_announcement");
+  const hasViewAnnouncementMedia = usePermission("view_permission_media");
   const profile = useSelector((state: RootState) => state.profile);
   console.log(profile);
   const navigate = useNavigate();
@@ -107,7 +109,7 @@ const ListAnnouncementPage = () => {
     getAnnouncements(getAnnouncementsQueryParams);
   }, [getAnnouncements, getAnnouncementsQueryParams]);
 
-  const hasPermissionCreateAnnouncement = usePermission("create_announcement"); 
+  const hasPermissionCreateAnnouncement = usePermission("create_announcement");
   const hasPermissionViewUserList = usePermission("view_list_user");
 
   const handlePaginationPreviousPage = useCallback(
@@ -164,7 +166,7 @@ const ListAnnouncementPage = () => {
 
   useEffect(() => {
     if (hasPermissionViewUserList && open) {
-      getUsers({limit: 5}).then(({ data }) => {
+      getUsers({ limit: 5 }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
             ? data.contents.map((u) => ({ id: u.id, name: u.name }))
@@ -289,8 +291,8 @@ const ListAnnouncementPage = () => {
                       <MenuItem value={AnnouncementStatus.WaitingForApproval}>
                         Waiting for Approval
                       </MenuItem>
-                       <MenuItem value={AnnouncementStatus.WaitingForSync}>
-                        Waiting for Sync 
+                      <MenuItem value={AnnouncementStatus.WaitingForSync}>
+                        Waiting for Sync
                       </MenuItem>
                       <MenuItem value={AnnouncementStatus.Active}>
                         Active
@@ -330,7 +332,11 @@ const ListAnnouncementPage = () => {
                         <TableCell align="center">Status</TableCell>
                         <TableCell align="center">Author</TableCell>
                         <TableCell align="center">Created At</TableCell>
-                        <TableCell align="center">Media</TableCell>
+                        <TableCell align="center">
+                          {!hasViewAnnouncementMedia ? (
+                            <Typography fontSize="14px" fontWeight="bold">Media</Typography>
+                          ) : null}
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -345,13 +351,19 @@ const ListAnnouncementPage = () => {
                             {announcement.id}
                           </TableCell>
                           <TableCell align="center">
-                            <Button
-                              onClick={() =>
-                                handleNavigateToDetailPage(announcement.id)
-                              }
-                            >
-                              {announcement.title}
-                            </Button>
+                            {hasViewAnnouncementDetail ? (
+                              <Button
+                                onClick={() =>
+                                  handleNavigateToDetailPage(announcement.id)
+                                }
+                              >
+                                {announcement.title}
+                              </Button>
+                            ) : (
+                              <Button color="inherit">
+                                {announcement.title}
+                              </Button>
+                            )}
                           </TableCell>
                           <TableCell align="center">
                             {toDate(announcement.startDate)}
@@ -369,13 +381,15 @@ const ListAnnouncementPage = () => {
                             {toDate(announcement.createdAt)}
                           </TableCell>
                           <TableCell align="center">
-                            <Button
-                              onClick={() =>
-                                handleSelectAnnouncementImage(announcement.id)
-                              }
-                            >
-                              Open
-                            </Button>
+                            {!hasViewAnnouncementMedia ? (
+                              <Button
+                                onClick={() =>
+                                  handleNavigateToDetailPage(announcement.id)
+                                }
+                              >
+                                Open
+                              </Button>
+                            ) : null}
                           </TableCell>
                         </TableRow>
                       ))}

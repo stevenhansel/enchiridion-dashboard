@@ -60,29 +60,12 @@ const a11yProps = (index: number) => {
 
 const CreateRequestModal = (props: Props) => {
   const [value, setValue] = useState(0);
-  const profile = useSelector((p: RootState) => p.profile);
 
   const hasPermissionCreateBuilding = usePermission("create_building");
   const hasPermissionUpdateBuilding = usePermission("update_building");
   const hasPermissionDeleteBuilding = usePermission("delete_building");
 
-  const hasPermission = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (
-      permissions.includes("create_building") &&
-      permissions.includes("update_building") &&
-      permissions.includes("delete_building")
-    ) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
-  const handleChange = useCallback(
+    const handleChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
       setValue(newValue);
     },
@@ -91,7 +74,6 @@ const CreateRequestModal = (props: Props) => {
 
   return (
     <>
-      {hasPermission ? (
         <Dialog
           open={props.open}
           onClose={() => props.setOpen(false)}
@@ -114,21 +96,15 @@ const CreateRequestModal = (props: Props) => {
                 <Tab label="Delete Request" {...a11yProps(2)} />
               ) : null}
             </Tabs>
-            {hasPermissionCreateBuilding ? (
               <TabPanel value={value} index={0}>
                 <ExtendDate setOpen={props.setOpen} date={props.date} />
               </TabPanel>
-            ) : null}
-            {hasPermissionUpdateBuilding ? (
               <TabPanel value={value} index={1}>
                 <ChangeDeviceRequest setOpen={props.setOpen} />
               </TabPanel>
-            ) : null}
-            {hasPermissionDeleteBuilding ? (
               <TabPanel value={value} index={2}>
                 <DeleteAnnouncementRequest setOpen={props.setOpen} />
               </TabPanel>
-            ) : null}
             <Box sx={{ marginTop: 1 }}>
               <Button variant="contained" onClick={() => props.setOpen(false)}>
                 Close
@@ -136,7 +112,6 @@ const CreateRequestModal = (props: Props) => {
             </Box>
           </DialogContent>
         </Dialog>
-      ) : null}
     </>
   );
 };
