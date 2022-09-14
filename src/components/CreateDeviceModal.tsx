@@ -35,7 +35,7 @@ import { useLazyGetFloorsQuery } from "../services/floor";
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
+};
 
 const validationSchema = yup.object({
   name: yup.string().required("Please give your device a name"),
@@ -60,13 +60,10 @@ const CreateDeviceModal = (props: Props) => {
   >([]);
   const [floorFilter, setFloorFilter] = useState<UserFilterOption | null>(null);
   const [isFloorFilterLoading, setIsFloorFilterLoading] = useState(false);
+  const [state, setState] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
   const [getBuildings, { error, isLoading }] = useLazyGetBuildingsQuery();
-  const getFloorsQueryParams = {
-    buildingId: buildingFilter !== null ? buildingFilter.id : null,
-    query,
-  };
   const [getFloors, { data }] = useLazyGetFloorsQuery();
 
   const device = useSelector((state: RootState) => state.createDevice);
@@ -108,6 +105,8 @@ const CreateDeviceModal = (props: Props) => {
     }, 250);
   }, [buildingFilter, query]);
 
+  console.log(device);
+
   const handleCreateDevice = useCallback(
     async (values: CreateDevice): Promise<void> => {
       const response = await dispatch(
@@ -146,6 +145,8 @@ const CreateDeviceModal = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: handleCreateDevice,
   });
+
+  console.log(formik.values);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -282,6 +283,7 @@ const CreateDeviceModal = (props: Props) => {
             onChange={(_, inputValue) => {
               setFloorFilterOptions([]);
               setFloorFilter(inputValue);
+              formik.setFieldValue("floorId", inputValue?.id)
             }}
             onInputChange={(_, newInputValue, reason) => {
               if (reason == "input") {
@@ -294,6 +296,8 @@ const CreateDeviceModal = (props: Props) => {
               <TextField
                 {...params}
                 label="Floor"
+                error={formik.touched.floorId && Boolean(formik.errors.floorId)}
+                helperText={formik.touched.floorId && formik.errors.floorId}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (

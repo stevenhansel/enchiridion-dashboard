@@ -5,10 +5,6 @@ import {
   Box,
   Button,
   TextField,
-  InputLabel,
-  Select,
-  FormControl,
-  MenuItem,
   Typography,
   Autocomplete,
   CircularProgress,
@@ -140,6 +136,7 @@ const CreateFloorModal = (props: Props) => {
                 error={
                   formik.touched.buildingId && Boolean(formik.errors.buildingId)
                 }
+                helperText={formik.touched.buildingId && formik.errors.buildingId}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (

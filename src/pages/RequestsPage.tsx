@@ -262,8 +262,6 @@ const RequestsPage = () => {
     }
   }, [openAnnouncementFilter, getAnnouncements]);
 
-  console.log(announcementFilterOptions);
-
   return (
     <Layout>
       <Box

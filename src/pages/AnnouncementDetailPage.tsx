@@ -58,7 +58,6 @@ const AnnouncementDetailPage = () => {
     },
   ] = useLazyGetRequestsQuery();
 
-
   const isLoading =
     isBuildingLoading || isGetFloorsLoading || isGetAnnouncementDetailLoading;
 
@@ -88,8 +87,13 @@ const AnnouncementDetailPage = () => {
   }, [buildings]);
 
   useEffect(() => {
+    getRequests({
+      announcementId: announcements !== null ? announcements?.id : null,
+    });
+  }, [announcements?.id]);
+
+  useEffect(() => {
     getFloors(null);
-    getRequests(null);
   }, []);
 
   return (
@@ -228,7 +232,7 @@ const AnnouncementDetailPage = () => {
                             >
                               {floor.name}
                             </Box>
-                            <Box display="flex" >
+                            <Box display="flex">
                               {floor.devices.map((device) => (
                                 <Tooltip
                                   key={device.id}

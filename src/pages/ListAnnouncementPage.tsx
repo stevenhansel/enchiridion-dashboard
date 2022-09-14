@@ -142,10 +142,10 @@ const ListAnnouncementPage = () => {
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
-    if (!users) return true;
+    if (!announcements) return true;
 
-    return page === users.totalPages;
-  }, [page, users]);
+    return page === announcements.totalPages;
+  }, [page, announcements]);
 
   useEffect(() => {
     if (isAnnouncementsError && "data" in isAnnouncementsError) {
