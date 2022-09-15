@@ -101,7 +101,7 @@ const UpdateBuilding = (props: Props) => {
   }, [getBuildings]);
 
   const handleChange = useCallback(() => {
-    getFloors({limit: 20})
+    getFloors({ limit: 20 });
     console.log("changed!");
   }, [buildings, getBuildings]);
 
@@ -174,7 +174,17 @@ const UpdateBuilding = (props: Props) => {
           />
           <Box sx={{ minWidth: 120, marginBottom: 1 }}>
             <FormControl fullWidth>
-              <InputLabel id="color">Color</InputLabel>
+              <InputLabel
+                id="color"
+                sx={{
+                  color:
+                    formik.touched.color && Boolean(formik.errors.color)
+                      ? "#D32F2F"
+                      : null,
+                }}
+              >
+                Color
+              </InputLabel>
               <Select
                 labelId="color"
                 id="color"
@@ -196,8 +206,9 @@ const UpdateBuilding = (props: Props) => {
               {formik.touched.color && formik.errors.color ? (
                 <Typography
                   sx={{
-                    fontSize: 12,
-                    marginTop: 0.3754,
+                    fontSize: "12px",
+                    marginTop: "3px",
+                    marginRight: "14px",
                     color: "#D32F2F",
                   }}
                 >
@@ -238,6 +249,10 @@ const UpdateBuilding = (props: Props) => {
                   <TextField
                     {...params}
                     label="Building"
+                    error={
+                      formik.touched.buildingId &&
+                      Boolean(formik.errors.buildingId)
+                    }
                     InputProps={{
                       ...params.InputProps,
                       endAdornment: (
@@ -253,6 +268,18 @@ const UpdateBuilding = (props: Props) => {
                 )}
                 value={buildingFilter}
               />
+              {formik.touched.buildingId && formik.errors.buildingId ? (
+                <Typography
+                  sx={{
+                    fontSize: "12px",
+                    marginTop: "3px",
+                    marginRight: "14px",
+                    color: "#D32F2F",
+                  }}
+                >
+                  Please select the building
+                </Typography>
+              ) : null}
             </Box>
             <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
               OK

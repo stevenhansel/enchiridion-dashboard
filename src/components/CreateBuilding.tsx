@@ -91,66 +91,73 @@ const CreateBuilding = (props: Props) => {
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
+        <TextField
+          autoComplete="off"
+          margin="dense"
+          id="name"
+          label="Name"
+          fullWidth
+          variant="standard"
+          sx={{ marginBottom: 2 }}
+          onChange={(e) => formik.setFieldValue("name", e.target.value)}
+          error={formik.touched.name && Boolean(formik.errors.name)}
+          helperText={formik.touched.name && formik.errors.name}
+        />
         <Box>
-          <TextField
-            autoComplete="off"
-            margin="dense"
-            id="name"
-            label="Name"
-            fullWidth
-            variant="standard"
-            sx={{ marginBottom: 2 }}
-            onChange={(e) => formik.setFieldValue("name", e.target.value)}
-            error={formik.touched.name && Boolean(formik.errors.name)}
-            helperText={formik.touched.name && formik.errors.name}
-          />
-          <Box>
-            <Box sx={{ minWidth: 120, marginBottom: 1 }}>
-              <FormControl fullWidth>
-                <InputLabel id="color">Color</InputLabel>
-                <Select
-                  labelId="color"
-                  id="color"
-                  value={
-                    formik.values.color !== null ? formik.values.color : ""
-                  }
-                  onChange={handleChange}
-                  label="Color"
-                  error={formik.touched.color && Boolean(formik.errors.color)}
+          <Box sx={{ minWidth: 120, marginBottom: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel
+                id="color"
+                sx={{
+                  color:
+                    formik.touched.color && Boolean(formik.errors.color)
+                      ? "#D32F2F"
+                      : null,
+                }}
+              >
+                Color
+              </InputLabel>
+              <Select
+                labelId="color"
+                id="color"
+                value={formik.values.color !== null ? formik.values.color : ""}
+                onChange={handleChange}
+                label="Color"
+                error={formik.touched.color && Boolean(formik.errors.color)}
+              >
+                {colorBuilding &&
+                  colorBuilding.map((color) => (
+                    <MenuItem key={color.id} value={color.color}>
+                      {color.name}
+                      <FiberManualRecordIcon sx={{ color: color.color }} />
+                    </MenuItem>
+                  ))}
+              </Select>
+              {formik.touched.color && formik.errors.color ? (
+                <Typography
+                  sx={{
+                    fontSize: "12px",
+                    marginTop: "3px",
+                    marginRight: "14px",
+                    color: "#D32F2F",
+                  }}
                 >
-                  {colorBuilding &&
-                    colorBuilding.map((color) => (
-                      <MenuItem key={color.id} value={color.color}>
-                        {color.name}
-                        <FiberManualRecordIcon sx={{ color: color.color }} />
-                      </MenuItem>
-                    ))}
-                </Select>
-                {formik.touched.color && formik.errors.color ? (
-                  <Typography
-                    sx={{
-                      fontSize: 12,
-                      marginTop: 0.3754,
-                      color: "#D32F2F",
-                    }}
-                  >
-                    Color is required
-                  </Typography>
-                ) : null}
-              </FormControl>
-            </Box>
-            <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
-              OK
-            </Button>
+                  Color is required
+                </Typography>
+              ) : null}
+            </FormControl>
           </Box>
-          <Snackbar
-            open={Boolean(errorMessage)}
-            autoHideDuration={6000}
-            onClose={handleClose}
-            message={errorMessage}
-            action={action}
-          />
+          <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
+            OK
+          </Button>
         </Box>
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={handleClose}
+          message={errorMessage}
+          action={action}
+        />
       </form>
     </>
   );

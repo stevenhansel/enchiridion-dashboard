@@ -15,8 +15,6 @@ import ExtendDate from "../components/ExtendDate";
 import ChangeDeviceRequest from "../components/ChangeDeviceRequest";
 import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
 
-import { RootState } from "../store";
-
 import usePermission from "../hooks/usePermission";
 
 type Props = {
@@ -90,7 +88,7 @@ const CreateRequestModal = (props: Props) => {
                 <Tab label="Extend Date" {...a11yProps(0)} />
               ) : null}
               {hasPermissionUpdateBuilding ? (
-                <Tab label="Update Building" {...a11yProps(1)} />
+                <Tab label="Change Devices" {...a11yProps(1)} />
               ) : null}
               {hasPermissionDeleteBuilding ? (
                 <Tab label="Delete Request" {...a11yProps(2)} />

@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 
-import { Box, Card, IconButton, Typography, Snackbar } from "@mui/material";
+import {
+  Box,
+  Card,
+  IconButton,
+  Typography,
+  Snackbar,
+  CardActions,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -30,19 +37,6 @@ const DeleteBuilding = () => {
     setErrorMessage("");
   };
 
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
-
   useEffect(() => {
     if (isDeleteBuildingError && "data" in isDeleteBuildingError) {
       setErrorMessage(
@@ -54,39 +48,45 @@ const DeleteBuilding = () => {
         (isGetBuildingsError.data as ApiErrorResponse).messages[0]
       );
     }
-  }, [isDeleteBuildingError]);
+  }, [isGetBuildingsError, isDeleteBuildingError]);
 
   return (
-    <>
+    <Box>
+      {buildings &&
+        buildings.map((building) => (
+          <Card
+            key={building.id}
+            sx={{ backgroundColor: building.color, marginBottom: 1 }}
+          >
+            <CardActions disableSpacing>
+              <Typography fontWeight="bold">{building.name}</Typography>
+              <IconButton onClick={() => handleDelete(building.id)}>
+                <DeleteIcon />
+              </IconButton>
+            </CardActions>
+          </Card>
+        ))}
       <Box>
-        <Box display="flex" flexDirection="column">
-          {buildings &&
-            buildings.map((building) => (
-              <Box key={building.id} sx={{ marginBottom: 1 }}>
-                <Card sx={{ backgroundColor: building.color }}>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Typography fontWeight="bold">{building.name}</Typography>
-                    <IconButton onClick={() => handleDelete(building.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </Card>
-              </Box>
-            ))}
-        </Box>
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}
           onClose={handleClose}
           message={errorMessage}
-          action={action}
+          action={
+            <>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
+          }
         />
       </Box>
-    </>
+    </Box>
   );
 };
 
