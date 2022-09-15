@@ -2,7 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axios from "../utils/axiosInstance";
 
-import { DeviceDetail, Device, Pagination, CreateDevice } from "../types/store";
+import { DeviceDetail, Device, Pagination, UpdateDevice } from "../types/store";
 
 import { urlBuilder } from "../utils";
 
@@ -28,6 +28,22 @@ export const deviceApi = createApi({
         contents: response.contents,
       }),
     }),
+    updateDevice: builders.mutation<
+      UpdateDevice,
+      {
+        name: string;
+        description: string;
+        deviceId: string;
+        floorId: number | null;
+      }
+    >({
+      query: ({ name, description, deviceId, floorId }) => ({
+        url: `v1/devices/${deviceId}`,
+        method: "PUT",
+        data: { name, description, floorId, deviceId},
+      }),
+      invalidatesTags: () => ["Device"],
+    }),
     getDeviceDetail: builders.query<DeviceDetail, { deviceId: string }>({
       query: ({ deviceId }) => ({
         url: `v1/devices/${deviceId}`,
@@ -50,4 +66,5 @@ export const {
   useGetDeviceDetailQuery,
   useLazyGetDevicesQuery,
   useCreateDeviceMutation,
+  useUpdateDeviceMutation,
 } = deviceApi;

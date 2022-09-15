@@ -64,7 +64,8 @@ const CreateDeviceModal = (props: Props) => {
   const [state, setState] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
-  const [getBuildings, { error: isGetBuildingsError, isLoading }] = useLazyGetBuildingsQuery();
+  const [getBuildings, { error: isGetBuildingsError, isLoading }] =
+    useLazyGetBuildingsQuery();
   const [getFloors, { error: isGetFloorsError }] = useLazyGetFloorsQuery();
 
   const device = useSelector((state: RootState) => state.createDevice);
@@ -191,13 +192,15 @@ const CreateDeviceModal = (props: Props) => {
   }, [getFloors, openFloorFilter, buildingFilter]);
 
   useEffect(() => {
-    if(isGetBuildingsError && "data" in isGetBuildingsError){
-      setErrorMessage((isGetBuildingsError.data as ApiErrorResponse).messages[0])
+    if (isGetBuildingsError && "data" in isGetBuildingsError) {
+      setErrorMessage(
+        (isGetBuildingsError.data as ApiErrorResponse).messages[0]
+      );
     }
     if (isGetFloorsError && "data" in isGetFloorsError) {
-     setErrorMessage((isGetFloorsError.data as ApiErrorResponse).messages[0]) 
+      setErrorMessage((isGetFloorsError.data as ApiErrorResponse).messages[0]);
     }
-  }, [isGetBuildingsError, isGetFloorsError])
+  }, [isGetBuildingsError, isGetFloorsError]);
 
   return (
     <form onSubmit={formik.handleSubmit}>

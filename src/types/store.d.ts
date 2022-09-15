@@ -122,6 +122,13 @@ export type DeviceDetail = {
   description: string;
 };
 
+export type UpdateDevice = {
+  name: string;
+  description: string;
+  floorId: number | null;
+  deviceId: string;
+}
+
 // floor
 export type Floor = {
   id: number;
