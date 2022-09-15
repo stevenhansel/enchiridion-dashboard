@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 
 import {
   Box,
@@ -100,6 +100,11 @@ const UpdateBuilding = (props: Props) => {
     }, 250);
   }, [getBuildings]);
 
+  const handleChange = useCallback(() => {
+    getFloors({limit: 20})
+    console.log("changed!");
+  }, [buildings, getBuildings]);
+
   const formik = useFormik<CreateBuildingType>({
     initialValues: {
       name: "",
@@ -109,7 +114,8 @@ const UpdateBuilding = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       updateBuilding(values);
-      props.setOpen(false);
+      // props.setOpen(false);
+      handleChange();
     },
   });
 
@@ -119,19 +125,6 @@ const UpdateBuilding = (props: Props) => {
     }
     setErrorMessage("");
   };
-
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
 
   useEffect(() => {
     if (isUpdateBuildingsError && "data" in isUpdateBuildingsError) {
@@ -144,7 +137,7 @@ const UpdateBuilding = (props: Props) => {
         (isGetBuildingsError.data as ApiErrorResponse).messages[0]
       );
     }
-  }, [isUpdateBuildingsError]);
+  }, [isUpdateBuildingsError, isGetBuildingsError]);
 
   useEffect(() => {
     if (hasPermissionViewBuilding && open) {
@@ -232,9 +225,10 @@ const UpdateBuilding = (props: Props) => {
                 onChange={(_, inputValue) => {
                   setBuildingFilterOptions([]);
                   setBuildingFilter(inputValue);
+                  formik.setFieldValue("buildingId", inputValue?.id);
                 }}
                 onInputChange={(_, newInputValue, reason) => {
-                  if (reason == "input") {
+                  if (reason === "input") {
                     setBuildingFilterOptions([]);
                     setIsBuildingFilterLoading(true);
                     getBuildingDelayed(newInputValue);
@@ -269,7 +263,18 @@ const UpdateBuilding = (props: Props) => {
             autoHideDuration={6000}
             onClose={handleClose}
             message={errorMessage}
-            action={action}
+            action={
+              <>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>
+            }
           />
         </Box>
       </form>

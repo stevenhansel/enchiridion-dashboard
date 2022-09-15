@@ -44,7 +44,6 @@ const validationSchema = yup.object({
   role: yup.string().required(),
 });
 
-
 const Register = () => {
   const navigate = useNavigate();
 
@@ -171,8 +170,8 @@ const Register = () => {
                 <Box sx={{ marginBottom: 3 }}>
                   <Typography>Password</Typography>
                   <TextField
-                   autoComplete="off"
-                   id="password"
+                    autoComplete="off"
+                    id="password"
                     name="password"
                     onChange={(e) =>
                       formik.setFieldValue("password", e.target.value)
@@ -195,8 +194,8 @@ const Register = () => {
                     id="reason"
                     name="reason"
                     variant="standard"
-                    onChange={(event) =>
-                      formik.setFieldValue("reason", event.target.value)
+                    onChange={(e) =>
+                      formik.setFieldValue("reason", e.target.value)
                     }
                     error={
                       formik.touched.reason && Boolean(formik.errors.reason)
@@ -228,8 +227,9 @@ const Register = () => {
                     {formik.touched.role && formik.errors.role ? (
                       <Typography
                         sx={{
-                          fontSize: 12,
-                          marginTop: 0.3754,
+                          fontSize: "12px",
+                          marginTop: "3px",
+                          marginRight: "14px",
                           color: "#D32F2F",
                         }}
                       >

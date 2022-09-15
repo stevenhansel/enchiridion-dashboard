@@ -71,7 +71,7 @@ const DevicePage = () => {
     if (!data) return true;
 
     return page === data.totalPages;
-  }, [page]);
+  }, [data]);
 
   useEffect(() => {
     getDevices(getDeviceQueryParams);

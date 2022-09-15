@@ -8,13 +8,6 @@ import {
   Box,
   Button,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  InputLabel,
-  Select,
-  FormControl,
-  MenuItem,
   Typography,
   Autocomplete,
   Snackbar,
@@ -26,7 +19,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { CreateDevice, UserFilterOption } from "../types/store";
 import { AppDispatch } from "../store";
 import { deviceApi } from "../services/device";
-import { isApiError, isReduxError } from "../services/error";
 import { setCreateDevice } from "../store/device";
 import { ApiErrorResponse } from "../services/error";
 import { RootState } from "../store";
@@ -38,10 +30,18 @@ type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+type CreateDeviceType = {
+  name: string;
+  description: string;
+  floorId: number | null;
+  buildingId: number | null;
+};
+
 const validationSchema = yup.object({
   name: yup.string().required("Please give your device a name"),
   description: yup.string().required("Description is required"),
   floorId: yup.number().required("Please select the floor"),
+  buildingId: yup.number().required(),
 });
 
 const CreateDeviceModal = (props: Props) => {
@@ -64,11 +64,10 @@ const CreateDeviceModal = (props: Props) => {
   const [state, setState] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
-  const [getBuildings, { error, isLoading }] = useLazyGetBuildingsQuery();
-  const [getFloors, { data }] = useLazyGetFloorsQuery();
+  const [getBuildings, { error: isGetBuildingsError, isLoading }] = useLazyGetBuildingsQuery();
+  const [getFloors, { error: isGetFloorsError }] = useLazyGetFloorsQuery();
 
   const device = useSelector((state: RootState) => state.createDevice);
-  console.log(device);
 
   const getBuildingDelayed = useMemo(() => {
     return debounce((query: string) => {
@@ -138,23 +137,18 @@ const CreateDeviceModal = (props: Props) => {
     [dispatch]
   );
 
-  const formik = useFormik({
+  const formik = useFormik<CreateDeviceType>({
     initialValues: {
       name: "",
       description: "",
       floorId: null,
+      buildingId: null,
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       handleCreateDevice(values);
     },
   });
-
-  console.log(state);
-
-  // useEffect(() => {
-  //   if(formik.isSubmitting === false)
-  // }, [])
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -196,19 +190,39 @@ const CreateDeviceModal = (props: Props) => {
     }
   }, [getFloors, openFloorFilter, buildingFilter]);
 
+  useEffect(() => {
+    if(isGetBuildingsError && "data" in isGetBuildingsError){
+      setErrorMessage((isGetBuildingsError.data as ApiErrorResponse).messages[0])
+    }
+    if (isGetFloorsError && "data" in isGetFloorsError) {
+     setErrorMessage((isGetFloorsError.data as ApiErrorResponse).messages[0]) 
+    }
+  }, [isGetBuildingsError, isGetFloorsError])
+
   return (
     <form onSubmit={formik.handleSubmit}>
       {state ? (
         <Box>
-          <Typography>NOTICE!</Typography>
-          <Typography>
-            {" "}
-            Please Screenshot the access code and give them to BM! dont lose
-            them!{" "}
-          </Typography>
-          <Typography>The ID: {device?.id}</Typography>
-          <Typography>Access Key ID: {device?.accessKeyId}</Typography>
-          <Typography>Secret Key: {device?.secretAccessKey}</Typography>
+          <Box>
+            <Typography fontWeight="bold">NOTICE!</Typography>
+            <Typography sx={{ marginBottom: 1 }}>
+              Please Screenshot the access code or write it the fuck down and
+              give them to BM! Don't lose them!
+            </Typography>
+          </Box>
+
+          <Box display="flex" flexDirection="row">
+            <Typography>The ID: &nbsp;</Typography>
+            <Typography fontWeight="bold">{device?.id}</Typography>
+          </Box>
+          <Box display="flex" flexDirection="row">
+            <Typography>Access Key ID: &nbsp;</Typography>
+            <Typography fontWeight="bold">{device?.accessKeyId}</Typography>
+          </Box>
+          <Box display="flex" flexDirection="row" sx={{ marginBottom: 1 }}>
+            <Typography>Secret Access Key: &nbsp;</Typography>
+            <Typography fontWeight="bold">{device?.secretAccessKey}</Typography>
+          </Box>
           <Button
             onClick={() => {
               props.setOpen(false);
@@ -229,7 +243,8 @@ const CreateDeviceModal = (props: Props) => {
               onChange={(e) => formik.setFieldValue("name", e.target.value)}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
-              sx={{ width: 220, marginRight: 1, marginBottom: 1 }}
+              sx={{ marginRight: 1, marginBottom: 1, marginTop: 1 }}
+              fullWidth
             />
           </Box>
           <Box>
@@ -247,7 +262,8 @@ const CreateDeviceModal = (props: Props) => {
               helperText={
                 formik.touched.description && formik.errors.description
               }
-              sx={{ width: 220, marginRight: 1, marginBottom: 1 }}
+              sx={{ marginRight: 1, marginBottom: 1 }}
+              fullWidth
             />
           </Box>
           <Box>
@@ -269,9 +285,10 @@ const CreateDeviceModal = (props: Props) => {
                 onChange={(_, inputValue) => {
                   setBuildingFilterOptions([]);
                   setBuildingFilter(inputValue);
+                  formik.setFieldValue("buildingId", inputValue?.id);
                 }}
                 onInputChange={(_, newInputValue, reason) => {
-                  if (reason == "input") {
+                  if (reason === "input") {
                     setBuildingFilterOptions([]);
                     setIsBuildingFilterLoading(true);
                     getBuildingDelayed(newInputValue);
@@ -281,6 +298,7 @@ const CreateDeviceModal = (props: Props) => {
                   <TextField
                     {...params}
                     label="Building"
+                    fullWidth
                     InputProps={{
                       ...params.InputProps,
                       endAdornment: (
@@ -292,11 +310,29 @@ const CreateDeviceModal = (props: Props) => {
                         </React.Fragment>
                       ),
                     }}
+                    error={
+                      formik.touched.buildingId &&
+                      Boolean(formik.errors.buildingId)
+                    }
                   />
                 )}
                 value={buildingFilter}
-                sx={{ width: 150, marginBottom: 1 }}
+                sx={{ width: 220 }}
               />
+              {formik.touched.buildingId && formik.errors.buildingId ? (
+                <Typography
+                  sx={{
+                    fontSize: "12px",
+                    marginTop: "3px",
+                    marginRight: "14px",
+                    marginLeft: "14px",
+                    color: "#D32F2F",
+                    marginBottom: 1,
+                  }}
+                >
+                  Please select the building
+                </Typography>
+              ) : null}
             </Box>
             <Autocomplete
               options={floorFilterOptions}
@@ -319,7 +355,7 @@ const CreateDeviceModal = (props: Props) => {
                 formik.setFieldValue("floorId", inputValue?.id);
               }}
               onInputChange={(_, newInputValue, reason) => {
-                if (reason == "input") {
+                if (reason === "input") {
                   setFloorFilterOptions([]);
                   setIsFloorFilterLoading(true);
                   getFloorDelayed(newInputValue);
@@ -329,10 +365,10 @@ const CreateDeviceModal = (props: Props) => {
                 <TextField
                   {...params}
                   label="Floor"
+                  fullWidth
                   error={
                     formik.touched.floorId && Boolean(formik.errors.floorId)
                   }
-                  helperText={formik.touched.floorId && formik.errors.floorId}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
@@ -347,13 +383,26 @@ const CreateDeviceModal = (props: Props) => {
                 />
               )}
               value={floorFilter}
-              sx={{ width: 150, marginBottom: 1 }}
+              sx={{ width: 220, marginTop: 1 }}
             />
+            {formik.touched.floorId && formik.errors.floorId ? (
+              <Typography
+                sx={{
+                  fontSize: "12px",
+                  marginTop: "3px",
+                  marginRight: "14px",
+                  color: "#D32F2F",
+                  marginBottom: 1,
+                }}
+              >
+                Please select the floor
+              </Typography>
+            ) : null}
           </Box>
         </>
       )}
       {state ? null : (
-        <>
+        <Box sx={{ marginTop: 1 }}>
           <Button variant="contained" sx={{ marginRight: 1 }} type="submit">
             Ok
           </Button>
@@ -365,7 +414,7 @@ const CreateDeviceModal = (props: Props) => {
           >
             Cancel
           </Button>
-        </>
+        </Box>
       )}
       <Box>
         <Snackbar

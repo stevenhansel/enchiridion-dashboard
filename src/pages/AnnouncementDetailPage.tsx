@@ -224,13 +224,14 @@ const AnnouncementDetailPage = () => {
                             currentBuildingId === floor.building.id.toString()
                         )
                         .map((floor) => (
-                          <Box key={floor.id} display="flex">
+                          <Box key={floor.id} display="flex" >
                             <Box
                               sx={{
                                 minWidth: 100,
-                                flex: 1,
-                                marginRight: 1,
-                                marginBottom: 2,
+                                // flex: 1,
+                                // marginRight: 1,
+                                // marginBottom: 2,
+                                margin: 1,
                               }}
                             >
                               {floor.name}
@@ -254,8 +255,10 @@ const AnnouncementDetailPage = () => {
                                         : "inactive"
                                     }
                                     sx={{
-                                      marginRight: 1,
-                                      marginBottom: 1,
+                                      // marginLeft: 1,
+                                      // marginRight: 1,
+                                      // marginBottom: 1,
+                                      margin: 1,
                                       width: 140,
                                     }}
                                   >
@@ -274,7 +277,8 @@ const AnnouncementDetailPage = () => {
                 <Typography display="flex" fontWeight="bold">
                   Request
                 </Typography>
-                {hasCreateRequestPermission && announcements?.status.value === "active" ? (
+                {hasCreateRequestPermission &&
+                announcements?.status.value === "active" ? (
                   <Button
                     onClick={() => {
                       setOpen(true);

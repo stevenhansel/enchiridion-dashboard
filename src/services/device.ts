@@ -32,7 +32,7 @@ export const deviceApi = createApi({
       query: ({ deviceId }) => ({
         url: `v1/devices/${deviceId}`,
       }),
-      providesTags: ["Device"],
+      providesTags: () => ["Device"],
     }),
     createDevice: builders.mutation({
       query: ({ name, description, floorId }) => ({
@@ -40,6 +40,7 @@ export const deviceApi = createApi({
         method: "POST",
         data: { name, description, floorId },
       }),
+      invalidatesTags: () => ["Device"],
     }),
   }),
 });
