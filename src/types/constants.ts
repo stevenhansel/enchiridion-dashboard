@@ -1,4 +1,4 @@
-import { ActionButton, Color } from "../types/store";
+import { ActionButton, ActionStatus, Color } from "../types/store";
 
 export enum AnnouncementStatus {
   WaitingForApproval = "waiting_for_approval",
@@ -14,6 +14,37 @@ export enum ApprovalStatus {
   Rejected = "false",
   All = "null",
 }
+
+export const statusActions: ActionStatus[] = [
+  {
+    label: "all",
+    value: "",
+  },
+  {
+    label: "Waiting for Approval",
+    value: "waiting_for_approval",
+  },
+  {
+    label: "Waiting for Sync",
+    value: "waiting_for_sync",
+  },
+  {
+    label: "Active",
+    value: "active",
+  },
+  {
+    label: "Rejected",
+    value: "rejected",
+  },
+  {
+    label: "Canceled",
+    value: "canceled",
+  },
+  {
+    label: "Done",
+    value: "done",
+  },
+];
 
 export const actions: ActionButton[] = [
   {

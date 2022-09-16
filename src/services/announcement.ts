@@ -18,7 +18,7 @@ export const announcementApi = createApi({
         page?: number;
         limit?: number;
         query?: string;
-        status?: AnnouncementStatus | null;
+        status?: string | null;
         userId?: number | null;
         populateMedia?: boolean | null;
         deviceId?: string | null;

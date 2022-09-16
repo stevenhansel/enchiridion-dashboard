@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 
@@ -24,7 +24,7 @@ import Layout from "../components/Layout";
 import UpdateDeviceModal from "../components/UpdateDeviceModal";
 
 import { usePermission } from "../hooks";
-import { actions } from "../types/constants";
+import { statusActions, AnnouncementStatus } from "../types/constants";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -53,10 +53,12 @@ const DeviceDetailPage = () => {
   ] = useLazyGetAnnouncementsQuery();
 
   useEffect(() => {
-    getAnnouncements({ populateMedia: true, deviceId: deviceId });
-  }, [getAnnouncements]);
-
-  console.log(announcements);
+    getAnnouncements({
+      status: actionType,
+      populateMedia: true,
+      deviceId: deviceId,
+    });
+  }, [getAnnouncements, actionType, deviceId]);
 
   return (
     <Layout>
@@ -113,11 +115,11 @@ const DeviceDetailPage = () => {
           <Typography sx={{ marginBottom: 1 }} variant="h5" fontWeight="bold">
             Announcement
           </Typography>
-          <Box sx={{ marginBottom: 1, width: "600px" }}>
+          <Box sx={{ marginBottom: 1 }}>
             <Card sx={{ bgcolor: "#D2E4EF" }}>
               <CardActions>
-                {actions &&
-                  actions.map((action, index) => (
+                {statusActions &&
+                  statusActions.map((action, index) => (
                     <Button
                       key={index}
                       onClick={() => setActionType(action.value)}
@@ -126,6 +128,7 @@ const DeviceDetailPage = () => {
                       }
                       sx={{ marginRight: 2 }}
                       value={actionType}
+
                     >
                       {action.label}
                     </Button>
@@ -133,45 +136,55 @@ const DeviceDetailPage = () => {
               </CardActions>
             </Card>
           </Box>
-          <Box>
-            {announcements &&
-              announcements.contents.map((announcement) => (
-                <Box
-                  key={announcement.id}
-                  display="flex"
-                  sx={{ marginBottom: 1 }}
-                >
-                  <Paper elevation={3}>
-                    <img src={announcement.media} style={{ margin: "10px" }} />
-                    <Typography
-                      variant="h5"
-                      fontWeight="bold"
-                      sx={{ marginLeft: "10px" }}
-                    >
-                      {announcement.title}
-                    </Typography>
-                    <Button variant="contained" sx={{ marginBottom: 1, marginLeft: "10px" }}>
-                      {announcement.status.label}
-                    </Button>
-                    <Box
-                      display="flex"
-                      flexDirection="row"
-                      justifyContent="space-between"
-                      sx={{ marginBottom: 1, marginLeft: "10px" }}
-                    >
-                      <Typography>
-                        by&nbsp;{announcement.author.name}
+          {announcements && announcements.contents.length > 0 ? (
+            <Box>
+              {announcements &&
+                announcements.contents.map((announcement) => (
+                  <Box
+                    key={announcement.id}
+                    display="flex"
+                    sx={{ marginBottom: 1 }}
+                  >
+                    <Paper elevation={3}>
+                      <img
+                        src={announcement.media}
+                        style={{ margin: "10px" }}
+                      />
+                      <Typography
+                        variant="h5"
+                        fontWeight="bold"
+                        sx={{ marginLeft: "10px" }}
+                      >
+                        {announcement.title}
                       </Typography>
-                      <Typography sx={{ marginRight: "10px" }}>
-                        {dayjs(announcement.startDate).format("D MMMM YYYY")}
-                        &nbsp;-&nbsp;
-                        {dayjs(announcement.endDate).format("D MMMM YYYY")}
-                      </Typography>
-                    </Box>
-                  </Paper>
-                </Box>
-              ))}
-          </Box>
+                      <Button
+                        variant="contained"
+                        sx={{ marginBottom: 1, marginLeft: "10px" }}
+                      >
+                        {announcement.status.label}
+                      </Button>
+                      <Box
+                        display="flex"
+                        flexDirection="row"
+                        justifyContent="space-between"
+                        sx={{ marginBottom: 1, marginLeft: "10px" }}
+                      >
+                        <Typography>
+                          by&nbsp;{announcement.author.name}
+                        </Typography>
+                        <Typography sx={{ marginRight: "10px" }}>
+                          {dayjs(announcement.startDate).format("D MMMM YYYY")}
+                          &nbsp;-&nbsp;
+                          {dayjs(announcement.endDate).format("D MMMM YYYY")}
+                        </Typography>
+                      </Box>
+                    </Paper>
+                  </Box>
+                ))}
+            </Box>
+          ) : (
+            <Typography>Announcement Not Found!</Typography>
+          )}
         </Box>
         <Dialog
           open={open}

@@ -218,3 +218,8 @@ export type User = {
   isEmailConfirmed: boolean;
   registrationReason: string | null;
 };
+
+export type ActionStatus = {
+  label: string;
+  value: string;
+}

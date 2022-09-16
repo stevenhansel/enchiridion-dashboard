@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash/debounce";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store";
 
 import {
   Box,
@@ -33,7 +31,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import { AnnouncementStatus } from "../types/constants";
-import { UserFilterOption } from "../types/store";
+import { UserFilterOption, ActionStatus } from "../types/store";
 
 import { ApiErrorResponse } from "../services/error";
 import { useLazyGetUsersQuery } from "../services/user";
@@ -53,7 +51,7 @@ const ListAnnouncementPage = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<AnnouncementStatus | null>(null);
+  const [status, setStatus] = useState("");
   const [userFilter, setUserFilter] = useState<UserFilterOption | null>(null);
 
   const [isUserFilterLoading, setIsUserFilterLoading] = useState(false);
@@ -277,29 +275,29 @@ const ListAnnouncementPage = () => {
                       label="Status"
                       onChange={(e: SelectChangeEvent) => {
                         if (e.target.value === "") {
-                          setStatus(null);
+                          setStatus("");
                         } else {
                           setStatus(
-                            e.target.value as AnnouncementStatus | null
+                            e.target.value  
                           );
                         }
                       }}
                     >
                       <MenuItem value="">None</MenuItem>
-                      <MenuItem value={AnnouncementStatus.WaitingForApproval}>
+                      <MenuItem value={"waiting_for_approval"}>
                         Waiting for Approval
                       </MenuItem>
-                      <MenuItem value={AnnouncementStatus.WaitingForSync}>
+                      <MenuItem value={"waiting_for_sync"}>
                         Waiting for Sync
                       </MenuItem>
-                      <MenuItem value={AnnouncementStatus.Active}>
+                      <MenuItem value={"active"}>
                         Active
                       </MenuItem>
-                      <MenuItem value={AnnouncementStatus.Done}>Done</MenuItem>
-                      <MenuItem value={AnnouncementStatus.Rejected}>
+                      <MenuItem value={"done"}>Done</MenuItem>
+                      <MenuItem value={"rejected"}>
                         Rejected
                       </MenuItem>
-                      <MenuItem value={AnnouncementStatus.Canceled}>
+                      <MenuItem value={"canceled"}>
                         Canceled
                       </MenuItem>
                     </Select>
