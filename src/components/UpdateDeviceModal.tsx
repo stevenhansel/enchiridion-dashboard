@@ -2,14 +2,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   TextField,
   Autocomplete,
   CircularProgress,
   Button,
+  Snackbar,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import debounce from "lodash/debounce";
@@ -21,6 +21,7 @@ import { useLazyGetBuildingsQuery } from "../services/building";
 import { useUpdateDeviceMutation } from "../services/device";
 
 import { UserFilterOption } from "../types/store";
+import { ApiErrorResponse } from "../services/error";
 
 type Props = {
   open: boolean;
@@ -39,7 +40,7 @@ const validationSchema = yup.object({
   name: yup
     .string()
     .required("Device name required")
-    .min(3, "Name should be of minimum 4 characters length"),
+    .min(3, "Name should be of minimum 3 characters length"),
   description: yup.string().required("Description is required"),
   floorId: yup.number().required("Please select the floor"),
   deviceId: yup.string().required(),
@@ -47,7 +48,7 @@ const validationSchema = yup.object({
 
 const UpdateDeviceModal = (props: Props) => {
   const { deviceId = "" } = useParams();
-
+  const [errorMessage, setErrorMessage] = useState("");
   const [openBuildingFilter, setOpenBuildingFilter] = useState(false);
   const [openFloorFilter, setOpenFloorFilter] = useState(false);
 
@@ -73,7 +74,10 @@ const UpdateDeviceModal = (props: Props) => {
     { error: isGetBuildingError, isLoading: isGetBuildingLoading },
   ] = useLazyGetBuildingsQuery();
 
-  const [updateDevice, { error, isLoading }] = useUpdateDeviceMutation();
+  const [
+    updateDevice,
+    { error: isUpdateDeviceError, isLoading: isUpdateDeviceLoading },
+  ] = useUpdateDeviceMutation();
 
   const getFloorDelayed = useMemo(() => {
     return debounce((query: string) => {
@@ -120,6 +124,15 @@ const UpdateDeviceModal = (props: Props) => {
     },
   });
 
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
+
+
   useEffect(() => {
     if (openFloorFilter) {
       getFloors({
@@ -152,6 +165,22 @@ const UpdateDeviceModal = (props: Props) => {
       );
     }
   }, [getBuildings, openBuildingFilter]);
+
+  useEffect(() => {
+    if (isUpdateDeviceError && "data" in isUpdateDeviceError) {
+      setErrorMessage(
+        (isUpdateDeviceError.data as ApiErrorResponse).messages[0]
+      );
+    }
+    if (isGetFloorError && "data" in isGetFloorError) {
+      setErrorMessage((isGetFloorError.data as ApiErrorResponse).messages[0]);
+    }
+    if (isGetBuildingError && "data" in isGetBuildingError) {
+      setErrorMessage(
+        (isGetBuildingError.data as ApiErrorResponse).messages[0]
+      );
+    }
+  }, [isUpdateDeviceError, isGetFloorError, isGetBuildingError]);
 
   return (
     <>
@@ -288,6 +317,26 @@ const UpdateDeviceModal = (props: Props) => {
         >
           Cancel
         </Button>
+        <Box>
+          <Snackbar
+            open={Boolean(errorMessage)}
+            autoHideDuration={6000}
+            onClose={() => setErrorMessage("")}
+            message={errorMessage}
+            action={
+              <>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>
+            }
+          />
+        </Box>
       </form>
     </>
   );

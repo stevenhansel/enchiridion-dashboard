@@ -1,18 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Box,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+  Snackbar,
   TextField,
   InputLabel,
   MenuItem,
   FormControl,
   Select,
   Typography,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -20,7 +20,7 @@ import * as yup from "yup";
 import { useUpdateFloorMutation } from "../services/floor";
 import { useGetBuildingsQuery } from "../services/building";
 
-import { UpdateFloor, Building } from "../types/store";
+import { UpdateFloor } from "../types/store";
 
 const validationSchema = yup.object({
   name: yup
@@ -36,7 +36,13 @@ type Props = {
 };
 
 const UpdateFloorModal = (props: Props) => {
-  const { data, isLoading, error } = useGetBuildingsQuery(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const {
+    data: buildings,
+    isLoading: isBuildingLoading,
+    error: isBuildingError,
+  } = useGetBuildingsQuery(null);
   const [editFloor] = useUpdateFloorMutation();
 
   const formik = useFormik<UpdateFloor>({
@@ -56,11 +62,16 @@ const UpdateFloorModal = (props: Props) => {
     formik.setFieldValue("buildingId", parseInt(e.target.value, 10));
   };
 
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
   useEffect(() => {
     formik.setFieldValue("floorId", props.floorId);
   }, [props.floorId]);
-
-  console.log(formik.values);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -102,8 +113,8 @@ const UpdateFloorModal = (props: Props) => {
               }
               defaultValue={""}
             >
-              {data &&
-                data.map((building) => (
+              {buildings &&
+                buildings.map((building) => (
                   <MenuItem key={building.id} value={building.id}>
                     {building.name}
                   </MenuItem>
@@ -130,6 +141,24 @@ const UpdateFloorModal = (props: Props) => {
             Close
           </Button>
         </Box>
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+          message={errorMessage}
+          action={
+            <>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
+          }
+        />
       </Box>
     </form>
   );

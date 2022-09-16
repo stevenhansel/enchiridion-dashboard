@@ -89,7 +89,7 @@ const ListAnnouncementPage = () => {
 
   const [
     getUsers,
-    { data: users, isLoading: isGetUsersLoading, error: isUsersError },
+    { data, isLoading: isGetUsersLoading, error: isUsersError },
   ] = useLazyGetUsersQuery();
 
   const isLoading = isAnnouncementsLoading && isGetUsersLoading;
@@ -332,7 +332,9 @@ const ListAnnouncementPage = () => {
                         <TableCell align="center">Created At</TableCell>
                         <TableCell align="center">
                           {!hasViewAnnouncementMedia ? (
-                            <Typography fontSize="14px" fontWeight="bold">Media</Typography>
+                            <Typography fontSize="14px" fontWeight="bold">
+                              Media
+                            </Typography>
                           ) : null}
                         </TableCell>
                       </TableRow>
@@ -435,7 +437,7 @@ const ListAnnouncementPage = () => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={handleClose}
+        onClose={() => setErrorMessage("")}
         message={errorMessage}
         action={
           <IconButton

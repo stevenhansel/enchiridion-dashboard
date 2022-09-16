@@ -97,19 +97,6 @@ const ChangeDeviceRequest = (props: Props) => {
     formik.setFieldValue("description", description);
   }, [description, formik.values.description]);
 
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
-
   useEffect(() => {
     if (error && "data" in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
@@ -234,15 +221,28 @@ const ChangeDeviceRequest = (props: Props) => {
               </Box>
             </Box>
             <Box>
-              <Button variant="contained" type="submit">OK</Button>
+              <Button variant="contained" type="submit">
+                OK
+              </Button>
             </Box>
           </Box>
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={handleClose}
+            onClose={() => setErrorMessage("")}
             message={errorMessage}
-            action={action}
+            action={
+              <>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>
+            }
           />
         </Box>
       </form>

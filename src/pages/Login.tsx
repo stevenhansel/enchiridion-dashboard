@@ -48,7 +48,6 @@ const validationSchema = yup.object({
 const Login = (props: Props) => {
   const dispatch: AppDispatch = useDispatch();
   const profile = useSelector((state: RootState) => state.profile);
-  console.log(profile);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
