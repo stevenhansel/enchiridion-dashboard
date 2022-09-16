@@ -32,9 +32,7 @@ import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
 import BuildingModal from "../components/BuildingModal";
 
-import {
-  useLazyGetBuildingsQuery,
-} from "../services/building";
+import { useLazyGetBuildingsQuery } from "../services/building";
 
 import {
   useLazyGetFloorsQuery,
@@ -54,7 +52,11 @@ const ListFloorPage = () => {
   const hasPermissionUpdateFloor = usePermission("update_floor");
   const hasPermissionDeleteFloor = usePermission("delete_floor");
 
-  const hasPermissionMutateBuilding = usePermission("create_building", "update_building", "delete_building");
+  const hasPermissionMutateBuilding = usePermission(
+    "create_building",
+    "update_building",
+    "delete_building"
+  );
   const hasPermissionViewBuilding = usePermission("view_list_building");
 
   const [deleteFloor] = useDeleteFloorMutation();
@@ -335,12 +337,15 @@ const ListFloorPage = () => {
                             {row.building.name}
                           </Button>
                         </TableCell>
-                        <TableCell align="center">
+                        <TableCell align="center" sx={{ maxWidth: "700px" }}>
                           {row.devices.map((device) => (
                             <Tooltip key={device.id} title={device.description}>
                               <Button
                                 variant="outlined"
-                                sx={{ marginRight: 1 }}
+                                sx={{
+                                  marginRight: 1,
+                                  width: 100,
+                                }}
                               >
                                 {device.name}
                               </Button>

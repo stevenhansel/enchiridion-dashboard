@@ -18,8 +18,10 @@ export const announcementApi = createApi({
         page?: number;
         limit?: number;
         query?: string;
-        status?: AnnouncementStatus | null,
-        userId?: number | null,
+        status?: AnnouncementStatus | null;
+        userId?: number | null;
+        populateMedia?: boolean | null;
+        deviceId?: string | null;
       } | null
     >({
       query: (params) => ({ url: urlBuilder("/v1/announcements", params) }),

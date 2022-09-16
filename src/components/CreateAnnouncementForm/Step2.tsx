@@ -65,16 +65,19 @@ const Step2 = () => {
   }, []);
 
   useEffect(() => {
-    if(buildings !== undefined && isBuildingLoading === false && buildings.length > 0){
-        const firstBuildingId = buildings[0].id
-        setCurrentBuildingId(firstBuildingId.toString())
-      }
-  }, [isBuildingLoading])
+    if (
+      buildings !== undefined &&
+      isBuildingLoading === false &&
+      buildings.length > 0
+    ) {
+      const firstBuildingId = buildings[0].id;
+      setCurrentBuildingId(firstBuildingId.toString());
+    }
+  }, [isBuildingLoading]);
 
   useEffect(() => {
     getFloors(null);
   }, []);
-
 
   return (
     <Box width="100%">
@@ -91,7 +94,8 @@ const Step2 = () => {
             flexDirection: "column",
           }}
         >
-          {buildings && buildings.map((building) => (
+          {buildings &&
+            buildings.map((building) => (
               <Button
                 key={building.id}
                 onClick={() => setCurrentBuildingId(building.id.toString())}
@@ -119,49 +123,55 @@ const Step2 = () => {
           }}
         >
           <Box>
-            {floors && floors?.contents
-              .filter(
-                (floor) => currentBuildingId === floor.building.id.toString()
-              )
-              .map((floor) => (
-                <Box key={floor.id} display="flex">
+            {floors &&
+              floors?.contents
+                .filter(
+                  (floor) => currentBuildingId === floor.building.id.toString()
+                )
+                .map((floor) => (
                   <Box
-                    sx={{
-                      minWidth: 100,
-                      flex: 1,
-                      marginRight: 1,
-                      marginBottom: 2,
-                    }}
+                    key={floor.id}
+                    display="flex"
+                    sx={{ border: "1px solid #c4c4c4", marginBottom: 1 }}
                   >
-                    {floor.name}
+                    <Box
+                      sx={{
+                        minWidth: 100,
+                        // flex: 1,
+                        marginRight: 1,
+                        marginBottom: 2,
+                        margin: 1,
+                      }}
+                    >
+                      {floor.name}
+                    </Box>
+                    <Box sx={{ maxWidth: "674px" }}>
+                      {floor.devices.map((device) => (
+                        <Tooltip key={device.id} title={device.description}>
+                          <Button
+                            key={device.id}
+                            onClick={() =>
+                              handleSelectDevice(device.id.toString())
+                            }
+                            variant={
+                              values.devices.includes(device.id.toString())
+                                ? "contained"
+                                : "outlined"
+                            }
+                            color={
+                              values.devices.includes(device.id.toString())
+                                ? "secondary"
+                                : "inactive"
+                            }
+                            sx={{ margin: 1, width: 140 }}
+                          >
+                            {device.name}
+                          </Button>
+                        </Tooltip>
+                      ))}
+                    </Box>
                   </Box>
-                  <Box display="flex" flexWrap="wrap">
-                    {floor.devices.map((device) => (
-                      <Tooltip key={device.id} title={device.description}>
-                        <Button
-                          key={device.id}
-                          onClick={() =>
-                            handleSelectDevice(device.id.toString())
-                          }
-                          variant={
-                            values.devices.includes(device.id.toString())
-                              ? "contained"
-                              : "outlined"
-                          }
-                          color={
-                            values.devices.includes(device.id.toString())
-                              ? "secondary"
-                              : "inactive"
-                          }
-                          sx={{ marginRight: 1, marginBottom: 1, width: 140 }}
-                        >
-                          {device.name}
-                        </Button>
-                      </Tooltip>
-                    ))}
-                  </Box>
-                </Box>
-              ))}
+                ))}
           </Box>
         </Box>
       </Box>

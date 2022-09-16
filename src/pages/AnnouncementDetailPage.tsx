@@ -224,19 +224,23 @@ const AnnouncementDetailPage = () => {
                             currentBuildingId === floor.building.id.toString()
                         )
                         .map((floor) => (
-                          <Box key={floor.id} display="flex" >
+                          <Box
+                            key={floor.id}
+                            display="flex"
+                            sx={{ border: "1px solid #c4c4c4", marginBottom: 1 }}
+                          >
                             <Box
                               sx={{
                                 minWidth: 100,
                                 // flex: 1,
-                                // marginRight: 1,
-                                // marginBottom: 2,
+                                marginRight: 1,
+                                marginBottom: 2,
                                 margin: 1,
                               }}
                             >
                               {floor.name}
                             </Box>
-                            <Box display="flex">
+                            <Box sx={{ maxWidth: "500px" }}>
                               {floor.devices.map((device) => (
                                 <Tooltip
                                   key={device.id}
