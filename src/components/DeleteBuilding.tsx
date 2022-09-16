@@ -70,7 +70,7 @@ const DeleteBuilding = () => {
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}
-          onClose={handleClose}
+          onClose={() => setErrorMessage("")}
           message={errorMessage}
           action={
             <>

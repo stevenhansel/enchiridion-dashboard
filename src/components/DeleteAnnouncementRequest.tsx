@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import {
-  Box,
-  Button,
-  IconButton,
-  Snackbar,
-} from "@mui/material";
+import { Box, Button, IconButton, Snackbar } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
 
@@ -14,7 +9,6 @@ import { useCreateRequestMutation } from "../services/request";
 
 import { ApiErrorResponse } from "../services/error";
 import { ActionCreateRequest } from "../types/store";
-
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,7 +25,7 @@ const DeleteAnnouncementRequest = (props: Props) => {
       action: "delete",
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
-      description: description, 
+      description: description,
       deviceIds: [],
     },
     onSubmit: (values) => {
@@ -48,24 +42,11 @@ const DeleteAnnouncementRequest = (props: Props) => {
   };
 
   useEffect(() => {
-    if(description !== null) {
-    setDescription("Deleted");
+    if (description !== null) {
+      setDescription("Deleted");
     }
     formik.setFieldValue("description", description);
   }, [description, formik.values.description]);
-
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
 
   useEffect(() => {
     if (error && "data" in error) {
@@ -83,9 +64,20 @@ const DeleteAnnouncementRequest = (props: Props) => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={handleClose}
+            onClose={() => setErrorMessage("")}
             message={errorMessage}
-            action={action}
+            action={
+              <>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>
+            }
           />
         </Box>
       </form>

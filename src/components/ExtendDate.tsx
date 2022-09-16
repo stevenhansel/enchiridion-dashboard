@@ -50,7 +50,7 @@ const ExtendDate = (props: Props) => {
       action: "extend_date",
       extendedEndDate: dayjs(tomorrow.toDateString()).format("YYYY-MM-DD"),
       announcementId: parseInt(announcementId, 10),
-      description: description, 
+      description: description,
       deviceIds: [],
     },
     validationSchema: validationSchema,
@@ -68,24 +68,13 @@ const ExtendDate = (props: Props) => {
   };
 
   useEffect(() => {
-    if(description !== null) {
-    setDescription(`Announcement extended to ${formik.values.extendedEndDate}`);
+    if (description !== null) {
+      setDescription(
+        `Announcement extended to ${formik.values.extendedEndDate}`
+      );
     }
     formik.setFieldValue("description", description);
   }, [description, formik.values.extendedEndDate]);
-
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
 
   useEffect(() => {
     if (error && "data" in error) {
@@ -123,9 +112,20 @@ const ExtendDate = (props: Props) => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={handleClose}
+            onClose={() => setErrorMessage("")}
             message={errorMessage}
-            action={action}
+            action={
+              <>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>
+            }
           />
         </Box>
       </form>
