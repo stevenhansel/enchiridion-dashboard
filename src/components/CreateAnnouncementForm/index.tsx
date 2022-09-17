@@ -36,7 +36,7 @@ const CreateAnnouncementForm = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
 
   const handleNextStep = useCallback(() => {
     if (activeStep === MAX_STEP) return;

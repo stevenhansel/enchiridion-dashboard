@@ -141,6 +141,8 @@ export default function Layout(props: Props) {
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
   const { announcementId = "", deviceId = "" } = useParams();
+
+  console.log(profile)
   
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);

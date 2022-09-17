@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import { Box, Button, IconButton, Snackbar } from "@mui/material";
+import { Box, Button, IconButton, Snackbar, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
 
@@ -58,9 +58,20 @@ const DeleteAnnouncementRequest = (props: Props) => {
     <>
       <form onSubmit={formik.handleSubmit}>
         <Box>
+          <Typography sx={{marginBottom: 1}}>
+            Are you sure want to delete this announcement?
+          </Typography>
           <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
             Delete
           </Button>
+          <Button
+            variant="contained"
+            onClick={() => props.setOpen(false)}
+            sx={{ marginRight: 1 }}
+          >
+            Cancel
+          </Button>
+
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}

@@ -43,7 +43,11 @@ const validationSchema = yup.object({
     .min(5, "Minimum character for device name is 5")
     .max(6, "Name of the device cannot be more that 6 character")
     .required("Please give your device a name"),
-  description: yup.string().required("Description is required"),
+  description: yup
+    .string()
+    .min(10, "Minimum character for description is 5")
+    .max(20, "Maximum character for description has been reached")
+    .required("Description is required"),
   floorId: yup.number().required("Please select the floor"),
   buildingId: yup.number().required(),
 });
@@ -254,27 +258,8 @@ const CreateDeviceModal = (props: Props) => {
               fullWidth
             />
           </Box>
-          <Box>
-            <TextField
-              id="description"
-              label="Description"
-              variant="outlined"
-              autoComplete="off"
-              onChange={(e) =>
-                formik.setFieldValue("description", e.target.value)
-              }
-              error={
-                formik.touched.description && Boolean(formik.errors.description)
-              }
-              helperText={
-                formik.touched.description && formik.errors.description
-              }
-              sx={{ marginRight: 1, marginBottom: 1 }}
-              fullWidth
-            />
-          </Box>
-          <Box>
-            <Box>
+          <Box display="flex" flexDirection="row">
+            <Box sx={{ marginBottom: 1, marginRight: 1 }}>
               <Autocomplete
                 options={buildingFilterOptions}
                 open={openBuildingFilter}
@@ -341,73 +326,92 @@ const CreateDeviceModal = (props: Props) => {
                 </Typography>
               ) : null}
             </Box>
-            <Autocomplete
-              options={floorFilterOptions}
-              loading={isFloorFilterLoading}
-              disabled={buildingFilter === null ? true : false}
-              open={openFloorFilter}
-              onOpen={() => {
-                setOpenFloorFilter(true);
-              }}
-              onClose={() => {
-                setOpenFloorFilter(false);
-              }}
-              getOptionLabel={(option) => option.name}
-              isOptionEqualToValue={(option, value) =>
-                option.name === value.name
-              }
-              onChange={(_, inputValue) => {
-                setFloorFilterOptions([]);
-                setFloorFilter(inputValue);
-                formik.setFieldValue("floorId", inputValue?.id);
-              }}
-              onInputChange={(_, newInputValue, reason) => {
-                if (reason === "input") {
-                  setFloorFilterOptions([]);
-                  setIsFloorFilterLoading(true);
-                  getFloorDelayed(newInputValue);
-                }
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Floor"
-                  fullWidth
-                  error={
-                    formik.touched.floorId && Boolean(formik.errors.floorId)
-                  }
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <React.Fragment>
-                        {isFloorFilterLoading ? (
-                          <CircularProgress color="inherit" size={20} />
-                        ) : null}
-                        {params.InputProps.endAdornment}
-                      </React.Fragment>
-                    ),
-                  }}
-                />
-              )}
-              value={floorFilter}
-              sx={{ width: 220, marginTop: 1 }}
-            />
-            {formik.touched.floorId && formik.errors.floorId ? (
-              <Typography
-                sx={{
-                  fontSize: "12px",
-                  marginTop: "3px",
-                  marginRight: "14px",
-                  color: "#D32F2F",
-                  marginBottom: 1,
+            <Box sx={{ marginBottom: 1 }}>
+              <Autocomplete
+                options={floorFilterOptions}
+                loading={isFloorFilterLoading}
+                disabled={buildingFilter === null ? true : false}
+                open={openFloorFilter}
+                onOpen={() => {
+                  setOpenFloorFilter(true);
                 }}
-              >
-                Please select the floor
-              </Typography>
-            ) : null}
+                onClose={() => {
+                  setOpenFloorFilter(false);
+                }}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) =>
+                  option.name === value.name
+                }
+                onChange={(_, inputValue) => {
+                  setFloorFilterOptions([]);
+                  setFloorFilter(inputValue);
+                  formik.setFieldValue("floorId", inputValue?.id);
+                }}
+                onInputChange={(_, newInputValue, reason) => {
+                  if (reason === "input") {
+                    setFloorFilterOptions([]);
+                    setIsFloorFilterLoading(true);
+                    getFloorDelayed(newInputValue);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Floor"
+                    fullWidth
+                    error={
+                      formik.touched.floorId && Boolean(formik.errors.floorId)
+                    }
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <React.Fragment>
+                          {isFloorFilterLoading ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </React.Fragment>
+                      ),
+                    }}
+                  />
+                )}
+                value={floorFilter}
+                sx={{ width: 220 }}
+              />
+              {formik.touched.floorId && formik.errors.floorId ? (
+                <Typography
+                  sx={{
+                    fontSize: "12px",
+                    marginTop: "3px",
+                    marginRight: "14px",
+                    marginLeft: "14px",
+                    color: "#D32F2F",
+                    marginBottom: 1,
+                  }}
+                >
+                  Please select the floor
+                </Typography>
+              ) : null}
+            </Box>
           </Box>
         </>
       )}
+      <Box>
+        <TextField
+          id="description"
+          label="Description"
+          variant="outlined"
+          autoComplete="off"
+          onChange={(e) => formik.setFieldValue("description", e.target.value)}
+          error={
+            formik.touched.description && Boolean(formik.errors.description)
+          }
+          helperText={formik.touched.description && formik.errors.description}
+          sx={{ marginRight: 1, marginBottom: 1 }}
+          fullWidth
+        />
+      </Box>
+
       {state ? null : (
         <Box sx={{ marginTop: 1 }}>
           <Button variant="contained" sx={{ marginRight: 1 }} type="submit">

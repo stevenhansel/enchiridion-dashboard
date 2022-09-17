@@ -59,11 +59,7 @@ const a11yProps = (index: number) => {
 const CreateRequestModal = (props: Props) => {
   const [value, setValue] = useState(0);
 
-  const hasPermissionCreateBuilding = usePermission("create_building");
-  const hasPermissionUpdateBuilding = usePermission("update_building");
-  const hasPermissionDeleteBuilding = usePermission("delete_building");
-
-    const handleChange = useCallback(
+  const handleChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
       setValue(newValue);
     },
@@ -72,44 +68,34 @@ const CreateRequestModal = (props: Props) => {
 
   return (
     <>
-        <Dialog
-          open={props.open}
-          onClose={() => props.setOpen(false)}
-          PaperProps={{sx: {width: "100%", height: "100%"}}} 
-        >
-          <DialogTitle>Create Request</DialogTitle>
-          <DialogContent>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
-            >
-              {hasPermissionCreateBuilding ? (
-                <Tab label="Extend Date" {...a11yProps(0)} />
-              ) : null}
-              {hasPermissionUpdateBuilding ? (
-                <Tab label="Change Devices" {...a11yProps(1)} />
-              ) : null}
-              {hasPermissionDeleteBuilding ? (
-                <Tab label="Delete Request" {...a11yProps(2)} />
-              ) : null}
-            </Tabs>
-              <TabPanel value={value} index={0}>
-                <ExtendDate setOpen={props.setOpen} date={props.date} />
-              </TabPanel>
-              <TabPanel value={value} index={1}>
-                <ChangeDeviceRequest setOpen={props.setOpen} />
-              </TabPanel>
-              <TabPanel value={value} index={2}>
-                <DeleteAnnouncementRequest setOpen={props.setOpen} />
-              </TabPanel>
-            <Box sx={{ marginTop: 1 }}>
-              <Button variant="contained" onClick={() => props.setOpen(false)}>
-                Close
-              </Button>
-            </Box>
-          </DialogContent>
-        </Dialog>
+      <Dialog
+        open={props.open}
+        onClose={() => props.setOpen(false)}
+        PaperProps={{ sx: { width: "100%", height: "100%" } }}
+      >
+        <DialogTitle>Create Request</DialogTitle>
+        <DialogContent>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="basic tabs example"
+          >
+            <Tab label="Extend Date" {...a11yProps(0)} />
+            <Tab label="Change Devices" {...a11yProps(1)} />
+          </Tabs>
+          <TabPanel value={value} index={0}>
+            <ExtendDate setOpen={props.setOpen} date={props.date} />
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <ChangeDeviceRequest setOpen={props.setOpen} />
+          </TabPanel>
+          <Box sx={{ marginTop: 1 }}>
+            <Button variant="contained" onClick={() => props.setOpen(false)}>
+              Close
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

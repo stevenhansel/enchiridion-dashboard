@@ -15,6 +15,9 @@ import {
   TableHead,
   TableRow,
   Paper,
+  DialogTitle,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -29,6 +32,7 @@ import Layout from "../components/Layout";
 import CreateRequestModal from "../components/CreateRequestModal";
 
 import { usePermission } from "../hooks";
+import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 
@@ -36,7 +40,11 @@ const AnnouncementDetailPage = () => {
   const { announcementId = "" } = useParams();
   const hasCreateRequestPermission = usePermission("create_request");
   const [open, setOpen] = useState(false);
+  const [openDeleteAnnouncementModal, setOpenDeleteAnnouncementModal] =
+    useState(false);
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
+
+  const hasPermissionDeleteBuilding = usePermission("delete_building");
 
   const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
@@ -227,7 +235,10 @@ const AnnouncementDetailPage = () => {
                           <Box
                             key={floor.id}
                             display="flex"
-                            sx={{ border: "1px solid #c4c4c4", marginBottom: 1 }}
+                            sx={{
+                              border: "1px solid #c4c4c4",
+                              marginBottom: 1,
+                            }}
                           >
                             <Box
                               sx={{
@@ -283,15 +294,36 @@ const AnnouncementDetailPage = () => {
                 </Typography>
                 {hasCreateRequestPermission &&
                 announcements?.status.value === "active" ? (
-                  <Button
-                    onClick={() => {
-                      setOpen(true);
-                    }}
-                    variant="contained"
-                    size="large"
-                  >
-                    + Create Request
-                  </Button>
+                  <>
+                    <Button
+                      onClick={() => {
+                        setOpen(true);
+                      }}
+                      variant="contained"
+                      size="large"
+                      sx={{ marginRight: 1 }}
+                    >
+                      + Create Request
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      onClick={() => setOpenDeleteAnnouncementModal(true)}
+                    >
+                      Delete Request
+                    </Button>
+                    <Dialog
+                      open={openDeleteAnnouncementModal}
+                      onClose={() => setOpenDeleteAnnouncementModal(false)}
+                    >
+                      <DialogTitle>Delete Announcement Request</DialogTitle>
+                      <DialogContent>
+                        <DeleteAnnouncementRequest
+                          setOpen={setOpenDeleteAnnouncementModal}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </>
                 ) : null}
               </Box>
               <TableContainer component={Paper}>
