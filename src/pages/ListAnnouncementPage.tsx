@@ -352,7 +352,7 @@ const ListAnnouncementPage = () => {
                             {hasViewAnnouncementDetail ? (
                               <Button
                                 onClick={() =>
-                                  handleNavigateToDetailPage(announcement.id)
+                                  handleSelectAnnouncementImage(announcement.id)
                                 }
                               >
                                 {announcement.title}

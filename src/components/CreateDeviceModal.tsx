@@ -217,8 +217,8 @@ const CreateDeviceModal = (props: Props) => {
           <Box>
             <Typography fontWeight="bold">NOTICE!</Typography>
             <Typography sx={{ marginBottom: 1 }}>
-              Please Screenshot the access code or write it the fuck down and
-              give them to BM! Don't lose them!
+              Please Screenshot the access code and give them to BM! Don't lose
+              them!
             </Typography>
           </Box>
 
@@ -249,12 +249,12 @@ const CreateDeviceModal = (props: Props) => {
             <TextField
               id="name"
               label="Name"
-              variant="outlined"
+              variant="standard"
               autoComplete="off"
               onChange={(e) => formik.setFieldValue("name", e.target.value)}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
-              sx={{ marginRight: 1, marginBottom: 1, marginTop: 1 }}
+              sx={{ marginRight: 1, marginBottom: 2, marginTop: 1 }}
               fullWidth
             />
           </Box>
@@ -394,23 +394,27 @@ const CreateDeviceModal = (props: Props) => {
               ) : null}
             </Box>
           </Box>
+          <Box>
+            <TextField
+              id="description"
+              label="Description"
+              variant="standard"
+              autoComplete="off"
+              onChange={(e) =>
+                formik.setFieldValue("description", e.target.value)
+              }
+              error={
+                formik.touched.description && Boolean(formik.errors.description)
+              }
+              helperText={
+                formik.touched.description && formik.errors.description
+              }
+              sx={{ marginRight: 1, marginBottom: 1 }}
+              fullWidth
+            />
+          </Box>
         </>
       )}
-      <Box>
-        <TextField
-          id="description"
-          label="Description"
-          variant="outlined"
-          autoComplete="off"
-          onChange={(e) => formik.setFieldValue("description", e.target.value)}
-          error={
-            formik.touched.description && Boolean(formik.errors.description)
-          }
-          helperText={formik.touched.description && formik.errors.description}
-          sx={{ marginRight: 1, marginBottom: 1 }}
-          fullWidth
-        />
-      </Box>
 
       {state ? null : (
         <Box sx={{ marginTop: 1 }}>

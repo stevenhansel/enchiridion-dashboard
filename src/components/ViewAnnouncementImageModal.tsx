@@ -29,7 +29,7 @@ const ViewAnnouncementImageModal = (props: Props) => {
         {!isLoading && (
           <>
             {data && 'media' in data && (
-              <img alt="announcement-media" src={data.media} />
+              <img alt="announcement-media" src={data.media} style={{width: "100%"}} />
             )}
             {error && 'data' in error && (
               <Typography>

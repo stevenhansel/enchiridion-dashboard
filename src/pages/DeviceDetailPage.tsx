@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback} from "react";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 
@@ -32,6 +32,7 @@ const toDate = (dateStr: string | undefined) =>
 const DeviceDetailPage = () => {
   const [open, setOpen] = useState(false);
   const [actionType, setActionType] = useState("");
+  const [page, setPage] = useState(1);
   const { deviceId = "" } = useParams();
   const hasUpdateDevicePermission = usePermission("update_device");
   const hasDeleteDevicePermission = usePermission("delete_device");
@@ -52,21 +53,49 @@ const DeviceDetailPage = () => {
     },
   ] = useLazyGetAnnouncementsQuery();
 
+const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
+  const isNextButtonDisabled = useMemo(() => {
+    if (!announcements) return true;
+
+    return page === announcements.totalPages;
+  }, [page, announcements]);
+
+  const handlePaginationPreviousPage = useCallback(
+    () => setPage((page) => page - 1),
+    []
+  );
+
+  const handlePaginationNextPage = useCallback(
+    () => setPage((page) => page + 1),
+    []
+  );
+
+
+
   useEffect(() => {
     getAnnouncements({
       status: actionType,
       populateMedia: true,
       deviceId: deviceId,
+      limit: 3,
     });
-  }, [getAnnouncements, actionType, deviceId]);
+  }, [getAnnouncements, actionType, deviceId, page]);
 
   return (
     <Layout>
-      <Box>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Typography align="center" variant="h5" fontWeight="bold">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+        sx={{ marginTop: 3 }}
+      >
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
             {devices?.name}
           </Typography>
+        </Box>
+        <Box>
           {hasUpdateDevicePermission ? (
             <IconButton
               onClick={() => {
@@ -82,6 +111,7 @@ const DeviceDetailPage = () => {
             </IconButton>
           ) : null}
         </Box>
+
         <Box display="flex" justifyContent="center">
           <Box sx={{ marginTop: 8 }}>
             <Box sx={{ marginBottom: 5 }}>
@@ -128,7 +158,6 @@ const DeviceDetailPage = () => {
                       }
                       sx={{ marginRight: 2 }}
                       value={actionType}
-
                     >
                       {action.label}
                     </Button>
@@ -137,49 +166,43 @@ const DeviceDetailPage = () => {
             </Card>
           </Box>
           {announcements && announcements.contents.length > 0 ? (
-            <Box>
+            <Box display="flex" flexDirection="row" sx={{ marginRight: 1, width: "100%" }}>
               {announcements &&
                 announcements.contents.map((announcement) => (
-                  <Box
-                    key={announcement.id}
-                    display="flex"
-                    sx={{ marginBottom: 1 }}
-                  >
-                    <Paper elevation={3}>
-                      <img
-                        src={announcement.media}
-                        style={{ margin: "10px" }}
-                      />
-                      <Typography
-                        variant="h5"
-                        fontWeight="bold"
-                        sx={{ marginLeft: "10px" }}
-                      >
-                        {announcement.title}
+                  <Paper elevation={3} sx={{marginRight: 1}}>
+                    <img
+                      src={announcement.media}
+                      style={{ width: "100%", margin:1 }}
+                    />
+                    <Typography
+                      variant="h5"
+                      fontWeight="bold"
+                      sx={{ marginLeft: "10px" }}
+                    >
+                      {announcement.title}
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      sx={{ marginBottom: 1, marginLeft: "10px" }}
+                    >
+                      {announcement.status.label}
+                    </Button>
+                    <Box
+                      display="flex"
+                      flexDirection="row"
+                      justifyContent="space-between"
+                      sx={{ marginBottom: 1, marginLeft: "10px" }}
+                    >
+                      <Typography>
+                        by&nbsp;{announcement.author.name}
                       </Typography>
-                      <Button
-                        variant="contained"
-                        sx={{ marginBottom: 1, marginLeft: "10px" }}
-                      >
-                        {announcement.status.label}
-                      </Button>
-                      <Box
-                        display="flex"
-                        flexDirection="row"
-                        justifyContent="space-between"
-                        sx={{ marginBottom: 1, marginLeft: "10px" }}
-                      >
-                        <Typography>
-                          by&nbsp;{announcement.author.name}
-                        </Typography>
-                        <Typography sx={{ marginRight: "10px" }}>
-                          {dayjs(announcement.startDate).format("D MMMM YYYY")}
-                          &nbsp;-&nbsp;
-                          {dayjs(announcement.endDate).format("D MMMM YYYY")}
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  </Box>
+                      <Typography sx={{ marginRight: "10px" }}>
+                        {dayjs(announcement.startDate).format("D MMMM YYYY")}
+                        &nbsp;-&nbsp;
+                        {dayjs(announcement.endDate).format("D MMMM YYYY")}
+                      </Typography>
+                    </Box>
+                  </Paper>
                 ))}
             </Box>
           ) : (
