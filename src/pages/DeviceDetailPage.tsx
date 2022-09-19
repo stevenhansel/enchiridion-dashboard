@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback} from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 
@@ -53,7 +53,7 @@ const DeviceDetailPage = () => {
     },
   ] = useLazyGetAnnouncementsQuery();
 
-const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
+  const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
     if (!announcements) return true;
 
@@ -70,8 +70,6 @@ const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
     []
   );
 
-
-
   useEffect(() => {
     getAnnouncements({
       status: actionType,
@@ -83,35 +81,29 @@ const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
 
   return (
     <Layout>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="column"
-        sx={{ marginTop: 3 }}
-      >
-        <Box>
+      <Box>
+        <Box display="flex" justifyContent="center" alignItems="center">
           <Typography variant="h5" fontWeight="bold">
             {devices?.name}
           </Typography>
-        </Box>
-        <Box>
-          {hasUpdateDevicePermission ? (
-            <IconButton
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          ) : null}
-          {hasDeleteDevicePermission ? (
-            <IconButton>
-              <DeleteIcon />
-            </IconButton>
-          ) : null}
-        </Box>
 
+          <Box>
+            {hasUpdateDevicePermission ? (
+              <IconButton
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            ) : null}
+            {hasDeleteDevicePermission ? (
+              <IconButton>
+                <DeleteIcon />
+              </IconButton>
+            ) : null}
+          </Box>
+        </Box>
         <Box display="flex" justifyContent="center">
           <Box sx={{ marginTop: 8 }}>
             <Box sx={{ marginBottom: 5 }}>
@@ -166,13 +158,17 @@ const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
             </Card>
           </Box>
           {announcements && announcements.contents.length > 0 ? (
-            <Box display="flex" flexDirection="row" sx={{ marginRight: 1, width: "100%" }}>
+            <Box
+              display="flex"
+              flexDirection="row"
+              sx={{ marginRight: 1, width: "100%" }}
+            >
               {announcements &&
                 announcements.contents.map((announcement) => (
-                  <Paper elevation={3} sx={{marginRight: 1}}>
+                  <Paper elevation={3} sx={{ marginRight: 1 }}>
                     <img
                       src={announcement.media}
-                      style={{ width: "100%", margin:1 }}
+                      style={{ width: "100%" }}
                     />
                     <Typography
                       variant="h5"
