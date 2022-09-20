@@ -97,11 +97,6 @@ const UpdateBuilding = (props: Props) => {
     }, 250);
   }, [getBuildings]);
 
-  const handleChange = useCallback(() => {
-    getFloors({ limit: 20 });
-    console.log("changed!");
-  }, [buildings, getBuildings]);
-
   const formik = useFormik<CreateBuildingType>({
     initialValues: {
       name: "",
@@ -112,7 +107,6 @@ const UpdateBuilding = (props: Props) => {
     onSubmit: (values) => {
       updateBuilding(values);
       // props.setOpen(false);
-      handleChange();
     },
   });
 
@@ -156,15 +150,14 @@ const UpdateBuilding = (props: Props) => {
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
-        <Box>
+        <Box sx={{ marginBottom: 2 }}>
+          <Typography>Name</Typography>
           <TextField
             autoComplete="off"
             margin="dense"
             id="name"
-            label="Name"
             fullWidth
             variant="standard"
-            sx={{ marginBottom: 2 }}
             onChange={(e) => formik.setFieldValue("name", e.target.value)}
             error={formik.touched.name && Boolean(formik.errors.name)}
             helperText={formik.touched.name && formik.errors.name}

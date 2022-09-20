@@ -115,7 +115,7 @@ const Step2 = () => {
               </Button>
             ))}
         </Box>
-        <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
+        <Box  sx={{ borderLeft: "1px solid #c4c4c4" }}/>
         <Box
           sx={{
             padding: 3,
@@ -145,7 +145,7 @@ const Step2 = () => {
                     >
                       {floor.name}
                     </Box>
-                    <Box sx={{ maxWidth: "674px" }}>
+                    <Box sx={{width: "100%"}}>
                       {floor.devices.map((device) => (
                         <Tooltip key={device.id} title={device.description}>
                           <Button

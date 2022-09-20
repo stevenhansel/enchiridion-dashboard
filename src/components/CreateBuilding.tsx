@@ -91,11 +91,11 @@ const CreateBuilding = (props: Props) => {
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
+        <Typography>Name</Typography>
         <TextField
           autoComplete="off"
           margin="dense"
           id="name"
-          label="Name"
           fullWidth
           variant="standard"
           sx={{ marginBottom: 2 }}

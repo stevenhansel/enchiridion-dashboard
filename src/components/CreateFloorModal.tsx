@@ -111,10 +111,10 @@ const CreateFloorModal = (props: Props) => {
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box>
+        <Typography>Name</Typography>
         <TextField
           margin="dense"
           id="name"
-          label="Name"
           fullWidth
           variant="standard"
           autoComplete="off"
@@ -155,9 +155,6 @@ const CreateFloorModal = (props: Props) => {
                 error={
                   formik.touched.buildingId && Boolean(formik.errors.buildingId)
                 }
-                helperText={
-                  formik.touched.buildingId && formik.errors.buildingId
-                }
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -174,9 +171,15 @@ const CreateFloorModal = (props: Props) => {
           />
           {formik.touched.buildingId && formik.errors.buildingId ? (
             <Typography
-              sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F" }}
+              sx={{
+                fontSize: "12px",
+                marginTop: "3px",
+                marginRight: "14px",
+                color: "#D32F2F",
+                marginBottom: 1,
+              }}
             >
-              Building is required
+              {formik.touched.buildingId && formik.errors.buildingId}
             </Typography>
           ) : null}
         </Box>

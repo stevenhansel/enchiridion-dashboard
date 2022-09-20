@@ -498,11 +498,11 @@ const RequestsPage = () => {
                             {request.author.name}
                           </TableCell>
                           <TableCell align="center">
-                            <Button variant="contained" sx={{width: 130}}>
+                            <Button variant="contained" >
                               {request.action.label}
                             </Button>
                           </TableCell>
-                          <TableCell align="center" sx={{ maxWidth: "350px" }}>
+                          <TableCell align="center"> 
                             {request.description}
                           </TableCell>
                           <TableCell align="center">

@@ -58,7 +58,7 @@ const DeleteBuilding = () => {
             key={building.id}
             sx={{ backgroundColor: building.color, marginBottom: 1 }}
           >
-            <CardActions disableSpacing>
+            <CardActions>
               <Typography fontWeight="bold">{building.name}</Typography>
               <IconButton onClick={() => handleDelete(building.id)}>
                 <DeleteIcon />

@@ -246,15 +246,16 @@ const CreateDeviceModal = (props: Props) => {
       ) : (
         <>
           <Box>
+            <Typography >Name</Typography>
             <TextField
               id="name"
-              label="Name"
+              // label="Name"
               variant="standard"
               autoComplete="off"
               onChange={(e) => formik.setFieldValue("name", e.target.value)}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
-              sx={{ marginRight: 1, marginBottom: 2, marginTop: 1 }}
+              sx={{ marginRight: 1, marginBottom: 2}}
               fullWidth
             />
           </Box>
@@ -395,9 +396,9 @@ const CreateDeviceModal = (props: Props) => {
             </Box>
           </Box>
           <Box>
+            <Typography>Description</Typography>
             <TextField
               id="description"
-              label="Description"
               variant="standard"
               autoComplete="off"
               onChange={(e) =>
