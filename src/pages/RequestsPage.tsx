@@ -466,7 +466,7 @@ const RequestsPage = () => {
               </Card>
             </Box>
             {requests && requests.contents.length > 0 ? (
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} sx={{width: "100%"}}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>

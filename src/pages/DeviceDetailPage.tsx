@@ -174,26 +174,27 @@ const DeviceDetailPage = () => {
               </CardActions>
             </Card>
           </Box>
+
           {announcements && announcements.contents.length > 0 ? (
-            <Box
-              display="flex"
-              flexDirection="row"
-              sx={{ marginRight: 1, width: "100%" }}
-            >
-              {announcements &&
-                announcements.contents.map((announcement) => (
+            <>
+              <Box
+                display="flex"
+                flexDirection="row"
+                sx={{ marginRight: 1, width: "100%" }}
+              >
+                {announcements.contents.map((announcement) => (
                   <Paper
                     key={announcement.id}
                     elevation={3}
                     sx={{ marginRight: 1 }}
                   >
                     <img src={announcement.media} style={{ width: "100%" }} />
-                    <Box sx={{marginLeft: 1}}>
+                    <Box sx={{ marginLeft: 1 }}>
                       <Typography variant="h5" fontWeight="bold">
                         {announcement.title}
                       </Typography>
                     </Box>
-                    <Box sx={{marginLeft: 1}}>
+                    <Box sx={{ marginLeft: 1 }}>
                       <Button variant="contained" sx={{ marginBottom: 1 }}>
                         {announcement.status.label}
                       </Button>
@@ -202,7 +203,7 @@ const DeviceDetailPage = () => {
                       display="flex"
                       flexDirection="row"
                       justifyContent="space-between"
-                      sx={{ marginLeft:1, marginBottom: 1 }}
+                      sx={{ marginLeft: 1, marginBottom: 1 }}
                     >
                       <Typography>
                         by&nbsp;{announcement.author.name}
@@ -215,32 +216,33 @@ const DeviceDetailPage = () => {
                     </Box>
                   </Paper>
                 ))}
-            </Box>
+              </Box>
+              <Box
+                sx={{ marginTop: 1 }}
+                display="flex"
+                justifyContent="center"
+                flexDirection="row"
+              >
+                <IconButton
+                  disabled={isPreviousButtonDisabled}
+                  onClick={handlePaginationPreviousPage}
+                >
+                  <NavigateBeforeIcon />
+                </IconButton>
+                <Box display="flex" alignItems="center">
+                  {page}
+                </Box>
+                <IconButton
+                  disabled={isNextButtonDisabled}
+                  onClick={handlePaginationNextPage}
+                >
+                  <NavigateNextIcon />
+                </IconButton>
+              </Box>
+            </>
           ) : (
             <Typography>Announcement Not Found!</Typography>
           )}
-        </Box>
-        <Box
-          sx={{ marginTop: 1 }}
-          display="flex"
-          justifyContent="center"
-          flexDirection="row"
-        >
-          <IconButton
-            disabled={isPreviousButtonDisabled}
-            onClick={handlePaginationPreviousPage}
-          >
-            <NavigateBeforeIcon />
-          </IconButton>
-          <Box display="flex" alignItems="center">
-            {page}
-          </Box>
-          <IconButton
-            disabled={isNextButtonDisabled}
-            onClick={handlePaginationNextPage}
-          >
-            <NavigateNextIcon />
-          </IconButton>
         </Box>
 
         <Dialog
