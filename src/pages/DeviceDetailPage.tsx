@@ -13,9 +13,13 @@ import {
   Paper,
   Card,
   CardActions,
+  Grid,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import { useGetDeviceDetailQuery } from "../services/device";
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
@@ -28,6 +32,14 @@ import { statusActions, AnnouncementStatus } from "../types/constants";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  color: theme.palette.text.secondary,
+}));
 
 const DeviceDetailPage = () => {
   const [open, setOpen] = useState(false);
@@ -57,17 +69,21 @@ const DeviceDetailPage = () => {
   const isNextButtonDisabled = useMemo(() => {
     if (!announcements) return true;
 
-    return page === announcements.totalPages;
+    if (announcements && announcements.contents.length === 3) {
+      return false;
+    }
+
+    return true;
   }, [page, announcements]);
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
-    []
+    [page]
   );
 
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
-    []
+    [page]
   );
 
   useEffect(() => {
@@ -76,6 +92,7 @@ const DeviceDetailPage = () => {
       populateMedia: true,
       deviceId: deviceId,
       limit: 3,
+      page,
     });
   }, [getAnnouncements, actionType, deviceId, page]);
 
@@ -165,29 +182,27 @@ const DeviceDetailPage = () => {
             >
               {announcements &&
                 announcements.contents.map((announcement) => (
-                  <Paper elevation={3} sx={{ marginRight: 1 }}>
-                    <img
-                      src={announcement.media}
-                      style={{ width: "100%" }}
-                    />
-                    <Typography
-                      variant="h5"
-                      fontWeight="bold"
-                      sx={{ marginLeft: "10px" }}
-                    >
-                      {announcement.title}
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      sx={{ marginBottom: 1, marginLeft: "10px" }}
-                    >
-                      {announcement.status.label}
-                    </Button>
+                  <Paper
+                    key={announcement.id}
+                    elevation={3}
+                    sx={{ marginRight: 1 }}
+                  >
+                    <img src={announcement.media} style={{ width: "100%" }} />
+                    <Box sx={{marginLeft: 1}}>
+                      <Typography variant="h5" fontWeight="bold">
+                        {announcement.title}
+                      </Typography>
+                    </Box>
+                    <Box sx={{marginLeft: 1}}>
+                      <Button variant="contained" sx={{ marginBottom: 1 }}>
+                        {announcement.status.label}
+                      </Button>
+                    </Box>
                     <Box
                       display="flex"
                       flexDirection="row"
                       justifyContent="space-between"
-                      sx={{ marginBottom: 1, marginLeft: "10px" }}
+                      sx={{ marginLeft:1, marginBottom: 1 }}
                     >
                       <Typography>
                         by&nbsp;{announcement.author.name}
@@ -205,6 +220,29 @@ const DeviceDetailPage = () => {
             <Typography>Announcement Not Found!</Typography>
           )}
         </Box>
+        <Box
+          sx={{ marginTop: 1 }}
+          display="flex"
+          justifyContent="center"
+          flexDirection="row"
+        >
+          <IconButton
+            disabled={isPreviousButtonDisabled}
+            onClick={handlePaginationPreviousPage}
+          >
+            <NavigateBeforeIcon />
+          </IconButton>
+          <Box display="flex" alignItems="center">
+            {page}
+          </Box>
+          <IconButton
+            disabled={isNextButtonDisabled}
+            onClick={handlePaginationNextPage}
+          >
+            <NavigateNextIcon />
+          </IconButton>
+        </Box>
+
         <Dialog
           open={open}
           onClose={() => {

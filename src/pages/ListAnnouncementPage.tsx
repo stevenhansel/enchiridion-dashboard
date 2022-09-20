@@ -108,16 +108,6 @@ const ListAnnouncementPage = () => {
   const hasPermissionCreateAnnouncement = usePermission("create_announcement");
   const hasPermissionViewUserList = usePermission("view_list_user");
 
-  const handlePaginationPreviousPage = useCallback(
-    () => setPage((page) => page - 1),
-    []
-  );
-
-  const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
-    []
-  );
-
   const getUsersDelayed = useMemo(() => {
     return debounce((query: string) => {
       getUsers({ query, limit: 5 }).then(({ data }) => {
@@ -144,6 +134,16 @@ const ListAnnouncementPage = () => {
 
     return page === announcements.totalPages;
   }, [page, announcements]);
+
+  const handlePaginationPreviousPage = useCallback(
+    () => setPage((page) => page - 1),
+    [page]
+  );
+
+  const handlePaginationNextPage = useCallback(
+    () => setPage((page) => page + 1),
+    [page]
+  );
 
   useEffect(() => {
     if (isAnnouncementsError && "data" in isAnnouncementsError) {
@@ -277,9 +277,7 @@ const ListAnnouncementPage = () => {
                         if (e.target.value === "") {
                           setStatus("");
                         } else {
-                          setStatus(
-                            e.target.value  
-                          );
+                          setStatus(e.target.value);
                         }
                       }}
                     >
@@ -290,16 +288,10 @@ const ListAnnouncementPage = () => {
                       <MenuItem value={"waiting_for_sync"}>
                         Waiting for Sync
                       </MenuItem>
-                      <MenuItem value={"active"}>
-                        Active
-                      </MenuItem>
+                      <MenuItem value={"active"}>Active</MenuItem>
                       <MenuItem value={"done"}>Done</MenuItem>
-                      <MenuItem value={"rejected"}>
-                        Rejected
-                      </MenuItem>
-                      <MenuItem value={"canceled"}>
-                        Canceled
-                      </MenuItem>
+                      <MenuItem value={"rejected"}>Rejected</MenuItem>
+                      <MenuItem value={"canceled"}>Canceled</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
