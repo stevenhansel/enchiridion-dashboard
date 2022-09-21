@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import debounce from "lodash/debounce";
-
 import {
   Box,
   Button,
@@ -18,9 +17,9 @@ import * as yup from "yup";
 
 import { useUpdateFloorMutation } from "../services/floor";
 import { useLazyGetBuildingsQuery } from "../services/building";
+import { ApiErrorResponse } from "../services/error";
 
 import { UpdateFloor, UserFilterOption } from "../types/store";
-import { ApiErrorResponse } from "../services/error";
 
 const validationSchema = yup.object({
   name: yup
@@ -65,10 +64,6 @@ const UpdateFloorModal = (props: Props) => {
       props.setOpen(false);
     },
   });
-
-  const handleChange = (e: SelectChangeEvent) => {
-    formik.setFieldValue("buildingId", parseInt(e.target.value, 10));
-  };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {

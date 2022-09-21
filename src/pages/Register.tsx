@@ -258,9 +258,9 @@ const Register = () => {
               </Box>
             </form>
           ) : (
-            <div>
+            <>
               <CircularProgress />
-            </div>
+            </>
           )}
           <Snackbar
             open={Boolean(errorMessage)}

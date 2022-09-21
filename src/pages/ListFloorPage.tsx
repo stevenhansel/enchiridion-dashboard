@@ -44,6 +44,7 @@ import { ApiErrorResponse } from "../services/error";
 
 import { UserFilterOption } from "../types/store";
 import { usePermission } from "../hooks";
+import DeleteFloorModal from "../components/DeleteFloorModal";
 
 const FETCH_LIMIT = 20;
 
@@ -58,8 +59,6 @@ const ListFloorPage = () => {
     "delete_building"
   );
   const hasPermissionViewBuilding = usePermission("view_list_building");
-
-  const [deleteFloor] = useDeleteFloorMutation();
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -78,7 +77,10 @@ const ListFloorPage = () => {
   const [openCreateBuilding, setOpenCreateBuilding] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
   const [floorId, setFloorId] = useState("");
+  const [floorName, setFloorName] = useState("");
+  const [buildingName, setBuildingName] = useState("");
   const [open, setOpen] = useState(false);
+  const [openDeleteFloorModal, setOpenDeleteFloorModal] = useState(false);
 
   const getFloorsQueryParams = {
     page,
@@ -97,10 +99,6 @@ const ListFloorPage = () => {
   ] = useLazyGetBuildingsQuery();
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
-
-  const handleDeleteAnnouncement = useCallback((floorId: string) => {
-    deleteFloor({ floorId });
-  }, []);
 
   const handleSearch = useCallback(() => {
     getFloors(getFloorsQueryParams);
@@ -139,6 +137,18 @@ const ListFloorPage = () => {
     },
     [floorId, openEditFloor]
   );
+
+  const handleDeleteFloorModal = useCallback(
+    (floorId: string, floorName: string, buildingName: string) => {
+      setOpenDeleteFloorModal(true);
+      setFloorId(floorId);
+      setFloorName(floorName);
+      setBuildingName(buildingName);
+    },
+    []
+  );
+
+  console.log(buildingName);
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
 
@@ -356,12 +366,16 @@ const ListFloorPage = () => {
                           {hasPermissionDeleteFloor ? (
                             <>
                               <Tooltip title="Delete">
-                                <IconButton
-                                  onClick={() =>
-                                    handleDeleteAnnouncement(row.id.toString())
-                                  }
-                                >
-                                  <DeleteIcon />
+                                <IconButton onClick={() => {}}>
+                                  <DeleteIcon
+                                    onClick={() =>
+                                      handleDeleteFloorModal(
+                                        row.id.toString(),
+                                        row.name,
+                                        row.building.name
+                                      )
+                                    }
+                                  />
                                 </IconButton>
                               </Tooltip>
                             </>
@@ -411,6 +425,20 @@ const ListFloorPage = () => {
           ) : (
             <Typography>Not Found!</Typography>
           )}
+          <Dialog
+            open={openDeleteFloorModal}
+            onClose={() => setOpenDeleteFloorModal(false)}
+          >
+            <DialogTitle>Delete Floor</DialogTitle>
+            <DialogContent>
+              <DeleteFloorModal
+                floorName={floorName}
+                floorId={floorId}
+                buildingName={buildingName}
+                setOpen={setOpenDeleteFloorModal}
+              />
+            </DialogContent>
+          </Dialog>
         </Box>
       )}
       <Snackbar
