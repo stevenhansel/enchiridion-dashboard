@@ -82,8 +82,6 @@ const Register = () => {
     },
   });
 
-  const handleChange = (e: SelectChangeEvent) => {};
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;

@@ -7,6 +7,7 @@ import {
   Typography,
   Snackbar,
   CardActions,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
@@ -19,7 +20,7 @@ import { ApiErrorResponse } from "../services/error";
 const DeleteBuilding = () => {
   const {
     data: buildings,
-    isLoading,
+    isLoading: isGetBuildingsLoading,
     error: isGetBuildingsError,
   } = useGetBuildingsQuery(null);
   const [deleteBuilding, { error: isDeleteBuildingError }] =
@@ -51,42 +52,50 @@ const DeleteBuilding = () => {
   }, [isGetBuildingsError, isDeleteBuildingError]);
 
   return (
-    <Box>
-      {buildings &&
-        buildings.map((building) => (
-          <Card
-            key={building.id}
-            sx={{ backgroundColor: building.color, marginBottom: 1 }}
-          >
-            <CardActions>
-              <Typography fontWeight="bold">{building.name}</Typography>
-              <IconButton onClick={() => handleDelete(building.id)}>
-                <DeleteIcon />
-              </IconButton>
-            </CardActions>
-          </Card>
-        ))}
-      <Box>
-        <Snackbar
-          open={Boolean(errorMessage)}
-          autoHideDuration={6000}
-          onClose={() => setErrorMessage("")}
-          message={errorMessage}
-          action={
-            <>
-              <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleClose}
+    <>
+      {!isGetBuildingsLoading ? (
+        <Box>
+          {buildings &&
+            buildings.map((building) => (
+              <Card
+                key={building.id}
+                sx={{ backgroundColor: building.color, marginBottom: 1 }}
               >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </>
-          }
-        />
-      </Box>
-    </Box>
+                <CardActions>
+                  <Typography fontWeight="bold">{building.name}</Typography>
+                  <IconButton onClick={() => handleDelete(building.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            ))}
+          <Box>
+            <Snackbar
+              open={Boolean(errorMessage)}
+              autoHideDuration={6000}
+              onClose={() => setErrorMessage("")}
+              message={errorMessage}
+              action={
+                <>
+                  <IconButton
+                    size="small"
+                    aria-label="close"
+                    color="inherit"
+                    onClick={handleClose}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </>
+              }
+            />
+          </Box>
+        </Box>
+      ) : (
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <CircularProgress />
+        </Box>
+      )}
+    </>
   );
 };
 
