@@ -2,6 +2,7 @@ import * as React from "react";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -18,7 +19,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Button from "@mui/material/Button";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -142,8 +143,6 @@ export default function Layout(props: Props) {
   const profile = useSelector((state: RootState) => state.profile);
   const { announcementId = "", deviceId = "" } = useParams();
 
-  console.log(profile)
-  
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [openProfile, setOpenProfile] = React.useState(false);
@@ -154,6 +153,10 @@ export default function Layout(props: Props) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleUserProfile = () => {
+    navigate("/profile");
   };
 
   const handleClick = () => {
@@ -179,7 +182,7 @@ export default function Layout(props: Props) {
       (location.pathname === `/announcement/detail/${announcementId}` &&
         !permissions.includes("view_announcement_detail")) ||
       (location.pathname === `/device/detail/${deviceId}` &&
-      !permissions.includes("view_device_detail"))
+        !permissions.includes("view_device_detail"))
     ) {
       return false;
     }
@@ -231,7 +234,9 @@ export default function Layout(props: Props) {
         <List sx={{ opacity: open ? 1 : 0, marginTop: 1 }}>
           <ListItemButton onClick={handleClick}>
             <ListItemText primary={profile?.name} />
-            <ListItemText primary={profile?.role.name} />
+            <Button color="inherit" onClick={handleUserProfile}>
+              {profile?.role.name}
+            </Button>
             {openProfile ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
           <Collapse in={openProfile} timeout="auto" unmountOnExit>

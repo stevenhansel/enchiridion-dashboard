@@ -17,6 +17,7 @@ import RequestsPage from "./pages/RequestsPage";
 import SendLinkVerificationPage from "./pages/SendLinkVerificationPage";
 import VerificationCallbackPage from "./pages/VerificationCallbackPage";
 import WaitingApprovalPage from "./pages/WaitingApprovalPage";
+import UserProfilePage from "./pages/UserProfilePage";
 
 import { setProfile } from "./store/profile";
 import { ApiErrorResponse } from "./services/error";
@@ -90,7 +91,7 @@ function App() {
           <Route path="/floor" element={<ListFloorPage />} />
           <Route path="/user" element={<ListUsersPage />} />
           <Route path="/requests" element={<RequestsPage />} />
-          {/** <Route path="/profile" element={<UserProfilePage />} />*/}
+         <Route path="/profile" element={<UserProfilePage />} />
           <Route
             path="/waiting-for-approval"
             element={<WaitingApprovalPage />}

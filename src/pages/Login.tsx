@@ -209,7 +209,7 @@ const Login = (props: Props) => {
                   <Typography sx={{ marginRight: 0.5 }}>
                     Forgot Password?
                   </Typography>
-                  <Link to="/forgot_password">Change</Link>
+                  <Link to="/forgot-password">Change</Link>
                 </Box>
               </Box>
             </Box>

@@ -1,45 +1,83 @@
-import React, { useState } from "react";
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-import LogoutIcon from "@mui/icons-material/Logout";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Snackbar
+} from "@mui/material";
+import WestIcon from "@mui/icons-material/West";
+import CloseIcon from "@mui/icons-material/Close";
 import Layout from "../components/Layout";
+
+import { RootState } from "../store";
+
+import { useChangePasswordMutation } from "../services/auth";
+import { ApiErrorResponse } from "../services/error";
 
 type Props = {
   children?: React.ReactNode;
 };
 
+type ChangePassword = {
+  oldPassword: string;
+  newPassword: string;
+};
+
+const validationSchema = yup.object({
+  oldPassword: yup.string().required("required"),
+  newPassword: yup
+    .string()
+    .min(8, "Password should be of minimum 8 characters length")
+    .required("New Password is required"),
+});
+
 const UserProfilePage = (props: Props) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [auth, setAuth] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const profile = useSelector((state: RootState) => state.profile);
 
-  const handleChange = (event: any) => {
-    setAuth(event.target.checked);
-  };
+  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [changePassword, { error }] = useChangePasswordMutation();
 
   const handleLogout = () => {
-    navigate("/login");
-  }
-
-  const handleMenu = (event: any) => {
-    setAnchorEl(event.currentTarget);
+    navigate("/");
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const formik = useFormik<ChangePassword>({
+    initialValues: {
+      oldPassword: "",
+      newPassword: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      changePassword(values);
+    },
+  });
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
   };
 
+  useEffect(() => {
+    if (error && "data" in error) {
+      setErrorMessage((error.data as ApiErrorResponse).messages[0]);
+    }
+  }, [error]);
+  
   return (
     <Layout>
       <Box
@@ -53,6 +91,18 @@ const UserProfilePage = (props: Props) => {
           minWidth: 300,
         }}
       >
+        <Box>
+          <IconButton
+            size="small"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleLogout}
+            color="inherit"
+          >
+            <WestIcon />
+          </IconButton>
+        </Box>
         <Box
           display="flex"
           justifyContent="center"
@@ -60,75 +110,39 @@ const UserProfilePage = (props: Props) => {
           width="100%"
         >
           <Typography variant="h5" fontWeight="bold">
-            Emily
+            Profile
           </Typography>
         </Box>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Typography>Hi,</Typography>
-          <Typography fontWeight="bold">Emily</Typography>
-        </Box>
-        <Box>
-          <Box sx={{ flexGrow: 1 }}>
-            {auth && (
-              <Box>
-                <IconButton
-                  size="large"
-                  aria-label="account of current user"
-                  aria-controls="menu-appbar"
-                  aria-haspopup="true"
-                  onClick={handleMenu}
-                  color="inherit"
-                >
-                  <ExpandMoreIcon />
-                </IconButton>
-                <Menu
-                  id="menu-appbar"
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                >
-                  <MenuItem onClick={handleClose}>
-                    <AccountCircle sx={{ marginRight: 1 }} />
-                    Profile
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>
-                    <LogoutIcon sx={{ marginRight: 1 }} />
-                    Log Out
-                  </MenuItem>
-                </Menu>
-              </Box>
-            )}
-          </Box>
-        </Box>
       </Box>
-      <Box display="flex" justifyContent="center" alignItems="center" sx={{ marginTop: 5 }}>
+
+      <Box sx={{ marginTop: 3 }}>
+        <Typography
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          variant="h5"
+        >
+          {profile?.name}
+        </Typography>
+      </Box>
+
+      <Box
+        display="flex"
+        justifyContent="space-evenly"
+        alignItems="center"
+        sx={{ marginTop: 3 }}
+      >
         <Box>
           <Box sx={{ marginBottom: 5 }}>
             <Typography display="flex" fontWeight="bold">
               ID
             </Typography>
-            <Typography>Emily00</Typography>
+            <Typography>{profile?.id}</Typography>
           </Box>
-          <Box sx={{ marginBottom: 5 }}>
-            <Typography fontWeight="bold">Nama</Typography>
-            <Typography>Emily</Typography>
-          </Box>
+
           <Box sx={{ marginBottom: 5 }}>
             <Typography fontWeight="bold">Email</Typography>
-            <Typography>Emilyhannah@gmail.com</Typography>
-          </Box>
-          <Box sx={{ marginBottom: 5 }}>
-            <Typography fontWeight="bold">Status</Typography>
-            <Typography>Mahasiswa</Typography>
+            <Typography>{profile?.email}</Typography>
           </Box>
         </Box>
         <Box sx={{ marginLeft: 40 }}>
@@ -136,27 +150,91 @@ const UserProfilePage = (props: Props) => {
             <Typography display="flex" fontWeight="bold">
               Posisi
             </Typography>
-            <Typography>Mahasiswa</Typography>
+            <Typography>{profile?.role.name}</Typography>
           </Box>
+
           <Box sx={{ marginBottom: 5 }}>
             <Typography fontWeight="bold">Alasan untuk daftar</Typography>
-            <Typography>ingin menginfokan UKM</Typography>
-          </Box>
-          <Box sx={{ marginBottom: 5 }}>
-            <Typography fontWeight="bold">Terdaftar pada tanggal</Typography>
-            <Typography>2 Juni 2022</Typography>
-          </Box>
-          <Box sx={{ marginBottom: 5 }}>
-            <Typography fontWeight="bold">Data Update terakhir</Typography>
-            <Typography>Version 2.0</Typography>
+            <Typography>{profile?.role.description}</Typography>
           </Box>
         </Box>
       </Box>
       <Box display="flex" alignItems="flex-end" justifyContent="flex-end">
-        <Button variant="contained" sx={{ marginRight: 1 }}>
+        <Button
+          variant="contained"
+          onClick={() => setOpen(true)}
+          sx={{ marginRight: 1 }}
+        >
           Ganti Password
         </Button>
         <Button variant="outlined">Edit</Button>
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <DialogTitle>Change Password</DialogTitle>
+          <DialogContent>
+            <form onSubmit={formik.handleSubmit}>
+              <Typography>Old Password</Typography>
+              <TextField
+                variant="standard"
+                id="Old Password"
+                onChange={(e) =>
+                  formik.setFieldValue("oldPassword", e.target.value)
+                }
+                error={
+                  formik.touched.oldPassword &&
+                  Boolean(formik.errors.oldPassword)
+                }
+                helperText={
+                  formik.touched.oldPassword && formik.errors.oldPassword
+                }
+              />
+              <Typography sx={{ marginTop: 1 }}>New Password</Typography>
+              <TextField
+                variant="standard"
+                id="New Password"
+                onChange={(e) =>
+                  formik.setFieldValue("newPassword", e.target.value)
+                }
+                error={
+                  formik.touched.newPassword &&
+                  Boolean(formik.errors.newPassword)
+                }
+                helperText={
+                  formik.touched.newPassword && formik.errors.newPassword
+                }
+              />
+              <Box display="flex" sx={{ marginTop: 1 }}>
+                <Button
+                  sx={{ marginRight: 1 }}
+                  variant="contained"
+                  type="submit"
+                >
+                  Change
+                </Button>
+                <Button variant="contained" onClick={() => setOpen(false)}>
+                  Close
+                </Button>
+              </Box>
+            </form>
+          </DialogContent>
+        </Dialog>
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+          message={errorMessage}
+          action={
+            <>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
+          }
+        />
       </Box>
     </Layout>
   );

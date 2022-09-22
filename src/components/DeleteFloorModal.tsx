@@ -17,7 +17,7 @@ const DeleteFloorModal = (props: Props) => {
   const handleDeleteAnnouncement = useCallback((floorId: string) => {
     deleteFloor({ floorId });
     setOpen(false);
-  }, []);
+  }, [deleteFloor, setOpen]);
 
   return (
     <Box>

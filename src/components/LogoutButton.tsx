@@ -9,15 +9,16 @@ import { resetProfile } from "../store/profile";
 
 const LogoutButton = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [logout] = useLazyLogoutQuery();
 
-  const navigate = useNavigate();
   const handleLogout = async () => {
     try {
       await logout(null).unwrap();
       dispatch(resetProfile());
     } catch (err) {
-
+      
     }
     navigate("/");
   };

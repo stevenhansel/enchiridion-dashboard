@@ -145,7 +145,7 @@ const ListFloorPage = () => {
       setFloorName(floorName);
       setBuildingName(buildingName);
     },
-    []
+    [floorId, floorName, buildingName]
   );
 
   console.log(buildingName);

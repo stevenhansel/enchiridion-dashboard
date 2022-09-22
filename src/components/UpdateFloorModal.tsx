@@ -11,7 +11,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { SelectChangeEvent } from "@mui/material/Select";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
@@ -35,7 +34,8 @@ type Props = {
 };
 
 const UpdateFloorModal = (props: Props) => {
-  const [open, setOpen] = useState(false);
+  const { floorId, setOpen } = props;
+  const [openBuildingModal, setOpenBuildingModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [buildingFilter, setBuildingFilter] = useState<UserFilterOption | null>(
     null
@@ -61,7 +61,7 @@ const UpdateFloorModal = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       editFloor(values);
-      props.setOpen(false);
+      setOpen(false);
     },
   });
 
@@ -89,8 +89,8 @@ const UpdateFloorModal = (props: Props) => {
   }, [getBuildings]);
 
   useEffect(() => {
-    formik.setFieldValue("floorId", props.floorId);
-  }, [props.floorId]);
+    formik.setFieldValue("floorId", floorId);
+  }, [floorId]);
 
   useEffect(() => {
     if (isBuildingError && "data" in isBuildingError) {
@@ -99,7 +99,7 @@ const UpdateFloorModal = (props: Props) => {
   }, [isBuildingError]);
 
   useEffect(() => {
-    if (open) {
+    if (openBuildingModal) {
       getBuildings({
         limit: 5,
       }).then(({ data }) =>
@@ -113,7 +113,7 @@ const UpdateFloorModal = (props: Props) => {
         )
       );
     }
-  }, [getBuildings, open]);
+  }, [getBuildings, openBuildingModal]);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -132,9 +132,9 @@ const UpdateFloorModal = (props: Props) => {
         />
         <Box sx={{ marginBottom: 2 }}>
           <Autocomplete
-            open={open}
-            onOpen={() => setOpen(true)}
-            onClose={() => setOpen(false)}
+            open={openBuildingModal}
+            onOpen={() => setOpenBuildingModal(true)}
+            onClose={() => setOpenBuildingModal(false)}
             options={buildingFilterOptions}
             value={buildingFilter}
             getOptionLabel={(option) => option.name}
@@ -192,7 +192,7 @@ const UpdateFloorModal = (props: Props) => {
           <Button
             variant="contained"
             component="label"
-            onClick={() => props.setOpen(false)}
+            onClick={() => setOpen(false)}
           >
             Close
           </Button>

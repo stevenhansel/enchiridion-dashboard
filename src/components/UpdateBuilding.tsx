@@ -106,6 +106,7 @@ const UpdateBuilding = (props: Props) => {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       updateBuilding(values);
+      getFloors(null);
       // props.setOpen(false);
     },
   });
