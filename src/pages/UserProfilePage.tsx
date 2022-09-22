@@ -13,7 +13,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Snackbar
+  Snackbar,
 } from "@mui/material";
 import WestIcon from "@mui/icons-material/West";
 import CloseIcon from "@mui/icons-material/Close";
@@ -22,7 +22,7 @@ import Layout from "../components/Layout";
 import { RootState } from "../store";
 
 import { useChangePasswordMutation } from "../services/auth";
-import { ApiErrorResponse } from "../services/error";
+import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
 
 type Props = {
   children?: React.ReactNode;
@@ -60,8 +60,19 @@ const UserProfilePage = (props: Props) => {
       newPassword: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      changePassword(values);
+    onSubmit: async (values, { setFieldError }) => {
+      try {
+        await changePassword(values).unwrap();
+        setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { errorCode, messages } = err.data;
+          const [message] = messages;
+          if (errorCode === "USER_INVALID_OLD_PASSWORD") {
+            setFieldError("oldPassword", message);
+          }
+        }
+      }
     },
   });
 
@@ -72,12 +83,12 @@ const UserProfilePage = (props: Props) => {
     setErrorMessage("");
   };
 
-  useEffect(() => {
-    if (error && "data" in error) {
-      setErrorMessage((error.data as ApiErrorResponse).messages[0]);
-    }
-  }, [error]);
-  
+  // useEffect(() => {
+  //   if (error && "data" in error) {
+  //     setErrorMessage((error.data as ApiErrorResponse).messages[0]);
+  //   }
+  // }, [error]);
+
   return (
     <Layout>
       <Box
@@ -88,7 +99,7 @@ const UserProfilePage = (props: Props) => {
           boxShadow: 1,
           borderRadius: 1,
           p: 2,
-          minWidth: 300,
+          width: "100%",
         }}
       >
         <Box>
@@ -176,6 +187,8 @@ const UserProfilePage = (props: Props) => {
               <TextField
                 variant="standard"
                 id="Old Password"
+                type="password"
+                sx={{width: "100%"}}
                 onChange={(e) =>
                   formik.setFieldValue("oldPassword", e.target.value)
                 }
@@ -191,6 +204,8 @@ const UserProfilePage = (props: Props) => {
               <TextField
                 variant="standard"
                 id="New Password"
+                type="password"
+                sx={{width: "100%"}}
                 onChange={(e) =>
                   formik.setFieldValue("newPassword", e.target.value)
                 }

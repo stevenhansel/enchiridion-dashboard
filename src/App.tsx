@@ -91,7 +91,7 @@ function App() {
           <Route path="/floor" element={<ListFloorPage />} />
           <Route path="/user" element={<ListUsersPage />} />
           <Route path="/requests" element={<RequestsPage />} />
-         <Route path="/profile" element={<UserProfilePage />} />
+          <Route path="/profile" element={<UserProfilePage />} />
           <Route
             path="/waiting-for-approval"
             element={<WaitingApprovalPage />}

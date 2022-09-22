@@ -197,7 +197,7 @@ export default function Layout(props: Props) {
         navigate("/waiting-for-approval");
       }
     } else {
-      navigate("/login");
+      navigate("/");
     }
   }, [profile, location, navigate]);
 
@@ -234,15 +234,22 @@ export default function Layout(props: Props) {
         <List sx={{ opacity: open ? 1 : 0, marginTop: 1 }}>
           <ListItemButton onClick={handleClick}>
             <ListItemText primary={profile?.name} />
-            <Button color="inherit" onClick={handleUserProfile}>
-              {profile?.role.name}
-            </Button>
+
             {openProfile ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
           <Collapse in={openProfile} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <ListItemButton sx={{ pl: 4 }}>
-                <LogoutButton />
+                <Box display="flex" flexDirection="column">
+                  <LogoutButton />
+                  <Button
+                    onClick={handleUserProfile}
+                    variant="contained"
+                    sx={{ marginTop: 1 }}
+                  >
+                    Profile
+                  </Button>
+                </Box>
               </ListItemButton>
             </List>
           </Collapse>

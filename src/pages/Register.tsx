@@ -68,6 +68,7 @@ const Register = () => {
         navigate(`/register/${values.email}`);
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
+          console.log(err.data);
           const { errorCode, messages } = err.data;
           const [message] = messages;
 
@@ -81,9 +82,7 @@ const Register = () => {
     },
   });
 
-  const handleChange = (e: SelectChangeEvent) => {
-    formik.setFieldValue("role", e.target.value as string);
-  };
+  const handleChange = (e: SelectChangeEvent) => {};
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -145,7 +144,9 @@ const Register = () => {
                     autoComplete="off"
                     id="name"
                     name="name"
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      formik.setFieldValue("name", e.target.value);
+                    }}
                     error={formik.touched.name && Boolean(formik.errors.name)}
                     helperText={formik.touched.name && formik.errors.name}
                     variant="standard"
@@ -215,7 +216,9 @@ const Register = () => {
                         formik.values.role !== null ? formik.values.role : ""
                       }
                       defaultValue=""
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        formik.setFieldValue("role", e.target.value);
+                      }}
                       error={formik.touched.role && Boolean(formik.errors.role)}
                     >
                       {data.map((role) => (
