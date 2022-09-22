@@ -46,7 +46,7 @@ const FETCH_LIMIT = 20;
 
 const ListAnnouncementPage = () => {
   const hasViewAnnouncementDetail = usePermission("view_list_announcement");
-  const hasViewAnnouncementMedia = usePermission("view_permission_media");
+  const hasViewAnnouncementMedia = usePermission("view_announcement_media");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -320,7 +320,7 @@ const ListAnnouncementPage = () => {
                         <TableCell align="center">Author</TableCell>
                         <TableCell align="center">Created At</TableCell>
                         <TableCell align="center">
-                          {!hasViewAnnouncementMedia ? (
+                          {hasViewAnnouncementMedia ? (
                             <Typography fontSize="14px" fontWeight="bold">
                               Media
                             </Typography>
@@ -370,7 +370,7 @@ const ListAnnouncementPage = () => {
                             {toDate(announcement.createdAt)}
                           </TableCell>
                           <TableCell align="center">
-                            {!hasViewAnnouncementMedia ? (
+                            {hasViewAnnouncementMedia ? (
                               <Button
                                 onClick={() =>
                                   handleSelectAnnouncementImage(announcement.id)

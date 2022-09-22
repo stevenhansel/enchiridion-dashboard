@@ -178,7 +178,6 @@ const UserProfilePage = (props: Props) => {
         >
           Ganti Password
         </Button>
-        <Button variant="outlined">Edit</Button>
         <Dialog open={open} onClose={() => setOpen(false)}>
           <DialogTitle>Change Password</DialogTitle>
           <DialogContent>
@@ -188,7 +187,7 @@ const UserProfilePage = (props: Props) => {
                 variant="standard"
                 id="Old Password"
                 type="password"
-                sx={{width: "100%"}}
+                sx={{ width: "100%" }}
                 onChange={(e) =>
                   formik.setFieldValue("oldPassword", e.target.value)
                 }
@@ -205,7 +204,7 @@ const UserProfilePage = (props: Props) => {
                 variant="standard"
                 id="New Password"
                 type="password"
-                sx={{width: "100%"}}
+                sx={{ width: "100%" }}
                 onChange={(e) =>
                   formik.setFieldValue("newPassword", e.target.value)
                 }
