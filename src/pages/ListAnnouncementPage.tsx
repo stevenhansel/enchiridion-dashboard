@@ -308,7 +308,7 @@ const ListAnnouncementPage = () => {
             </Box>
             {announcements && announcements.contents.length > 0 ? (
               <>
-                <TableContainer component={Paper} sx={{width: "100%"}}>
+                <TableContainer component={Paper} sx={{ width: "100%" }}>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                       <TableRow>
@@ -343,7 +343,7 @@ const ListAnnouncementPage = () => {
                             {hasViewAnnouncementDetail ? (
                               <Button
                                 onClick={() =>
-                                  handleSelectAnnouncementImage(announcement.id)
+                                  handleNavigateToDetailPage(announcement.id)
                                 }
                               >
                                 {announcement.title}
@@ -373,7 +373,7 @@ const ListAnnouncementPage = () => {
                             {!hasViewAnnouncementMedia ? (
                               <Button
                                 onClick={() =>
-                                  handleNavigateToDetailPage(announcement.id)
+                                  handleSelectAnnouncementImage(announcement.id)
                                 }
                               >
                                 Open

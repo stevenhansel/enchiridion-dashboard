@@ -46,7 +46,7 @@ const validationSchema = yup.object({
   description: yup
     .string()
     .min(10, "Minimum character for description is 10")
-    .max(20, "Maximum character for description has been reached")
+    .max(30, "Maximum character for description has been reached")
     .required("Description is required"),
   floorId: yup.number().required("Please select the floor"),
   buildingId: yup.number().required(),
