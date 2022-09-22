@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -9,6 +9,7 @@ import {
   DialogContent,
   Tab,
   Tabs,
+  Typography,
 } from "@mui/material";
 
 import CreateBuilding from "../components/CreateBuilding";
@@ -65,21 +66,10 @@ const BuildingModal = (props: Props) => {
   const hasPermissionUpdateBuilding = usePermission("update_building");
   const hasPermissionDeleteBuilding = usePermission("delete_building");
 
-  const hasPermission = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
-
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (
-      permissions.includes("create_building") &&
-      permissions.includes("update_building") &&
-      permissions.includes("delete_building")
-    ) {
-      return true;
-    }
-    return false;
-  }, [profile]);
+  const hasPermission =
+    hasPermissionCreateBuilding &&
+    hasPermissionUpdateBuilding &&
+    hasPermissionDeleteBuilding;
 
   const handleChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
@@ -91,10 +81,7 @@ const BuildingModal = (props: Props) => {
   return (
     <>
       {hasPermission ? (
-        <Dialog
-          open={props.open}
-          onClose={() => props.setOpen(false)}
-        >
+        <Dialog open={props.open} onClose={() => props.setOpen(false)}>
           <DialogTitle>Building Menu</DialogTitle>
           <DialogContent>
             <Tabs
@@ -134,7 +121,7 @@ const BuildingModal = (props: Props) => {
             </Box>
           </DialogContent>
         </Dialog>
-      ) : null}
+      ) : <Typography>Forbidden</Typography>}
     </>
   );
 };

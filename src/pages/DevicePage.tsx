@@ -26,7 +26,10 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { useLazyGetDevicesQuery } from "../services/device";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
+
 import CreateDeviceModal from "../components/CreateDeviceModal";
+
+import { usePermission } from "../hooks";
 
 const FETCH_LIMIT = 20;
 
@@ -36,6 +39,8 @@ const DevicePage = () => {
   const [page, setPage] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+
+  const hasViewDeviceDetailPermission = usePermission("view_device_detail");
 
   const getDeviceQueryParams = { page, query, limit: FETCH_LIMIT };
   const [getDevices, { data, isLoading, error }] = useLazyGetDevicesQuery();
@@ -139,13 +144,17 @@ const DevicePage = () => {
                             }}
                           >
                             <TableCell align="center">
-                              <Link
-                                onClick={() =>
-                                  handleNavigateToDetailPage(device.id)
-                                }
-                              >
-                                {device.id}
-                              </Link>
+                              {hasViewDeviceDetailPermission ? (
+                                <Link
+                                  onClick={() =>
+                                    handleNavigateToDetailPage(device.id)
+                                  }
+                                >
+                                  {device.id}
+                                </Link>
+                              ) : (
+                                <Typography>{device.id}</Typography>
+                              )}
                             </TableCell>
                             <TableCell align="center">{device.name}</TableCell>
                             <TableCell align="center">
