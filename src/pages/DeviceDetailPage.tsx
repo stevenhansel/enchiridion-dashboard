@@ -13,6 +13,7 @@ import {
   Paper,
   Card,
   CardActions,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
@@ -48,12 +49,13 @@ const DeviceDetailPage = () => {
   const hasUpdateDevicePermission = usePermission("update_device");
   const hasDeleteDevicePermission = usePermission("delete_device");
 
-  const { data: devices } = useGetDeviceDetailQuery(
-    { deviceId },
-    {
-      skip: deviceId === "",
-    }
-  );
+  const { data: devices, isLoading: isDeviceDetailLoading } =
+    useGetDeviceDetailQuery(
+      { deviceId },
+      {
+        skip: deviceId === "",
+      }
+    );
 
   const [
     getAnnouncements,
@@ -63,6 +65,8 @@ const DeviceDetailPage = () => {
       isLoading: isAnnouncementsLoading,
     },
   ] = useLazyGetAnnouncementsQuery();
+
+  const isLoading = isAnnouncementsLoading && isDeviceDetailLoading;
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
@@ -98,167 +102,184 @@ const DeviceDetailPage = () => {
   return (
     <Layout>
       <Box>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Typography variant="h5" fontWeight="bold">
-            {devices?.name}
-          </Typography>
-
-          <Box>
-            {hasUpdateDevicePermission ? (
-              <IconButton
-                onClick={() => {
-                  setOpen(true);
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-            ) : null}
-            {hasDeleteDevicePermission ? (
-              <IconButton>
-                <DeleteIcon />
-              </IconButton>
-            ) : null}
-          </Box>
-        </Box>
-        <Box display="flex" justifyContent="center">
-          <Box sx={{ marginTop: 8 }}>
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography display="flex" fontWeight="bold">
-                ID
+        {!isLoading ? (
+          <>
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <Typography variant="h5" fontWeight="bold">
+                {devices?.name}
               </Typography>
-              <Typography>{deviceId}</Typography>
-            </Box>
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Location</Typography>
-              <Typography>{devices?.location}</Typography>
-            </Box>
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Deskripsi</Typography>
-              <Typography>{devices?.description}</Typography>
-            </Box>
-          </Box>
 
-          <Box sx={{ marginTop: 8, marginLeft: 40 }}>
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Created at</Typography>
-              <Typography>{toDate(devices?.createdAt)}</Typography>
-            </Box>
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Updated at</Typography>
-              <Typography>{toDate(devices?.updatedAt)}</Typography>
-            </Box>
-          </Box>
-        </Box>
-        <Box>
-          <Typography sx={{ marginBottom: 1 }} variant="h5" fontWeight="bold">
-            Announcement
-          </Typography>
-          <Box sx={{ marginBottom: 1 }}>
-            <Card sx={{ bgcolor: "#D2E4EF" }}>
-              <CardActions>
-                {statusActions &&
-                  statusActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      onClick={() => setActionType(action.value)}
-                      variant={
-                        actionType === action.value ? "contained" : "text"
-                      }
-                      sx={{ marginRight: 2 }}
-                      value={actionType}
-                    >
-                      {action.label}
-                    </Button>
-                  ))}
-              </CardActions>
-            </Card>
-          </Box>
-
-          {announcements && announcements.contents.length > 0 ? (
-            <>
-              <Box
-                display="flex"
-                flexDirection="row"
-                sx={{ marginRight: 1, width: "100%" }}
-              >
-                {announcements.contents.map((announcement) => (
-                  <Paper
-                    key={announcement.id}
-                    elevation={3}
-                    sx={{ marginRight: 1 }}
+              <Box>
+                {hasUpdateDevicePermission ? (
+                  <IconButton
+                    onClick={() => {
+                      setOpen(true);
+                    }}
                   >
-                    <img src={announcement.media} style={{ width: "100%" }} />
-                    <Box sx={{ marginLeft: 1 }}>
-                      <Typography variant="h5" fontWeight="bold">
-                        {announcement.title}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ marginLeft: 1 }}>
-                      <Button variant="contained" sx={{ marginBottom: 1 }}>
-                        {announcement.status.label}
-                      </Button>
-                    </Box>
-                    <Box
-                      display="flex"
-                      flexDirection="row"
-                      justifyContent="space-between"
-                      sx={{ marginLeft: 1, marginBottom: 1 }}
-                    >
-                      <Typography>
-                        by&nbsp;{announcement.author.name}
-                      </Typography>
-                      <Typography sx={{ marginRight: "10px" }}>
-                        {dayjs(announcement.startDate).format("D MMMM YYYY")}
-                        &nbsp;-&nbsp;
-                        {dayjs(announcement.endDate).format("D MMMM YYYY")}
-                      </Typography>
-                    </Box>
-                  </Paper>
-                ))}
+                    <EditIcon />
+                  </IconButton>
+                ) : null}
+                {hasDeleteDevicePermission ? (
+                  <IconButton>
+                    <DeleteIcon />
+                  </IconButton>
+                ) : null}
               </Box>
-              <Box
-                sx={{ marginTop: 1 }}
-                display="flex"
-                justifyContent="center"
-                flexDirection="row"
-              >
-                <IconButton
-                  disabled={isPreviousButtonDisabled}
-                  onClick={handlePaginationPreviousPage}
-                >
-                  <NavigateBeforeIcon />
-                </IconButton>
-                <Box display="flex" alignItems="center">
-                  {page}
+            </Box>
+            <Box display="flex" justifyContent="center">
+              <Box sx={{ marginTop: 8 }}>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography display="flex" fontWeight="bold">
+                    ID
+                  </Typography>
+                  <Typography>{deviceId}</Typography>
                 </Box>
-                <IconButton
-                  disabled={isNextButtonDisabled}
-                  onClick={handlePaginationNextPage}
-                >
-                  <NavigateNextIcon />
-                </IconButton>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Location</Typography>
+                  <Typography>{devices?.location}</Typography>
+                </Box>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Deskripsi</Typography>
+                  <Typography>{devices?.description}</Typography>
+                </Box>
               </Box>
-            </>
-          ) : (
-            <Typography>Announcement Not Found!</Typography>
-          )}
-        </Box>
 
-        <Dialog
-          open={open}
-          onClose={() => {
-            setOpen(false);
-          }}
-        >
-          <DialogTitle>Update {devices?.name}</DialogTitle>
-          <DialogContent>
-            <UpdateDeviceModal
+              <Box sx={{ marginTop: 8, marginLeft: 40 }}>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Created at</Typography>
+                  <Typography>{toDate(devices?.createdAt)}</Typography>
+                </Box>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Updated at</Typography>
+                  <Typography>{toDate(devices?.updatedAt)}</Typography>
+                </Box>
+              </Box>
+            </Box>
+            <Box>
+              <Typography
+                sx={{ marginBottom: 1 }}
+                variant="h5"
+                fontWeight="bold"
+              >
+                Announcement
+              </Typography>
+              <Box sx={{ marginBottom: 1 }}>
+                <Card sx={{ bgcolor: "#D2E4EF" }}>
+                  <CardActions>
+                    {statusActions &&
+                      statusActions.map((action, index) => (
+                        <Button
+                          key={index}
+                          onClick={() => setActionType(action.value)}
+                          variant={
+                            actionType === action.value ? "contained" : "text"
+                          }
+                          sx={{ marginRight: 2 }}
+                          value={actionType}
+                        >
+                          {action.label}
+                        </Button>
+                      ))}
+                  </CardActions>
+                </Card>
+              </Box>
+
+              {announcements && announcements.contents.length > 0 ? (
+                <>
+                  <Box
+                    display="flex"
+                    flexDirection="row"
+                    sx={{ marginRight: 1, width: "100%" }}
+                  >
+                    {announcements.contents.map((announcement) => (
+                      <Paper
+                        key={announcement.id}
+                        elevation={3}
+                        sx={{ marginRight: 1, width: "100%" }}
+                      >
+                        <img
+                          src={announcement.media}
+                          style={{ width: "100%" }}
+                        />
+                        <Box sx={{ marginLeft: 1 }}>
+                          <Typography variant="h5" fontWeight="bold">
+                            {announcement.title}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ marginLeft: 1 }}>
+                          <Button variant="contained" sx={{ marginBottom: 1 }}>
+                            {announcement.status.label}
+                          </Button>
+                        </Box>
+                        <Box
+                          display="flex"
+                          flexDirection="row"
+                          justifyContent="space-between"
+                          sx={{ marginLeft: 1, marginBottom: 1 }}
+                        >
+                          <Typography>
+                            by&nbsp;{announcement.author.name}
+                          </Typography>
+                          <Typography sx={{ marginRight: "10px" }}>
+                            {dayjs(announcement.startDate).format(
+                              "D MMMM YYYY"
+                            )}
+                            &nbsp;-&nbsp;
+                            {dayjs(announcement.endDate).format("D MMMM YYYY")}
+                          </Typography>
+                        </Box>
+                      </Paper>
+                    ))}
+                  </Box>
+                  <Box
+                    sx={{ marginTop: 1 }}
+                    display="flex"
+                    justifyContent="center"
+                    flexDirection="row"
+                  >
+                    <IconButton
+                      disabled={isPreviousButtonDisabled}
+                      onClick={handlePaginationPreviousPage}
+                    >
+                      <NavigateBeforeIcon />
+                    </IconButton>
+                    <Box display="flex" alignItems="center">
+                      {page}
+                    </Box>
+                    <IconButton
+                      disabled={isNextButtonDisabled}
+                      onClick={handlePaginationNextPage}
+                    >
+                      <NavigateNextIcon />
+                    </IconButton>
+                  </Box>
+                </>
+              ) : (
+                <Typography>Announcement Not Found!</Typography>
+              )}
+            </Box>
+
+            <Dialog
               open={open}
-              setOpen={setOpen}
-              deviceName={devices?.name}
-            />
-          </DialogContent>
-        </Dialog>
+              onClose={() => {
+                setOpen(false);
+              }}
+            >
+              <DialogTitle>Update {devices?.name}</DialogTitle>
+              <DialogContent>
+                <UpdateDeviceModal
+                  open={open}
+                  setOpen={setOpen}
+                  deviceName={devices?.name}
+                />
+              </DialogContent>
+            </Dialog>
+          </>
+        ) : (
+          <Box display="flex" justifyContent="center" alignItems="center">
+            <CircularProgress />
+          </Box>
+        )}
       </Box>
     </Layout>
   );
