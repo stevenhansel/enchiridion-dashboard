@@ -148,8 +148,6 @@ const ListFloorPage = () => {
     [floorId, floorName, buildingName]
   );
 
-  console.log(buildingName);
-
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
 
   const isNextButtonDisabled = useMemo(() => {
@@ -275,7 +273,7 @@ const ListFloorPage = () => {
                     setBuildingFilter(inputValue);
                   }}
                   onInputChange={(_, newInputValue, reason) => {
-                    if (reason == "input") {
+                    if (reason === "input") {
                       setBuildingFilterOptions([]);
                       setIsBuildingFilterLoading(true);
                       getBuildingDelayed(newInputValue);

@@ -73,7 +73,7 @@ const DeviceDetailPage = () => {
     if (!announcements) return true;
 
     if (announcements && announcements.contents.length === 3) {
-      return false;
+      return page === Math.floor((announcements.contents.length - 1) / 2);
     }
 
     return true;
@@ -81,12 +81,12 @@ const DeviceDetailPage = () => {
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
-    [page]
+    []
   );
 
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
-    [page]
+    []
   );
 
   useEffect(() => {
@@ -189,7 +189,8 @@ const DeviceDetailPage = () => {
                   <Box
                     display="flex"
                     flexDirection="row"
-                    sx={{ marginRight: 1, width: "100%" }}
+                    alignItems="center"
+                    sx={{ marginRight: 1}}
                   >
                     {announcements.contents.map((announcement) => (
                       <Paper
@@ -197,10 +198,12 @@ const DeviceDetailPage = () => {
                         elevation={3}
                         sx={{ marginRight: 1, width: "100%" }}
                       >
-                        <img
-                          src={announcement.media}
-                          style={{ width: "100%" }}
-                        />
+                        <Box display="flex" justifyContent="center">
+                          <img
+                            src={announcement.media}
+                            style={{ width: "100%", margin: "auto" }}
+                          />
+                        </Box>
                         <Box sx={{ marginLeft: 1 }}>
                           <Typography variant="h5" fontWeight="bold">
                             {announcement.title}
@@ -247,7 +250,7 @@ const DeviceDetailPage = () => {
                       {page}
                     </Box>
                     <IconButton
-                      disabled={isNextButtonDisabled}
+                      // disabled={isNextButtonDisabled}
                       onClick={handlePaginationNextPage}
                     >
                       <NavigateNextIcon />
