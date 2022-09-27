@@ -14,7 +14,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 
 import { authApi } from "../services/auth";
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";

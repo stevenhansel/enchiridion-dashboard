@@ -51,12 +51,12 @@ const toDate = (dateStr: string | undefined) =>
 
 const FETCH_LIMIT = 20;
 
-const key = "id";
-
 const RequestsPage = () => {
   const hasUpdateRequestApprovalPermission = usePermission(
     "update_request_approval"
   );
+  const hasViewAnnouncementPermission = usePermission("view_list_announcement");
+  const hasViewUserPermission = usePermission("view_list_user");
   const [openUserFilter, setOpenUserFilter] = useState(false);
   const [openAnnouncementFilter, setOpenAnnouncementFilter] = useState(false);
   const [actionType, setActionType] = useState<string>("");
@@ -181,17 +181,6 @@ const RequestsPage = () => {
     }, 250);
   }, [getAnnouncements]);
 
-  const announcementOptions = announcements?.contents.map((content) => content);
-
-  const announcementUniqueByKey = Array.from(
-    new Map(
-      announcementOptions?.map((announcement) => [
-        announcement[key],
-        announcement,
-      ])
-    ).values()
-  );
-
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
     [page]
@@ -232,8 +221,8 @@ const RequestsPage = () => {
   }, [getRequests, page]);
 
   useEffect(() => {
-    if (openUserFilter) {
-      getUsers({ limit: 5 }).then(({ data }) => {
+    if (openUserFilter && hasViewUserPermission) {
+      getUsers({ limit: 5, query: userFilter?.name }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
             ? data.contents.map((u) => ({
@@ -244,22 +233,24 @@ const RequestsPage = () => {
         );
       });
     }
-  }, [getUsers, openUserFilter]);
+  }, [getUsers, openUserFilter, hasViewUserPermission]);
 
   useEffect(() => {
-    if (openAnnouncementFilter) {
-      getAnnouncements({ limit: 5 }).then(({ data }) => {
-        setAnnouncementFilterOptions(
-          data !== undefined
-            ? data.contents.map((u) => ({
-                id: u.id,
-                name: u.title,
-              }))
-            : []
-        );
-      });
+    if (openAnnouncementFilter && hasViewAnnouncementPermission) {
+      getAnnouncements({ limit: 5, query: announcementFilter?.name }).then(
+        ({ data }) => {
+          setAnnouncementFilterOptions(
+            data !== undefined
+              ? data.contents.map((u) => ({
+                  id: u.id,
+                  name: u.title,
+                }))
+              : []
+          );
+        }
+      );
     }
-  }, [openAnnouncementFilter, getAnnouncements]);
+  }, [openAnnouncementFilter, getAnnouncements, hasViewAnnouncementPermission]);
 
   return (
     <Layout>
@@ -284,103 +275,121 @@ const RequestsPage = () => {
                 onChange={(e) => setQuery(e.target.value)}
                 sx={{ marginBottom: 2, width: 140 }}
               />
-              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                <Autocomplete
-                  disablePortal
-                  id="author-filter"
-                  open={openUserFilter}
-                  onOpen={() => {
-                    setOpenUserFilter(true);
-                  }}
-                  onClose={() => {
-                    setOpenUserFilter(false);
-                  }}
-                  options={userFilterOptions}
-                  getOptionLabel={(option) => option.name}
-                  isOptionEqualToValue={(option, value) =>
-                    option.name === value.name
-                  }
-                  sx={{ width: 150 }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Author"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <React.Fragment>
-                            {isUserFilterLoading ? (
-                              <CircularProgress color="inherit" size={20} />
-                            ) : null}
-                            {params.InputProps.endAdornment}
-                          </React.Fragment>
-                        ),
-                      }}
-                    />
-                  )}
-                  value={userFilter}
-                  onChange={(_, newValue) => {
-                    setUserFilterOptions([]);
-                    setUserFilter(newValue);
-                  }}
-                  onInputChange={(_, newInputValue, reason) => {
-                    if (reason === "input") {
+              {hasViewUserPermission ? (
+                <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                  <Autocomplete
+                    disablePortal
+                    id="author-filter"
+                    open={openUserFilter}
+                    onOpen={() => {
+                      setOpenUserFilter(true);
+                    }}
+                    onClose={() => {
+                      setOpenUserFilter(false);
+                    }}
+                    options={userFilterOptions}
+                    getOptionLabel={(option) => option.name}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    renderOption={(props, option) => {
+                      return (
+                        <li {...props} key={option.id}>
+                          {option.name}
+                        </li>
+                      );
+                    }}
+                    sx={{ width: 150 }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Author"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <React.Fragment>
+                              {isUserFilterLoading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </React.Fragment>
+                          ),
+                        }}
+                      />
+                    )}
+                    value={userFilter}
+                    onChange={(_, newValue) => {
                       setUserFilterOptions([]);
-                      getUserDelayed(newInputValue);
-                      setIsUserFilterLoading(true);
-                    }
-                  }}
-                />
-              </Box>
-              <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
-                <Autocomplete
-                  disablePortal
-                  id="announcement-filter"
-                  open={openAnnouncementFilter}
-                  onOpen={() => {
-                    setOpenAnnouncementFilter(true);
-                  }}
-                  onClose={() => {
-                    setOpenAnnouncementFilter(false);
-                  }}
-                  options={announcementFilterOptions}
-                  getOptionLabel={(option) => option.name}
-                  isOptionEqualToValue={(option, value) =>
-                    option.name === value.name
-                  }
-                  sx={{ width: 150 }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Announcement"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <React.Fragment>
-                            {isAnnouncementFilterLoading ? (
-                              <CircularProgress color="inherit" size={20} />
-                            ) : null}
-                            {params.InputProps.endAdornment}
-                          </React.Fragment>
-                        ),
-                      }}
-                    />
-                  )}
-                  value={announcementFilter}
-                  onChange={(_, newValue) => {
-                    setAnnouncementFilterOptions([]);
-                    setAnnouncementFilter(newValue);
-                  }}
-                  onInputChange={(_, newInputValue, reason) => {
-                    if (reason === "input") {
-                      setAnnouncementFilterOptions([]);
-                      getAnnouncementDelayed(newInputValue);
-                      setIsAnnouncementFilterLoading(true);
-                    }
-                  }}
-                />
-              </Box>
+                      setUserFilter(newValue);
+                    }}
+                    onInputChange={(_, newInputValue, reason) => {
+                      if (reason === "input") {
+                        setUserFilterOptions([]);
+                        getUserDelayed(newInputValue);
+                        setIsUserFilterLoading(true);
+                      }
+                    }}
+                  />
+                </Box>
+              ) : null}
 
+              {hasViewAnnouncementPermission ? (
+                <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
+                  <Autocomplete
+                    disablePortal
+                    id="announcement-filter"
+                    open={openAnnouncementFilter}
+                    onOpen={() => {
+                      setOpenAnnouncementFilter(true);
+                    }}
+                    onClose={() => {
+                      setOpenAnnouncementFilter(false);
+                    }}
+                    options={announcementFilterOptions}
+                    getOptionLabel={(option) => option.name}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    renderOption={(props, option) => {
+                      return (
+                        <li {...props} key={option.id}>
+                          {option.name}
+                        </li>
+                      );
+                    }}
+                    sx={{ width: 150 }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Announcement"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <React.Fragment>
+                              {isAnnouncementFilterLoading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </React.Fragment>
+                          ),
+                        }}
+                      />
+                    )}
+                    value={announcementFilter}
+                    onChange={(_, newValue) => {
+                      setAnnouncementFilterOptions([]);
+                      setAnnouncementFilter(newValue);
+                    }}
+                    onInputChange={(_, newInputValue, reason) => {
+                      if (reason === "input") {
+                        setAnnouncementFilterOptions([]);
+                        getAnnouncementDelayed(newInputValue);
+                        setIsAnnouncementFilterLoading(true);
+                      }
+                    }}
+                  />
+                </Box>
+              ) : null}
               <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
                 <FormControl sx={{ width: 165 }}>
                   <InputLabel id="lsc_filter">Condition by LSC</InputLabel>
@@ -466,7 +475,7 @@ const RequestsPage = () => {
               </Card>
             </Box>
             {requests && requests.contents.length > 0 ? (
-              <TableContainer component={Paper} sx={{width: "100%"}}>
+              <TableContainer component={Paper} sx={{ width: "100%" }}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
@@ -498,11 +507,11 @@ const RequestsPage = () => {
                             {request.author.name}
                           </TableCell>
                           <TableCell align="center">
-                            <Button variant="contained" >
+                            <Button variant="contained">
                               {request.action.label}
                             </Button>
                           </TableCell>
-                          <TableCell align="center"> 
+                          <TableCell align="center">
                             {request.description}
                           </TableCell>
                           <TableCell align="center">

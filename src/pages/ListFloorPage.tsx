@@ -114,6 +114,13 @@ const ListFloorPage = () => {
     []
   );
 
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
   const getBuildingDelayed = useMemo(() => {
     return debounce((query: string) => {
       getBuildings({ query, limit: 5 }).then(({ data }) => {
@@ -181,13 +188,6 @@ const ListFloorPage = () => {
       });
     }
   }, [hasPermissionViewBuilding, getBuildings, open]);
-
-  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setErrorMessage("");
-  };
 
   return (
     <Layout>
@@ -268,6 +268,13 @@ const ListFloorPage = () => {
                   isOptionEqualToValue={(option, value) =>
                     option.name === value.name
                   }
+                  renderOption={(props, option) => {
+                    return (
+                      <li {...props} key={option.id}>
+                        {option.name}
+                      </li>
+                    );
+                  }}
                   onChange={(_, inputValue) => {
                     setBuildingFilterOptions([]);
                     setBuildingFilter(inputValue);

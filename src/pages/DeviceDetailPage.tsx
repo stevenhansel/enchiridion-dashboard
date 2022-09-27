@@ -69,11 +69,7 @@ const DeviceDetailPage = () => {
   const isNextButtonDisabled = useMemo(() => {
     if (!announcements) return true;
 
-    if (announcements && announcements.contents.length === 3) {
-      return page === announcements.totalPages;
-    }
-
-    return true;
+    return page === announcements.totalPages;
   }, [page, announcements]);
 
   const handlePaginationPreviousPage = useCallback(
@@ -98,7 +94,9 @@ const DeviceDetailPage = () => {
 
   useEffect(() => {
     if (isAnnouncementsError && "data" in isAnnouncementsError) {
-      setErrorMessage((isAnnouncementsError.data as ApiErrorResponse).messages[0]);
+      setErrorMessage(
+        (isAnnouncementsError.data as ApiErrorResponse).messages[0]
+      );
     }
   }, [isAnnouncementsError]);
 
