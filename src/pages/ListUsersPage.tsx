@@ -109,22 +109,6 @@ const ListUsersPage = () => {
     }, 250);
   }, [getRoles]);
 
-  const handleOpenAutocomplete = useCallback(() => {
-    getRoles({ query, limit: 5 }).then(({ data }) => {
-      setRoleFilterOptions(
-        data !== undefined
-          ? data.map((r) => ({
-              name: r.name,
-              value: r.value,
-              description: r.description,
-            }))
-          : []
-      );
-      setIsRoleFilterLoading(false);
-    });
-    setOpen(true);
-  }, [open]);
-
   const userApprove = (userId: string, userStatus: boolean) => {
     approveRejectUser({ userId, userStatus });
   };
@@ -151,7 +135,7 @@ const ListUsersPage = () => {
 
   useEffect(() => {
     if (open) {
-      getRoles({ limit: 5 }).then(({ data }) => {
+      getRoles({ limit: 5, query: roleFilter?.name }).then(({ data }) => {
         setRoleFilterOptions(
           data !== undefined
             ? data.map((r) => ({
@@ -197,7 +181,6 @@ const ListUsersPage = () => {
               options={roleFilterOptions}
               loading={isRoleLoading}
               open={open}
-              onOpen={handleOpenAutocomplete}
               onClose={() => {
                 setOpen(false);
               }}
@@ -215,6 +198,13 @@ const ListUsersPage = () => {
                   setRoleFilterOptions([]);
                   setIsRoleFilterLoading(true);
                 }
+              }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.value}>
+                    {option.name}
+                  </li>
+                );
               }}
               renderInput={(params) => (
                 <TextField
@@ -268,7 +258,7 @@ const ListUsersPage = () => {
           <CircularProgress />
         ) : users && users.contents.length > 0 ? (
           <>
-            <TableContainer component={Paper} sx={{width: "100%"}}>
+            <TableContainer component={Paper} sx={{ width: "100%" }}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
