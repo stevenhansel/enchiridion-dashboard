@@ -36,7 +36,6 @@ import { useLazyGetBuildingsQuery } from "../services/building";
 
 import {
   useLazyGetFloorsQuery,
-  useDeleteFloorMutation,
 } from "../services/floor";
 
 import Layout from "../components/Layout";
@@ -58,7 +57,7 @@ const ListFloorPage = () => {
     "update_building",
     "delete_building"
   );
-  const hasPermissionViewBuilding = usePermission("view_list_building");
+  const hasViewBuildingPermission = usePermission("view_list_building");
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -175,8 +174,8 @@ const ListFloorPage = () => {
   }, [page]);
 
   useEffect(() => {
-    if (hasPermissionViewBuilding && open) {
-      getBuildings({ limit: 5 }).then(({ data }) => {
+    if (hasViewBuildingPermission && open) {
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
@@ -187,7 +186,7 @@ const ListFloorPage = () => {
         );
       });
     }
-  }, [hasPermissionViewBuilding, getBuildings, open]);
+  }, [hasViewBuildingPermission, getBuildings, open]);
 
   return (
     <Layout>
@@ -252,7 +251,7 @@ const ListFloorPage = () => {
                 sx={{ width: 220, marginRight: 1 }}
               />
             </Box>
-            {hasPermissionViewBuilding ? (
+            {hasViewBuildingPermission ? (
               <Box display="flex" justifyContent="flex-end">
                 <Autocomplete
                   options={buildingFilterOptions}
@@ -264,10 +263,10 @@ const ListFloorPage = () => {
                     setOpen(false);
                   }}
                   loading={isBuildingFilterLoading}
-                  getOptionLabel={(option) => option.name}
                   isOptionEqualToValue={(option, value) =>
-                    option.name === value.name
+                    option.id === value.id
                   }
+                  getOptionLabel={(option) => option.name}
                   renderOption={(props, option) => {
                     return (
                       <li {...props} key={option.id}>
