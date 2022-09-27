@@ -12,7 +12,7 @@ import { useGetBuildingsQuery } from "../services/building";
 import { useGetFloorsQuery } from "../services/floor";
 import { useGetAnnouncementDetailQuery } from "../services/announcement";
 
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse, isApiError, isReduxError } from "../services/error";
 import { ActionCreateRequest } from "../types/store";
 
 type Props = {
@@ -56,9 +56,23 @@ const ChangeDeviceRequest = (props: Props) => {
       description: description,
       deviceIds: [],
     },
-    onSubmit: (values) => {
-      createRequest(values);
-      props.setOpen(false);
+    onSubmit: async (values) => {
+      try {
+        await createRequest(values).unwrap();
+        props.setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { errorCode, messages } = err.data;
+          const [message] = messages;
+          if (errorCode === "DEVICE_NOT_FOUND") {
+            errorMessage(message);
+          } else if (errorCode === "FLOOR_NOT_FOUND") {
+            errorMessage(message);
+          } else if (errorCode === "DEVICE_ALREADY_EXISTS") {
+            errorMessage(message);
+          }
+        }
+      }
     },
   });
 
