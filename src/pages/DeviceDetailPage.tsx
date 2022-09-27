@@ -14,10 +14,11 @@ import {
   Card,
   CardActions,
   CircularProgress,
+  Snackbar,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
@@ -26,23 +27,19 @@ import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
 import Layout from "../components/Layout";
 import UpdateDeviceModal from "../components/UpdateDeviceModal";
+import DeleteDeviceModal from "../components/DeleteDeviceModal";
 
 import { usePermission } from "../hooks";
-import { statusActions, AnnouncementStatus } from "../types/constants";
+import { statusActions } from "../types/constants";
+import { ApiErrorResponse } from "../services/error";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
-
 const DeviceDetailPage = () => {
-  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [actionType, setActionType] = useState("");
   const [page, setPage] = useState(1);
   const { deviceId = "" } = useParams();
@@ -73,7 +70,7 @@ const DeviceDetailPage = () => {
     if (!announcements) return true;
 
     if (announcements && announcements.contents.length === 3) {
-      return page === Math.floor((announcements.contents.length - 1) / 2);
+      return page === announcements.totalPages;
     }
 
     return true;
@@ -99,6 +96,19 @@ const DeviceDetailPage = () => {
     });
   }, [getAnnouncements, actionType, deviceId, page]);
 
+  useEffect(() => {
+    if (isAnnouncementsError && "data" in isAnnouncementsError) {
+      setErrorMessage((isAnnouncementsError.data as ApiErrorResponse).messages[0]);
+    }
+  }, [isAnnouncementsError]);
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
   return (
     <Layout>
       <Box>
@@ -113,14 +123,18 @@ const DeviceDetailPage = () => {
                 {hasUpdateDevicePermission ? (
                   <IconButton
                     onClick={() => {
-                      setOpen(true);
+                      setOpenUpdateModal(true);
                     }}
                   >
                     <EditIcon />
                   </IconButton>
                 ) : null}
                 {hasDeleteDevicePermission ? (
-                  <IconButton>
+                  <IconButton
+                    onClick={() => {
+                      setOpenDeleteModal(true);
+                    }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 ) : null}
@@ -190,7 +204,7 @@ const DeviceDetailPage = () => {
                     display="flex"
                     flexDirection="row"
                     alignItems="center"
-                    sx={{ marginRight: 1}}
+                    sx={{ marginRight: 1 }}
                   >
                     {announcements.contents.map((announcement) => (
                       <Paper
@@ -250,7 +264,7 @@ const DeviceDetailPage = () => {
                       {page}
                     </Box>
                     <IconButton
-                      // disabled={isNextButtonDisabled}
+                      disabled={isNextButtonDisabled}
                       onClick={handlePaginationNextPage}
                     >
                       <NavigateNextIcon />
@@ -263,17 +277,32 @@ const DeviceDetailPage = () => {
             </Box>
 
             <Dialog
-              open={open}
+              open={openUpdateModal}
               onClose={() => {
-                setOpen(false);
+                setOpenUpdateModal(false);
               }}
             >
               <DialogTitle>Update {devices?.name}</DialogTitle>
               <DialogContent>
                 <UpdateDeviceModal
-                  open={open}
-                  setOpen={setOpen}
+                  open={openUpdateModal}
+                  setOpen={setOpenUpdateModal}
                   deviceName={devices?.name}
+                />
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={openDeleteModal}
+              onClose={() => {
+                setOpenDeleteModal(false);
+              }}
+            >
+              <DialogTitle>Delete {devices?.name}</DialogTitle>
+              <DialogContent>
+                <DeleteDeviceModal
+                  setOpen={setOpenDeleteModal}
+                  deviceName={devices?.name}
+                  deviceId={devices?.id}
                 />
               </DialogContent>
             </Dialog>
@@ -283,6 +312,22 @@ const DeviceDetailPage = () => {
             <CircularProgress />
           </Box>
         )}
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+          message={errorMessage}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
       </Box>
     </Layout>
   );

@@ -364,16 +364,16 @@ const ListFloorPage = () => {
                           {hasPermissionDeleteFloor ? (
                             <>
                               <Tooltip title="Delete">
-                                <IconButton onClick={() => {}}>
-                                  <DeleteIcon
-                                    onClick={() =>
-                                      handleDeleteFloorModal(
-                                        row.id.toString(),
-                                        row.name,
-                                        row.building.name
-                                      )
-                                    }
-                                  />
+                                <IconButton
+                                  onClick={() =>
+                                    handleDeleteFloorModal(
+                                      row.id.toString(),
+                                      row.name,
+                                      row.building.name
+                                    )
+                                  }
+                                >
+                                  <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
                             </>
