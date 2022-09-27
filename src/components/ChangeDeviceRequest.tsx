@@ -187,18 +187,6 @@ const ChangeDeviceRequest = (props: Props) => {
                               <Button
                                 variant="contained"
                                 onClick={() => handleSelectDevice(device.id)}
-                                // color={
-                                //   announcements!.devices
-                                //     .map(
-                                //       (announcementDevice) =>
-                                //         announcementDevice.id
-                                //     )
-                                //     .includes(device.id)
-                                //     ? "secondary"
-                                //     : "inactive"
-                                //       ? "secondary"
-                                //       : "inactive"
-                                // }
                                 color={
                                   formik.values.deviceIds?.includes(device.id)
                                     ? "secondary"

@@ -22,7 +22,7 @@ const DeleteFloorModal = (props: Props) => {
   return (
     <Box>
       <Typography>
-        Are you sure u want to delete {floorName} on {buildingName}?
+        Are you sure you want to delete {floorName} on {buildingName}?
       </Typography>
       <Box sx={{ marginTop: 1 }}>
         <Button
@@ -32,7 +32,7 @@ const DeleteFloorModal = (props: Props) => {
         >
           Delete
         </Button>
-        <Button onClick={() => props.setOpen(false)} variant="contained">
+        <Button onClick={() => setOpen(false)} variant="contained">
           Close
         </Button>
       </Box>

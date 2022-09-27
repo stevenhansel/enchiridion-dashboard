@@ -147,7 +147,7 @@ const ListUsersPage = () => {
         );
       });
     }
-  }, [open]);
+  }, [getRoles, open]);
 
   useEffect(() => {
     if (isUserError && "data" in isUserError) {
@@ -181,6 +181,9 @@ const ListUsersPage = () => {
               options={roleFilterOptions}
               loading={isRoleLoading}
               open={open}
+              onOpen={() => {
+                setOpen(true);
+              }}
               onClose={() => {
                 setOpen(false);
               }}

@@ -102,6 +102,7 @@ const UpdateFloorModal = (props: Props) => {
     if (openBuildingModal) {
       getBuildings({
         limit: 5,
+        query: buildingFilter?.name,
       }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
@@ -150,6 +151,13 @@ const UpdateFloorModal = (props: Props) => {
                 getBuildingDelayed(newInputValue);
                 setIsBuildingFilterLoading(true);
               }
+            }}
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.id}>
+                  {option.name}
+                </li>
+              );
             }}
             renderInput={(params) => (
               <TextField
