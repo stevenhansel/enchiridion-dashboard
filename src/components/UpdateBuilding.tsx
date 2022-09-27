@@ -25,8 +25,6 @@ import {
   useUpdateBuildingMutation,
 } from "../services/building";
 
-import { useLazyGetFloorsQuery } from "../services/floor";
-
 import { colorBuilding } from "../types/constants";
 import { UserFilterOption } from "../types/store";
 
@@ -66,8 +64,6 @@ const UpdateBuilding = (props: Props) => {
   );
 
   const hasPermissionViewBuilding = usePermission("view_list_building");
-
-  const [getFloors] = useLazyGetFloorsQuery();
 
   const [
     getBuildings,
@@ -147,6 +143,7 @@ const UpdateBuilding = (props: Props) => {
     if (hasPermissionViewBuilding && open) {
       getBuildings({
         limit: 5,
+        query: buildingFilter?.name,
       }).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
@@ -158,7 +155,7 @@ const UpdateBuilding = (props: Props) => {
         );
       });
     }
-  }, [hasPermissionViewBuilding, buildingFilter, open]);
+  }, [hasPermissionViewBuilding, open]);
 
   return (
     <>
@@ -250,6 +247,13 @@ const UpdateBuilding = (props: Props) => {
                       setIsBuildingFilterLoading(true);
                       getBuildingDelayed(newInputValue);
                     }
+                  }}
+                  renderOption={(props, option) => {
+                    return (
+                      <li {...props} key={option.id}>
+                        {option.name}
+                      </li>
+                    );
                   }}
                   renderInput={(params) => (
                     <TextField

@@ -71,7 +71,7 @@ const CreateFloorModal = (props: Props) => {
 
   const getBuildingDelayed = useMemo(() => {
     return debounce((query: string) => {
-      getBuildings({ limit: 5 }).then(({ data }) =>
+      getBuildings({ limit: 5, query }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
@@ -83,11 +83,11 @@ const CreateFloorModal = (props: Props) => {
       );
       setIsBuildingFilterLoading(false);
     }, 250);
-  }, []);
+  }, [getBuildings]);
 
   useEffect(() => {
     if (open) {
-      getBuildings({ limit: 5 }).then(({ data }) =>
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
@@ -147,6 +147,13 @@ const CreateFloorModal = (props: Props) => {
                 setBuildingFilterOptions([]);
                 setIsBuildingFilterLoading(true);
               }
+            }}
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.id}>
+                  {option.name}
+                </li>
+              );
             }}
             renderInput={(params) => (
               <TextField

@@ -161,7 +161,7 @@ const ListAnnouncementPage = () => {
 
   useEffect(() => {
     if (hasPermissionViewUserList && open) {
-      getUsers({ limit: 5 }).then(({ data }) => {
+      getUsers({ limit: 5, query: userFilter?.name }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
             ? data.contents.map((u) => ({ id: u.id, name: u.name }))
@@ -169,7 +169,7 @@ const ListAnnouncementPage = () => {
         );
       });
     }
-  }, [getUsers, open]);
+  }, [getUsers, open, hasPermissionViewUserList]);
 
   return (
     <Layout>
@@ -229,6 +229,13 @@ const ListAnnouncementPage = () => {
                         option.name === value.name
                       }
                       sx={{ width: 220 }}
+                      renderOption={(props, option) => {
+                        return (
+                          <li {...props} key={option.id}>
+                            {option.name}
+                          </li>
+                        );
+                      }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
