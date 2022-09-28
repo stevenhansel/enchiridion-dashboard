@@ -24,10 +24,6 @@ import { RootState } from "../store";
 import { useChangePasswordMutation } from "../services/auth";
 import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
 
-type Props = {
-  children?: React.ReactNode;
-};
-
 type ChangePassword = {
   oldPassword: string;
   newPassword: string;
@@ -41,14 +37,14 @@ const validationSchema = yup.object({
     .required("New Password is required"),
 });
 
-const UserProfilePage = (props: Props) => {
+const UserProfilePage = () => {
   const navigate = useNavigate();
 
   const profile = useSelector((state: RootState) => state.profile);
 
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [changePassword, { error }] = useChangePasswordMutation();
+  const [changePassword] = useChangePasswordMutation();
 
   const handleLogout = () => {
     navigate("/");
@@ -82,12 +78,6 @@ const UserProfilePage = (props: Props) => {
     }
     setErrorMessage("");
   };
-
-  // useEffect(() => {
-  //   if (error && "data" in error) {
-  //     setErrorMessage((error.data as ApiErrorResponse).messages[0]);
-  //   }
-  // }, [error]);
 
   return (
     <Layout>
@@ -165,7 +155,7 @@ const UserProfilePage = (props: Props) => {
           </Box>
 
           <Box sx={{ marginBottom: 5 }}>
-            <Typography fontWeight="bold">Alasan untuk daftar</Typography>
+            <Typography fontWeight="bold">Description</Typography>
             <Typography>{profile?.role.description}</Typography>
           </Box>
         </Box>

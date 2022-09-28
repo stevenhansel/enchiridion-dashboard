@@ -19,8 +19,12 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Collapse from "@mui/material/Collapse";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Fade from "@mui/material/Fade";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
@@ -149,20 +153,23 @@ export default function Layout(props: Props) {
   const [open, setOpen] = React.useState(false);
   const [openProfile, setOpenProfile] = React.useState(false);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
   const handleUserProfile = () => {
     navigate("/profile");
   };
 
   const handleClick = () => {
     setOpenProfile(!openProfile);
+  };
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openProfileDropdown = Boolean(anchorEl);
+
+  const handleAnchorEl = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   const hasPermission = React.useMemo(() => {
@@ -211,7 +218,7 @@ export default function Layout(props: Props) {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={() => setOpen(true)}
             edge="start"
             sx={{
               marginRight: 5,
@@ -224,7 +231,7 @@ export default function Layout(props: Props) {
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={() => setOpen(false)}>
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
@@ -233,28 +240,39 @@ export default function Layout(props: Props) {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List sx={{ opacity: open ? 1 : 0, marginTop: 1 }}>
-          <ListItemButton onClick={handleClick}>
-            <ListItemText primary={profile?.name} />
-            {openProfile ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-          <Collapse in={openProfile} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItemButton sx={{ pl: 4 }}>
-                <Box display="flex" flexDirection="column">
-                  <LogoutButton />
-                  <Button
-                    onClick={handleUserProfile}
-                    variant="contained"
-                    sx={{ marginTop: 1 }}
-                  >
-                    Profile
-                  </Button>
-                </Box>
-              </ListItemButton>
-            </List>
-          </Collapse>
-        </List>
+        <Box display="flex">
+          <Typography sx={{ margin: 1, opacity: open ? 1 : 0 }}>
+            {profile?.name}
+          </Typography>
+        </Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography sx={{ marginLeft: 1, opacity: open ? 1 : 0 }}>
+            {profile?.role.name}
+          </Typography>
+          <IconButton
+            id="fade-button"
+            aria-controls={openProfileDropdown ? "fade-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={openProfileDropdown ? "true" : undefined}
+            onClick={handleAnchorEl}
+            sx={{ opacity: open ? 1 : 0 }}
+          >
+            <ExpandMore />
+          </IconButton>
+          <Menu
+            id="fade-menu"
+            MenuListProps={{
+              "aria-labelledby": "fade-button",
+            }}
+            anchorEl={anchorEl}
+            open={openProfileDropdown}
+            onClose={handleClose}
+            TransitionComponent={Fade}
+          >
+            <MenuItem onClick={handleUserProfile}>Profile</MenuItem>
+            <MenuItem onClick={handleAnchorEl}>Logout</MenuItem>
+          </Menu>
+        </Box>
         <List>
           {navigations.map(({ text, path, icon }) => (
             <Link

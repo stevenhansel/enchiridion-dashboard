@@ -16,7 +16,7 @@ import * as yup from "yup";
 
 import { useUpdateFloorMutation } from "../services/floor";
 import { useLazyGetBuildingsQuery } from "../services/building";
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse, isApiError, isReduxError } from "../services/error";
 
 import { UpdateFloor, UserFilterOption } from "../types/store";
 
@@ -55,13 +55,25 @@ const UpdateFloorModal = (props: Props) => {
   const formik = useFormik<UpdateFloor>({
     initialValues: {
       name: "",
-      floorId: "",
+      floorId: floorId,
       buildingId: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      editFloor(values);
-      setOpen(false);
+    onSubmit: async (values) => {
+      try {
+        await editFloor(values).unwrap();
+        setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { errorCode, messages } = err.data;
+          const [message] = messages;
+          if (errorCode === "FLOOR_NOT_FOUND") {
+            setErrorMessage(message);
+          } else if (errorCode === "FLOOR_NAME_ALREADY_EXISTS") {
+            setErrorMessage(message);
+          }
+        }
+      }
     },
   });
 
@@ -87,10 +99,6 @@ const UpdateFloorModal = (props: Props) => {
       });
     }, 250);
   }, [getBuildings]);
-
-  useEffect(() => {
-    formik.setFieldValue("floorId", floorId);
-  }, [floorId]);
 
   useEffect(() => {
     if (isBuildingError && "data" in isBuildingError) {

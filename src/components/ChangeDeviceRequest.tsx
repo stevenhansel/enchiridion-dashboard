@@ -20,11 +20,11 @@ type Props = {
 };
 
 const ChangeDeviceRequest = (props: Props) => {
+  const {setOpen} = props;
   const [createRequest, { error }] = useCreateRequestMutation();
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
   const [description, setDescription] = useState("");
-  const [click, setClick] = useState<number | null>(null);
 
   const {
     data: buildings,
@@ -59,17 +59,17 @@ const ChangeDeviceRequest = (props: Props) => {
     onSubmit: async (values) => {
       try {
         await createRequest(values).unwrap();
-        props.setOpen(false);
+        setOpen(false);
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
           const { errorCode, messages } = err.data;
           const [message] = messages;
           if (errorCode === "DEVICE_NOT_FOUND") {
-            errorMessage(message);
+            setErrorMessage(message);
           } else if (errorCode === "FLOOR_NOT_FOUND") {
-            errorMessage(message);
+            setErrorMessage(message);
           } else if (errorCode === "DEVICE_ALREADY_EXISTS") {
-            errorMessage(message);
+            setErrorMessage(message);
           }
         }
       }
@@ -95,8 +95,6 @@ const ChangeDeviceRequest = (props: Props) => {
     [formik.values, formik.setFieldValue]
   );
 
-  console.log(formik.values);
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
@@ -106,7 +104,7 @@ const ChangeDeviceRequest = (props: Props) => {
 
   useEffect(() => {
     if (description !== null) {
-      setDescription("test dulu");
+      setDescription("");
     }
     formik.setFieldValue("description", description);
   }, [description, formik.values.description]);

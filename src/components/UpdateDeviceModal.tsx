@@ -140,6 +140,7 @@ const UpdateDeviceModal = (props: Props) => {
       getFloors({
         limit: 5,
         buildingId: buildingFilter !== null ? buildingFilter.id : null,
+        query: floorFilter?.name,
       }).then(({ data }) =>
         setFloorFilterOptions(
           data !== undefined
@@ -155,7 +156,7 @@ const UpdateDeviceModal = (props: Props) => {
 
   useEffect(() => {
     if (openBuildingFilter) {
-      getBuildings({ limit: 5 }).then(({ data }) =>
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
@@ -229,6 +230,13 @@ const UpdateDeviceModal = (props: Props) => {
                   getBuildingDelayed(newInputValue);
                 }
               }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.name}
+                  </li>
+                );
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -294,11 +302,20 @@ const UpdateDeviceModal = (props: Props) => {
                   getFloorDelayed(newInputValue);
                 }
               }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.name}
+                  </li>
+                );
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   label="Floor"
-                  error={formik.touched.floorId && Boolean(formik.errors.floorId)}
+                  error={
+                    formik.touched.floorId && Boolean(formik.errors.floorId)
+                  }
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (

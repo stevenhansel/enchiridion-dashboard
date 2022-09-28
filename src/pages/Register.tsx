@@ -68,7 +68,6 @@ const Register = () => {
         navigate(`/register/${values.email}`);
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
-          console.log(err.data);
           const { errorCode, messages } = err.data;
           const [message] = messages;
 

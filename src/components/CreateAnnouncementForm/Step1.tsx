@@ -57,15 +57,12 @@ const Step1 = () => {
         reader.readAsDataURL(file);
       } catch (e) {
         if (e instanceof Error) {
-          // setError(e.message);
         }
       }
     },
     [setFieldValue]
   );
   
-  console.log(values.startDate);
-
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
     if (errors.length > 0) return;

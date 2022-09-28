@@ -154,7 +154,7 @@ const CreateDeviceModal = (props: Props) => {
       buildingId: null,
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       handleCreateDevice(values);
     },
   });
@@ -168,16 +168,18 @@ const CreateDeviceModal = (props: Props) => {
 
   useEffect(() => {
     if (openBuildingFilter) {
-      getBuildings({ limit: 5 }).then(({ data }) => {
-        setBuildingFilterOptions(
-          data !== undefined
-            ? data.map((b) => ({
-                id: b.id,
-                name: b.name,
-              }))
-            : []
-        );
-      });
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(
+        ({ data }) => {
+          setBuildingFilterOptions(
+            data !== undefined
+              ? data.map((b) => ({
+                  id: b.id,
+                  name: b.name,
+                }))
+              : []
+          );
+        }
+      );
     }
   }, [openBuildingFilter]);
 
@@ -186,6 +188,7 @@ const CreateDeviceModal = (props: Props) => {
       getFloors({
         limit: 5,
         buildingId: buildingFilter !== null ? buildingFilter.id : null,
+        query: floorFilter?.name,
       }).then(({ data }) => {
         setFloorFilterOptions(
           data !== undefined
@@ -246,16 +249,15 @@ const CreateDeviceModal = (props: Props) => {
       ) : (
         <>
           <Box>
-            <Typography >Name</Typography>
+            <Typography>Name</Typography>
             <TextField
               id="name"
-              // label="Name"
               variant="standard"
               autoComplete="off"
               onChange={(e) => formik.setFieldValue("name", e.target.value)}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
-              sx={{ marginRight: 1, marginBottom: 2}}
+              sx={{ marginRight: 1, marginBottom: 2 }}
               fullWidth
             />
           </Box>
@@ -286,6 +288,13 @@ const CreateDeviceModal = (props: Props) => {
                     setIsBuildingFilterLoading(true);
                     getBuildingDelayed(newInputValue);
                   }
+                }}
+                renderOption={(props, option) => {
+                  return (
+                    <li {...props} key={option.id}>
+                      {option.name}
+                    </li>
+                  );
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -354,6 +363,13 @@ const CreateDeviceModal = (props: Props) => {
                     setIsFloorFilterLoading(true);
                     getFloorDelayed(newInputValue);
                   }
+                }}
+                renderOption={(props, option) => {
+                  return (
+                    <li {...props} key={option.id}>
+                      {option.name}
+                    </li>
+                  );
                 }}
                 renderInput={(params) => (
                   <TextField
