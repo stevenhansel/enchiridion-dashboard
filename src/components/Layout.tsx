@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -35,8 +35,9 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
 import { RootState } from "../store";
+import { resetProfile } from "../store/profile";
 
-import LogoutButton from "./LogoutButton";
+import { useLazyLogoutQuery } from "../services/auth";
 
 const navigations = [
   {
@@ -143,6 +144,7 @@ type Props = {
 
 export default function Layout(props: Props) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
   const { announcementId = "", deviceId = "" } = useParams();
@@ -157,8 +159,16 @@ export default function Layout(props: Props) {
     navigate("/profile");
   };
 
-  const handleClick = () => {
-    setOpenProfile(!openProfile);
+  const [logout] = useLazyLogoutQuery();
+
+  const handleLogout = async () => {
+    try {
+      await logout(null).unwrap();
+      dispatch(resetProfile());
+    } catch (err) {
+      
+    }
+    navigate("/");
   };
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -241,12 +251,21 @@ export default function Layout(props: Props) {
         </DrawerHeader>
         <Divider />
         <Box display="flex">
-          <Typography sx={{ margin: 1, opacity: open ? 1 : 0 }}>
+          <Typography
+            sx={{
+              fontSize: 25,
+              marginTop: 1,
+              marginLeft: 3,
+              opacity: open ? 1 : 0,
+            }}
+          >
             {profile?.name}
           </Typography>
         </Box>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography sx={{ marginLeft: 1, opacity: open ? 1 : 0 }}>
+          <Typography
+            sx={{ fontSize: 20, marginLeft: 3, opacity: open ? 1 : 0 }}
+          >
             {profile?.role.name}
           </Typography>
           <IconButton
@@ -270,7 +289,7 @@ export default function Layout(props: Props) {
             TransitionComponent={Fade}
           >
             <MenuItem onClick={handleUserProfile}>Profile</MenuItem>
-            <MenuItem onClick={handleAnchorEl}>Logout</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Box>
         <List>
