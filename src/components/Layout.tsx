@@ -20,8 +20,6 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Collapse from "@mui/material/Collapse";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
@@ -147,13 +145,13 @@ export default function Layout(props: Props) {
   const dispatch = useDispatch();
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
-  const { announcementId = "", deviceId = "" } = useParams();
 
-  console.log(profile);
+  console.log(profile?.role.permissions)
+
+  const { announcementId = "", deviceId = "" } = useParams();
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [openProfile, setOpenProfile] = React.useState(false);
 
   const handleUserProfile = () => {
     navigate("/profile");
@@ -165,9 +163,7 @@ export default function Layout(props: Props) {
     try {
       await logout(null).unwrap();
       dispatch(resetProfile());
-    } catch (err) {
-      
-    }
+    } catch (err) {}
     navigate("/");
   };
 
@@ -276,7 +272,7 @@ export default function Layout(props: Props) {
             onClick={handleAnchorEl}
             sx={{ opacity: open ? 1 : 0 }}
           >
-            <ExpandMore />
+            {openProfileDropdown ? <ExpandLess /> : <ExpandMore />}
           </IconButton>
           <Menu
             id="fade-menu"
