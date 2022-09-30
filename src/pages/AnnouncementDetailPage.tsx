@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 
@@ -18,6 +18,8 @@ import {
   DialogTitle,
   Dialog,
   DialogContent,
+  Snackbar,
+  IconButton,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -33,10 +35,12 @@ import CreateRequestModal from "../components/CreateRequestModal";
 
 import { usePermission } from "../hooks";
 import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
+import { ApiErrorResponse } from "../services/error";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 
 const AnnouncementDetailPage = () => {
+  const [errorMessage, setErrorMessage] = useState("");
   const { announcementId = "" } = useParams();
   const hasCreateRequestPermission = usePermission("create_request");
 
@@ -50,19 +54,27 @@ const AnnouncementDetailPage = () => {
 
   const hasPermissionDeleteBuilding = usePermission("delete_building");
 
-  const { data: buildings, isLoading: isBuildingLoading } =
-    useGetBuildingsQuery(null);
+  const {
+    data: buildings,
+    isLoading: isBuildingLoading,
+    error: isGetBuildingError,
+  } = useGetBuildingsQuery(null);
 
-  const [getFloors, { data: floors, isLoading: isGetFloorsLoading }] =
-    useLazyGetFloorsQuery();
+  const [
+    getFloors,
+    { data: floors, isLoading: isGetFloorsLoading, error: isGetFloorError },
+  ] = useLazyGetFloorsQuery();
 
-  const { data: announcements, isLoading: isGetAnnouncementDetailLoading } =
-    useGetAnnouncementDetailQuery(
-      { announcementId },
-      {
-        skip: announcementId === "",
-      }
-    );
+  const {
+    data: announcements,
+    isLoading: isGetAnnouncementDetailLoading,
+    error: isGetAnnouncementDetailError,
+  } = useGetAnnouncementDetailQuery(
+    { announcementId },
+    {
+      skip: announcementId === "",
+    }
+  );
 
   const [
     getRequests,
@@ -90,6 +102,13 @@ const AnnouncementDetailPage = () => {
     return null;
   };
 
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
+
   useEffect(() => {
     if (
       buildings !== undefined &&
@@ -110,6 +129,25 @@ const AnnouncementDetailPage = () => {
   useEffect(() => {
     getFloors(null);
   }, []);
+
+  useEffect(() => {
+    if (isGetBuildingError && "data" in isGetBuildingError) {
+      setErrorMessage(
+        (isGetBuildingError.data as ApiErrorResponse).messages[0]
+      );
+    }
+    if (isGetFloorError && "data" in isGetFloorError) {
+      setErrorMessage((isGetFloorError.data as ApiErrorResponse).messages[0]);
+    }
+    if (
+      isGetAnnouncementDetailError &&
+      "data" in isGetAnnouncementDetailError
+    ) {
+      setErrorMessage(
+        (isGetAnnouncementDetailError.data as ApiErrorResponse).messages[0]
+      );
+    }
+  }, [isGetBuildingError, isGetFloorError, isGetAnnouncementDetailError]);
 
   return (
     <Layout>
@@ -387,6 +425,22 @@ const AnnouncementDetailPage = () => {
               </Box>
             )}
           </Box>
+          <Snackbar
+            open={Boolean(errorMessage)}
+            autoHideDuration={6000}
+            onClose={() => setErrorMessage("")}
+            message={errorMessage}
+            action={
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            }
+          />
         </Box>
       ) : (
         <Typography>Forbidden</Typography>

@@ -104,21 +104,19 @@ const RequestsPage = () => {
   const [
     getAnnouncements,
     {
-      data: announcements,
       isLoading: isGetAnnouncementLoading,
       error: isGetAnnouncementError,
     },
   ] = useLazyGetAnnouncementsQuery();
 
-  const [
-    getUsers,
-    { data: users, isLoading: isGetUserLoading, error: isGetUserError },
-  ] = useLazyGetUsersQuery();
+  const [getUsers, { isLoading: isGetUserLoading, error: isGetUserError }] =
+    useLazyGetUsersQuery();
 
   const [approveRejectRequest, { error: isCreateRequestError }] =
     useApproveRejectRequestMutation();
 
-  const isLoading = isGetAnnouncementLoading && isGetRequestLoading;
+  const isLoading =
+    isGetAnnouncementLoading && isGetRequestLoading && isGetUserLoading;
 
   const userApprove = (requestId: string, requestStatus: boolean) => {
     approveRejectRequest({ requestId, requestStatus });
@@ -214,7 +212,20 @@ const RequestsPage = () => {
         (isGetAnnouncementError.data as ApiErrorResponse).messages[0]
       );
     }
-  }, [isGetRequestError, isGetAnnouncementError]);
+    if (isCreateRequestError && "data" in isCreateRequestError) {
+      setErrorMessage(
+        (isCreateRequestError.data as ApiErrorResponse).messages[0]
+      );
+    }
+    if (isGetUserError && "data" in isGetUserError) {
+      setErrorMessage((isGetUserError.data as ApiErrorResponse).messages[0]);
+    }
+  }, [
+    isGetRequestError,
+    isGetAnnouncementError,
+    isGetUserError,
+    isCreateRequestError,
+  ]);
 
   useEffect(() => {
     getRequests(getRequestQueryParams);
@@ -449,7 +460,12 @@ const RequestsPage = () => {
                 </FormControl>
               </Box>
               <Box>
-                <Button onClick={handleSearch} variant="contained" size="large" sx={{marginLeft: 1}}>
+                <Button
+                  onClick={handleSearch}
+                  variant="contained"
+                  size="large"
+                  sx={{ marginLeft: 1 }}
+                >
                   Search
                 </Button>
               </Box>
