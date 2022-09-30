@@ -7,9 +7,11 @@ import {
   Button,
   Paper,
   IconButton,
+  Snackbar,
 } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import CloseIcon from "@mui/icons-material/Close";
 import dayjs from "dayjs";
 
 import { statusActions } from "../types/constants";
@@ -22,7 +24,7 @@ type Props = {
 };
 
 const AnnouncementOnDeviceDetail = (props: Props) => {
-    const {deviceId} = props
+  const { deviceId } = props;
   const [errorMessage, setErrorMessage] = useState("");
   const [actionType, setActionType] = useState("");
   const [page, setPage] = useState(1);
@@ -52,6 +54,13 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
     () => setPage((page) => page + 1),
     []
   );
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
 
   useEffect(() => {
     getAnnouncements({
@@ -167,6 +176,24 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
       ) : (
         <Typography>Announcement Not Found!</Typography>
       )}
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={() => setErrorMessage("")}
+        message={errorMessage}
+        action={
+          <>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </>
+        }
+      />
     </Box>
   );
 };
