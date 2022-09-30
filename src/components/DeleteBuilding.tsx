@@ -58,14 +58,27 @@ const DeleteBuilding = () => {
           {buildings &&
             buildings.map((building) => (
               <Card
-                key={building.id}
                 sx={{ backgroundColor: building.color, marginBottom: 1 }}
+                key={building.id}
               >
                 <CardActions>
-                  <Typography fontWeight="bold">{building.name}</Typography>
-                  <IconButton onClick={() => handleDelete(building.id)}>
-                    <DeleteIcon />
-                  </IconButton>
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                  >
+                    <Typography fontWeight="bold">{building.name}</Typography>
+                  </Box>
+                  <Box
+                    display="flex"
+                    justifyContent="flex-end"
+                    alignItems="center"
+                  >
+                    <IconButton onClick={() => handleDelete(building.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
                 </CardActions>
               </Card>
             ))}
