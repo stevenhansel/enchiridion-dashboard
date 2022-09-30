@@ -230,14 +230,14 @@ const ListUsersPage = () => {
               sx={{ width: 150, marginRight: 1 }}
             />
           </Box>
-          <Box sx={{ minWidth: 120 }}>
+          <Box sx={{ width: 250 }}>
             <FormControl fullWidth>
               <InputLabel id="status">Status</InputLabel>
               <Select
                 labelId="status"
                 id="status"
                 value={status}
-                label="Age"
+                label="Status"
                 onChange={(e: SelectChangeEvent) => {
                   setStatus(e.target.value as string);
                 }}
@@ -252,7 +252,7 @@ const ListUsersPage = () => {
             </FormControl>
           </Box>
           <Box>
-            <Button variant="contained" onClick={handleSearch} size="large">
+            <Button variant="contained" onClick={handleSearch} size="large" sx={{marginLeft: 1}}>
               Search
             </Button>
           </Box>

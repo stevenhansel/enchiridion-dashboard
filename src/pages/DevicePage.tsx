@@ -92,33 +92,39 @@ const DevicePage = () => {
     <Layout>
       {!isLoading ? (
         <>
+          <Box>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => {
+                setOpen(true);
+              }}
+              sx={{ marginBottom: 3 }}
+            >
+              + Create Device
+            </Button>
+          </Box>
           <Box display="flex" flexDirection="column" width="100%">
             <Box sx={{ marginBottom: 1 }}>
               <TextField
                 id="search"
-                label="Search by device name or ID"
+                label="Search by device name"
                 variant="outlined"
                 autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 sx={{ width: 250 }}
               />
-              <Button onClick={handleSearch} size="large" variant="contained">
+              <Button
+                onClick={handleSearch}
+                size="large"
+                variant="contained"
+                sx={{ marginLeft: 1 }}
+              >
                 Search
               </Button>
             </Box>
-            <Box>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => {
-                  setOpen(true);
-                }}
-                sx={{ marginBottom: 1 }}
-              >
-                + Create Device
-              </Button>
-            </Box>
+
             {data && data.contents.length > 0 ? (
               <>
                 <TableContainer component={Paper}>

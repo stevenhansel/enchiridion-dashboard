@@ -309,7 +309,7 @@ const ListFloorPage = () => {
             ) : null}
 
             <Box>
-              <Button onClick={handleSearch} variant="contained" size="large">
+              <Button onClick={handleSearch} variant="contained" size="large" sx={{marginLeft: 1}}>
                 Search
               </Button>
             </Box>

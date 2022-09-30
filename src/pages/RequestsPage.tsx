@@ -273,7 +273,7 @@ const RequestsPage = () => {
                 autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                sx={{ marginBottom: 2, width: 140 }}
+                sx={{ marginBottom: 2, width: 250 }}
               />
               {hasViewUserPermission ? (
                 <Box display="flex" flexDirection="row" sx={{ marginLeft: 1 }}>
@@ -449,7 +449,7 @@ const RequestsPage = () => {
                 </FormControl>
               </Box>
               <Box>
-                <Button onClick={handleSearch} variant="contained" size="large">
+                <Button onClick={handleSearch} variant="contained" size="large" sx={{marginLeft: 1}}>
                   Search
                 </Button>
               </Box>

@@ -196,7 +196,7 @@ const ListAnnouncementPage = () => {
                     variant="contained"
                     onClick={() => navigate("/announcement/create")}
                   >
-                    + Create
+                    + Create Announcement
                   </Button>
                 ) : null}
               </Box>
@@ -301,10 +301,10 @@ const ListAnnouncementPage = () => {
                     </Select>
                   </FormControl>
                 </Box>
-                <Box display="flex">
+                <Box>
                   <Button
                     size="large"
-                    sx={{ marginBottom: 3 }}
+                    sx={{ marginBottom: 3, marginLeft: 1 }}
                     variant="contained"
                     onClick={handleSearch}
                   >
