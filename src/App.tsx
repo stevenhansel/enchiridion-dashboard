@@ -66,7 +66,7 @@ function App() {
     handleMe();
   }, []);
 
-  if (!isLoading) {
+  if (isLoading) {
     return <div />;
   }
 
