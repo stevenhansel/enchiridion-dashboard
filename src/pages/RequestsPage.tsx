@@ -103,10 +103,7 @@ const RequestsPage = () => {
 
   const [
     getAnnouncements,
-    {
-      isLoading: isGetAnnouncementLoading,
-      error: isGetAnnouncementError,
-    },
+    { isLoading: isGetAnnouncementLoading, error: isGetAnnouncementError },
   ] = useLazyGetAnnouncementsQuery();
 
   const [getUsers, { isLoading: isGetUserLoading, error: isGetUserError }] =
@@ -265,6 +262,11 @@ const RequestsPage = () => {
 
   return (
     <Layout>
+      <Box sx={{ marginBottom: 1 }}>
+        <Typography variant="h5" fontWeight="bold">
+          Request Page
+        </Typography>
+      </Box>
       <Box
         style={{
           display: "flex",

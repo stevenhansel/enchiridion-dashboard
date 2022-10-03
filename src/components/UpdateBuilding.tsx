@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 import {
   Box,
@@ -68,7 +68,6 @@ const UpdateBuilding = (props: Props) => {
   const [
     getBuildings,
     {
-      data: buildings,
       error: isGetBuildingsError,
       isLoading: isBuildingsLoading,
     },

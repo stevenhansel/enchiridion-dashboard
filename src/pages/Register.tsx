@@ -49,10 +49,12 @@ const Register = () => {
 
   const [
     getRoles,
-    { data: roles, error: isRoleError, isLoading: isRoleLoading },
+    { data: roles, isLoading: isRoleLoading },
   ] = useLazyGetRolesQuery();
   const [register, { error: isRegisterError, isLoading: isRegisterLoading }] =
     useRegisterMutation();
+
+    const isLoading = isRoleLoading || isRegisterLoading;
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -253,10 +255,10 @@ const Register = () => {
                 >
                   <Button
                     variant="contained"
-                    disabled={isRegisterLoading}
+                    disabled={isLoading}
                     type="submit"
                     sx={{ marginBottom: 0.5 }}
-                    endIcon={isRegisterLoading && <CircularProgress />}
+                    endIcon={isLoading && <CircularProgress />}
                   >
                     Daftar
                   </Button>

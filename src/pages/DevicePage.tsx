@@ -92,6 +92,11 @@ const DevicePage = () => {
     <Layout>
       {!isLoading ? (
         <>
+          <Box sx={{ marginBottom: 1 }}>
+            <Typography variant="h5" fontWeight="bold">
+              Device Page
+            </Typography>
+          </Box>
           <Box>
             <Button
               variant="contained"

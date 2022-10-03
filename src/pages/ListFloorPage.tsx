@@ -34,9 +34,7 @@ import BuildingModal from "../components/BuildingModal";
 
 import { useLazyGetBuildingsQuery } from "../services/building";
 
-import {
-  useLazyGetFloorsQuery,
-} from "../services/floor";
+import { useLazyGetFloorsQuery } from "../services/floor";
 
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
@@ -94,7 +92,7 @@ const ListFloorPage = () => {
 
   const [
     getBuildings,
-    { data: buildings, error: buildingsError, isLoading: isBuildingsLoading },
+    { error: buildingsError, isLoading: isBuildingsLoading },
   ] = useLazyGetBuildingsQuery();
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
@@ -175,21 +173,28 @@ const ListFloorPage = () => {
 
   useEffect(() => {
     if (hasViewBuildingPermission && open) {
-      getBuildings({ limit: 5, query: buildingFilter?.name }).then(({ data }) => {
-        setBuildingFilterOptions(
-          data !== undefined
-            ? data.map((b) => ({
-                id: b.id,
-                name: b.name,
-              }))
-            : []
-        );
-      });
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(
+        ({ data }) => {
+          setBuildingFilterOptions(
+            data !== undefined
+              ? data.map((b) => ({
+                  id: b.id,
+                  name: b.name,
+                }))
+              : []
+          );
+        }
+      );
     }
   }, [hasViewBuildingPermission, getBuildings, open]);
 
   return (
     <Layout>
+      <Box sx={{ marginBottom: 1 }}>
+        <Typography variant="h5" fontWeight="bold">
+          List Floor Page
+        </Typography>
+      </Box>
       <BuildingModal
         open={openCreateBuilding}
         setOpen={setOpenCreateBuilding}
@@ -309,7 +314,12 @@ const ListFloorPage = () => {
             ) : null}
 
             <Box>
-              <Button onClick={handleSearch} variant="contained" size="large" sx={{marginLeft: 1}}>
+              <Button
+                onClick={handleSearch}
+                variant="contained"
+                size="large"
+                sx={{ marginLeft: 1 }}
+              >
                 Search
               </Button>
             </Box>

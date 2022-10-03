@@ -2,8 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store";
+import { useDispatch } from "react-redux";
 
 import {
   Box,

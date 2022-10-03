@@ -183,6 +183,9 @@ const ListAnnouncementPage = () => {
         {!isLoading ? (
           <>
             <Box>
+              <Box sx={{marginBottom: 1}}>
+                <Typography variant="h5" fontWeight="bold"> Announcement Page </Typography>
+              </Box>
               <Box
                 display="flex"
                 flexDirection="row"

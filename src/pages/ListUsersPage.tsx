@@ -165,6 +165,11 @@ const ListUsersPage = () => {
 
   return (
     <Layout>
+      <Box sx={{ marginBottom: 1 }}>
+        <Typography variant="h5" fontWeight="bold">
+          List User Page
+        </Typography>
+      </Box>
       <Box>
         <Box display="flex">
           <TextField
@@ -252,7 +257,12 @@ const ListUsersPage = () => {
             </FormControl>
           </Box>
           <Box>
-            <Button variant="contained" onClick={handleSearch} size="large" sx={{marginLeft: 1}}>
+            <Button
+              variant="contained"
+              onClick={handleSearch}
+              size="large"
+              sx={{ marginLeft: 1 }}
+            >
               Search
             </Button>
           </Box>

@@ -146,12 +146,13 @@ export default function Layout(props: Props) {
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
 
-  console.log(profile?.role.permissions)
+  console.log(profile?.role.permissions);
 
   const { announcementId = "", deviceId = "" } = useParams();
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [selected, setSelected] = React.useState("");
 
   const handleUserProfile = () => {
     navigate("/profile");
