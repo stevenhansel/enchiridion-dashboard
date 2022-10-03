@@ -20,7 +20,7 @@ const WaitingApprovalPage = () => {
   useEffect(() => {
     if (profile) {
       const { userStatus } = profile
-      if (userStatus.value !== 'waiting_for_approval') {
+      if (userStatus.value !== 'waiting-for-approval') {
         navigate('/');
       }
     }

@@ -92,6 +92,10 @@ function App() {
           <Route path="/user" element={<ListUsersPage />} />
           <Route path="/requests" element={<RequestsPage />} />
           <Route path="/profile" element={<UserProfilePage />} />
+          <Route
+            path="/waiting-for-approval"
+            element={<WaitingApprovalPage />}
+          />
         </Routes>
       ) : (
         <Routes>
@@ -104,10 +108,6 @@ function App() {
           <Route path="/verification" element={<VerificationCallbackPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route
-            path="/waiting-for-approval"
-            element={<WaitingApprovalPage />}
-          />
         </Routes>
       )}
     </BrowserRouter>

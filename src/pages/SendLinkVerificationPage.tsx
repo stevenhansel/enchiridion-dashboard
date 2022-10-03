@@ -44,7 +44,7 @@ const SendLinkVerificationPage = (props: Props) => {
   }, [email]);
 
   const handleClose = (
-    event: React.SyntheticEvent | Event,
+    _: React.SyntheticEvent | Event,
     reason?: string
   ) => {
     if (reason === "clickaway") {
