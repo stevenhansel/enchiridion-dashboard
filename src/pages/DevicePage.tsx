@@ -41,6 +41,7 @@ const DevicePage = () => {
   const navigate = useNavigate();
 
   const hasViewDeviceDetailPermission = usePermission("view_device_detail");
+  const hasCreateDevicePermission = usePermission("create_device");
 
   const getDeviceQueryParams = { page, query, limit: FETCH_LIMIT };
   const [getDevices, { data, isLoading, error }] = useLazyGetDevicesQuery();
@@ -97,18 +98,20 @@ const DevicePage = () => {
               Device Page
             </Typography>
           </Box>
-          <Box>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => {
-                setOpen(true);
-              }}
-              sx={{ marginBottom: 3 }}
-            >
-              + Create Device
-            </Button>
-          </Box>
+          {hasCreateDevicePermission ? (
+            <Box>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => {
+                  setOpen(true);
+                }}
+                sx={{ marginBottom: 3 }}
+              >
+                + Create Device
+              </Button>
+            </Box>
+          ) : null}
           <Box display="flex" flexDirection="column" width="100%">
             <Box sx={{ marginBottom: 1 }}>
               <TextField
