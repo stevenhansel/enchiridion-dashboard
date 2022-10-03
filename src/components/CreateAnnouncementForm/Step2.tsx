@@ -137,7 +137,6 @@ const Step2 = () => {
                     <Box
                       sx={{
                         minWidth: 100,
-                        // flex: 1,
                         marginRight: 1,
                         marginBottom: 2,
                         margin: 1,

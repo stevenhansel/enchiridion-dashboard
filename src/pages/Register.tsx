@@ -17,7 +17,6 @@ import {
   CircularProgress,
   Select,
 } from "@mui/material";
-import { SelectChangeEvent } from "@mui/material/Select";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { useRegisterMutation } from "../services/auth";
@@ -26,7 +25,7 @@ import { useLazyGetRolesQuery } from "../services/roles";
 import { RegisterForm } from "../types/store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
-import { isApiError, isReduxError } from "../services/error";
+import { ApiErrorResponse, isApiError, isReduxError } from "../services/error";
 
 const validationSchema = yup.object({
   name: yup
@@ -46,12 +45,14 @@ const validationSchema = yup.object({
 
 const Register = () => {
   const navigate = useNavigate();
-
-  const [getRoles, { data, isLoading }] = useLazyGetRolesQuery();
-
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [register] = useRegisterMutation();
+  const [
+    getRoles,
+    { data: roles, error: isRoleError, isLoading: isRoleLoading },
+  ] = useLazyGetRolesQuery();
+  const [register, { error: isRegisterError, isLoading: isRegisterLoading }] =
+    useRegisterMutation();
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -92,6 +93,12 @@ const Register = () => {
     getRoles(null);
   }, [getRoles]);
 
+  useEffect(() => {
+    if (isRegisterError && "data" in isRegisterError) {
+      setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0])
+    }
+  }, [errorMessage, isRegisterError]);
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -117,7 +124,7 @@ const Register = () => {
             right: "50%",
           }}
         >
-          {data && data.length > 0 ? (
+          {roles && roles.length > 0 ? (
             <form onSubmit={formik.handleSubmit}>
               <Box
                 sx={{
@@ -218,7 +225,7 @@ const Register = () => {
                       }}
                       error={formik.touched.role && Boolean(formik.errors.role)}
                     >
-                      {data.map((role) => (
+                      {roles.map((role) => (
                         <MenuItem key={role.value} value={role.value}>
                           {role.name}
                         </MenuItem>
@@ -246,10 +253,10 @@ const Register = () => {
                 >
                   <Button
                     variant="contained"
-                    disabled={isLoading}
+                    disabled={isRegisterLoading}
                     type="submit"
                     sx={{ marginBottom: 0.5 }}
-                    endIcon={isLoading && <CircularProgress />}
+                    endIcon={isRegisterLoading && <CircularProgress />}
                   >
                     Daftar
                   </Button>

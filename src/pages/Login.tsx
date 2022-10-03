@@ -25,10 +25,6 @@ import { authApi } from "../services/auth";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
-type Props = {
-  children?: React.ReactNode;
-};
-
 type LoginForm = {
   email: string;
   password: string;
@@ -45,9 +41,8 @@ const validationSchema = yup.object({
     .required("Password is required"),
 });
 
-const Login = (props: Props) => {
+const Login = () => {
   const dispatch: AppDispatch = useDispatch();
-  const profile = useSelector((state: RootState) => state.profile);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");

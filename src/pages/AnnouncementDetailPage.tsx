@@ -52,8 +52,6 @@ const AnnouncementDetailPage = () => {
     useState(false);
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
 
-  const hasPermissionDeleteBuilding = usePermission("delete_building");
-
   const {
     data: buildings,
     isLoading: isBuildingLoading,
@@ -86,7 +84,10 @@ const AnnouncementDetailPage = () => {
   ] = useLazyGetRequestsQuery();
 
   const isLoading =
-    isBuildingLoading || isGetFloorsLoading || isGetAnnouncementDetailLoading;
+    isBuildingLoading ||
+    isGetFloorsLoading ||
+    isGetAnnouncementDetailLoading ||
+    isGetRequestLoading;
 
   const renderApprovalStatus = (
     approval: boolean | null
@@ -98,7 +99,6 @@ const AnnouncementDetailPage = () => {
     } else if (approval === false) {
       return <CloseIcon />;
     }
-
     return null;
   };
 
@@ -147,7 +147,15 @@ const AnnouncementDetailPage = () => {
         (isGetAnnouncementDetailError.data as ApiErrorResponse).messages[0]
       );
     }
-  }, [isGetBuildingError, isGetFloorError, isGetAnnouncementDetailError]);
+    if (isGetRequestError && "data" in isGetRequestError) {
+      setErrorMessage((isGetRequestError.data as ApiErrorResponse).messages[0]);
+    }
+  }, [
+    isGetBuildingError,
+    isGetFloorError,
+    isGetAnnouncementDetailError,
+    isGetRequestError,
+  ]);
 
   return (
     <Layout>
@@ -313,9 +321,6 @@ const AnnouncementDetailPage = () => {
                                           : "inactive"
                                       }
                                       sx={{
-                                        // marginLeft: 1,
-                                        // marginRight: 1,
-                                        // marginBottom: 1,
                                         margin: 1,
                                         width: 140,
                                       }}

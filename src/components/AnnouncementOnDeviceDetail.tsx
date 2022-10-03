@@ -34,7 +34,6 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
     {
       data: announcements,
       error: isAnnouncementsError,
-      isLoading: isAnnouncementsLoading,
     },
   ] = useLazyGetAnnouncementsQuery();
 

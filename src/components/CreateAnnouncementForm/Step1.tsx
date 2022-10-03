@@ -72,7 +72,6 @@ const Step1 = () => {
 
   useEffect(() => {
     fields.forEach((field) => validateField(field));
-    // eslint-disable-next-line
   }, []);
 
   return (
