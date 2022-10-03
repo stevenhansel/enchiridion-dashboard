@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import {
@@ -19,7 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { AppDispatch } from "../store";
 import { setProfile } from "../store/profile";
 
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
 import { authApi } from "../services/auth";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
@@ -42,6 +42,7 @@ const validationSchema = yup.object({
 
 const Login = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -69,19 +70,22 @@ const Login = () => {
             isEmailConfirmed: response.data.isEmailConfirmed,
           })
         );
-      } else {
+      } else if (
+        isReduxError(response.error) &&
+        isApiError(response.error.data)
+      ) {
         setErrorMessage(
           "data" in response.error
             ? (response.error.data as ApiErrorResponse).messages[0]
             : "Network Error"
         );
+        navigate("/waiting-for-approval");
       }
 
       setIsLoading(false);
     },
     [dispatch]
   );
-
 
   const formik = useFormik({
     initialValues: {

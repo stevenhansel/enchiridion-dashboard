@@ -1,27 +1,24 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 
-import {
-  Box,
-  CssBaseline,
-  Typography,
-  CircularProgress
-} from "@mui/material";
+import { Box, CssBaseline, Typography, CircularProgress } from "@mui/material";
 
-import backgroundImage from '../assets/jpg/background-auth.jpeg';
-import { RootState } from '../store';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import { RootState } from "../store";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const WaitingApprovalPage = () => {
   const navigate = useNavigate();
 
   const profile = useSelector((state: RootState) => state.profile);
 
+  console.log(profile);
+
   useEffect(() => {
     if (profile) {
-      const { userStatus } = profile
-      if (userStatus.value !== 'waiting-for-approval') {
-        navigate('/');
+      const { userStatus } = profile;
+      if (userStatus.value !== "waiting_for_approval") {
+        navigate("/");
       }
     }
   }, [navigate, profile]);
@@ -59,9 +56,14 @@ const WaitingApprovalPage = () => {
               minWidth: 300,
             }}
           >
-            <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-                <Typography>Still Waiting for Approval</Typography>
-                <CircularProgress color="inherit" sx={{marginTop: 1}}/>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+            >
+              <Typography>Still Waiting for Approval</Typography>
+              <CircularProgress color="inherit" sx={{ marginTop: 1 }} />
             </Box>
           </Box>
         </div>
