@@ -74,12 +74,15 @@ const Login = () => {
         isReduxError(response.error) &&
         isApiError(response.error.data)
       ) {
-        setErrorMessage(
-          "data" in response.error
-            ? (response.error.data as ApiErrorResponse).messages[0]
-            : "Network Error"
-        );
-        navigate("/waiting-for-approval");
+        const { errorCode } = response.error.data;
+        if (errorCode === "FORBIDDEN_PERMISSION") {
+          setErrorMessage(
+            "data" in response.error
+              ? (response.error.data as ApiErrorResponse).messages[0]
+              : "Network Error"
+          );
+          navigate("/waiting-for-approval");
+        }
       }
 
       setIsLoading(false);
