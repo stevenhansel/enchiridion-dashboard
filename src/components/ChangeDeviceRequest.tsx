@@ -201,6 +201,7 @@ const ChangeDeviceRequest = (props: Props) => {
                               border: "1px solid #c4c4c4",
                               marginBottom: 1,
                             }}
+                            alignItems='center'
                           >
                             <Box
                               sx={{

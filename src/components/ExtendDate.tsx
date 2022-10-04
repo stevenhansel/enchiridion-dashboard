@@ -5,9 +5,6 @@ import {
   Box,
   Button,
   TextField,
-  InputLabel,
-  MenuItem,
-  FormControl,
   IconButton,
   Typography,
   Snackbar,
@@ -86,7 +83,7 @@ const ExtendDate = (props: Props) => {
     <>
       <form onSubmit={formik.handleSubmit}>
         <Box>
-          <Box>
+          <Box sx={{marginBottom: 1}}>
             <DesktopDatePicker
               label="Extend Date Announcement"
               inputFormat="MM/dd/yyyy"
