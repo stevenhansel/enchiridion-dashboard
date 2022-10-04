@@ -74,8 +74,10 @@ const Register = () => {
 
           if (errorCode === "EMAIL_ALREADY_EXISTS") {
             setFieldError("email", message);
+            setErrorMessage(message);
           } else if (errorCode === "ROLE_NOT_FOUND") {
             setFieldError("role", message);
+            setErrorMessage(message);
           }
         }
       }
@@ -93,11 +95,11 @@ const Register = () => {
     getRoles(null);
   }, [getRoles]);
 
-  useEffect(() => {
-    if (isRegisterError && "data" in isRegisterError) {
-      setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0]);
-    }
-  }, [errorMessage, isRegisterError]);
+  // useEffect(() => {
+  //   if (isRegisterError && "data" in isRegisterError) {
+  //     setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0]);
+  //   }
+  // }, [errorMessage, isRegisterError]);
 
   return (
     <React.Fragment>

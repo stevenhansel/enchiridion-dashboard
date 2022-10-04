@@ -36,6 +36,7 @@ import { RootState } from "../store";
 import { resetProfile } from "../store/profile";
 
 import { useLazyLogoutQuery } from "../services/auth";
+import { isApiError, isReduxError } from "../services/error";
 
 const navigations = [
   {
@@ -146,13 +147,10 @@ export default function Layout(props: Props) {
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
 
-  console.log(profile?.role.permissions);
-
   const { announcementId = "", deviceId = "" } = useParams();
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState("");
 
   const handleUserProfile = () => {
     navigate("/profile");
