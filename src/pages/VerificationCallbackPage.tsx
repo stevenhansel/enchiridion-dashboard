@@ -2,7 +2,16 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Box, CssBaseline, Typography, CircularProgress } from "@mui/material";
+import {
+  Box,
+  CssBaseline,
+  Typography,
+  CircularProgress,
+  Snackbar,
+  IconButton,
+  Button,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { AppDispatch } from "../store";
 import { setProfile } from "../store/profile";
@@ -55,8 +64,16 @@ const VerificationCallbackPage = (_: Props) => {
           : "Network Error"
       );
     }
+    console.log(searchParams);
     setIsLoading(false);
   }, [dispatch]);
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
 
   useEffect(() => {
     handleConfirmEmail();
@@ -96,16 +113,37 @@ const VerificationCallbackPage = (_: Props) => {
               minWidth: 300,
             }}
           >
-            <Box display="flex" justifyContent="center" flexDirection="column">
+            <Box display="flex" justifyContent="center" >
               <Typography>Please wait for confirmation</Typography>
-              <Box display="flex" justifyContent="center">
-                {isLoading ? <CircularProgress color="inherit" /> : null}
-              </Box>
-              {Boolean(errorMessage) && <Typography>{errorMessage}</Typography>}
             </Box>
+            <Box display="flex" justifyContent="center">
+              <CircularProgress color="inherit" />
+            </Box>
+            {Boolean(errorMessage) && <Typography>{errorMessage}</Typography>}
           </Box>
         </div>
       </Box>
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={() => setErrorMessage("")}
+        message={errorMessage}
+        action={
+          <React.Fragment>
+            <Button color="secondary" size="small" onClick={handleClose}>
+              UNDO
+            </Button>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
     </React.Fragment>
   );
 };

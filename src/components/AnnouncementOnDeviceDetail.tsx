@@ -102,7 +102,6 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
           </CardActions>
         </Card>
       </Box>
-
       {announcements && announcements.contents.length > 0 ? (
         <>
           <Box
@@ -136,7 +135,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
                 <Box
                   display="flex"
                   flexDirection="row"
-                  justifyContent="space-between"
+                 justifyContent="space-between"
                   sx={{ marginLeft: 1, marginBottom: 1 }}
                 >
                   <Typography>by&nbsp;{announcement.author.name}</Typography>

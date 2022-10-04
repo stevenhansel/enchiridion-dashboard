@@ -95,12 +95,6 @@ const Register = () => {
     getRoles(null);
   }, [getRoles]);
 
-  // useEffect(() => {
-  //   if (isRegisterError && "data" in isRegisterError) {
-  //     setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0]);
-  //   }
-  // }, [errorMessage, isRegisterError]);
-
   return (
     <React.Fragment>
       <CssBaseline />
