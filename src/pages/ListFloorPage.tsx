@@ -245,7 +245,7 @@ const ListFloorPage = () => {
             ) : null}
           </Box>
           <Box display="flex">
-            <Box>
+            <Box sx={{marginBottom: 1}}>
               <TextField
                 id="search"
                 label="Search by floorname"

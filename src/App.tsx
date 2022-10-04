@@ -96,6 +96,7 @@ function App() {
             path="/waiting-for-approval"
             element={<WaitingApprovalPage />}
           />
+          <Route path="/verification" element={<VerificationCallbackPage />} />
         </Routes>
       ) : (
         <Routes>
@@ -105,9 +106,8 @@ function App() {
             path="/register/:email"
             element={<SendLinkVerificationPage />}
           />
-          <Route path="/verification" element={<VerificationCallbackPage />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
+          {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
         </Routes>
       )}
     </BrowserRouter>

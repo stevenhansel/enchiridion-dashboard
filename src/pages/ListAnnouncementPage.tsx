@@ -195,7 +195,7 @@ const ListAnnouncementPage = () => {
                 {hasPermissionCreateAnnouncement ? (
                   <Button
                     size="large"
-                    sx={{ marginBottom: 3 }}
+                    sx={{ marginBottom: 2 }}
                     variant="contained"
                     onClick={() => navigate("/announcement/create")}
                   >

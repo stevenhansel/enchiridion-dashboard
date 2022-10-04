@@ -47,14 +47,12 @@ const Register = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [
-    getRoles,
-    { data: roles, isLoading: isRoleLoading },
-  ] = useLazyGetRolesQuery();
+  const [getRoles, { data: roles, isLoading: isRoleLoading }] =
+    useLazyGetRolesQuery();
   const [register, { error: isRegisterError, isLoading: isRegisterLoading }] =
     useRegisterMutation();
 
-    const isLoading = isRoleLoading || isRegisterLoading;
+  const isLoading = isRoleLoading || isRegisterLoading;
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -97,7 +95,7 @@ const Register = () => {
 
   useEffect(() => {
     if (isRegisterError && "data" in isRegisterError) {
-      setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0])
+      setErrorMessage((isRegisterError.data as ApiErrorResponse).messages[0]);
     }
   }, [errorMessage, isRegisterError]);
 

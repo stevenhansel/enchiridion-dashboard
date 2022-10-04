@@ -43,7 +43,7 @@ import { UserFilterOption } from "../types/store";
 import { actions } from "../types/constants";
 import Layout from "../components/Layout";
 
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
 import { usePermission } from "../hooks";
 
 const toDate = (dateStr: string | undefined) =>
@@ -115,8 +115,18 @@ const RequestsPage = () => {
   const isLoading =
     isGetAnnouncementLoading && isGetRequestLoading && isGetUserLoading;
 
-  const userApprove = (requestId: string, requestStatus: boolean) => {
-    approveRejectRequest({ requestId, requestStatus });
+  const userApprove = async (requestId: string, requestStatus: boolean) => {
+    try {
+      await approveRejectRequest({ requestId, requestStatus });
+    } catch (err) {
+      if (isReduxError(err) && isApiError(err.data)) {
+        const { errorCode, messages } = err.data;
+        const [message] = messages;
+        if (errorCode === "USER_STATUS_CONFLICT") {
+          setErrorMessage(message);
+        }
+      }
+    }
   };
 
   const renderApprovalStatus = (
@@ -587,23 +597,24 @@ const RequestsPage = () => {
             <CircularProgress />
           </Box>
         )}
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+          message={errorMessage}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
       </Box>
-      <Snackbar
-        open={Boolean(errorMessage)}
-        autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
-        message={errorMessage}
-        action={
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleClose}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-      />
+
       <Box display="flex" justifyContent="center">
         <IconButton
           disabled={isPreviousButtonDisabled}

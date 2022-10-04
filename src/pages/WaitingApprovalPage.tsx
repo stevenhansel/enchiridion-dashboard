@@ -12,8 +12,6 @@ const WaitingApprovalPage = () => {
 
   const profile = useSelector((state: RootState) => state.profile);
 
-  console.log(profile);
-
   useEffect(() => {
     if (profile) {
       const { userStatus } = profile;
@@ -22,6 +20,7 @@ const WaitingApprovalPage = () => {
       }
     }
   }, [navigate, profile]);
+
   return (
     <React.Fragment>
       <CssBaseline />

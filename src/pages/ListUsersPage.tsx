@@ -179,7 +179,7 @@ const ListUsersPage = () => {
             autoComplete="off"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            sx={{ marginBottom: 2, marginRight: 1 }}
+            sx={{ marginBottom: 1, marginRight: 1 }}
           />
           <Box>
             <Autocomplete

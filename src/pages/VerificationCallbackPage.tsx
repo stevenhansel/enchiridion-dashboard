@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Box, CssBaseline, Typography, CircularProgress } from "@mui/material";
 
@@ -9,6 +9,7 @@ import { setProfile } from "../store/profile";
 
 import { ApiErrorResponse } from "../services/error";
 import { authApi } from "../services/auth";
+import { RootState } from "../store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
@@ -18,15 +19,17 @@ type Props = {
 
 const VerificationCallbackPage = (_: Props) => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [searchParams] = useSearchParams();
 
+  const profile = useSelector((state: RootState) => state.profile);
+
   const handleConfirmEmail = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-
     const response = await dispatch(
       authApi.endpoints.confirmEmail.initiate({
         token: searchParams.get("token"),

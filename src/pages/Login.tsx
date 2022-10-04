@@ -90,7 +90,6 @@ const Login = () => {
           );
         }
       }
-
       setIsLoading(false);
     },
     [dispatch]
@@ -212,12 +211,12 @@ const Login = () => {
                   </Typography>
                   <Link to="/register">Daftar</Link>
                 </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginTop: 1 }}>
+                {/* <Box display="flex" flexDirection="row" sx={{ marginTop: 1 }}>
                   <Typography sx={{ marginRight: 0.5 }}>
                     Forgot Password?
                   </Typography>
                   <Link to="/forgot-password">Change</Link>
-                </Box>
+                </Box> */}
               </Box>
             </Box>
             <Snackbar
