@@ -35,16 +35,15 @@ const SendLinkVerificationPage = (_: Props) => {
   );
 
   const dispatch: AppDispatch = useDispatch();
-  const navigate = useNavigate();
   const { email } = useParams();
 
   const handleVerification = useCallback(async (): Promise<void> => {
     setIsLoading(true);
+    setIsPressed(true);
     try {
       await dispatch(
         authApi.endpoints.emailVerification.initiate({ email })
       ).unwrap();
-      navigate("/verification");
     } catch (err) {
       if (isReduxError(err) && isApiError(err.data)) {
         const { errorCode, messages } = err.data;
@@ -83,8 +82,6 @@ const SendLinkVerificationPage = (_: Props) => {
       return () => clearInterval(interval);
     }, 1000);
   }, [isPressed]);
-
-  console.log(countdownSeconds);
 
   return (
     <React.Fragment>
