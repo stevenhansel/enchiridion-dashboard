@@ -82,6 +82,12 @@ const Login = () => {
               : "Network Error"
           );
           navigate("/waiting-for-approval");
+        } else if (errorCode === "AUTHENTICATION_FAILED") {
+          setErrorMessage(
+            "data" in response.error
+              ? (response.error.data as ApiErrorResponse).messages[0]
+              : "Network Error"
+          );
         }
       }
 
