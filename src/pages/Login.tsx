@@ -158,8 +158,8 @@ const Login = () => {
                 <TextField
                   id="email"
                   name="email"
-                  onChange={(event) =>
-                    formik.setFieldValue("email", event.target.value)
+                  onChange={(e) =>
+                    formik.setFieldValue("email", e.target.value)
                   }
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}

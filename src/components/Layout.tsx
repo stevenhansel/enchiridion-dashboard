@@ -147,6 +147,8 @@ export default function Layout(props: Props) {
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
 
+  const [logout] = useLazyLogoutQuery();
+
   const { announcementId = "", deviceId = "" } = useParams();
 
   const theme = useTheme();
@@ -155,8 +157,6 @@ export default function Layout(props: Props) {
   const handleUserProfile = () => {
     navigate("/profile");
   };
-
-  const [logout] = useLazyLogoutQuery();
 
   const handleLogout = async () => {
     try {

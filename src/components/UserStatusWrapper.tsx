@@ -13,7 +13,7 @@ const UserStatusWrapper = (props: Props) => {
     (state: RootState) => state.profile?.userStatus
   );
 
-  if (userStateData && userStateData?.value === "waiting_for_approval") {
+  if (userStateData && userStateData.value === "waiting_for_approval") {
     return <Navigate to="/waiting-approval" replace={true} />;
   }
 

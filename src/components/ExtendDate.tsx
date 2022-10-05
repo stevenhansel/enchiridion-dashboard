@@ -15,14 +15,14 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import dayjs from "dayjs";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { StaticDatePicker } from "@mui/x-date-pickers/StaticDatePicker";
 
 import { useCreateRequestMutation } from "../services/request";
 
-import { ApiErrorResponse } from "../services/error";
 import { ActionCreateRequest } from "../types/store";
+import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
 
 const validationSchema = yup.object({
   extendedEndDate: yup
@@ -54,9 +54,18 @@ const ExtendDate = (props: Props) => {
       deviceIds: [],
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      createRequest(values);
-      props.setOpen(false);
+    onSubmit: async (values) => {
+      try {
+        await createRequest(values).unwrap();
+        props.setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { messages } = err.data;
+          if (messages.length !== 0) {
+            setErrorMessage(messages[0]);
+          }
+        }
+      }
     },
   });
 
@@ -87,7 +96,9 @@ const ExtendDate = (props: Props) => {
       <form onSubmit={formik.handleSubmit}>
         <Box>
           <Box sx={{ marginBottom: 1 }}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
               <StaticDatePicker
+                displayStaticWrapperAs="desktop"
                 label="Extend Date Announcement"
                 inputFormat="MM/dd/yyyy"
                 value={dayjs(formik.values.extendedEndDate).format(
@@ -102,6 +113,7 @@ const ExtendDate = (props: Props) => {
                 renderInput={(params) => <TextField {...params} />}
                 shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
               />
+            </LocalizationProvider>
           </Box>
           {formik.touched.extendedEndDate && formik.errors.extendedEndDate ? (
             <Typography variant="caption" color={red[700]} fontSize="">

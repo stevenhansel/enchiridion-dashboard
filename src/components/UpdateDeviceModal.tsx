@@ -188,17 +188,17 @@ const UpdateDeviceModal = (props: Props) => {
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
-        <Box display="flex">
+        <Box>
+          <Typography>Name</Typography>
           <TextField
             id="name"
-            label="Name"
             variant="standard"
             autoComplete="off"
             onChange={(e) => formik.setFieldValue("name", e.target.value)}
             error={formik.touched.name && Boolean(formik.errors.name)}
             helperText={formik.touched.name && formik.errors.name}
-            sx={{ marginRight: 1, marginBottom: 1, marginTop: 1 }}
             fullWidth
+            sx={{marginBottom: 1}}
           />
         </Box>
         <Box display="flex">
@@ -207,7 +207,7 @@ const UpdateDeviceModal = (props: Props) => {
               options={buildingFilterOptions}
               value={buildingFilter}
               fullWidth
-              sx={{ width: 220, marginRight: 1 }}
+              sx={{ width: 220, marginRight: 1, marginBottom: 1  }}
               getOptionLabel={(option) => option.name}
               isOptionEqualToValue={(option, value) =>
                 option.name === value.name
@@ -345,9 +345,9 @@ const UpdateDeviceModal = (props: Props) => {
           </Box>
         </Box>
         <Box>
+          <Typography>Description</Typography>
           <TextField
             id="description"
-            label="Description"
             variant="standard"
             autoComplete="off"
             onChange={(e) =>
