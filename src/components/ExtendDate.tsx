@@ -15,6 +15,9 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import dayjs from "dayjs";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { StaticDatePicker } from "@mui/x-date-pickers/StaticDatePicker";
 
 import { useCreateRequestMutation } from "../services/request";
 
@@ -83,20 +86,22 @@ const ExtendDate = (props: Props) => {
     <>
       <form onSubmit={formik.handleSubmit}>
         <Box>
-          <Box sx={{marginBottom: 1}}>
-            <DesktopDatePicker
-              label="Extend Date Announcement"
-              inputFormat="MM/dd/yyyy"
-              value={dayjs(formik.values.extendedEndDate).format("YYYY-MM-DD")}
-              onChange={(newDate) =>
-                formik.setFieldValue(
-                  "extendedEndDate",
-                  dayjs(newDate).format("YYYY-MM-DD")
-                )
-              }
-              renderInput={(params) => <TextField {...params} />}
-              shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
-            />
+          <Box sx={{ marginBottom: 1 }}>
+              <StaticDatePicker
+                label="Extend Date Announcement"
+                inputFormat="MM/dd/yyyy"
+                value={dayjs(formik.values.extendedEndDate).format(
+                  "YYYY-MM-DD"
+                )}
+                onChange={(newDate) =>
+                  formik.setFieldValue(
+                    "extendedEndDate",
+                    dayjs(newDate).format("YYYY-MM-DD")
+                  )
+                }
+                renderInput={(params) => <TextField {...params} />}
+                shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
+              />
           </Box>
           {formik.touched.extendedEndDate && formik.errors.extendedEndDate ? (
             <Typography variant="caption" color={red[700]} fontSize="">

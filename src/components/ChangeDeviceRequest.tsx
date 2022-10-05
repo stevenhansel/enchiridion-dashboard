@@ -188,61 +188,66 @@ const ChangeDeviceRequest = (props: Props) => {
                     }}
                   >
                     <Box>
-                      {floors?.contents
-                        .filter(
-                          (floor) =>
-                            currentBuildingId === floor.building.id.toString()
-                        )
-                        .map((floor) => (
-                          <Box
-                            key={floor.id}
-                            display="flex"
-                            sx={{
-                              border: "1px solid #c4c4c4",
-                              marginBottom: 1,
-                            }}
-                            alignItems='center'
-                          >
+                      {floors &&
+                        floors?.contents
+                          .filter(
+                            (floor) =>
+                              currentBuildingId === floor.building.id.toString()
+                          )
+                          .map((floor) => (
                             <Box
+                              key={floor.id}
+                              display="flex"
                               sx={{
-                                minWidth: 100,
-                                marginRight: 1,
-                                marginBottom: 2,
-                                margin: 1,
+                                border: "1px solid #c4c4c4",
+                                marginBottom: 1,
                               }}
+                              alignItems="center"
                             >
-                              {floor.name}
-                            </Box>
-                            <Box sx={{ maxWidth: "500px" }}>
-                              {floor.devices.map((device) => (
-                                <Tooltip
-                                  key={device.id}
-                                  title={device.description}
-                                >
-                                  <Button
-                                    variant="contained"
-                                    color={
-                                      announcements!.devices
-                                        .map(
-                                          (announcementDevice) =>
-                                            announcementDevice.id
-                                        )
-                                        .includes(device.id)
-                                        ? "secondary"
-                                        : "inactive"
-                                    }
-                                    sx={{
-                                      margin: 1,
-                                      width: 140,
-                                    }}
+                              <Box
+                                sx={{
+                                  minWidth: 100,
+                                  marginRight: 1,
+                                  marginBottom: 2,
+                                  margin: 1,
+                                }}
+                              >
+                                {floor.name}
+                              </Box>
+                              <Box sx={{ width: "100%" }}>
+                                {floor.devices.map((device) => (
+                                  <Tooltip
+                                    key={device.id}
+                                    title={device.description}
                                   >
-                                    {device.name}
-                                  </Button>
-                                </Tooltip>
-                              ))}
+                                    <Button
+                                      key={device.id}
+                                      onClick={() =>
+                                        handleSelectDevice(device.id)
+                                      }
+                                      variant={
+                                        formik.values.deviceIds.includes(
+                                          device.id
+                                        )
+                                          ? "contained"
+                                          : "outlined"
+                                      }
+                                      color={
+                                        formik.values.deviceIds.includes(
+                                          device.id
+                                        )
+                                          ? "secondary"
+                                          : "inactive"
+                                      }
+                                      sx={{ margin: 1, width: 140 }}
+                                    >
+                                      {device.name}
+                                    </Button>
+                                  </Tooltip>
+                                ))}
+                              </Box>
                             </Box>
-                          </Box>
-                        ))}
+                          ))}
                     </Box>
                   </Box>
                 </Box>
