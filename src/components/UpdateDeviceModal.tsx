@@ -198,7 +198,7 @@ const UpdateDeviceModal = (props: Props) => {
             error={formik.touched.name && Boolean(formik.errors.name)}
             helperText={formik.touched.name && formik.errors.name}
             fullWidth
-            sx={{marginBottom: 1}}
+            sx={{ marginBottom: 1 }}
           />
         </Box>
         <Box display="flex">
@@ -207,7 +207,7 @@ const UpdateDeviceModal = (props: Props) => {
               options={buildingFilterOptions}
               value={buildingFilter}
               fullWidth
-              sx={{ width: 220, marginRight: 1, marginBottom: 1  }}
+              sx={{ width: 220, marginRight: 1, marginBottom: 1 }}
               getOptionLabel={(option) => option.name}
               isOptionEqualToValue={(option, value) =>
                 option.name === value.name
@@ -222,6 +222,7 @@ const UpdateDeviceModal = (props: Props) => {
               onChange={(_, inputValue) => {
                 setBuildingFilter(inputValue);
                 setBuildingFilterOptions([]);
+                formik.setFieldValue("buildingId", inputValue?.id.toString());
               }}
               onInputChange={(_, newInputValue, reason) => {
                 if (reason === "input") {
