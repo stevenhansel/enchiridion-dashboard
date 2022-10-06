@@ -1,5 +1,4 @@
-import React, { useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
 
 import {
   Box,
@@ -15,8 +14,6 @@ import {
 import CreateBuilding from "../components/CreateBuilding";
 import UpdateBuilding from "../components/UpdateBuilding";
 import DeleteBuilding from "../components/DeleteBuilding";
-
-import { RootState } from "../store";
 
 import usePermission from "../hooks/usePermission";
 
@@ -59,10 +56,8 @@ type Props = {
 };
 
 const BuildingModal = (props: Props) => {
-
-  const {open, setOpen} = props;
+  const { open, setOpen } = props;
   const [value, setValue] = useState(0);
-  const profile = useSelector((p: RootState) => p.profile);
 
   const hasPermissionCreateBuilding = usePermission("create_building");
   const hasPermissionUpdateBuilding = usePermission("update_building");
@@ -73,12 +68,9 @@ const BuildingModal = (props: Props) => {
     hasPermissionUpdateBuilding &&
     hasPermissionDeleteBuilding;
 
-  const handleChange = useCallback(
-    (_: React.SyntheticEvent, newValue: number) => {
-      setValue(newValue);
-    },
-    [value]
-  );
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
 
   return (
     <>

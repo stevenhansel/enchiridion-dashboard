@@ -41,7 +41,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
   const isNextButtonDisabled = useMemo(() => {
     if (!announcements) return true;
 
-    return page === announcements.totalPages;
+    return (page === announcements.totalPages) && (announcements.hasNext === false);
   }, [page, announcements]);
 
   const handlePaginationPreviousPage = useCallback(
