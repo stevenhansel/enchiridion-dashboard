@@ -64,7 +64,7 @@ const ChangeDeviceRequest = (props: Props) => {
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
       description: description,
-      deviceIds: [],
+      newDeviceIds: [],
     },
     onSubmit: async (values) => {
       try {
@@ -88,11 +88,11 @@ const ChangeDeviceRequest = (props: Props) => {
 
   const handleSelectDevice = useCallback(
     (selectedDeviceId: number) => {
-      const selectedDeviceIndex = formik.values.deviceIds.findIndex(
+      const selectedDeviceIndex = formik.values.newDeviceIds.findIndex(
         (deviceId) => deviceId === selectedDeviceId
       );
 
-      let updatedDevices = cloneDeep(formik.values.deviceIds);
+      let updatedDevices = cloneDeep(formik.values.newDeviceIds);
 
       if (selectedDeviceIndex !== -1) {
         updatedDevices.splice(selectedDeviceIndex, 1);
@@ -100,7 +100,7 @@ const ChangeDeviceRequest = (props: Props) => {
         updatedDevices.push(selectedDeviceId);
       }
 
-      formik.setFieldValue("deviceIds", updatedDevices);
+      formik.setFieldValue("newDeviceIds", updatedDevices);
     },
     [formik.values, formik.setFieldValue]
   );
@@ -226,14 +226,14 @@ const ChangeDeviceRequest = (props: Props) => {
                                         handleSelectDevice(device.id)
                                       }
                                       variant={
-                                        formik.values.deviceIds.includes(
+                                        formik.values.newDeviceIds.includes(
                                           device.id
                                         )
                                           ? "contained"
                                           : "outlined"
                                       }
                                       color={
-                                        formik.values.deviceIds.includes(
+                                        formik.values.newDeviceIds.includes(
                                           device.id
                                         )
                                           ? "secondary"

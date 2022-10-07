@@ -56,7 +56,7 @@ export const requestApi = createApi({
         announcementId: number;
         description: string | null;
         extendedEndDate: string | null;
-        deviceIds: number[] | null;
+        newDeviceIds: number[] | null;
       }
     >({
       query: ({
@@ -64,11 +64,11 @@ export const requestApi = createApi({
         announcementId,
         description,
         extendedEndDate,
-        deviceIds,
+        newDeviceIds,
       }) => ({
         url: "/v1/requests",
         method: "POST",
-        data: { action, announcementId, description, extendedEndDate, deviceIds },
+        data: { action, announcementId, description, extendedEndDate, newDeviceIds },
       }),
       invalidatesTags: () => ["Request"],
     }),

@@ -28,17 +28,12 @@ type Props = {
 
 const VerificationCallbackPage = (_: Props) => {
   const dispatch: AppDispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [searchParams] = useSearchParams();
 
-  const profile = useSelector((state: RootState) => state.profile);
-
   const handleConfirmEmail = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
     const response = await dispatch(
       authApi.endpoints.confirmEmail.initiate({
         token: searchParams.get("token"),
@@ -64,8 +59,6 @@ const VerificationCallbackPage = (_: Props) => {
           : "Network Error"
       );
     }
-    console.log(searchParams);
-    setIsLoading(false);
   }, [dispatch]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -113,7 +106,7 @@ const VerificationCallbackPage = (_: Props) => {
               minWidth: 300,
             }}
           >
-            <Box display="flex" justifyContent="center" >
+            <Box display="flex" justifyContent="center">
               <Typography>Please wait for confirmation</Typography>
             </Box>
             <Box display="flex" justifyContent="center">

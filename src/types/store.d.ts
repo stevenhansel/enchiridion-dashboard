@@ -206,7 +206,7 @@ export type ActionCreateRequest = {
   announcementId: number;
   extendedEndDate: string | null;
   description: string | null;
-  deviceIds: number[];
+  newDeviceIds: number[];
 };
 
 export type User = {

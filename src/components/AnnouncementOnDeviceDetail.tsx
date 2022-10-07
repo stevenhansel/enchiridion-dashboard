@@ -31,17 +31,14 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
 
   const [
     getAnnouncements,
-    {
-      data: announcements,
-      error: isAnnouncementsError,
-    },
+    { data: announcements, error: isAnnouncementsError },
   ] = useLazyGetAnnouncementsQuery();
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
     if (!announcements) return true;
 
-    return (page === announcements.totalPages) && (announcements.hasNext === false);
+    return page === announcements.totalPages && announcements.hasNext === false;
   }, [page, announcements]);
 
   const handlePaginationPreviousPage = useCallback(
@@ -135,7 +132,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
                 <Box
                   display="flex"
                   flexDirection="row"
-                 justifyContent="space-between"
+                  justifyContent="space-between"
                   sx={{ marginLeft: 1, marginBottom: 1 }}
                 >
                   <Typography>by&nbsp;{announcement.author.name}</Typography>

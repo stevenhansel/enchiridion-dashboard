@@ -109,7 +109,7 @@ const RequestsPage = () => {
   const [getUsers, { isLoading: isGetUserLoading, error: isGetUserError }] =
     useLazyGetUsersQuery();
 
-  const [approveRejectRequest, { error: isCreateRequestError }] =
+  const [approveRejectRequest] =
     useApproveRejectRequestMutation();
 
   const isLoading =
@@ -123,6 +123,8 @@ const RequestsPage = () => {
         const { errorCode, messages } = err.data;
         const [message] = messages;
         if (errorCode === "USER_STATUS_CONFLICT") {
+          setErrorMessage(message);
+        } else {
           setErrorMessage(message);
         }
       }
@@ -200,7 +202,7 @@ const RequestsPage = () => {
   const isNextButtonDisabled = useMemo(() => {
     if (!requests) return true;
 
-    return page === requests.totalPages;
+    return page === requests.totalPages && requests.hasNext === false;
   }, [page, requests]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -219,20 +221,10 @@ const RequestsPage = () => {
         (isGetAnnouncementError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isCreateRequestError && "data" in isCreateRequestError) {
-      setErrorMessage(
-        (isCreateRequestError.data as ApiErrorResponse).messages[0]
-      );
-    }
     if (isGetUserError && "data" in isGetUserError) {
       setErrorMessage((isGetUserError.data as ApiErrorResponse).messages[0]);
     }
-  }, [
-    isGetRequestError,
-    isGetAnnouncementError,
-    isGetUserError,
-    isCreateRequestError,
-  ]);
+  }, [isGetRequestError, isGetAnnouncementError, isGetUserError]);
 
   useEffect(() => {
     getRequests(getRequestQueryParams);
@@ -535,7 +527,10 @@ const RequestsPage = () => {
                             {request.author.name}
                           </TableCell>
                           <TableCell align="center">
-                            <Button variant="contained">
+                            <Button
+                              variant="contained"
+                              sx={{ maxWidth: "300px", width: "160px" }}
+                            >
                               {request.action.label}
                             </Button>
                           </TableCell>

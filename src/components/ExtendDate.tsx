@@ -50,7 +50,7 @@ const ExtendDate = (props: Props) => {
       extendedEndDate: dayjs(tomorrow.toDateString()).format("YYYY-MM-DD"),
       announcementId: parseInt(announcementId, 10),
       description: description,
-      deviceIds: [],
+      newDeviceIds: [],
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {

@@ -57,7 +57,7 @@ const SendLinkVerificationPage = (_: Props) => {
     }
     setIsLoading(false);
   }, [email]);
-  
+
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;

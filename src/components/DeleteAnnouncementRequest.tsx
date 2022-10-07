@@ -26,7 +26,7 @@ const DeleteAnnouncementRequest = (props: Props) => {
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
       description: description,
-      deviceIds: [],
+      newDeviceIds: [],
     },
     onSubmit: (values) => {
       createRequest(values);
@@ -58,7 +58,7 @@ const DeleteAnnouncementRequest = (props: Props) => {
     <>
       <form onSubmit={formik.handleSubmit}>
         <Box>
-          <Typography sx={{marginBottom: 1}}>
+          <Typography sx={{ marginBottom: 1 }}>
             Are you sure want to delete this announcement?
           </Typography>
           <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
