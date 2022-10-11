@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import cloneDeep from "lodash/cloneDeep";
+import * as yup from "yup";
 
 import {
   Box,
@@ -9,22 +10,30 @@ import {
   IconButton,
   Snackbar,
   Tooltip,
+  Typography,
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { red } from "@mui/material/colors";
+
 import { useFormik } from "formik";
 
 import { useCreateRequestMutation } from "../services/request";
-
 import { useGetBuildingsQuery } from "../services/building";
 import { useGetFloorsQuery } from "../services/floor";
 import { useGetAnnouncementDetailQuery } from "../services/announcement";
-
 import { ApiErrorResponse, isApiError, isReduxError } from "../services/error";
+
 import { ActionCreateRequest } from "../types/store";
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+const validationSchema = yup.object({
+  newDeviceIds: yup.array().min(1).required(),
+  description: yup.string().required().min(10).max(30),
+});
 
 const ChangeDeviceRequest = (props: Props) => {
   const { setOpen } = props;
@@ -63,9 +72,10 @@ const ChangeDeviceRequest = (props: Props) => {
       action: "change_devices",
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
-      description: description,
+      description: "",
       newDeviceIds: [],
     },
+    validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
         await createRequest(values).unwrap();
@@ -113,13 +123,6 @@ const ChangeDeviceRequest = (props: Props) => {
   };
 
   useEffect(() => {
-    if (description !== null) {
-      setDescription("");
-    }
-    formik.setFieldValue("description", description);
-  }, [description, formik.values.description]);
-
-  useEffect(() => {
     if (error && "data" in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
@@ -135,6 +138,13 @@ const ChangeDeviceRequest = (props: Props) => {
       setCurrentBuildingId(firstBuildingId.toString());
     }
   }, [buildings]);
+
+  useEffect(() => {
+    if (description !== null) {
+      setDescription("Device Change Requested");
+    }
+    formik.setFieldValue("description", description);
+  }, []);
 
   return (
     <>
@@ -252,8 +262,44 @@ const ChangeDeviceRequest = (props: Props) => {
                   </Box>
                 </Box>
               </Box>
+              {formik.touched.newDeviceIds && formik.errors.newDeviceIds ? (
+                <Typography
+                  variant="caption"
+                  color={red[700]}
+                  sx={{ marginTop: 1 }}
+                >
+                  select at least 1 device
+                </Typography>
+              ) : null}
+
               <Box>
-                <Button variant="contained" type="submit">
+                <Typography>Description</Typography>
+                <TextField
+                  id="description"
+                  variant="standard"
+                  autoComplete="off"
+                  onChange={(e) =>
+                    formik.setFieldValue("description", e.target.value)
+                  }
+                  error={
+                    formik.touched.description &&
+                    Boolean(formik.errors.description)
+                  }
+                  helperText={
+                    formik.touched.description && formik.errors.description
+                  }
+                  fullWidth
+                  sx={{ marginBottom: 1 }}
+                />
+              </Box>
+              <Box>
+                <Button
+                  variant="contained"
+                  // onClick={() => {
+                  //   setValidateChangeDevice(true);
+                  // }}
+                  type="submit"
+                >
                   OK
                 </Button>
               </Box>
