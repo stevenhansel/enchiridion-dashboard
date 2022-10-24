@@ -176,8 +176,6 @@ export default function Layout(props: Props) {
     setAnchorEl(null);
   };
 
-  console.log(profile?.role.permissions)
-
   const hasPermission = React.useMemo(() => {
     if (!profile) return false;
     const { role } = profile;
