@@ -16,7 +16,6 @@ const mockPermissions: PermissionList[] = [
     permissions: [
       "Search Announcements",
       "Create Announcement",
-      "See Personal Announcement",
       "See All Annoucements",
       "Update Announcement Duration",
       "Delete Announcement",

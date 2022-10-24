@@ -65,7 +65,6 @@ const DeviceDetailPage = () => {
               <Typography variant="h5" fontWeight="bold">
                 {devices?.name}
               </Typography>
-
               <Box>
                 {hasUpdateDevicePermission ? (
                   <IconButton

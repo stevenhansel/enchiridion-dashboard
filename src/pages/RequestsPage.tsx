@@ -113,7 +113,7 @@ const RequestsPage = () => {
     useApproveRejectRequestMutation();
 
   const isLoading =
-    isGetAnnouncementLoading && isGetRequestLoading && isGetUserLoading;
+    isGetAnnouncementLoading || isGetRequestLoading || isGetUserLoading;
 
   const userApprove = async (requestId: string, requestStatus: boolean) => {
     try {
@@ -154,6 +154,7 @@ const RequestsPage = () => {
     actionType,
     approvedByLsc,
     approvedByBm,
+    query,  
   ]);
 
   const getUserDelayed = useMemo(() => {
@@ -198,7 +199,7 @@ const RequestsPage = () => {
     [page]
   );
 
-  const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
+  const isPreviousButtonDisabled = useMemo(() => page === 1, [page]); 
   const isNextButtonDisabled = useMemo(() => {
     if (!requests) return true;
 
