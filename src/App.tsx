@@ -58,7 +58,6 @@ function App() {
           : "Network Error"
       );
     }
-
     setIsLoading(false);
   }, []);
 
