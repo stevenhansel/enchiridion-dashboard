@@ -8,7 +8,7 @@ const usePermission = (...permissions: string[]) => {
   const userPermissions = useMemo(() => {
     if (profile === null) return [];
 
-    return profile.role.permissions.map(({ value }) => value);
+    return profile?.role.permissions.map(({ value }) => value);
   }, [profile]);
 
   const hasPermission = useMemo(() => {
