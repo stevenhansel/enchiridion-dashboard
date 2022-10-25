@@ -110,8 +110,8 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
             {announcements.contents.map((announcement) => (
               <Paper
                 key={announcement.id}
+                sx={{ marginRight: 1 , width: "100%"}}
                 elevation={3}
-                sx={{ marginRight: 1, width: "100%" }}
               >
                 <Box display="flex" justifyContent="center">
                   <img

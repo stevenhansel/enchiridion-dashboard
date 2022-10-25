@@ -233,97 +233,90 @@ export default function Layout(props: Props) {
           </IconButton>
         </Toolbar>
       </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <DrawerHeader>
-            <IconButton onClick={() => setOpen(false)}>
-              {theme.direction === "rtl" ? (
-                <ChevronRightIcon />
-              ) : (
-                <ChevronLeftIcon />
-              )}
-            </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <Box display="flex">
-            <Typography
-              sx={{
-                fontSize: 25,
-                marginTop: 1,
-                marginLeft: 3,
-                opacity: open ? 1 : 0,
-              }}
-            >
-              {profile?.name}
-            </Typography>
-          </Box>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
+      <Drawer variant="permanent" open={open}>
+        <DrawerHeader>
+          <IconButton onClick={() => setOpen(false)}>
+            {theme.direction === "rtl" ? (
+              <ChevronRightIcon />
+            ) : (
+              <ChevronLeftIcon />
+            )}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <Box display="flex">
+          <Typography
+            sx={{
+              fontSize: 25,
+              marginTop: 1,
+              marginLeft: 3,
+              opacity: open ? 1 : 0,
+            }}
           >
-            <Typography
-              sx={{ fontSize: 20, marginLeft: 3, opacity: open ? 1 : 0 }}
+            {profile?.name}
+          </Typography>
+        </Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography
+            sx={{ fontSize: 20, marginLeft: 3, opacity: open ? 1 : 0 }}
+          >
+            {profile?.role.name}
+          </Typography>
+          <IconButton
+            id="fade-button"
+            aria-controls={openProfileDropdown ? "fade-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={openProfileDropdown ? "true" : undefined}
+            onClick={handleAnchorEl}
+            sx={{ opacity: open ? 1 : 0 }}
+          >
+            {openProfileDropdown ? <ExpandLess /> : <ExpandMore />}
+          </IconButton>
+          <Menu
+            id="fade-menu"
+            MenuListProps={{
+              "aria-labelledby": "fade-button",
+            }}
+            anchorEl={anchorEl}
+            open={openProfileDropdown}
+            onClose={handleClose}
+            TransitionComponent={Fade}
+          >
+            <MenuItem onClick={handleUserProfile}>Profile</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
+        </Box>
+        <List>
+          {navigations.map(({ text, path, icon }) => (
+            <Link
+              key={text}
+              to={`/${path}`}
+              style={{ textDecoration: "none", color: "rgba(0, 0, 0, 0.87)" }}
             >
-              {profile?.role.name}
-            </Typography>
-            <IconButton
-              id="fade-button"
-              aria-controls={openProfileDropdown ? "fade-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={openProfileDropdown ? "true" : undefined}
-              onClick={handleAnchorEl}
-              sx={{ opacity: open ? 1 : 0 }}
-            >
-              {openProfileDropdown ? <ExpandLess /> : <ExpandMore />}
-            </IconButton>
-            <Menu
-              id="fade-menu"
-              MenuListProps={{
-                "aria-labelledby": "fade-button",
-              }}
-              anchorEl={anchorEl}
-              open={openProfileDropdown}
-              onClose={handleClose}
-              TransitionComponent={Fade}
-            >
-              <MenuItem onClick={handleUserProfile}>Profile</MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
-          </Box>
-          <List>
-            {navigations.map(({ text, path, icon }) => (
-              <Link
-                key={text}
-                to={`/${path}`}
-                style={{ textDecoration: "none", color: "rgba(0, 0, 0, 0.87)" }}
-              >
-                <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                  <ListItemButton
+              <ListItem key={text} disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
                     sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
                     }}
                   >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={text}
-                      sx={{ opacity: open ? 1 : 0 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              </Link>
-            ))}
-          </List>
-        </Drawer>
+                    {icon}
+                  </ListItemIcon>
+                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            </Link>
+          ))}
+        </List>
+      </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         {hasPermission ? props.children : <p>Forbidden</p>}
