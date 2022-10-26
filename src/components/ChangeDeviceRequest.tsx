@@ -46,17 +46,15 @@ const ChangeDeviceRequest = (props: Props) => {
 
   const {
     data: buildings,
-    error: isGetBuildingError,
     isLoading: isBuildingLoading,
   } = useGetBuildingsQuery(null);
 
   const {
     data: floors,
-    error: isGetFloorError,
     isLoading: isFloorLoading,
   } = useGetFloorsQuery(null);
 
-  const { data: announcements, isLoading: isGetAnnouncementDetailLoading } =
+  const { isLoading: isGetAnnouncementDetailLoading } =
     useGetAnnouncementDetailQuery(
       { announcementId },
       {
@@ -65,7 +63,7 @@ const ChangeDeviceRequest = (props: Props) => {
     );
 
   const isLoading =
-    isGetAnnouncementDetailLoading && isFloorLoading && isBuildingLoading;
+    isGetAnnouncementDetailLoading || isFloorLoading || isBuildingLoading;
 
   const formik = useFormik<ActionCreateRequest>({
     initialValues: {

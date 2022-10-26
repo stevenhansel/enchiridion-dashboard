@@ -12,9 +12,12 @@ import {
   CircularProgress,
   Snackbar,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
+
+import {
+  Edit as EditIcon,
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 
 import { useGetDeviceDetailQuery } from "../services/device";
 

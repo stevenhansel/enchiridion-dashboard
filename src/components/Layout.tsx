@@ -4,33 +4,43 @@ import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
+import {
+  Box,
+  Button,
+  Snackbar,
+  Drawer as MuiDrawer,
+  Toolbar,
+  Badge,
+  List,
+  Fab,
+  CssBaseline,
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Menu,
+  MenuItem,
+  Fade,
+} from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Fade from "@mui/material/Fade";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 
-import HomeIcon from "@mui/icons-material/Home";
-import TvIcon from "@mui/icons-material/Tv";
-import BalconyIcon from "@mui/icons-material/Balcony";
-import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import AssignmentIcon from "@mui/icons-material/Assignment";
+import {
+  Close as CloseIcon,
+  Menu as MenuIcon,
+  Mail as MailIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  Home as HomeIcon,
+  Tv as TvIcon,
+  Balcony as BalconyIcon,
+  AccountBox as AccountBoxIcon,
+  Assignment as AssignmentIcon,
+} from "@mui/icons-material";
 
 import { RootState } from "../store";
 import { resetProfile } from "../store/profile";
@@ -152,16 +162,30 @@ export default function Layout(props: Props) {
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  // const [notification, setNotification] = React.useState(0);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   const handleUserProfile = () => {
     navigate("/profile");
+  };
+
+  const handleCloseSnackbar = (
+    _: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
   };
 
   const handleLogout = async () => {
     try {
       await logout(null).unwrap();
       dispatch(resetProfile());
-    } catch (err) {}
+    } catch (err) {
+      setErrorMessage("Logout failed");
+    }
     navigate("/");
   };
 
@@ -233,6 +257,7 @@ export default function Layout(props: Props) {
           </IconButton>
         </Toolbar>
       </AppBar>
+
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           <IconButton onClick={() => setOpen(false)}>
@@ -243,6 +268,7 @@ export default function Layout(props: Props) {
             )}
           </IconButton>
         </DrawerHeader>
+
         <Divider />
         <Box display="flex">
           <Typography
@@ -262,6 +288,7 @@ export default function Layout(props: Props) {
           >
             {profile?.role.name}
           </Typography>
+
           <IconButton
             id="fade-button"
             aria-controls={openProfileDropdown ? "fade-menu" : undefined}
@@ -270,7 +297,7 @@ export default function Layout(props: Props) {
             onClick={handleAnchorEl}
             sx={{ opacity: open ? 1 : 0 }}
           >
-            {openProfileDropdown ? <ExpandLess /> : <ExpandMore />}
+            {openProfileDropdown ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
           <Menu
             id="fade-menu"
@@ -287,6 +314,7 @@ export default function Layout(props: Props) {
           </Menu>
         </Box>
         <List>
+          <Box display="flex" justifyContent="center" alignItems="center"></Box>
           {navigations.map(({ text, path, icon }) => (
             <Link
               key={text}
@@ -319,8 +347,43 @@ export default function Layout(props: Props) {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
+        {/* <Box display="flex" justifyContent="flex-end">
+          <Fab
+            size="small"
+            onClick={() => {
+              navigate("/requests");
+              setNotification(0);
+            }}
+          >
+            <Badge badgeContent={notification} color="secondary">
+              flex-endflex-end <MailIcon color="action" />
+            </Badge>
+          </Fab>
+          <Button
+            onClick={() => setNotification((notification) => notification + 1)}
+            variant="contained"
+          >
+            notification
+          </Button>
+        </Box> */}
         {hasPermission ? props.children : <p>Forbidden</p>}
       </Box>
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={() => setErrorMessage("")}
+        message={errorMessage}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleCloseSnackbar}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
     </Box>
   );
 }

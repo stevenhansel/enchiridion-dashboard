@@ -9,9 +9,13 @@ import {
   IconButton,
   Snackbar,
 } from "@mui/material";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import CloseIcon from "@mui/icons-material/Close";
+
+import {
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material/";
+
 import dayjs from "dayjs";
 
 import { statusActions } from "../types/constants";
@@ -110,7 +114,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
             {announcements.contents.map((announcement) => (
               <Paper
                 key={announcement.id}
-                sx={{ marginRight: 1 , width: "100%"}}
+                sx={{ marginRight: 1, width: "100%" }}
                 elevation={3}
               >
                 <Box display="flex" justifyContent="center">

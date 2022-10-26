@@ -25,10 +25,14 @@ import {
   InputLabel,
   Autocomplete,
 } from "@mui/material";
+
+import {
+  Close as CloseIcon,
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+} from "@mui/icons-material";
+
 import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
-import CloseIcon from "@mui/icons-material/Close";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 import { UserFilterOption, ActionStatus } from "../types/store";
 
@@ -84,10 +88,8 @@ const ListAnnouncementPage = () => {
     },
   ] = useLazyGetAnnouncementsQuery();
 
-  const [
-    getUsers,
-    { data, isLoading: isGetUsersLoading, error: isUsersError },
-  ] = useLazyGetUsersQuery();
+  const [getUsers, { isLoading: isGetUsersLoading, error: isUsersError }] =
+    useLazyGetUsersQuery();
 
   const isLoading = isAnnouncementsLoading && isGetUsersLoading;
 
@@ -183,8 +185,11 @@ const ListAnnouncementPage = () => {
         {!isLoading ? (
           <>
             <Box>
-              <Box sx={{marginBottom: 1}}>
-                <Typography variant="h5" fontWeight="bold"> Announcement Page </Typography>
+              <Box sx={{ marginBottom: 1 }}>
+                <Typography variant="h5" fontWeight="bold">
+                  {" "}
+                  Announcement Page{" "}
+                </Typography>
               </Box>
               <Box
                 display="flex"

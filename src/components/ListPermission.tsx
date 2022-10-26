@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Checkbox from '@mui/material/Checkbox';
+import { Box, Typography, Checkbox } from "@mui/material";
 
 type PermissionList = {
   id: number;
@@ -66,13 +64,20 @@ const ListPermission = () => {
       {lists.map((list) => (
         <Box key={list.id}>
           <>
-            <Typography variant="h6" sx={{marginTop: 2, marginBottom: 1}}>{list.name}</Typography>
-            {list.permissions.map((permission, index) => 
-              <Box key={index} display="flex" flexDirection="row" alignItems="center">
+            <Typography variant="h6" sx={{ marginTop: 2, marginBottom: 1 }}>
+              {list.name}
+            </Typography>
+            {list.permissions.map((permission, index) => (
+              <Box
+                key={index}
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+              >
                 <Checkbox />
                 <Typography>{permission}</Typography>
               </Box>
-            )}
+            ))}
           </>
         </Box>
       ))}

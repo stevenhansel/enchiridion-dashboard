@@ -1,27 +1,32 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import { CircularProgress } from "@mui/material";
-import Link from "@mui/material/Link";
-import IconButton from "@mui/material/IconButton";
-import Snackbar from "@mui/material/Snackbar";
-import CloseIcon from "@mui/icons-material/Close";
-import Button from "@mui/material/Button";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  CircularProgress,
+  Link,
+  IconButton,
+  Snackbar,
+  Button,
+} from "@mui/material";
+
+import {
+  Close as CloseIcon,
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+} from "@mui/icons-material";
 
 import { useLazyGetDevicesQuery } from "../services/device";
 import Layout from "../components/Layout";
@@ -132,7 +137,6 @@ const DevicePage = () => {
                 Search
               </Button>
             </Box>
-
             {data && data.contents.length > 0 ? (
               <>
                 <TableContainer component={Paper}>

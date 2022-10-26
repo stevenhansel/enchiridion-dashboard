@@ -14,8 +14,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import CloseIcon from "@mui/icons-material/Close";
+import { FiberManualRecord as FiberManualRecordIcon, Close as CloseIcon } from "@mui/icons-material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import debounce from "lodash/debounce";
@@ -67,10 +66,7 @@ const UpdateBuilding = (props: Props) => {
 
   const [
     getBuildings,
-    {
-      error: isGetBuildingsError,
-      isLoading: isBuildingsLoading,
-    },
+    { error: isGetBuildingsError, isLoading: isBuildingsLoading },
   ] = useLazyGetBuildingsQuery();
 
   const [updateBuilding, { error: isUpdateBuildingsError }] =

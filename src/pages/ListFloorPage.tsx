@@ -22,11 +22,14 @@ import {
   DialogTitle,
   DialogContent,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Close as CloseIcon,
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+} from "@mui/icons-material";
 
 import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
@@ -245,7 +248,7 @@ const ListFloorPage = () => {
             ) : null}
           </Box>
           <Box display="flex">
-            <Box sx={{marginBottom: 1}}>
+            <Box sx={{ marginBottom: 1 }}>
               <TextField
                 id="search"
                 label="Search by floorname"

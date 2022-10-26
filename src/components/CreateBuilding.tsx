@@ -12,8 +12,12 @@ import {
   IconButton,
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import CloseIcon from "@mui/icons-material/Close";
+
+import {
+  FiberManualRecord as FiberManualRecordIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
+
 import { useFormik } from "formik";
 import * as yup from "yup";
 
@@ -54,10 +58,10 @@ const CreateBuilding = (props: Props) => {
         await addNewBuilding(values).unwrap();
         props.setOpen(false);
       } catch (err) {
-        if(isReduxError(err) && isApiError(err.data)){
-          const {errorCode, messages} = err.data;
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { errorCode, messages } = err.data;
           const [message] = messages;
-          if(errorCode === "BUILDING_NAME_ALREADY_EXISTS"){
+          if (errorCode === "BUILDING_NAME_ALREADY_EXISTS") {
             setErrorMessage(message);
           }
         }

@@ -21,9 +21,12 @@ import {
   Snackbar,
   IconButton,
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
-import RemoveIcon from "@mui/icons-material/Remove";
+
+import {
+  Check as CheckIcon,
+  Close as CloseIcon,
+  Remove as RemoveIcon,
+} from "@mui/icons-material";
 
 import { useGetAnnouncementDetailQuery } from "../services/announcement";
 import { useGetBuildingsQuery } from "../services/building";

@@ -9,8 +9,7 @@ import {
   CardActions,
   CircularProgress,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
+import { Delete as DeleteIcon , Close as CloseIcon} from "@mui/icons-material"
 
 import { useDeleteBuildingMutation } from "../services/building";
 import { useGetBuildingsQuery } from "../services/building";
