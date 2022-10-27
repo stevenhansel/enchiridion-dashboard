@@ -356,7 +356,7 @@ export default function Layout(props: Props) {
             }}
           >
             <Badge badgeContent={notification} color="secondary">
-              flex-endflex-end <MailIcon color="action" />
+              <MailIcon color="action" />
             </Badge>
           </Fab>
           <Button

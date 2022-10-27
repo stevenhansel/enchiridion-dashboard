@@ -34,7 +34,7 @@ import {
 
 import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
 
-import { UserFilterOption, ActionStatus } from "../types/store";
+import { UserFilterOption } from "../types/store";
 
 import { ApiErrorResponse } from "../services/error";
 import { useLazyGetUsersQuery } from "../services/user";

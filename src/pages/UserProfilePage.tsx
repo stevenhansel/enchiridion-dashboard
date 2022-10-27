@@ -21,7 +21,7 @@ import Layout from "../components/Layout";
 import { RootState } from "../store";
 
 import { useChangePasswordMutation } from "../services/auth";
-import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
+import { isApiError, isReduxError } from "../services/error";
 
 type ChangePassword = {
   oldPassword: string;
@@ -29,7 +29,7 @@ type ChangePassword = {
 };
 
 const validationSchema = yup.object({
-  oldPassword: yup.string().required("required"),
+  oldPassword: yup.string().required("Please enter your old Password"),
   newPassword: yup
     .string()
     .min(8, "Password should be of minimum 8 characters length")
@@ -114,7 +114,6 @@ const UserProfilePage = () => {
           </Typography>
         </Box>
       </Box>
-
       <Box sx={{ marginTop: 3 }}>
         <Typography
           display="flex"

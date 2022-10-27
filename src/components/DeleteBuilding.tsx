@@ -30,14 +30,9 @@ const DeleteBuilding = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
-  const [deleteConfirmationState, setDeleteConfirmationState] = useState(false);
 
   const handleDelete = (buildingId: number) => {
     deleteBuilding({ buildingId });
-  };
-
-  const handleDeleteConfirmation = (buildingId: number) => {
-    setDeleteConfirmation(buildingId);
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -62,86 +57,91 @@ const DeleteBuilding = () => {
 
   return (
     <>
-      {!isGetBuildingsLoading ? (
-        <Box>
-          {buildings &&
-            buildings.map((building) => (
-              <Card
-                sx={{ backgroundColor: building.color, marginBottom: 1 }}
-                key={building.id}
-              >
-                <CardActions>
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    width="100%"
-                  >
-                    {deleteConfirmation === building.id ? (
-                      <Typography fontWeight="bold">
-                        Are you sure you want to delete {building.name}?
-                      </Typography>
-                    ) : (
-                      <Typography fontWeight="bold">{building.name}</Typography>
-                    )}
-                  </Box>
-                  {deleteConfirmation === building.id ? (
-                    <Box
-                      display="flex"
-                      justifyContent="flex-end"
-                      alignItems="center"
-                    >
-                      <Tooltip title="Click to confirm">
-                        <IconButton onClick={() => handleDelete(building.id)}>
-                          <DeleteIcon
-                            sx={{
-                              color: "red",
-                            }}
-                          />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  ) : (
-                    <Box
-                      display="flex"
-                      justifyContent="flex-end"
-                      alignItems="center"
-                    >
-                      <IconButton
-                        onClick={() => handleDeleteConfirmation(building.id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  )}
-                </CardActions>
-              </Card>
-            ))}
-          <Box>
-            <Snackbar
-              open={Boolean(errorMessage)}
-              autoHideDuration={6000}
-              onClose={() => setErrorMessage("")}
-              message={errorMessage}
-              action={
-                <>
-                  <IconButton
-                    size="small"
-                    aria-label="close"
-                    color="inherit"
-                    onClick={handleClose}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </>
-              }
-            />
-          </Box>
+      {buildings && buildings.length === 0 ? (
+        <Box display="flex" justifyContent="center">
+          <Typography fontWeight="bold">
+            No Buildings Found! Create one first!
+          </Typography>
         </Box>
       ) : (
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <CircularProgress />
-        </Box>
+        <>
+          {!isGetBuildingsLoading ? (
+            <Box>
+              {buildings &&
+                buildings.map((building) => (
+                  <Card
+                    sx={{ backgroundColor: building.color, marginBottom: 1 }}
+                    key={building.id}
+                  >
+                    <CardActions>
+                      <Box
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        width="100%"
+                      >
+                        <Typography fontWeight="bold">
+                          {deleteConfirmation === building.id
+                            ? `Are you sure want to delete ${building.name}?`
+                            : building.name}
+                        </Typography>
+                      </Box>
+
+                      <Box
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignItems="center"
+                      >
+                        {deleteConfirmation === building.id ? (
+                          <Tooltip title="Click again to confirm">
+                            <IconButton
+                              onClick={() => handleDelete(building.id)}
+                            >
+                              <DeleteIcon
+                                sx={{
+                                  color: "red",
+                                }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          <IconButton
+                            onClick={() => setDeleteConfirmation(building.id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </CardActions>
+                  </Card>
+                ))}
+              <Box>
+                <Snackbar
+                  open={Boolean(errorMessage)}
+                  autoHideDuration={6000}
+                  onClose={() => setErrorMessage("")}
+                  message={errorMessage}
+                  action={
+                    <>
+                      <IconButton
+                        size="small"
+                        aria-label="close"
+                        color="inherit"
+                        onClick={handleClose}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </>
+                  }
+                />
+              </Box>
+            </Box>
+          ) : (
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <CircularProgress />
+            </Box>
+          )}
+        </>
       )}
     </>
   );

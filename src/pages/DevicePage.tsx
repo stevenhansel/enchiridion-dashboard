@@ -81,7 +81,7 @@ const DevicePage = () => {
   const isNextButtonDisabled = useMemo(() => {
     if (!data) return true;
 
-    return page === data.totalPages;
+    return page === data.totalPages && data?.hasNext === false;
   }, [data]);
 
   useEffect(() => {

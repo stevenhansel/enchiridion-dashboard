@@ -117,7 +117,7 @@ const RequestsPage = () => {
   const [approveRejectRequest] = useApproveRejectRequestMutation();
 
   const isLoading =
-    isGetAnnouncementLoading || isGetRequestLoading || isGetUserLoading;
+    isGetAnnouncementLoading && isGetRequestLoading && isGetUserLoading;
 
   const userApprove = async (requestId: string, requestStatus: boolean) => {
     try {

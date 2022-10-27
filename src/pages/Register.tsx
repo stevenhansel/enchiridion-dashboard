@@ -25,7 +25,7 @@ import { useLazyGetRolesQuery } from "../services/roles";
 import { RegisterForm } from "../types/store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
-import { ApiErrorResponse, isApiError, isReduxError } from "../services/error";
+import { isApiError, isReduxError } from "../services/error";
 
 const validationSchema = yup.object({
   name: yup
@@ -49,7 +49,7 @@ const Register = () => {
 
   const [getRoles, { data: roles, isLoading: isRoleLoading }] =
     useLazyGetRolesQuery();
-  const [register, { error: isRegisterError, isLoading: isRegisterLoading }] =
+  const [register, { isLoading: isRegisterLoading }] =
     useRegisterMutation();
 
   const isLoading = isRoleLoading || isRegisterLoading;
