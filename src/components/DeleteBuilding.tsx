@@ -91,13 +91,15 @@ const DeleteBuilding = () => {
                       justifyContent="flex-end"
                       alignItems="center"
                     >
-                      <IconButton onClick={() => handleDelete(building.id)}>
-                        <DeleteIcon
-                          sx={{
-                            color: "red",
-                          }}
-                        />
-                      </IconButton>
+                      <Tooltip title="Click to confirm">
+                        <IconButton onClick={() => handleDelete(building.id)}>
+                          <DeleteIcon
+                            sx={{
+                              color: "red",
+                            }}
+                          />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
                   ) : (
                     <Box
@@ -105,13 +107,11 @@ const DeleteBuilding = () => {
                       justifyContent="flex-end"
                       alignItems="center"
                     >
-                      <Tooltip title="Click to confirm">
-                        <IconButton
-                          onClick={() => handleDeleteConfirmation(building.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
+                      <IconButton
+                        onClick={() => handleDeleteConfirmation(building.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </Box>
                   )}
                 </CardActions>
