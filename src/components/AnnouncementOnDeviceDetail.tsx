@@ -109,18 +109,19 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
             display="flex"
             flexDirection="row"
             alignItems="center"
+            justifyContent="center"
             sx={{ marginRight: 1 }}
           >
             {announcements.contents.map((announcement) => (
               <Paper
                 key={announcement.id}
-                sx={{ marginRight: 1, width: "100%" }}
+                sx={{ marginRight: 1, width: 395 }}
                 elevation={3}
               >
                 <Box display="flex" justifyContent="center">
                   <img
                     src={announcement.media}
-                    style={{ width: "100%", margin: "auto" }}
+                    style={{ width: 395, margin: "auto" }}
                   />
                 </Box>
                 <Box sx={{ marginLeft: 1 }}>

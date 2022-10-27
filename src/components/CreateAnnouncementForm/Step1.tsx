@@ -117,7 +117,9 @@ const Step1 = () => {
         </Button>
 
         {values.media !== null ? (
-          <Typography>{values.media.file.name}</Typography>
+          <Typography sx={{ marginLeft: 1 }} variant="caption" fontSize="">
+            {values.media.file.name}
+          </Typography>
         ) : null}
 
         {touched.media && errors.media ? (

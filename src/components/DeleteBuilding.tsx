@@ -8,8 +8,9 @@ import {
   Snackbar,
   CardActions,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
-import { Delete as DeleteIcon , Close as CloseIcon} from "@mui/icons-material"
+import { Delete as DeleteIcon, Close as CloseIcon } from "@mui/icons-material";
 
 import { useDeleteBuildingMutation } from "../services/building";
 import { useGetBuildingsQuery } from "../services/building";
@@ -24,10 +25,19 @@ const DeleteBuilding = () => {
   } = useGetBuildingsQuery(null);
   const [deleteBuilding, { error: isDeleteBuildingError }] =
     useDeleteBuildingMutation();
+
   const [errorMessage, setErrorMessage] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
+    null
+  );
+  const [deleteConfirmationState, setDeleteConfirmationState] = useState(false);
 
   const handleDelete = (buildingId: number) => {
     deleteBuilding({ buildingId });
+  };
+
+  const handleDeleteConfirmation = (buildingId: number) => {
+    setDeleteConfirmation(buildingId);
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -67,17 +77,43 @@ const DeleteBuilding = () => {
                     alignItems="center"
                     width="100%"
                   >
-                    <Typography fontWeight="bold">{building.name}</Typography>
+                    {deleteConfirmation === building.id ? (
+                      <Typography fontWeight="bold">
+                        Are you sure you want to delete {building.name}?
+                      </Typography>
+                    ) : (
+                      <Typography fontWeight="bold">{building.name}</Typography>
+                    )}
                   </Box>
-                  <Box
-                    display="flex"
-                    justifyContent="flex-end"
-                    alignItems="center"
-                  >
-                    <IconButton onClick={() => handleDelete(building.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
+                  {deleteConfirmation === building.id ? (
+                    <Box
+                      display="flex"
+                      justifyContent="flex-end"
+                      alignItems="center"
+                    >
+                      <IconButton onClick={() => handleDelete(building.id)}>
+                        <DeleteIcon
+                          sx={{
+                            color: "red",
+                          }}
+                        />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <Box
+                      display="flex"
+                      justifyContent="flex-end"
+                      alignItems="center"
+                    >
+                      <Tooltip title="Click to confirm">
+                        <IconButton
+                          onClick={() => handleDeleteConfirmation(building.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  )}
                 </CardActions>
               </Card>
             ))}
