@@ -41,18 +41,14 @@ const ChangeDeviceRequest = (props: Props) => {
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
   const [description, setDescription] = useState("");
+  const [state, setState] = useState(true);
 
   const { announcementId = "" } = useParams();
 
-  const {
-    data: buildings,
-    isLoading: isBuildingLoading,
-  } = useGetBuildingsQuery(null);
+  const { data: buildings, isLoading: isBuildingLoading } =
+    useGetBuildingsQuery(null);
 
-  const {
-    data: floors,
-    isLoading: isFloorLoading,
-  } = useGetFloorsQuery(null);
+  const { data: floors, isLoading: isFloorLoading } = useGetFloorsQuery(null);
 
   const { isLoading: isGetAnnouncementDetailLoading } =
     useGetAnnouncementDetailQuery(
@@ -113,6 +109,11 @@ const ChangeDeviceRequest = (props: Props) => {
     [formik.values, formik.setFieldValue]
   );
 
+  const handleNextStep = () => {
+    formik.setFieldTouched("newDeviceIds", true);
+    setState(Boolean(formik.errors.newDeviceIds));
+  };
+
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
@@ -148,129 +149,141 @@ const ChangeDeviceRequest = (props: Props) => {
     <>
       {!isLoading ? (
         <form onSubmit={formik.handleSubmit}>
-          <Box>
+          {state ? (
             <Box>
-              <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  border: "1px solid #c4c4c4",
+                  marginBottom: 2,
+                }}
+              >
                 <Box
                   sx={{
+                    padding: 1,
                     display: "flex",
-                    border: "1px solid #c4c4c4",
-                    marginBottom: 2,
+                    flexDirection: "column",
                   }}
                 >
-                  <Box
-                    sx={{
-                      padding: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {buildings &&
-                      buildings.map((building) => (
-                        <Button
-                          key={building.id}
-                          onClick={() =>
-                            setCurrentBuildingId(building.id.toString())
-                          }
-                          variant={
-                            currentBuildingId === building.id.toString()
-                              ? "contained"
-                              : "text"
-                          }
-                          color={
-                            currentBuildingId === building.id.toString()
-                              ? "secondary"
-                              : "inactive"
-                          }
-                          sx={{ marginBottom: 1 }}
-                        >
-                          {building.name}
-                        </Button>
-                      ))}
-                  </Box>
-                  <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
-                  <Box
-                    sx={{
-                      padding: 3,
-                      flex: 1,
-                    }}
-                  >
-                    <Box>
-                      {floors &&
-                        floors?.contents
-                          .filter(
-                            (floor) =>
-                              currentBuildingId === floor.building.id.toString()
-                          )
-                          .map((floor) => (
+                  {buildings &&
+                    buildings.map((building) => (
+                      <Button
+                        key={building.id}
+                        onClick={() =>
+                          setCurrentBuildingId(building.id.toString())
+                        }
+                        variant={
+                          currentBuildingId === building.id.toString()
+                            ? "contained"
+                            : "text"
+                        }
+                        color={
+                          currentBuildingId === building.id.toString()
+                            ? "secondary"
+                            : "inactive"
+                        }
+                        sx={{ marginBottom: 1 }}
+                      >
+                        {building.name}
+                      </Button>
+                    ))}
+                </Box>
+                <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
+                <Box
+                  sx={{
+                    padding: 3,
+                    flex: 1,
+                  }}
+                >
+                  <Box>
+                    {floors &&
+                      floors?.contents
+                        .filter(
+                          (floor) =>
+                            currentBuildingId === floor.building.id.toString()
+                        )
+                        .map((floor) => (
+                          <Box
+                            key={floor.id}
+                            display="flex"
+                            sx={{
+                              border: "1px solid #c4c4c4",
+                              marginBottom: 1,
+                            }}
+                            alignItems="center"
+                          >
                             <Box
-                              key={floor.id}
-                              display="flex"
                               sx={{
-                                border: "1px solid #c4c4c4",
-                                marginBottom: 1,
+                                minWidth: 100,
+                                marginRight: 1,
+                                marginBottom: 2,
+                                margin: 1,
                               }}
-                              alignItems="center"
                             >
-                              <Box
-                                sx={{
-                                  minWidth: 100,
-                                  marginRight: 1,
-                                  marginBottom: 2,
-                                  margin: 1,
-                                }}
-                              >
-                                {floor.name}
-                              </Box>
-                              <Box sx={{ width: "100%" }}>
-                                {floor.devices.map((device) => (
-                                  <Tooltip
-                                    key={device.id}
-                                    title={device.description}
-                                  >
-                                    <Button
-                                      key={device.id}
-                                      onClick={() =>
-                                        handleSelectDevice(device.id)
-                                      }
-                                      variant={
-                                        formik.values.newDeviceIds.includes(
-                                          device.id
-                                        )
-                                          ? "contained"
-                                          : "outlined"
-                                      }
-                                      color={
-                                        formik.values.newDeviceIds.includes(
-                                          device.id
-                                        )
-                                          ? "secondary"
-                                          : "inactive"
-                                      }
-                                      sx={{ margin: 1, width: 140 }}
-                                    >
-                                      {device.name}
-                                    </Button>
-                                  </Tooltip>
-                                ))}
-                              </Box>
+                              {floor.name}
                             </Box>
-                          ))}
-                    </Box>
+                            <Box sx={{ width: "100%" }}>
+                              {floor.devices.map((device) => (
+                                <Tooltip
+                                  key={device.id}
+                                  title={device.description}
+                                >
+                                  <Button
+                                    key={device.id}
+                                    onClick={() =>
+                                      handleSelectDevice(device.id)
+                                    }
+                                    variant={
+                                      formik.values.newDeviceIds.includes(
+                                        device.id
+                                      )
+                                        ? "contained"
+                                        : "outlined"
+                                    }
+                                    color={
+                                      formik.values.newDeviceIds.includes(
+                                        device.id
+                                      )
+                                        ? "secondary"
+                                        : "inactive"
+                                    }
+                                    sx={{ margin: 1, width: 140 }}
+                                  >
+                                    {device.name}
+                                  </Button>
+                                </Tooltip>
+                              ))}
+                            </Box>
+                          </Box>
+                        ))}
                   </Box>
                 </Box>
               </Box>
               {formik.touched.newDeviceIds && formik.errors.newDeviceIds ? (
-                <Typography
-                  variant="caption"
-                  color={red[700]}
-                  sx={{ marginTop: 1 }}
-                >
-                  select at least 1 device
-                </Typography>
+                <Box display="flex" justifyContent="center">
+                  <Typography variant="caption" color={red[700]}>
+                    select at least 1 device
+                  </Typography>
+                </Box>
               ) : null}
 
               <Box>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleNextStep();
+                  }}
+                >
+                  Next
+                </Button>
+              </Box>
+            </Box>
+          ) : (
+            <>
+              <Box>
+                <Typography variant="h5" sx={{marginBottom: 1}}>
+                  Please state your reason why you want to change devices
+                </Typography>
                 <Typography>Description</Typography>
                 <TextField
                   id="description"
@@ -291,36 +304,31 @@ const ChangeDeviceRequest = (props: Props) => {
                 />
               </Box>
               <Box>
-                <Button
-                  variant="contained"
-                  // onClick={() => {
-                  //   setValidateChangeDevice(true);
-                  // }}
-                  type="submit"
-                >
+                <Button variant="contained" type="submit">
                   OK
                 </Button>
               </Box>
-            </Box>
-            <Snackbar
-              open={Boolean(errorMessage)}
-              autoHideDuration={6000}
-              onClose={() => setErrorMessage("")}
-              message={errorMessage}
-              action={
-                <>
-                  <IconButton
-                    size="small"
-                    aria-label="close"
-                    color="inherit"
-                    onClick={handleClose}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </>
-              }
-            />
-          </Box>
+            </>
+          )}
+
+          <Snackbar
+            open={Boolean(errorMessage)}
+            autoHideDuration={6000}
+            onClose={() => setErrorMessage("")}
+            message={errorMessage}
+            action={
+              <>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>
+            }
+          />
         </form>
       ) : (
         <CircularProgress />

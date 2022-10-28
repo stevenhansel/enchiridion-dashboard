@@ -65,6 +65,7 @@ const Step1 = () => {
 
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
+    console.log("test");
     if (errors.length > 0) return;
 
     handleNextStep();

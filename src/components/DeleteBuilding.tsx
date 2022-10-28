@@ -86,7 +86,6 @@ const DeleteBuilding = () => {
                             : building.name}
                         </Typography>
                       </Box>
-
                       <Box
                         display="flex"
                         justifyContent="flex-end"
