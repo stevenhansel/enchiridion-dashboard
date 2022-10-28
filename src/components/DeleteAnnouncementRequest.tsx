@@ -1,23 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import { Box, Button, IconButton, Snackbar, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Snackbar,
+  Typography,
+  TextField,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
 
+import * as yup from "yup";
+
 import { useCreateRequestMutation } from "../services/request";
 
-import { ApiErrorResponse } from "../services/error";
+import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
 import { ActionCreateRequest } from "../types/store";
+
+const validationSchema = yup.object({
+  description: yup.string().required().min(10).max(30),
+});
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const DeleteAnnouncementRequest = (props: Props) => {
+  const { setOpen } = props;
   const [createRequest, { error }] = useCreateRequestMutation();
   const [errorMessage, setErrorMessage] = useState("");
-  const [description, setDescription] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const { announcementId = "" } = useParams();
 
   const formik = useFormik<ActionCreateRequest>({
@@ -25,12 +39,22 @@ const DeleteAnnouncementRequest = (props: Props) => {
       action: "delete",
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
-      description: description,
+      description: "",
       newDeviceIds: [],
     },
-    onSubmit: (values) => {
-      createRequest(values);
-      props.setOpen(false);
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      try {
+        createRequest(values).unwrap();
+        setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { messages } = err.data;
+          if (messages.length !== 0) {
+            setErrorMessage(messages[0]);
+          }
+        }
+      }
     },
   });
 
@@ -42,13 +66,6 @@ const DeleteAnnouncementRequest = (props: Props) => {
   };
 
   useEffect(() => {
-    if (description !== null) {
-      setDescription("Deleted");
-    }
-    formik.setFieldValue("description", description);
-  }, [description, formik.values.description]);
-
-  useEffect(() => {
     if (error && "data" in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
@@ -58,19 +75,60 @@ const DeleteAnnouncementRequest = (props: Props) => {
     <>
       <form onSubmit={formik.handleSubmit}>
         <Box>
-          <Typography sx={{ marginBottom: 1 }}>
-            Are you sure want to delete this announcement?
-          </Typography>
-          <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
-            Delete
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => props.setOpen(false)}
-            sx={{ marginRight: 1 }}
-          >
-            Cancel
-          </Button>
+          {deleteConfirmation ? (
+            <>
+              <Typography sx={{ marginBottom: 1 }}>
+                Please state your reason why you want to delete this
+                announcement
+              </Typography>
+              <Box>
+                <TextField
+                  onChange={(e) =>
+                    formik.setFieldValue("description", e.target.value)
+                  }
+                  variant="standard"
+                  error={
+                    formik.touched.description &&
+                    Boolean(formik.errors.description)
+                  }
+                  helperText={
+                    formik.touched.description && formik.errors.description
+                  }
+                  sx={{ width: "100%", marginBottom: 1 }}
+                />
+              </Box>
+              <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
+                Delete
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => setOpen(false)}
+                sx={{ marginRight: 1 }}
+              >
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              <Typography sx={{ marginBottom: 1 }}>
+                Are you sure want to delete this announcement?
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => setDeleteConfirmation(true)}
+                sx={{ marginRight: 1 }}
+              >
+                Yes
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => setOpen(false)}
+                sx={{ marginRight: 1 }}
+              >
+                Cancel
+              </Button>
+            </>
+          )}
 
           <Snackbar
             open={Boolean(errorMessage)}
