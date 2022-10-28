@@ -28,6 +28,10 @@ const validationSchema = yup.object({
     .date()
     .min(new Date(), "extend date cannot be in the past")
     .required("extend date is required"),
+  description: yup
+    .string()
+    .min(10, "please input more than 10 characters")
+    .required("description is required"),
 });
 
 type Props = {
@@ -38,7 +42,6 @@ type Props = {
 const ExtendDate = (props: Props) => {
   const [createRequest, { error }] = useCreateRequestMutation();
   const [errorMessage, setErrorMessage] = useState("");
-  const [description, setDescription] = useState("");
   const { announcementId = "" } = useParams();
 
   const today = dayjs(props.date);
@@ -49,7 +52,7 @@ const ExtendDate = (props: Props) => {
       action: "extend_date",
       extendedEndDate: dayjs(tomorrow.toDateString()).format("YYYY-MM-DD"),
       announcementId: parseInt(announcementId, 10),
-      description: description,
+      description: "",
       newDeviceIds: [],
     },
     validationSchema: validationSchema,
@@ -74,15 +77,6 @@ const ExtendDate = (props: Props) => {
     }
     setErrorMessage("");
   };
-
-  useEffect(() => {
-    if (description !== null) {
-      setDescription(
-        `Announcement extended to ${formik.values.extendedEndDate}`
-      );
-    }
-    formik.setFieldValue("description", description);
-  }, [description, formik.values.extendedEndDate]);
 
   useEffect(() => {
     if (error && "data" in error) {
@@ -119,9 +113,27 @@ const ExtendDate = (props: Props) => {
               {String(formik.errors.extendedEndDate)}
             </Typography>
           ) : null}
-          <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
-            OK
-          </Button>
+          <Box>
+            <Typography>Description</Typography>
+            <TextField
+              variant="standard"
+              sx={{ width: "100%", marginBottom: 1 }}
+              onChange={(e) => {
+                formik.setFieldValue("description", e.target.value);
+              }}
+              error={
+                formik.touched.description && Boolean(formik.errors.description)
+              }
+              helperText={
+                formik.touched.description && formik.errors.description
+              }
+            />
+          </Box>
+          <Box display="flex">
+            <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
+              OK
+            </Button>
+          </Box>
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}

@@ -40,8 +40,7 @@ const ChangeDeviceRequest = (props: Props) => {
   const [createRequest, { error }] = useCreateRequestMutation();
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [description, setDescription] = useState("");
-  const [state, setState] = useState(true);
+  const [descriptionConfirmation, setDescriptionConfirmation] = useState(true);
 
   const { announcementId = "" } = useParams();
 
@@ -111,7 +110,7 @@ const ChangeDeviceRequest = (props: Props) => {
 
   const handleNextStep = () => {
     formik.setFieldTouched("newDeviceIds", true);
-    setState(Boolean(formik.errors.newDeviceIds));
+    setDescriptionConfirmation(Boolean(formik.errors.newDeviceIds));
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -138,18 +137,11 @@ const ChangeDeviceRequest = (props: Props) => {
     }
   }, [buildings]);
 
-  useEffect(() => {
-    if (description !== null) {
-      setDescription("Device Change Requested");
-    }
-    formik.setFieldValue("description", description);
-  }, []);
-
   return (
     <>
       {!isLoading ? (
         <form onSubmit={formik.handleSubmit}>
-          {state ? (
+          {descriptionConfirmation ? (
             <Box>
               <Box
                 sx={{
@@ -281,7 +273,7 @@ const ChangeDeviceRequest = (props: Props) => {
           ) : (
             <>
               <Box>
-                <Typography variant="h5" sx={{marginBottom: 1}}>
+                <Typography variant="h5" sx={{ marginBottom: 1 }}>
                   Please state your reason why you want to change devices
                 </Typography>
                 <Typography>Description</Typography>
