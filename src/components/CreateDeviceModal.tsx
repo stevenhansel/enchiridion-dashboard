@@ -146,6 +146,8 @@ const CreateDeviceModal = (props: Props) => {
     [dispatch]
   );
 
+
+
   const formik = useFormik<CreateDeviceType>({
     initialValues: {
       name: "",
@@ -165,6 +167,8 @@ const CreateDeviceModal = (props: Props) => {
     }
     setErrorMessage("");
   };
+
+  console.log(device);
 
   useEffect(() => {
     if (openBuildingFilter) {

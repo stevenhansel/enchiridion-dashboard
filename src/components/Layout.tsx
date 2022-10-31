@@ -47,6 +47,8 @@ import { resetProfile } from "../store/profile";
 
 import { useLazyLogoutQuery } from "../services/auth";
 
+const navigationColor = "#FFFFFF";
+
 const navigations = [
   {
     text: "Announcement",
@@ -79,6 +81,7 @@ const drawerWidth = 240;
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
+  backgroundColor: "#1976D2",
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -92,6 +95,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: "hidden",
+  backgroundColor: "#1976D2",
   width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
@@ -162,7 +166,8 @@ export default function Layout(props: Props) {
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  // const [notification, setNotification] = React.useState(0);
+  const [notification, setNotification] = React.useState(0);
+  const [selectedIndex, setSelectedIndex] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const handleUserProfile = () => {
@@ -192,13 +197,15 @@ export default function Layout(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openProfileDropdown = Boolean(anchorEl);
 
-  const handleAnchorEl = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleAnchorEl = (e: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(e.currentTarget);
   };
 
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  console.log(selectedIndex);
 
   const hasPermission = React.useMemo(() => {
     if (!profile) return false;
@@ -264,7 +271,11 @@ export default function Layout(props: Props) {
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
+              <ChevronLeftIcon
+                sx={{
+                  color: navigationColor,
+                }}
+              />
             )}
           </IconButton>
         </DrawerHeader>
@@ -277,6 +288,7 @@ export default function Layout(props: Props) {
               marginTop: 1,
               marginLeft: 3,
               opacity: open ? 1 : 0,
+              color: navigationColor,
             }}
           >
             {profile?.name}
@@ -284,7 +296,12 @@ export default function Layout(props: Props) {
         </Box>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography
-            sx={{ fontSize: 20, marginLeft: 3, opacity: open ? 1 : 0 }}
+            sx={{
+              fontSize: 20,
+              marginLeft: 3,
+              opacity: open ? 1 : 0,
+              color: navigationColor,
+            }}
           >
             {profile?.role.name}
           </Typography>
@@ -297,8 +314,21 @@ export default function Layout(props: Props) {
             onClick={handleAnchorEl}
             sx={{ opacity: open ? 1 : 0 }}
           >
-            {openProfileDropdown ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            {openProfileDropdown ? (
+              <ExpandLessIcon
+                sx={{
+                  color: navigationColor,
+                }}
+              />
+            ) : (
+              <ExpandMoreIcon
+                sx={{
+                  color: navigationColor,
+                }}
+              />
+            )}
           </IconButton>
+
           <Menu
             id="fade-menu"
             MenuListProps={{
@@ -313,32 +343,51 @@ export default function Layout(props: Props) {
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Box>
-        <List>
-          <Box display="flex" justifyContent="center" alignItems="center"></Box>
+        <List component="nav" aria-label="main navigation">
           {navigations.map(({ text, path, icon }) => (
             <Link
               key={text}
               to={`/${path}`}
-              style={{ textDecoration: "none", color: "rgba(0, 0, 0, 0.87)" }}
+              style={{
+                textDecoration: "none",
+                color: "rgba(0, 0, 0, 0.87)",
+              }}
             >
-              <ListItem key={text} disablePadding sx={{ display: "block" }}>
+              <ListItem
+                key={text}
+                disablePadding
+                sx={{
+                  display: "block",
+                  backgroundColor:
+                    selectedIndex === text ? "#F29115" : "secondary",
+                }}
+              >
                 <ListItemButton
+                  selected={selectedIndex === text}
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                   }}
+                  onClick={() => setSelectedIndex(text)}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
                       mr: open ? 3 : "auto",
                       justifyContent: "center",
+                      color: navigationColor,
                     }}
                   >
                     {icon}
                   </ListItemIcon>
-                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                  <ListItemText
+                    primary={text}
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      color: navigationColor,
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
             </Link>

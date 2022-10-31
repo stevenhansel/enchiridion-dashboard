@@ -18,6 +18,7 @@ import SendLinkVerificationPage from "./pages/SendLinkVerificationPage";
 import VerificationCallbackPage from "./pages/VerificationCallbackPage";
 import WaitingApprovalPage from "./pages/WaitingApprovalPage";
 import UserProfilePage from "./pages/UserProfilePage";
+import Layout from "./components/Layout";
 
 import { setProfile } from "./store/profile";
 import { ApiErrorResponse } from "./services/error";
