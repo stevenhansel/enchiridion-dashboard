@@ -74,24 +74,78 @@ function App() {
     <BrowserRouter>
       {isAuthenticated ? (
         <Routes>
-          <Route path="/" element={<ListAnnouncementPage />} />
+          <Route
+            path="/"
+            element={
+              <Layout>
+                <ListAnnouncementPage />
+              </Layout>
+            }
+          />
           <Route
             path="/announcement/create"
-            element={<CreateAnnouncementPage />}
+            element={
+              <Layout>
+                <CreateAnnouncementPage />
+              </Layout>
+            }
           />
           <Route
             path="/announcement/detail/:announcementId"
-            element={<AnnouncementDetailPage />}
+            element={
+              <Layout>
+                <AnnouncementDetailPage />
+              </Layout>
+            }
           />
-          <Route path="/device" element={<DevicePage />} />
+          <Route
+            path="/device"
+            element={
+              <Layout>
+                <DevicePage />
+              </Layout>
+            }
+          />
           <Route
             path="/device/detail/:deviceId"
-            element={<DeviceDetailPage />}
+            element={
+              <Layout>
+                <DeviceDetailPage />
+              </Layout>
+            }
           />
-          <Route path="/floor" element={<ListFloorPage />} />
-          <Route path="/user" element={<ListUsersPage />} />
-          <Route path="/requests" element={<RequestsPage />} />
-          <Route path="/profile" element={<UserProfilePage />} />
+          <Route
+            path="/floor"
+            element={
+              <Layout>
+                <ListFloorPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/user"
+            element={
+              <Layout>
+                <ListUsersPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/requests"
+            element={
+              <Layout>
+                <RequestsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <Layout>
+                <UserProfilePage />
+              </Layout>
+            }
+          />
           <Route
             path="/waiting-for-approval"
             element={<WaitingApprovalPage />}

@@ -95,7 +95,7 @@ const DevicePage = () => {
   }, [error]);
 
   return (
-    <Layout>
+    <>
       {!isLoading ? (
         <>
           <Box sx={{ marginBottom: 1 }}>
@@ -247,7 +247,9 @@ const DevicePage = () => {
           </>
         }
       />
-    </Layout>
+    </>
+    // <Layout>
+    // </Layout>
   );
 };
 

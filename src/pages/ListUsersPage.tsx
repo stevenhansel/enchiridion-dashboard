@@ -169,7 +169,7 @@ const ListUsersPage = () => {
   }, [isUserError]);
 
   return (
-    <Layout>
+    <>
       <Box sx={{ marginBottom: 1 }}>
         <Typography variant="h5" fontWeight="bold">
           List User Page
@@ -382,7 +382,7 @@ const ListUsersPage = () => {
           </IconButton>
         }
       />
-    </Layout>
+    </>
   );
 };
 

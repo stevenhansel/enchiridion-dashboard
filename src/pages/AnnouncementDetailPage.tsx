@@ -161,7 +161,7 @@ const AnnouncementDetailPage = () => {
   ]);
 
   return (
-    <Layout>
+    <>
       {hasViewAnnouncementDetailPermission ? (
         <Box display="flex" flexDirection="column">
           <Box
@@ -454,7 +454,7 @@ const AnnouncementDetailPage = () => {
       ) : (
         <Typography>Forbidden</Typography>
       )}
-    </Layout>
+    </>
   );
 };
 

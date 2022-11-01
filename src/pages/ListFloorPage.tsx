@@ -192,7 +192,7 @@ const ListFloorPage = () => {
   }, [hasViewBuildingPermission, getBuildings, open]);
 
   return (
-    <Layout>
+    <>
       <Box sx={{ marginBottom: 1 }}>
         <Typography variant="h5" fontWeight="bold">
           List Floor Page
@@ -474,7 +474,7 @@ const ListFloorPage = () => {
           </IconButton>
         }
       />
-    </Layout>
+      </>
   );
 };
 

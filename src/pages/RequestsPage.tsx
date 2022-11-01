@@ -268,7 +268,7 @@ const RequestsPage = () => {
   }, [openAnnouncementFilter, getAnnouncements, hasViewAnnouncementPermission]);
 
   return (
-    <Layout>
+    <>
       <Box sx={{ marginBottom: 1 }}>
         <Typography variant="h5" fontWeight="bold">
           Request Page
@@ -637,7 +637,7 @@ const RequestsPage = () => {
           }
         />
       </Box>
-    </Layout>
+    </>
   );
 };
 

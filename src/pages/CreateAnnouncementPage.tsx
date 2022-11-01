@@ -11,11 +11,9 @@ type Props = {
 
 const CreateAnnouncementPage = (props: Props) => {
   return (
-    <Layout>
-      <Box display="flex" flexDirection="column">
-        <CreateAnnouncementForm />
-      </Box>
-    </Layout>
+    <Box display="flex" flexDirection="column">
+      <CreateAnnouncementForm />
+    </Box>
   );
 };
 

@@ -79,7 +79,7 @@ const UserProfilePage = () => {
   };
 
   return (
-    <Layout>
+    <>
       <Box
         display="flex"
         flexDirection="row"
@@ -238,7 +238,7 @@ const UserProfilePage = () => {
           }
         />
       </Box>
-    </Layout>
+    </>
   );
 };
 

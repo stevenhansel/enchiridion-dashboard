@@ -167,11 +167,15 @@ export default function Layout(props: Props) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [notification, setNotification] = React.useState(0);
-  const [selectedIndex, setSelectedIndex] = React.useState("");
+  const [selectedPage, setSelectedPage] = React.useState("Announcement");
   const [errorMessage, setErrorMessage] = React.useState("");
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleUserProfile = () => {
     navigate("/profile");
+    setOpen(false);
+    setSelectedPage("");
+    setAnchorEl(null);
   };
 
   const handleCloseSnackbar = (
@@ -194,7 +198,6 @@ export default function Layout(props: Props) {
     navigate("/");
   };
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openProfileDropdown = Boolean(anchorEl);
 
   const handleAnchorEl = (e: React.MouseEvent<HTMLElement>) => {
@@ -204,8 +207,6 @@ export default function Layout(props: Props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
-  console.log(selectedIndex);
 
   const hasPermission = React.useMemo(() => {
     if (!profile) return false;
@@ -358,18 +359,16 @@ export default function Layout(props: Props) {
                 disablePadding
                 sx={{
                   display: "block",
-                  backgroundColor:
-                    selectedIndex === text ? "#F29115" : "secondary",
+                  backgroundColor: selectedPage === text ? "#F29115" : "",
                 }}
               >
                 <ListItemButton
-                  selected={selectedIndex === text}
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                   }}
-                  onClick={() => setSelectedIndex(text)}
+                  onClick={() => setSelectedPage(text)}
                 >
                   <ListItemIcon
                     sx={{

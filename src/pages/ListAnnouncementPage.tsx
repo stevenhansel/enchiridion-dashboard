@@ -174,7 +174,8 @@ const ListAnnouncementPage = () => {
   }, [getUsers, open, hasPermissionViewUserList]);
 
   return (
-    <Layout>
+    // <Layout>
+    <>
       <Box
         sx={{
           alignItems: "center",
@@ -454,7 +455,8 @@ const ListAnnouncementPage = () => {
           </IconButton>
         }
       />
-    </Layout>
+    </>
+    // </Layout>
   );
 };
 
