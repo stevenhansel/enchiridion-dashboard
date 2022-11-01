@@ -40,7 +40,7 @@ const ChangeDeviceRequest = (props: Props) => {
   const [createRequest, { error }] = useCreateRequestMutation();
   const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [descriptionConfirmation, setDescriptionConfirmation] = useState(true);
+  const [descriptionConfirmation, setDescriptionConfirmation] = useState(false);
 
   const { announcementId = "" } = useParams();
 
@@ -110,7 +110,14 @@ const ChangeDeviceRequest = (props: Props) => {
 
   const handleNextStep = () => {
     formik.setFieldTouched("newDeviceIds", true);
-    setDescriptionConfirmation(Boolean(formik.errors.newDeviceIds));
+    if (
+      formik.values.newDeviceIds.length !== 0 &&
+      !Boolean(formik.errors.newDeviceIds)
+    ) {
+      setDescriptionConfirmation(true);
+    } else {
+      setDescriptionConfirmation(false);
+    }
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -142,6 +149,37 @@ const ChangeDeviceRequest = (props: Props) => {
       {!isLoading ? (
         <form onSubmit={formik.handleSubmit}>
           {descriptionConfirmation ? (
+            <>
+              <Box>
+                <Typography variant="h5" sx={{ marginBottom: 1 }}>
+                  Please state your reason why you want to change devices
+                </Typography>
+                <Typography>Description</Typography>
+                <TextField
+                  id="description"
+                  variant="standard"
+                  autoComplete="off"
+                  onChange={(e) =>
+                    formik.setFieldValue("description", e.target.value)
+                  }
+                  error={
+                    formik.touched.description &&
+                    Boolean(formik.errors.description)
+                  }
+                  helperText={
+                    formik.touched.description && formik.errors.description
+                  }
+                  fullWidth
+                  sx={{ marginBottom: 1 }}
+                />
+              </Box>
+              <Box>
+                <Button variant="contained" type="submit">
+                  OK
+                </Button>
+              </Box>
+            </>
+          ) : (
             <Box>
               <Box
                 sx={{
@@ -260,47 +298,11 @@ const ChangeDeviceRequest = (props: Props) => {
               ) : null}
 
               <Box>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    handleNextStep();
-                  }}
-                >
+                <Button variant="contained" onClick={handleNextStep}>
                   Next
                 </Button>
               </Box>
             </Box>
-          ) : (
-            <>
-              <Box>
-                <Typography variant="h5" sx={{ marginBottom: 1 }}>
-                  Please state your reason why you want to change devices
-                </Typography>
-                <Typography>Description</Typography>
-                <TextField
-                  id="description"
-                  variant="standard"
-                  autoComplete="off"
-                  onChange={(e) =>
-                    formik.setFieldValue("description", e.target.value)
-                  }
-                  error={
-                    formik.touched.description &&
-                    Boolean(formik.errors.description)
-                  }
-                  helperText={
-                    formik.touched.description && formik.errors.description
-                  }
-                  fullWidth
-                  sx={{ marginBottom: 1 }}
-                />
-              </Box>
-              <Box>
-                <Button variant="contained" type="submit">
-                  OK
-                </Button>
-              </Box>
-            </>
           )}
 
           <Snackbar
