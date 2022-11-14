@@ -65,7 +65,6 @@ const Step1 = () => {
 
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
-    console.log("test");
     if (errors.length > 0) return;
 
     handleNextStep();
@@ -94,7 +93,6 @@ const Step1 = () => {
           onChange={(e) => setFieldValue("title", e.target.value)}
           error={touched.title && Boolean(errors.title)}
         />
-
         {touched.title && errors.title ? (
           <Typography variant="caption" color={red[700]} fontSize="">
             {errors.title}

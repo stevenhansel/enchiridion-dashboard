@@ -24,6 +24,7 @@ import { announcementApi } from "../../services/announcement";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
+import Step4 from "./Step4";
 
 import { CreateAnnouncementFormContext } from "./context";
 import {
@@ -32,7 +33,12 @@ import {
   CreateAnnouncementFormValues,
 } from "./form";
 
-const steps = ["Upload file", "Pilih lokasi pengumuman", "Submit"];
+const steps = [
+  "Upload file",
+  "Pilih lokasi Building",
+  "Pilih Devices",
+  "Submit",
+];
 const MIN_STEP = 0;
 const MAX_STEP: number = steps.length;
 const dateFormat = "YYYY-MM-DD";
@@ -74,6 +80,7 @@ const CreateAnnouncementForm = () => {
       formData.append("startDate", dayjs(values.startDate).format(dateFormat));
       formData.append("endDate", dayjs(values.endDate).format(dateFormat));
       formData.append("notes", values.notes);
+      formData.append("buildingId", values.buildingId);
       formData.append("deviceIds", values.devices.join(","));
 
       const response = await dispatch(
@@ -89,9 +96,7 @@ const CreateAnnouncementForm = () => {
             : "Network Error"
         );
       }
-
       setIsLoading(false);
-
       navigate("/");
     },
     []
@@ -104,6 +109,8 @@ const CreateAnnouncementForm = () => {
       return <Step2 />;
     } else if (activeStep === 2) {
       return <Step3 />;
+    } else if (activeStep === 3) {
+      return <Step4 />;
     }
 
     return <Step1 />;
@@ -145,7 +152,7 @@ const CreateAnnouncementForm = () => {
               <CreateAnnouncementFormContext.Provider
                 value={{ handleNextStep, handlePrevStep }}
               >
-                <Box sx={{ marginHorizontal: 10, width: "100%" }}>{form}</Box>
+                <Box sx={{ marginHorizontal: 10 }}>{form}</Box>
               </CreateAnnouncementFormContext.Provider>
               <Snackbar
                 open={Boolean(errorMessage)}
