@@ -36,6 +36,7 @@ type UpdateDeviceType = {
   description: string;
   deviceId: string;
   buildingId: string;
+  carouselSpeedMs: number;
 };
 
 const validationSchema = yup.object({
@@ -47,6 +48,11 @@ const validationSchema = yup.object({
   floorId: yup.number().required("Please select the floor"),
   deviceId: yup.string().required(),
   buildingId: yup.string().required("Please select the building"),
+  carouselSpeedMs: yup
+    .number()
+    .min(10000, "Minimum duration is 10 seconds")
+    .max(180000, "Maximum duration is 180 seconds/3 minutes")
+    .required("required"),
 });
 
 const UpdateDeviceModal = (props: Props) => {
@@ -68,6 +74,7 @@ const UpdateDeviceModal = (props: Props) => {
     null
   );
   const [isBuildingFilterLoading, setIsBuildingFilterLoading] = useState(false);
+  const [carouselSpeed, setCarouselSpeed] = useState(10000);
 
   const [getFloors, { error: isGetFloorError, isLoading: isGetFloorLoading }] =
     useLazyGetFloorsQuery();
@@ -121,6 +128,7 @@ const UpdateDeviceModal = (props: Props) => {
       description: "",
       deviceId: deviceId,
       buildingId: "",
+      carouselSpeedMs: carouselSpeed,
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {

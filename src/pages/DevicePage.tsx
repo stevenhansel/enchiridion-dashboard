@@ -29,7 +29,6 @@ import {
 } from "@mui/icons-material";
 
 import { useLazyGetDevicesQuery } from "../services/device";
-import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
 import CreateDeviceModal from "../components/CreateDeviceModal";
@@ -150,6 +149,9 @@ const DevicePage = () => {
                           Active Announcements
                         </TableCell>
                         <TableCell align="center">Descriptions</TableCell>
+                        <TableCell align="center">
+                          Announcement Transition Duration
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -183,6 +185,9 @@ const DevicePage = () => {
                             </TableCell>
                             <TableCell align="center">
                               {device.description}
+                            </TableCell>
+                            <TableCell align="center">
+                              {device.carouselSpeedMs / 1000} seconds
                             </TableCell>
                           </TableRow>
                         ))}
@@ -248,8 +253,6 @@ const DevicePage = () => {
         }
       />
     </>
-    // <Layout>
-    // </Layout>
   );
 };
 

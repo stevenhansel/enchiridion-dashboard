@@ -14,7 +14,8 @@ export type CreateDevice = {
   name: string;
   description: string;
   floorId: number | null;
-}
+  carouselSpeedMs: number;
+};
 
 export type Role = {
   name: string;
@@ -51,6 +52,7 @@ export type RegisterForm = {
   password: string;
   reason: string;
   role: string | null;
+  buildingId: string;
 };
 
 export type ActionButton = {
@@ -110,6 +112,7 @@ export type Device = {
   location: string;
   activeAnnouncements: number;
   description: string;
+  carouselSpeedMs: number;
 };
 
 //device detail
@@ -117,6 +120,7 @@ export type DeviceDetail = {
   id: number;
   name: string;
   location: string;
+  carouselSpeedMs: number;
   createdAt: string;
   updatedAt: string;
   description: string;
@@ -126,8 +130,9 @@ export type UpdateDevice = {
   name: string;
   description: string;
   floorId: number | null;
+  carouselSpeedMs: number;
   deviceId: string;
-}
+};
 
 // floor
 export type Floor = {
@@ -222,4 +227,4 @@ export type User = {
 export type ActionStatus = {
   label: string;
   value: string;
-}
+};

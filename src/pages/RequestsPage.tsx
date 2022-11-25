@@ -46,7 +46,6 @@ import { useLazyGetUsersQuery } from "../services/user";
 import { UserFilterOption } from "../types/store";
 
 import { actions } from "../types/constants";
-import Layout from "../components/Layout";
 
 import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
 import { usePermission } from "../hooks";
