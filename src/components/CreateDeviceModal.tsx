@@ -181,6 +181,13 @@ const CreateDeviceModal = (props: Props) => {
     setCarouselSpeed((carouselSpeed) => carouselSpeed - 1000);
   }, [carouselSpeed]);
 
+  const handleCarouselSpeedUserInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setCarouselSpeed(Number(e.target.value) * 1000);
+    },
+    [carouselSpeed]
+  );
+
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
@@ -466,8 +473,7 @@ const CreateDeviceModal = (props: Props) => {
                   id="carousel-speed"
                   autoComplete="off"
                   onChange={(e) => {
-                    setCarouselSpeed(Number(e.target.value) * 1000);
-                    formik.setFieldValue("carouselSpeedMs", carouselSpeed);
+                    handleCarouselSpeedUserInput(e);
                   }}
                   error={
                     formik.touched.carouselSpeedMs &&
@@ -518,7 +524,7 @@ const CreateDeviceModal = (props: Props) => {
                   marginBottom: 1,
                 }}
               >
-                {formik.errors.carouselSpeedMs}{" "}
+                {formik.errors.carouselSpeedMs}
               </Typography>
             ) : null}
           </Box>
