@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import {
   Box,
@@ -42,6 +42,7 @@ const DevicePage = () => {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const hasViewDeviceDetailPermission = usePermission("view_device_detail");
@@ -50,14 +51,22 @@ const DevicePage = () => {
   const getDeviceQueryParams = { page, query, limit: FETCH_LIMIT };
   const [getDevices, { data, isLoading, error }] = useLazyGetDevicesQuery();
 
+  const deviceQueryParams = searchParams.get("deviceQueryParams");
+
   const handleNavigateToDetailPage = (deviceId: number) => {
     navigate(`/device/detail/${deviceId}`);
   };
 
-  const handleSearch = useCallback(
-    () => getDevices(getDeviceQueryParams),
-    [page, query]
-  );
+  const handleSearch = useCallback(() => {
+    if (query !== "") {
+      setSearchParams({
+        deviceQueryParams: query,
+      });
+    } else {
+      setSearchParams({});
+    }
+    getDevices(getDeviceQueryParams);
+  }, [page, query]);
 
   const handlePaginationPreviousPage = useCallback(
     () => setPage((page) => page - 1),
@@ -92,6 +101,10 @@ const DevicePage = () => {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
   }, [error]);
+
+  useEffect(() => {
+    getDevices({ query: deviceQueryParams });
+  }, [deviceQueryParams]);
 
   return (
     <>

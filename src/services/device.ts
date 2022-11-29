@@ -16,7 +16,7 @@ export const deviceApi = createApi({
       {
         page?: number;
         limit?: number;
-        query?: string;
+        query?: string | null;
       } | null
     >({
       query: (params) => ({ url: urlBuilder("/v1/devices", params) }),
