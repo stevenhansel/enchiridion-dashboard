@@ -107,22 +107,27 @@ const ListFloorPage = () => {
 
   const handleSearch = useCallback(
     (query: string) => {
-      if (
-        query !== "" && buildingFilter !== null
-          ? buildingFilter.id.toString()
-          : "" !== ""
-      ) {
+      if (query === "" && buildingFilter === null) {
+        setSearchParams({});
+      } else if (query !== "" && buildingFilter === null) {
+        setSearchParams({
+          floorQueryParams: query,
+        });
+      } else if (query === "" && buildingFilter !== null) {
+        setSearchParams({
+          buildingQueryParams:
+            buildingFilter !== null ? buildingFilter.id.toString() : "",
+        });
+      } else {
         setSearchParams({
           floorQueryParams: query,
           buildingQueryParams:
             buildingFilter !== null ? buildingFilter.id.toString() : "",
         });
-      } else {
-        setSearchParams({});
       }
       getFloors(getFloorsQueryParams);
     },
-    [getFloors, getFloorsQueryParams]
+    [getFloors, getFloorsQueryParams, searchParams]
   );
 
   const handlePaginationNextPage = useCallback(
@@ -279,7 +284,7 @@ const ListFloorPage = () => {
             <Box sx={{ marginBottom: 1 }}>
               <TextField
                 id="search"
-                label="Search by floorname"
+                label="Search by Floor Name or ID"
                 variant="outlined"
                 autoComplete="off"
                 value={query}
