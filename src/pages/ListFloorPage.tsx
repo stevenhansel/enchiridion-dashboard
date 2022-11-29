@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { debounce } from "lodash";
+import { useSearchParams } from "react-router-dom";
 
 import {
   Box,
@@ -39,7 +40,6 @@ import { useLazyGetBuildingsQuery } from "../services/building";
 
 import { useLazyGetFloorsQuery } from "../services/floor";
 
-import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
 import { UserFilterOption } from "../types/store";
@@ -82,6 +82,11 @@ const ListFloorPage = () => {
   const [open, setOpen] = useState(false);
   const [openDeleteFloorModal, setOpenDeleteFloorModal] = useState(false);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const floorQueryParams = searchParams.get("floorQueryParams");
+  const buildingQueryParams = searchParams.get("buildingQueryParams");
+
   const getFloorsQueryParams = {
     page,
     buildingId: buildingFilter !== null ? buildingFilter.id : null,
@@ -100,9 +105,25 @@ const ListFloorPage = () => {
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
 
-  const handleSearch = useCallback(() => {
-    getFloors(getFloorsQueryParams);
-  }, [getFloors, getFloorsQueryParams]);
+  const handleSearch = useCallback(
+    (query: string) => {
+      if (
+        query !== "" && buildingFilter !== null
+          ? buildingFilter.id.toString()
+          : "" !== ""
+      ) {
+        setSearchParams({
+          floorQueryParams: query,
+          buildingQueryParams:
+            buildingFilter !== null ? buildingFilter.id.toString() : "",
+        });
+      } else {
+        setSearchParams({});
+      }
+      getFloors(getFloorsQueryParams);
+    },
+    [getFloors, getFloorsQueryParams]
+  );
 
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
@@ -190,6 +211,13 @@ const ListFloorPage = () => {
       );
     }
   }, [hasViewBuildingPermission, getBuildings, open]);
+
+  useEffect(() => {
+    getFloors({
+      query: floorQueryParams,
+      buildingId: Number(buildingQueryParams),
+    });
+  }, [floorQueryParams, buildingQueryParams]);
 
   return (
     <>
@@ -318,7 +346,7 @@ const ListFloorPage = () => {
 
             <Box>
               <Button
-                onClick={handleSearch}
+                onClick={() => handleSearch(query)}
                 variant="contained"
                 size="large"
                 sx={{ marginLeft: 1 }}
@@ -474,7 +502,7 @@ const ListFloorPage = () => {
           </IconButton>
         }
       />
-      </>
+    </>
   );
 };
 
