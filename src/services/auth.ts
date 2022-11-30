@@ -10,12 +10,19 @@ export const authApi = createApi({
   endpoints: (builder) => ({
     register: builder.mutation<
       RegisterForm,
-      { name: string; email: string; password: string; reason: string; role: string | null; }
+      {
+        name: string;
+        email: string;
+        password: string;
+        reason: string;
+        role: string | null;
+        buildingId: number | null;
+      }
     >({
-      query: ({ name, email, password, reason, role }) => ({
+      query: ({ name, email, password, reason, role, buildingId }) => ({
         url: "/v1/auth/register",
         method: "POST",
-        data: { name, email, password, reason, role },
+        data: { name, email, password, reason, role, buildingId },
       }),
       invalidatesTags: () => ["Auth"],
     }),

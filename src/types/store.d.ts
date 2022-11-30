@@ -52,12 +52,12 @@ export type RegisterForm = {
   password: string;
   reason: string;
   role: string | null;
-  buildingId: string;
+  buildingId: number | null;
 };
 
 export type ActionButton = {
   label: string;
-  value: string;
+  value: string | null;
 };
 
 export type BuildingFloorDevices = {

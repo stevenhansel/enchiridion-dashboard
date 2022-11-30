@@ -77,7 +77,7 @@ const Register = () => {
       password: "",
       reason: "",
       role: null,
-      buildingId: "",
+      buildingId: null, 
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { setFieldError }) => {
