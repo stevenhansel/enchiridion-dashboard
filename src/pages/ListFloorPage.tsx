@@ -289,7 +289,7 @@ const ListFloorPage = () => {
                 autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                sx={{ width: 220, marginRight: 1 }}
+                sx={{ width: 230, marginRight: 1 }}
               />
             </Box>
             {hasViewBuildingPermission ? (

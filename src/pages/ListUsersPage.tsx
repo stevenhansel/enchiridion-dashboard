@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import debounce from "lodash/debounce";
 
 import {
@@ -36,7 +37,6 @@ import {
 
 import { useLazyGetRolesQuery } from "../services/roles";
 
-import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
 import usePermission from "../hooks/usePermission";
@@ -54,10 +54,8 @@ const ListUsersPage = () => {
     getUsers,
     { data: users, isLoading: isUserLoading, error: isUserError },
   ] = useLazyGetUsersQuery();
-  const [
-    getRoles,
-    { data: roles, isLoading: isRoleLoading, error: isRoleError },
-  ] = useLazyGetRolesQuery();
+  const [getRoles, { isLoading: isRoleLoading, error: isRoleError }] =
+    useLazyGetRolesQuery();
   const [approveRejectUser, { error: isApproveRejectUserError }] =
     useApproveRejectUserMutation();
   const [page, setPage] = useState(1);
@@ -70,6 +68,11 @@ const ListUsersPage = () => {
   const [roleFilter, setRoleFilter] = useState<RoleFilterOption | null>(null);
   const [isRoleFilterLoading, setIsRoleFilterLoading] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const userQueryParams = searchParams.get("userQueryParams");
+  const roleQueryParams = searchParams.get("roleQueryParams");
+  const statusQueryParams = searchParams.get("statusQueryParams");
 
   const getUsersQueryParams = useMemo(
     () => ({
@@ -84,6 +87,15 @@ const ListUsersPage = () => {
   const isLoading = isUserLoading && isRoleLoading;
 
   const handleSearch = useCallback(() => {
+    if (query === "" && roleFilter === null && status === "") {
+      setSearchParams({});
+    } else {
+      setSearchParams({
+        userQueryParams: query,
+        roleQueryParams: roleFilter !== null ? roleFilter.value : "",
+        statusQueryParams: status,
+      });
+    }
     getUsers(getUsersQueryParams);
   }, [query, status, roleFilter]);
 
@@ -167,6 +179,14 @@ const ListUsersPage = () => {
       setErrorMessage((isRoleError.data as ApiErrorResponse).messages[0]);
     }
   }, [isUserError]);
+
+  useEffect(() => {
+    getUsers({
+      query: userQueryParams,
+      role: roleQueryParams,
+      status: statusQueryParams,
+    });
+  }, [userQueryParams, roleQueryParams, statusQueryParams]);
 
   return (
     <>
