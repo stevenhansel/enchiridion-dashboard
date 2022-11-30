@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useContext, useState } from "react";
 import cloneDeep from "lodash/cloneDeep";
+import { useNavigate } from "react-router-dom";
 import { useFormikContext } from "formik";
 
 import { Box, Button, Typography, Tooltip } from "@mui/material";
@@ -11,13 +12,16 @@ import { validateFormikFields } from "./util";
 
 import { useLazyGetFloorsQuery } from "../../services/floor";
 import { useGetBuildingsQuery } from "../../services/building";
+import { useLazyGetDevicesQuery } from "../../services/device";
 
 const fields = ["devices"];
 
 const Step2 = () => {
+  const navigate = useNavigate();
   const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
+  const [getDevices, { data: devices }] = useLazyGetDevicesQuery();
 
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
@@ -28,6 +32,22 @@ const Step2 = () => {
   const [currentBuildingId, setCurrentBuildingId] = useState<string>(
     values.buildingId
   );
+
+  const floorCheck =
+    floors &&
+    floors?.contents.filter(
+      (floor) => currentBuildingId === floor.building.id.toString()
+    );
+
+  const deviceCheck =
+    floors &&
+    floors.contents
+      .filter((floor) => currentBuildingId === floor.building.id.toString())
+      .map((floor) => floor.devices.length);
+
+  const deviceState = deviceCheck?.every((d: number) => {
+    return d === 0;
+  });
 
   const handleSelectDevice = useCallback(
     (selectedDeviceId: string) => {
@@ -63,26 +83,14 @@ const Step2 = () => {
     // eslint-disable-next-line
   }, []);
 
-  // useEffect(() => {
-  //   if (
-  //     buildings !== undefined &&
-  //     isBuildingLoading === false &&
-  //     buildings.length > 0
-  //   ) {
-  //     const firstBuildingId = buildings[0].id;
-  //     setCurrentBuildingId(firstBuildingId.toString());
-  //   }
-  // }, [isBuildingLoading]);
-
   useEffect(() => {
     getFloors(null);
   }, []);
 
-  const floorCheck =
-    floors &&
-    floors?.contents.filter(
-      (floor) => currentBuildingId === floor.building.id.toString()
-    );
+  useEffect(() => {
+    getFloors(null);
+    getDevices(null);
+  }, []);
 
   return (
     <Box width="100%">
@@ -177,23 +185,55 @@ const Step2 = () => {
           </Typography>
         ) : null}
       </Box>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        sx={{ marginTop: 7 }}
-      >
-        <Button
-          variant="contained"
-          onClick={handlePrevSubmission}
-          sx={{ marginRight: 1 }}
+      {deviceState ? (
+        <>
+          <Box display="flex" justifyContent="center" sx={{ marginBottom: 1 }}>
+            <Typography variant="h6">
+              Building you chose does not have a device yet! Please create one
+              by device page or by clicking this button below
+            </Typography>
+          </Box>
+          <Box display="flex" justifyContent="center">
+            <Button variant="contained" onClick={() => navigate("/device")}>
+              Device Page
+            </Button>
+          </Box>
+        </>
+      ) : null}
+      {deviceState ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ marginTop: 5 }}
         >
-          Previous
-        </Button>
-        <Button variant="contained" onClick={handleNextSubmission}>
-          Next
-        </Button>
-      </Box>
+          <Button
+            variant="contained"
+            onClick={handlePrevSubmission}
+            sx={{ marginRight: 1 }}
+          >
+            Previous
+          </Button>
+        </Box>
+      ) : (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ marginTop: 5 }}
+        >
+          <Button
+            variant="contained"
+            onClick={handlePrevSubmission}
+            sx={{ marginRight: 1 }}
+          >
+            Previous
+          </Button>
+          <Button variant="contained" onClick={handleNextSubmission}>
+            Next
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };

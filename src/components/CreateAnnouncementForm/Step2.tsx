@@ -15,9 +15,9 @@ import { validateFormikFields } from "./util";
 const fields = ["buildingId"];
 
 const StepChooseBuilding = () => {
-  const [selectedBuildingName, setSelectedBuildingName] = useState("");
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
+  const [selectedBuildingName, setSelectedBuildingName] = useState(values.buildingName);
   const { handleNextStep, handlePrevStep } = useContext(
     CreateAnnouncementFormContext
   );
@@ -61,6 +61,9 @@ const StepChooseBuilding = () => {
     setFieldValue("buildingName", selectedBuildingName);
   }, [selectedBuildingName]);
 
+  console.log(selectedBuildingName);
+  console.log(values.buildingName)
+
   return (
     <>
       <Box
@@ -77,7 +80,7 @@ const StepChooseBuilding = () => {
           </Box>
           {buildings &&
             buildings.map((building) => (
-              <Box key={building.id} display="flex" justifyContent="center">
+              <Box key={building.id} display="flex" justifyContent="flex-start">
                 <IconButton
                   onClick={() => {
                     handleSelectedBuilding(
