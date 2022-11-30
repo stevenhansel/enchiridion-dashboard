@@ -200,40 +200,27 @@ const Step2 = () => {
           </Box>
         </>
       ) : null}
-      {deviceState ? (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          sx={{ marginTop: 5 }}
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        sx={{ marginTop: 5 }}
+      >
+        <Button
+          variant="contained"
+          onClick={handlePrevSubmission}
+          sx={{ marginRight: 1 }}
         >
-          <Button
-            variant="contained"
-            onClick={handlePrevSubmission}
-            sx={{ marginRight: 1 }}
-          >
-            Previous
-          </Button>
-        </Box>
-      ) : (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          sx={{ marginTop: 5 }}
+          Previous
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleNextSubmission}
+          disabled={deviceState ? true : false}
         >
-          <Button
-            variant="contained"
-            onClick={handlePrevSubmission}
-            sx={{ marginRight: 1 }}
-          >
-            Previous
-          </Button>
-          <Button variant="contained" onClick={handleNextSubmission}>
-            Next
-          </Button>
-        </Box>
-      )}
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -61,9 +61,6 @@ const StepChooseBuilding = () => {
     setFieldValue("buildingName", selectedBuildingName);
   }, [selectedBuildingName]);
 
-  console.log(selectedBuildingName);
-  console.log(values.buildingName)
-
   return (
     <>
       <Box
