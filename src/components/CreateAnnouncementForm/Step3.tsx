@@ -12,7 +12,6 @@ import { validateFormikFields } from "./util";
 
 import { useLazyGetFloorsQuery } from "../../services/floor";
 import { useGetBuildingsQuery } from "../../services/building";
-import { useLazyGetDevicesQuery } from "../../services/device";
 
 const fields = ["devices"];
 
@@ -21,7 +20,6 @@ const Step2 = () => {
   const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
-  const [getDevices, { data: devices }] = useLazyGetDevicesQuery();
 
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
@@ -87,119 +85,145 @@ const Step2 = () => {
     getFloors(null);
   }, []);
 
-  useEffect(() => {
-    getFloors(null);
-    getDevices(null);
-  }, []);
-
   return (
     <Box width="100%">
-      <Typography variant="h6">
-        Building you Chose: {values.buildingName}
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          border: "1px solid #c4c4c4",
-        }}
-      >
-        <Box
-          sx={{
-            padding: 3,
-            // flex: 1,
-          }}
-        >
-          <Box>
-            {floorCheck?.length === 0 ? (
-              <Box display="flex" justifyContent="center">
-                <Typography>
-                  This building doesn't have floor and device yet! Please make
-                  them first!
-                </Typography>
-              </Box>
-            ) : (
-              floors &&
-              floors?.contents
-                .filter(
-                  (floor) => values.buildingId === floor.building.id.toString()
-                )
-                .map((floor) => (
-                  <Box
-                    key={floor.id}
-                    display="flex"
-                    sx={{ border: "1px solid #c4c4c4", marginBottom: 1 }}
-                    alignItems="center"
-                  >
-                    <Box
-                      sx={{
-                        minWidth: 100,
-                        marginRight: 1,
-                        marginBottom: 2,
-                        margin: 1,
-                      }}
-                    >
-                      {floor.name}
-                    </Box>
-                    <Box sx={{ width: "100%" }}>
-                      {floor.devices.map((device) => (
-                        <Tooltip key={device.id} title={device.description}>
-                          <Button
-                            key={device.id}
-                            onClick={() =>
-                              handleSelectDevice(device.id.toString())
-                            }
-                            variant={
-                              values.devices.includes(device.id.toString())
-                                ? "contained"
-                                : "outlined"
-                            }
-                            color={
-                              values.devices.includes(device.id.toString())
-                                ? "secondary"
-                                : "inactive"
-                            }
-                            sx={{ margin: 1, width: 140 }}
-                          >
-                            {device.name}
-                          </Button>
-                        </Tooltip>
-                      ))}
-                    </Box>
-                  </Box>
-                ))
-            )}
-          </Box>
-        </Box>
-      </Box>
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-      >
-        {touched.devices &&
-        errors.devices &&
-        typeof errors.devices === "string" ? (
-          <Typography variant="caption" color={red[700]} sx={{ marginTop: 1 }}>
-            {errors.devices}
-          </Typography>
-        ) : null}
-      </Box>
-      {deviceState ? (
+      {floorCheck?.length === 0 ? (
         <>
-          <Box display="flex" justifyContent="center" sx={{ marginBottom: 1 }}>
-            <Typography variant="h6">
-              Building you chose does not have a device yet! Please create one
-              by device page or by clicking this button below
+          <Box display="flex" justifyContent="center">
+            <Typography>
+              {values.buildingName} does not have floor and device yet! Please
+              make the floor and then proceed to device page by clicking this
+              button below!
             </Typography>
           </Box>
           <Box display="flex" justifyContent="center">
-            <Button variant="contained" onClick={() => navigate("/device")}>
-              Device Page
+            <Button onClick={() => navigate("/floor")} variant="contained">
+              Floor Page
             </Button>
           </Box>
         </>
-      ) : null}
+      ) : (
+        <>
+          <Typography variant="h6">
+            Building you Chose: {values.buildingName}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              border: "1px solid #c4c4c4",
+            }}
+          >
+            <Box
+              sx={{
+                padding: 3,
+              }}
+            >
+              <Box>
+                <>
+                  {floors &&
+                    floors?.contents
+                      .filter(
+                        (floor) =>
+                          values.buildingId === floor.building.id.toString()
+                      )
+                      .map((floor) => (
+                        <Box
+                          key={floor.id}
+                          display="flex"
+                          sx={{
+                            border: "1px solid #c4c4c4",
+                            marginBottom: 1,
+                          }}
+                          alignItems="center"
+                        >
+                          <Box
+                            sx={{
+                              minWidth: 100,
+                              marginRight: 1,
+                              marginBottom: 2,
+                              margin: 1,
+                            }}
+                          >
+                            {floor.name}
+                          </Box>
+                          <Box sx={{ width: "100%" }}>
+                            {floor.devices.map((device) => (
+                              <Tooltip
+                                key={device.id}
+                                title={device.description}
+                              >
+                                <Button
+                                  key={device.id}
+                                  onClick={() =>
+                                    handleSelectDevice(device.id.toString())
+                                  }
+                                  variant={
+                                    values.devices.includes(
+                                      device.id.toString()
+                                    )
+                                      ? "contained"
+                                      : "outlined"
+                                  }
+                                  color={
+                                    values.devices.includes(
+                                      device.id.toString()
+                                    )
+                                      ? "secondary"
+                                      : "inactive"
+                                  }
+                                  sx={{ margin: 1, width: 140 }}
+                                >
+                                  {device.name}
+                                </Button>
+                              </Tooltip>
+                            ))}
+                          </Box>
+                        </Box>
+                      ))}
+                </>
+              </Box>
+            </Box>
+          </Box>
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            {touched.devices &&
+            errors.devices &&
+            typeof errors.devices === "string" ? (
+              <Typography
+                variant="caption"
+                color={red[700]}
+                sx={{ marginTop: 1 }}
+              >
+                {errors.devices}
+              </Typography>
+            ) : null}
+          </Box>
+          {deviceState ? (
+            <>
+              <Box
+                display="flex"
+                justifyContent="center"
+                sx={{ marginBottom: 1 }}
+              >
+                <Typography variant="h6">
+                  Building you chose does not have a device yet! Please create
+                  one by device page or by clicking this button below
+                </Typography>
+              </Box>
+              <Box display="flex" justifyContent="center">
+                <Button variant="contained" onClick={() => navigate("/device")}>
+                  Device Page
+                </Button>
+              </Box>
+            </>
+          ) : null}
+        </>
+      )}
+
       <Box
         display="flex"
         justifyContent="center"
