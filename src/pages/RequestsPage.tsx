@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import debounce from "lodash/debounce";
 
@@ -56,6 +57,12 @@ const toDate = (dateStr: string | undefined) =>
 const FETCH_LIMIT = 20;
 
 const RequestsPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestQueryParams = searchParams.get("requestQueryParams");
+  const userQueryParams = searchParams.get("userQueryParams");
+  const announcementQueryParams = searchParams.get("announcementQueryParams");
+  const actionQueryParams = searchParams.get("actionQueryParams");
+
   const hasUpdateRequestApprovalPermission = usePermission(
     "update_request_approval"
   );
@@ -63,7 +70,7 @@ const RequestsPage = () => {
   const hasViewUserPermission = usePermission("view_list_user");
   const [openUserFilter, setOpenUserFilter] = useState(false);
   const [openAnnouncementFilter, setOpenAnnouncementFilter] = useState(false);
-  const [actionType, setActionType] = useState<string>("");
+  const [actionType, setActionType] = useState(actionQueryParams);
   const [errorMessage, setErrorMessage] = useState("");
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -149,16 +156,24 @@ const RequestsPage = () => {
   };
 
   const handleSearch = useCallback(() => {
+    if (
+      query === "" &&
+      userFilter === null &&
+      announcementFilter === null &&
+      actionType === ""
+    ) {
+      setSearchParams({});
+    } else {
+      setSearchParams({
+        requestQueryParams: query,
+        userQueryParams: userFilter !== null ? userFilter.id.toString() : "",
+        announcementQueryParams:
+          announcementFilter !== null ? announcementFilter.id.toString() : "",
+        actionQueryParams: String(actionType),
+      });
+    }
     getRequests(getRequestQueryParams);
-  }, [
-    page,
-    userFilter,
-    announcementFilter,
-    actionType,
-    approvedByLsc,
-    approvedByBm,
-    query,
-  ]);
+  }, [getRequestQueryParams]);
 
   const getUserDelayed = useMemo(() => {
     return debounce((query: string) => {
@@ -266,6 +281,20 @@ const RequestsPage = () => {
     }
   }, [openAnnouncementFilter, getAnnouncements, hasViewAnnouncementPermission]);
 
+  useEffect(() => {
+    getRequests({
+      query: requestQueryParams,
+      userId: Number(userQueryParams),
+      announcementId: Number(announcementQueryParams),
+      actionType: actionQueryParams,
+    });
+  }, [
+    requestQueryParams,
+    userQueryParams,
+    announcementQueryParams,
+    actionQueryParams,
+  ]);
+
   return (
     <>
       <Box sx={{ marginBottom: 1 }}>
@@ -372,7 +401,7 @@ const RequestsPage = () => {
                           </li>
                         );
                       }}
-                      sx={{ width: 150 }}
+                      sx={{ width: 200 }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -485,10 +514,10 @@ const RequestsPage = () => {
                           key={index}
                           onClick={() => setActionType(action.value)}
                           variant={
-                            actionType === action.value ? "contained" : "text"
+                            String(actionType) === action.value ? "contained" : "text"
                           }
                           sx={{ marginRight: 2 }}
-                          value={actionType}
+                          value={String(actionType)}
                         >
                           {action.label}
                         </Button>

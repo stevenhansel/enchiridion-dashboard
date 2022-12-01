@@ -223,7 +223,6 @@ const Step2 = () => {
           ) : null}
         </>
       )}
-
       <Box
         display="flex"
         justifyContent="center"

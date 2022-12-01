@@ -12,13 +12,13 @@ export enum AnnouncementStatus {
 export enum ApprovalStatus {
   Approved = "true",
   Rejected = "false",
-  All = "null",
+  All = "",
 }
 
 export const statusActions: ActionStatus[] = [
   {
     label: "all",
-    value: "",
+    value: "", 
   },
   {
     label: "Waiting for Approval",
@@ -49,7 +49,7 @@ export const statusActions: ActionStatus[] = [
 export const actions: ActionButton[] = [
   {
     label: "all",
-    value: "",
+    value: "", 
   },
   {
     label: "Create",
