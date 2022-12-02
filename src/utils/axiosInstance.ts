@@ -1,7 +1,9 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 const instance = axios.create({
-  baseURL: "https://enchiridion.stevenhansel.com/dashboard",
+  baseURL:
+    process.env.REACT_APP_API_BASE_URL ||
+    "https://api.beesmart.stevenhansel.com/dashboard",
   headers: {
     "Content-Type": "application/json",
   },
