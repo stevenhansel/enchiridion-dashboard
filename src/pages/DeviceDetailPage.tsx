@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
+import mpegts from "mpegts.js";
 
 import {
   Box,
@@ -33,6 +34,7 @@ const DeviceDetailPage = () => {
   const [open, setOpen] = useState(false);
   const [actionType, setActionType] = useState("");
   const { deviceId = "" } = useParams();
+
   const hasUpdateDevicePermission = usePermission("update_device");
   const hasDeleteDevicePermission = usePermission("delete_device");
 
@@ -51,6 +53,39 @@ const DeviceDetailPage = () => {
       isLoading: isAnnouncementsLoading,
     },
   ] = useLazyGetAnnouncementsQuery();
+
+  useEffect(() => {
+    if (
+      devices &&
+      devices.cameraEnabled &&
+      mpegts.getFeatureList().mseLivePlayback
+    ) {
+      const videoElement = document.getElementById("device-stream");
+      if (videoElement === null) {
+        return;
+      }
+
+      const player = mpegts.createPlayer(
+        // TODO: add the srs base url to .env
+        {
+          type: "flv",
+          url: `https://srs.beesmart.stevenhansel.com/live/livestream/${deviceId}.flv`,
+          hasAudio: false,
+          hasVideo: true,
+          isLive: true,
+        },
+        {
+          enableWorker: true,
+          liveBufferLatencyChasing: true,
+          liveBufferLatencyMaxLatency: 10,
+        }
+      );
+
+      player.attachMediaElement(videoElement as HTMLMediaElement);
+      player.load();
+      player.play();
+    }
+  }, [devices, deviceId]);
 
   useEffect(() => {
     getAnnouncements({
@@ -82,6 +117,7 @@ const DeviceDetailPage = () => {
             </IconButton>
           ) : null}
         </Box>
+
         <Box display="flex" justifyContent="center">
           <Box sx={{ marginTop: 8 }}>
             <Box sx={{ marginBottom: 5 }}>
@@ -111,10 +147,12 @@ const DeviceDetailPage = () => {
             </Box>
           </Box>
         </Box>
+
         <Box>
           <Typography sx={{ marginBottom: 1 }} variant="h5" fontWeight="bold">
             Announcement
           </Typography>
+
           <Box sx={{ marginBottom: 1 }}>
             <Card sx={{ bgcolor: "#D2E4EF" }}>
               <CardActions>
@@ -128,7 +166,6 @@ const DeviceDetailPage = () => {
                       }
                       sx={{ marginRight: 2 }}
                       value={actionType}
-
                     >
                       {action.label}
                     </Button>
@@ -136,6 +173,7 @@ const DeviceDetailPage = () => {
               </CardActions>
             </Card>
           </Box>
+
           {announcements && announcements.contents.length > 0 ? (
             <Box>
               {announcements &&
@@ -186,6 +224,26 @@ const DeviceDetailPage = () => {
             <Typography>Announcement Not Found!</Typography>
           )}
         </Box>
+
+        {devices?.cameraEnabled ? (
+          <Box>
+            <Typography
+              sx={{ marginTop: 5, marginBottom: 1 }}
+              variant="h5"
+              fontWeight="bold"
+            >
+              Livestream
+            </Typography>
+
+            <video
+              controls
+              autoPlay
+              style={{ width: 600, height: 450 }}
+              id="device-stream"
+            />
+          </Box>
+        ) : null}
+
         <Dialog
           open={open}
           onClose={() => {
