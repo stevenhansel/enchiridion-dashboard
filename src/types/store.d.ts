@@ -120,6 +120,7 @@ export type DeviceDetail = {
   createdAt: string;
   updatedAt: string;
   description: string;
+  cameraEnabled: boolean;
 };
 
 export type UpdateDevice = {
