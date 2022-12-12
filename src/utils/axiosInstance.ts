@@ -1,9 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import config from "../config";
 
 const instance = axios.create({
-  baseURL:
-    process.env.REACT_APP_API_BASE_URL ||
-    "https://api.beesmart.stevenhansel.com/dashboard",
+  baseURL: config.apiBaseUrl,
   headers: {
     "Content-Type": "application/json",
   },
