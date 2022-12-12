@@ -30,13 +30,27 @@ const stateToColor = (state: DeviceState): string => {
 
 type Props = {
   state: DeviceState;
+  fontSize?: number;
 };
 
 const DeviceStatus = (props: Props) => {
-  const { state } = props;
+  const { state, fontSize } = props;
+
+  let typographyStyle = {};
+  if (fontSize !== undefined) {
+    typographyStyle = {
+      fontSize,
+    };
+  }
 
   return (
-    <Box style={{ display: "flex", alignItems: "center" }}>
+    <Box
+      style={{
+        display: "flex",
+        alignItems: "center",
+        width: 125,
+      }}
+    >
       <div
         style={{
           backgroundColor: stateToColor(state),
@@ -46,7 +60,7 @@ const DeviceStatus = (props: Props) => {
           marginRight: 8,
         }}
       />
-      <Typography>{state}</Typography>
+      <Typography style={typographyStyle}>{state}</Typography>
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import mpegts from "mpegts.js";
@@ -95,6 +95,12 @@ const DeviceDetailPage = () => {
     });
   }, [getAnnouncements, actionType, deviceId]);
 
+  const deviceState = useMemo(() => {
+    return lastMessage !== null
+      ? (lastMessage.data as DeviceState)
+      : DeviceState.Loading;
+  }, [lastMessage]);
+
   return (
     <Layout>
       <Box>
@@ -151,13 +157,7 @@ const DeviceDetailPage = () => {
 
             <Box sx={{ marginBottom: 5 }}>
               <Typography fontWeight="bold">Device Status</Typography>
-              <DeviceStatus
-                state={
-                  lastMessage !== null
-                    ? (lastMessage.data as DeviceState)
-                    : DeviceState.Loading
-                }
-              />
+              <DeviceStatus state={deviceState} />
             </Box>
           </Box>
         </Box>

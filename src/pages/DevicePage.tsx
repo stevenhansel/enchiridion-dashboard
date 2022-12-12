@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import useWebSocket from "react-use-websocket";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -27,8 +28,54 @@ import { useLazyGetDevicesQuery } from "../services/device";
 import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 import CreateDeviceModal from "../components/CreateDeviceModal";
+import config from "../config";
+import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
 
 const FETCH_LIMIT = 20;
+
+const DeviceRow = (props: {
+  device: {
+    id: number;
+    name: string;
+    location: string;
+    activeAnnouncements: number;
+    description: string;
+  };
+  handleNavigateToDetailPage: (deviceId: number) => void;
+}) => {
+  const { device, handleNavigateToDetailPage } = props;
+
+  const { lastMessage } = useWebSocket(
+    `${config.wssBaseUrl}/v1/device_status/${device.id}`
+  );
+
+  const deviceState = useMemo(() => {
+    return lastMessage !== null
+      ? (lastMessage.data as DeviceState)
+      : DeviceState.Loading;
+  }, [lastMessage]);
+
+  return (
+    <TableRow
+      sx={{
+        "&:last-child td, &:last-child th": { border: 0 },
+      }}
+    >
+      <TableCell align="center">
+        <Link onClick={() => handleNavigateToDetailPage(device.id)}>
+          {device.id}
+        </Link>
+      </TableCell>
+      <TableCell align="center">{device.name}</TableCell>
+      <TableCell align="center" style={{ display: "flex", justifyContent: "center" }}>
+        <DeviceStatus state={deviceState} fontSize={14} />
+      </TableCell>
+      <TableCell align="center">{device.location}</TableCell>
+      <TableCell align="center">{device.activeAnnouncements}</TableCell>
+      <TableCell align="center">{device.description}</TableCell>
+    </TableRow>
+  );
+};
 
 const DevicePage = () => {
   const [open, setOpen] = useState(false);
@@ -114,6 +161,7 @@ const DevicePage = () => {
                 + Create Device
               </Button>
             </Box>
+
             {data && data.contents.length > 0 ? (
               <>
                 <TableContainer component={Paper}>
@@ -122,6 +170,7 @@ const DevicePage = () => {
                       <TableRow>
                         <TableCell align="center">ID</TableCell>
                         <TableCell align="center">Name</TableCell>
+                        <TableCell align="center">State</TableCell>
                         <TableCell align="center">Location</TableCell>
                         <TableCell align="center">
                           Active Announcements
@@ -129,35 +178,17 @@ const DevicePage = () => {
                         <TableCell align="center">Descriptions</TableCell>
                       </TableRow>
                     </TableHead>
+
                     <TableBody>
                       {data &&
                         data.contents.map((device) => (
-                          <TableRow
+                          <DeviceRow
                             key={device.id}
-                            sx={{
-                              "&:last-child td, &:last-child th": { border: 0 },
-                            }}
-                          >
-                            <TableCell align="center">
-                              <Link
-                                onClick={() =>
-                                  handleNavigateToDetailPage(device.id)
-                                }
-                              >
-                                {device.id}
-                              </Link>
-                            </TableCell>
-                            <TableCell align="center">{device.name}</TableCell>
-                            <TableCell align="center">
-                              {device.location}
-                            </TableCell>
-                            <TableCell align="center">
-                              {device.activeAnnouncements}
-                            </TableCell>
-                            <TableCell align="center">
-                              {device.description}
-                            </TableCell>
-                          </TableRow>
+                            device={device}
+                            handleNavigateToDetailPage={
+                              handleNavigateToDetailPage
+                            }
+                          />
                         ))}
                     </TableBody>
                   </Table>
