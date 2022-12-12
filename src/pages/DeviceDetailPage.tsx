@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import mpegts from "mpegts.js";
+import useWebSocket from "react-use-websocket";
 
 import {
   Box,
@@ -25,7 +26,9 @@ import Layout from "../components/Layout";
 import UpdateDeviceModal from "../components/UpdateDeviceModal";
 
 import { usePermission } from "../hooks";
-import { statusActions, AnnouncementStatus } from "../types/constants";
+import { statusActions } from "../types/constants";
+import config from "../config";
+import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -38,6 +41,10 @@ const DeviceDetailPage = () => {
   const hasUpdateDevicePermission = usePermission("update_device");
   const hasDeleteDevicePermission = usePermission("delete_device");
 
+  const { lastMessage } = useWebSocket(
+    `${config.wssBaseUrl}/v1/device_status/${deviceId}`
+  );
+
   const { data: devices } = useGetDeviceDetailQuery(
     { deviceId },
     {
@@ -45,14 +52,8 @@ const DeviceDetailPage = () => {
     }
   );
 
-  const [
-    getAnnouncements,
-    {
-      data: announcements,
-      error: isAnnouncementsError,
-      isLoading: isAnnouncementsLoading,
-    },
-  ] = useLazyGetAnnouncementsQuery();
+  const [getAnnouncements, { data: announcements }] =
+    useLazyGetAnnouncementsQuery();
 
   useEffect(() => {
     if (
@@ -66,10 +67,9 @@ const DeviceDetailPage = () => {
       }
 
       const player = mpegts.createPlayer(
-        // TODO: add the srs base url to .env
         {
           type: "flv",
-          url: `https://srs.beesmart.stevenhansel.com/live/livestream/${deviceId}.flv`,
+          url: `${config.srsBaseUrl}/live/livestream/${deviceId}.flv`,
           hasAudio: false,
           hasVideo: true,
           isLive: true,
@@ -126,12 +126,14 @@ const DeviceDetailPage = () => {
               </Typography>
               <Typography>{deviceId}</Typography>
             </Box>
+
             <Box sx={{ marginBottom: 5 }}>
               <Typography fontWeight="bold">Location</Typography>
               <Typography>{devices?.location}</Typography>
             </Box>
+
             <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Deskripsi</Typography>
+              <Typography fontWeight="bold">Description</Typography>
               <Typography>{devices?.description}</Typography>
             </Box>
           </Box>
@@ -141,9 +143,21 @@ const DeviceDetailPage = () => {
               <Typography fontWeight="bold">Created at</Typography>
               <Typography>{toDate(devices?.createdAt)}</Typography>
             </Box>
+
             <Box sx={{ marginBottom: 5 }}>
               <Typography fontWeight="bold">Updated at</Typography>
               <Typography>{toDate(devices?.updatedAt)}</Typography>
+            </Box>
+
+            <Box sx={{ marginBottom: 5 }}>
+              <Typography fontWeight="bold">Device Status</Typography>
+              <DeviceStatus
+                state={
+                  lastMessage !== null
+                    ? (lastMessage.data as DeviceState)
+                    : DeviceState.Loading
+                }
+              />
             </Box>
           </Box>
         </Box>

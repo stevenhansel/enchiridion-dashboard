@@ -217,8 +217,8 @@ const CreateDeviceModal = (props: Props) => {
           <Box>
             <Typography fontWeight="bold">NOTICE!</Typography>
             <Typography sx={{ marginBottom: 1 }}>
-              Please Screenshot the access code or write it the fuck down and
-              give them to BM! Don't lose them!
+              Make sure to save both the access key id and the secret access key
+              as it will be used to register the device.
             </Typography>
           </Box>
 

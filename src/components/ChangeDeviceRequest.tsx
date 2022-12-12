@@ -81,8 +81,6 @@ const ChangeDeviceRequest = (props: Props) => {
     [formik.values, formik.setFieldValue]
   );
 
-  console.log(formik.values);
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;

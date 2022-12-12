@@ -99,7 +99,6 @@ const UpdateBuilding = (props: Props) => {
 
   const handleChange = useCallback(() => {
     getFloors({ limit: 20 });
-    console.log("changed!");
   }, [buildings, getBuildings]);
 
   const formik = useFormik<CreateBuildingType>({
