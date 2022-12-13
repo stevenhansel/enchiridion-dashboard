@@ -17,8 +17,6 @@ import {
 } from "@mui/material";
 import {
   Close as CloseIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  KeyboardArrowUp as KeyboardArrowUpIcon,
 } from "@mui/icons-material";
 
 import { CreateDevice, UserFilterOption } from "../types/store";
@@ -40,7 +38,6 @@ type CreateDeviceType = {
   description: string;
   floorId: number | null;
   buildingId: number | null;
-  carouselSpeedMs: number;
 };
 
 const validationSchema = yup.object({
@@ -56,11 +53,6 @@ const validationSchema = yup.object({
     .required("Description is required"),
   floorId: yup.number().required("Please select the floor"),
   buildingId: yup.number().required(),
-  carouselSpeedMs: yup
-    .number()
-    .min(10000, "Minimum duration is 10 seconds")
-    .max(180000, "Maximum duration is 180 seconds/3 minutes")
-    .required("required"),
 });
 
 const CreateDeviceModal = (props: Props) => {
@@ -81,10 +73,9 @@ const CreateDeviceModal = (props: Props) => {
   const [floorFilter, setFloorFilter] = useState<UserFilterOption | null>(null);
   const [isFloorFilterLoading, setIsFloorFilterLoading] = useState(false);
   const [state, setState] = useState(false);
-  const [carouselSpeed, setCarouselSpeed] = useState(10000);
 
   const dispatch: AppDispatch = useDispatch();
-  const [getBuildings, { error: isGetBuildingsError, isLoading }] =
+  const [getBuildings, { error: isGetBuildingsError }] =
     useLazyGetBuildingsQuery();
   const [getFloors, { error: isGetFloorsError }] = useLazyGetFloorsQuery();
 
@@ -134,7 +125,6 @@ const CreateDeviceModal = (props: Props) => {
           name: values.name,
           description: values.description,
           floorId: values.floorId,
-          carouselSpeedMs: values.carouselSpeedMs,
         })
       );
 
@@ -165,7 +155,6 @@ const CreateDeviceModal = (props: Props) => {
       description: "",
       floorId: null,
       buildingId: null,
-      carouselSpeedMs: carouselSpeed,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -173,31 +162,12 @@ const CreateDeviceModal = (props: Props) => {
     },
   });
 
-  const handleIncreaseCarouselSpeed = useCallback(() => {
-    setCarouselSpeed((carouselSpeed) => carouselSpeed + 1000);
-  }, [carouselSpeed]);
-
-  const handleDecreaseCarouselSpeed = useCallback(() => {
-    setCarouselSpeed((carouselSpeed) => carouselSpeed - 1000);
-  }, [carouselSpeed]);
-
-  const handleCarouselSpeedUserInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setCarouselSpeed(Number(e.target.value) * 1000);
-    },
-    [carouselSpeed]
-  );
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
     }
     setErrorMessage("");
   };
-
-  useEffect(() => {
-    formik.setFieldValue("carouselSpeedMs", carouselSpeed);
-  }, [carouselSpeed]);
 
   useEffect(() => {
     if (openBuildingFilter) {
@@ -462,71 +432,6 @@ const CreateDeviceModal = (props: Props) => {
               sx={{ marginRight: 1, marginBottom: 1 }}
               fullWidth
             />
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Box display="flex" alignItems="center">
-                <Typography>Announcement Transition Speed:</Typography>
-                <TextField
-                  id="carousel-speed"
-                  autoComplete="off"
-                  onChange={(e) => {
-                    handleCarouselSpeedUserInput(e);
-                  }}
-                  error={
-                    formik.touched.carouselSpeedMs &&
-                    Boolean(formik.errors.carouselSpeedMs)
-                  }
-                  value={formik.values.carouselSpeedMs / 1000}
-                  sx={{ width: "80px" }}
-                />
-              </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  "& > *": {
-                    m: 1,
-                  },
-                }}
-              >
-                <ButtonGroup
-                  orientation="vertical"
-                  aria-label="vertical outlined button group"
-                >
-                  <Button
-                    key="up"
-                    onClick={handleIncreaseCarouselSpeed}
-                    variant="contained"
-                    sx={{ marginBottom: 1 }}
-                  >
-                    <KeyboardArrowUpIcon />
-                  </Button>
-                  <Button
-                    key="down"
-                    onClick={handleDecreaseCarouselSpeed}
-                    variant="contained"
-                  >
-                    <KeyboardArrowDownIcon />
-                  </Button>
-                </ButtonGroup>
-              </Box>
-            </Box>
-            {formik.touched.carouselSpeedMs && formik.errors.carouselSpeedMs ? (
-              <Typography
-                sx={{
-                  fontSize: "12px",
-                  marginTop: "3px",
-                  marginRight: "14px",
-                  color: "#D32F2F",
-                  marginBottom: 1,
-                }}
-              >
-                {formik.errors.carouselSpeedMs}
-              </Typography>
-            ) : null}
           </Box>
         </>
       )}

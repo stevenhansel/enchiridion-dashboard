@@ -162,9 +162,6 @@ const DevicePage = () => {
                           Active Announcements
                         </TableCell>
                         <TableCell align="center">Descriptions</TableCell>
-                        <TableCell align="center">
-                          Announcement Transition Duration
-                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -198,9 +195,6 @@ const DevicePage = () => {
                             </TableCell>
                             <TableCell align="center">
                               {device.description}
-                            </TableCell>
-                            <TableCell align="center">
-                              {device.carouselSpeedMs / 1000} seconds
                             </TableCell>
                           </TableRow>
                         ))}

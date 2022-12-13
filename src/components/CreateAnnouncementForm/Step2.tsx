@@ -14,7 +14,7 @@ import { validateFormikFields } from "./util";
 
 const fields = ["buildingId"];
 
-const StepChooseBuilding = () => {
+const Step2 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
   const [selectedBuildingName, setSelectedBuildingName] = useState(values.buildingName);
@@ -130,4 +130,4 @@ const StepChooseBuilding = () => {
   );
 };
 
-export default StepChooseBuilding;
+export default Step2;

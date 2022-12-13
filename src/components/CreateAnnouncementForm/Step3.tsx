@@ -15,7 +15,7 @@ import { useGetBuildingsQuery } from "../../services/building";
 
 const fields = ["devices"];
 
-const Step2 = () => {
+const Step3 = () => {
   const navigate = useNavigate();
   const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
@@ -248,4 +248,4 @@ const Step2 = () => {
   );
 };
 
-export default Step2;
+export default Step3;

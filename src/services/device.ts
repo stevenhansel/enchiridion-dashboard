@@ -35,13 +35,12 @@ export const deviceApi = createApi({
         description: string;
         deviceId: string;
         floorId: number | null;
-        carouselSpeedMs: number;
       }
     >({
-      query: ({ name, description, deviceId, floorId, carouselSpeedMs }) => ({
+      query: ({ name, description, deviceId, floorId }) => ({
         url: `v1/devices/${deviceId}`,
         method: "PUT",
-        data: { name, description, floorId, deviceId, carouselSpeedMs },
+        data: { name, description, floorId, deviceId },
       }),
       invalidatesTags: () => ["Device"],
     }),
@@ -52,10 +51,10 @@ export const deviceApi = createApi({
       providesTags: () => ["Device"],
     }),
     createDevice: builders.mutation({
-      query: ({ name, description, floorId, carouselSpeedMs }) => ({
+      query: ({ name, description, floorId }) => ({
         url: "v1/devices",
         method: "POST",
-        data: { name, description, floorId, carouselSpeedMs },
+        data: { name, description, floorId },
       }),
       invalidatesTags: () => ["Device"],
     }),

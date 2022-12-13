@@ -38,20 +38,44 @@ const Step1 = () => {
         const reader = new FileReader();
 
         reader.onload = (e) => {
-          if (!e.target || (e.target && !e.target.result))
-            throw new Error("Something went wrong when reading the image");
-
-          const image = new Image();
-          image.onload = () => {
-            setFieldValue("media", { file, image });
+          if (file.type === "video/mp4") {
+            if (!e.target || (e.target && !e.target.result))
+              throw new Error("Something went wrong when reading the video");
+            const video = document.createElement("video");
+            video.onloadedmetadata = () => {
+              setFieldValue("media", {
+                file,
+                image: null,
+                video,
+                duration: video.duration * 1000,
+                type: "video",
+              });
+            };
+            video.onerror = () => {
+              throw new Error("Something went wrong when reading the video");
+            };
+            video.src = e.target?.result as string;
+          } else if (file.type === "image/jpeg" || file.type === "image/jpg") {
+            if (!e.target || (e.target && !e.target.result))
+              throw new Error("Something went wrong when reading the image");
+            const image = new Image();
+            image.onload = () => {
+              setFieldValue("media", {
+                file,
+                image,
+                video: null,
+                duration: null,
+                type: "image",
+              });
+            };
+            image.onerror = () => {
+              throw new Error("Something went wrong when reading the image");
+            };
+            image.src = e.target?.result as string;
+          }
+          reader.onerror = () => {
+            throw new Error("Something went wrong when reading the file");
           };
-          image.onerror = () => {
-            throw new Error("Something went wrong when reading the image");
-          };
-          image.src = e.target.result as string;
-        };
-        reader.onerror = () => {
-          throw new Error("Something went wrong when reading the file");
         };
 
         reader.readAsDataURL(file);
@@ -110,7 +134,7 @@ const Step1 = () => {
           <input
             type="file"
             hidden
-            accept=".jpg,.jpeg"
+            accept=".jpg,.jpeg,.mp4"
             onChange={(e) => handleUploadImage(e)}
           />
         </Button>

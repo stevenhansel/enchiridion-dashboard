@@ -46,7 +46,7 @@ const DeleteDeviceModal = (props: Props) => {
 
   return (
     <Box>
-      {!deletedDevice ? (
+      {deletedDevice ? (
         <Box display="flex" justifyContent="center" flexDirection="column">
           <Typography sx={{ marginBottom: 1 }}>Delete Success</Typography>
           <Button

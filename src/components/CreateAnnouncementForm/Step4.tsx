@@ -1,4 +1,8 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+} from "react";
 
 import { Box, Button, Typography } from "@mui/material";
 import { useFormikContext } from "formik";
@@ -11,11 +15,11 @@ import { useLazyGetFloorsQuery } from "../../services/floor";
 
 import { Floor } from "../../types/store";
 
-const Step3 = () => {
+const Step4 = () => {
   const { data: buildings } = useGetBuildingsQuery(null);
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
 
-  const { values, handleSubmit } =
+  const { values, handleSubmit, setFieldValue } =
     useFormikContext<CreateAnnouncementFormValues>();
   const { handlePrevStep } = useContext(CreateAnnouncementFormContext);
 
@@ -23,31 +27,54 @@ const Step3 = () => {
     handlePrevStep();
   }, [handlePrevStep]);
 
-  const buildingFloorDevices = buildings ? buildings.map((building) => {
-    let filteredFloors: Floor[] = [];
-    if (floors !== undefined) {
-      filteredFloors = floors?.contents
-        .map((floor) => ({
-          ...floor,
-          devices: floor.devices.filter((device) =>
-            values.devices.includes(device.id.toString())
-          ),
-        }))
-        .filter(
-          (floor) =>
-            building.id === floor.building.id && floor.devices.length > 0
-        );
-    }
-    return {
-      id: building.id,
-      name: building.name,
-      floors: filteredFloors,
-    };
-  }) : [];
+  const buildingFloorDevices = buildings
+    ? buildings.map((building) => {
+        let filteredFloors: Floor[] = [];
+        if (floors !== undefined) {
+          filteredFloors = floors?.contents
+            .map((floor) => ({
+              ...floor,
+              devices: floor.devices.filter((device) =>
+                values.devices.includes(device.id.toString())
+              ),
+            }))
+            .filter(
+              (floor) =>
+                building.id === floor.building.id && floor.devices.length > 0
+            );
+        }
+        return {
+          id: building.id,
+          name: building.name,
+          floors: filteredFloors,
+        };
+      })
+    : [];
 
   useEffect(() => {
     getFloors(null);
   }, []);
+
+  const renderMedia = () => {
+    if (values.media === undefined || values.media === null) {
+      return null;
+    }
+    if (values.media.image !== null) {
+      return <img src={values.media.image.src} style={{ width: "100%" }} />;
+    } else if (values.media.video !== null) {
+      return (
+        <Box display="flex" justifyContent="center">
+          <video
+            src={values.media.video.src}
+            style={{ width: "50%" }}
+            controls
+            autoPlay
+            muted
+          />
+        </Box>
+      );
+    }
+  };
 
   return (
     <Box display="flex" flexDirection="column">
@@ -68,15 +95,7 @@ const Step3 = () => {
               {values.title}
             </Typography>
           </Box>
-          <Box sx={{ marginBottom: 2 }}>
-            {values.media ? (
-              <img
-                alt="banner"
-                src={values.media.image.src}
-                style={{ width: "100%" }}
-              />
-            ) : null}
-          </Box>
+          <Box sx={{ marginBottom: 2 }}>{renderMedia()}</Box>
           <Box
             sx={{
               marginBottom: 2,
@@ -159,4 +178,4 @@ const Step3 = () => {
   );
 };
 
-export default Step3;
+export default Step4;

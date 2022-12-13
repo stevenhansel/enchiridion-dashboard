@@ -114,10 +114,6 @@ const DeviceDetailPage = () => {
                 <Typography fontWeight="bold">Updated at</Typography>
                 <Typography>{toDate(devices?.updatedAt)}</Typography>
               </Box>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography fontWeight="bold">Announcement Transition duration</Typography>
-                <Typography>{Number(devices?.carouselSpeedMs) / 1000} seconds</Typography>
-              </Box>
             </Box>
           </Box>
           {hasViewAnnouncementListPermission ? (

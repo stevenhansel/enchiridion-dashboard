@@ -47,7 +47,7 @@ const UpdateFloorModal = (props: Props) => {
 
   const [
     getBuildings,
-    { data: buildings, isLoading: isBuildingLoading, error: isBuildingError },
+    { error: isBuildingError },
   ] = useLazyGetBuildingsQuery();
 
   const [editFloor] = useUpdateFloorMutation();

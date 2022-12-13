@@ -32,13 +32,12 @@ import { useGetAnnouncementDetailQuery } from "../services/announcement";
 import { useGetBuildingsQuery } from "../services/building";
 import { useLazyGetFloorsQuery } from "../services/floor";
 import { useLazyGetRequestsQuery } from "../services/request";
+import { ApiErrorResponse } from "../services/error";
 
-import Layout from "../components/Layout";
 import CreateRequestModal from "../components/CreateRequestModal";
+import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
 
 import { usePermission } from "../hooks";
-import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
-import { ApiErrorResponse } from "../services/error";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
 
@@ -160,6 +159,29 @@ const AnnouncementDetailPage = () => {
     isGetRequestError,
   ]);
 
+  const media = () => {
+    if (announcements === undefined) {
+      return null;
+    }
+    if (announcements.mediaType === "image") {
+      return (
+        <img alt="banner" src={announcements.media} style={{ width: "100%" }} />
+      );
+    } else if (announcements.mediaType === "video") {
+      return (
+        <Box display="flex" justifyContent="center">
+          <video
+            src={announcements.media}
+            style={{ width: "50%" }}
+            controls
+            autoPlay
+            muted
+          />
+        </Box>
+      );
+    }
+  };
+
   return (
     <>
       {hasViewAnnouncementDetailPermission ? (
@@ -183,15 +205,7 @@ const AnnouncementDetailPage = () => {
                     {announcements?.title}
                   </Typography>
                 </Box>
-                <Box sx={{ marginBottom: 2 }}>
-                  {announcements?.media ? (
-                    <img
-                      alt="banner"
-                      src={announcements.media}
-                      style={{ width: "100%" }}
-                    />
-                  ) : null}
-                </Box>
+                <Box sx={{ marginBottom: 2 }}>{media()}</Box>
                 <Box
                   sx={{
                     marginBottom: 2,

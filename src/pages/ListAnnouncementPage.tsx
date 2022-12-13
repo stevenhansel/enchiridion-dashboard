@@ -40,8 +40,6 @@ import { ApiErrorResponse } from "../services/error";
 import { useLazyGetUsersQuery } from "../services/user";
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
-import Layout from "../components/Layout";
-
 import usePermission from "../hooks/usePermission";
 
 const toDate = (dateStr: string) => dayjs(dateStr).format("ddd, MMM D, YYYY");
@@ -174,7 +172,6 @@ const ListAnnouncementPage = () => {
   }, [getUsers, open, hasPermissionViewUserList]);
 
   return (
-    // <Layout>
     <>
       <Box
         sx={{
@@ -456,7 +453,6 @@ const ListAnnouncementPage = () => {
         }
       />
     </>
-    // </Layout>
   );
 };
 

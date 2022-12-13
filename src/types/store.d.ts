@@ -14,7 +14,6 @@ export type CreateDevice = {
   name: string;
   description: string;
   floorId: number | null;
-  carouselSpeedMs: number;
 };
 
 export type Role = {
@@ -84,6 +83,8 @@ export type Announcement = {
   status: Status;
   author: Author;
   media: string;
+  mediaType: string;
+  mediaDuration: number;
   notes: string;
   devices: Device[];
   createdAt: string;
@@ -112,7 +113,6 @@ export type Device = {
   location: string;
   activeAnnouncements: number;
   description: string;
-  carouselSpeedMs: number;
 };
 
 //device detail
@@ -120,7 +120,6 @@ export type DeviceDetail = {
   id: number;
   name: string;
   location: string;
-  carouselSpeedMs: number;
   createdAt: string;
   updatedAt: string;
   description: string;
@@ -130,7 +129,6 @@ export type UpdateDevice = {
   name: string;
   description: string;
   floorId: number | null;
-  carouselSpeedMs: number;
   deviceId: string;
 };
 

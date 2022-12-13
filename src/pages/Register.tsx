@@ -21,16 +21,15 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { UserFilterOption } from "../types/store";
-
 import { useRegisterMutation } from "../services/auth";
 import { useLazyGetRolesQuery } from "../services/roles";
 import { useLazyGetBuildingsQuery } from "../services/building";
+import { isApiError, isReduxError } from "../services/error";
 
+import { UserFilterOption } from "../types/store";
 import { RegisterForm } from "../types/store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
-import { isApiError, isReduxError } from "../services/error";
 
 const validationSchema = yup.object({
   name: yup

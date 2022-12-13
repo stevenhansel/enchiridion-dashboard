@@ -5,7 +5,10 @@ export type CreateAnnouncementFormValues = {
   title: string;
   media: {
     file: File;
-    image: HTMLImageElement;
+    image: HTMLImageElement | null;
+    video: HTMLVideoElement | null;
+    duration: number | null;
+    type: string;
   } | null;
   duration: number;
   startDate: Date;

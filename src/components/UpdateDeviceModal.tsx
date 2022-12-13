@@ -41,7 +41,6 @@ type UpdateDeviceType = {
   description: string;
   deviceId: string;
   buildingId: string;
-  carouselSpeedMs: number;
 };
 
 const validationSchema = yup.object({
@@ -53,11 +52,6 @@ const validationSchema = yup.object({
   floorId: yup.number().required("Please select the floor"),
   deviceId: yup.string().required(),
   buildingId: yup.string().required("Please select the building"),
-  carouselSpeedMs: yup
-    .number()
-    .min(10000, "Minimum duration is 10 seconds")
-    .max(180000, "Maximum duration is 180 seconds or 3 minutes")
-    .required("required"),
 });
 
 const UpdateDeviceModal = (props: Props) => {
@@ -79,7 +73,6 @@ const UpdateDeviceModal = (props: Props) => {
     null
   );
   const [isBuildingFilterLoading, setIsBuildingFilterLoading] = useState(false);
-  const [carouselSpeed, setCarouselSpeed] = useState(10000);
 
   const [getFloors, { error: isGetFloorError, isLoading: isGetFloorLoading }] =
     useLazyGetFloorsQuery();
@@ -133,21 +126,12 @@ const UpdateDeviceModal = (props: Props) => {
       description: "",
       deviceId: deviceId,
       buildingId: "",
-      carouselSpeedMs: carouselSpeed,
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       updateDevice(values);
     },
   });
-
-  const handleIncreaseCarouselSpeed = useCallback(() => {
-    setCarouselSpeed((carouselSpeed) => carouselSpeed + 1000);
-  }, [carouselSpeed]);
-
-  const handleDecreaseCarouselSpeed = useCallback(() => {
-    setCarouselSpeed((carouselSpeed) => carouselSpeed - 1000);
-  }, [carouselSpeed]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -174,17 +158,6 @@ const UpdateDeviceModal = (props: Props) => {
       );
     }
   }, [getFloors, openFloorFilter]);
-
-  const handleCarouselSpeedUserInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setCarouselSpeed(Number(e.target.value) * 1000);
-    },
-    [carouselSpeed]
-  );
-
-  useEffect(() => {
-    formik.setFieldValue("carouselSpeedMs", carouselSpeed);
-  }, [carouselSpeed]);
 
   useEffect(() => {
     if (openBuildingFilter) {
@@ -394,69 +367,6 @@ const UpdateDeviceModal = (props: Props) => {
             fullWidth
           />
         </Box>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box display="flex" alignItems="center">
-            <Typography>Announcement Transition Speed:</Typography>
-            <TextField
-              id="carousel-speed"
-              autoComplete="off"
-              onChange={(e) => {
-                handleCarouselSpeedUserInput(e);
-              }}
-              error={
-                formik.touched.carouselSpeedMs &&
-                Boolean(formik.errors.carouselSpeedMs)
-              }
-              value={formik.values.carouselSpeedMs / 1000}
-              sx={{ width: "80px" }}
-            />
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              "& > *": {
-                m: 1,
-              },
-            }}
-          >
-            <ButtonGroup
-              orientation="vertical"
-              aria-label="vertical outlined button group"
-            >
-              <Button
-                key="up"
-                onClick={handleIncreaseCarouselSpeed}
-                variant="contained"
-                sx={{ marginBottom: 1 }}
-              >
-                <KeyboardArrowUpIcon />
-              </Button>
-              <Button
-                key="down"
-                onClick={handleDecreaseCarouselSpeed}
-                variant="contained"
-              >
-                <KeyboardArrowDownIcon />
-              </Button>
-            </ButtonGroup>
-          </Box>
-        </Box>
-        {formik.touched.carouselSpeedMs && formik.errors.carouselSpeedMs ? (
-          <Typography
-            sx={{
-              fontSize: "12px",
-              marginTop: "3px",
-              marginRight: "14px",
-              color: "#D32F2F",
-              textAlign: "center",
-              marginBottom: 1,
-            }}
-          >
-            {formik.errors.carouselSpeedMs}
-          </Typography>
-        ) : null}
-
         <Button type="submit" variant="contained" sx={{ marginRight: 1 }}>
           Ok
         </Button>

@@ -77,6 +77,8 @@ const CreateAnnouncementForm = () => {
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("media", values.media!.file);
+      formData.append("media_duration", String(values.media!.duration));
+      formData.append("media_type", values.media!.type);
       formData.append("startDate", dayjs(values.startDate).format(dateFormat));
       formData.append("endDate", dayjs(values.endDate).format(dateFormat));
       formData.append("notes", values.notes);

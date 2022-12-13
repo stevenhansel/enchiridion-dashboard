@@ -18,7 +18,6 @@ import { setProfile } from "../store/profile";
 
 import { ApiErrorResponse } from "../services/error";
 import { authApi } from "../services/auth";
-import { RootState } from "../store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
 

@@ -119,10 +119,20 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
                 elevation={3}
               >
                 <Box display="flex" justifyContent="center">
-                  <img
-                    src={announcement.media}
-                    style={{ width: 395, margin: "auto" }}
-                  />
+                  {announcement.mediaType === "video" ? (
+                    <video
+                      src={announcement.media}
+                      style={{ width: "100%" }}
+                      controls
+                      autoPlay
+                      muted
+                    />
+                  ) : (
+                    <img
+                      src={announcement.media}
+                      style={{ width: 395, margin: "auto" }}
+                    />
+                  )}
                 </Box>
                 <Box sx={{ marginLeft: 1 }}>
                   <Typography variant="h5" fontWeight="bold">
