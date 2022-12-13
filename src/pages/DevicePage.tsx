@@ -35,11 +35,8 @@ import { ApiErrorResponse } from "../services/error";
 import CreateDeviceModal from "../components/CreateDeviceModal";
 import config from "../config";
 import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
-<<<<<<< HEAD
 
 import { usePermission } from "../hooks";
-=======
->>>>>>> 536bcc88ea6e1dbf3d506a5146217b16c405b45a
 
 const FETCH_LIMIT = 20;
 
@@ -178,7 +175,6 @@ const DevicePage = () => {
                 + Create Device
               </Button>
             </Box>
-<<<<<<< HEAD
           ) : null}
           <Box display="flex" flexDirection="column" width="100%">
             <Box sx={{ marginBottom: 1 }}>
@@ -200,9 +196,6 @@ const DevicePage = () => {
                 Search
               </Button>
             </Box>
-=======
-
->>>>>>> 536bcc88ea6e1dbf3d506a5146217b16c405b45a
             {data && data.contents.length > 0 ? (
               <>
                 <TableContainer component={Paper}>
