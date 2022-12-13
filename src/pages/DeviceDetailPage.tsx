@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import mpegts from "mpegts.js";
 import useWebSocket from "react-use-websocket";
+import range from "lodash/range";
 
 import {
   Box,
@@ -29,20 +30,37 @@ import { usePermission } from "../hooks";
 import { statusActions } from "../types/constants";
 import config from "../config";
 import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
+import RealtimeChart, {
+  realtimeChartDateFormat,
+} from "../components/RealtimeChart";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
 
+const now = new Date();
+
 const DeviceDetailPage = () => {
+  const { deviceId = "" } = useParams();
+
   const [open, setOpen] = useState(false);
   const [actionType, setActionType] = useState("");
-  const { deviceId = "" } = useParams();
+  const [realtimeChartData, setRealtimeChartData] = useState<
+    { x: string; y: number }[]
+  >(
+    range(0, 60).map((num) => ({
+      x: dayjs(now).subtract(num, "s").format(realtimeChartDateFormat),
+      y: 0,
+    }))
+  );
 
   const hasUpdateDevicePermission = usePermission("update_device");
   const hasDeleteDevicePermission = usePermission("delete_device");
 
-  const { lastMessage } = useWebSocket(
+  const { lastMessage: deviceStatusMessage } = useWebSocket(
     `${config.wssBaseUrl}/v1/device_status/${deviceId}`
+  );
+  const { lastMessage: livestreamMessage } = useWebSocket(
+    `${config.wssBaseUrl}/v1/livestream/${deviceId}`
   );
 
   const { data: devices } = useGetDeviceDetailQuery(
@@ -95,11 +113,27 @@ const DeviceDetailPage = () => {
     });
   }, [getAnnouncements, actionType, deviceId]);
 
+  useEffect(() => {
+    if (livestreamMessage !== null) {
+      const livestreamData = JSON.parse(livestreamMessage.data);
+
+      setRealtimeChartData((previousData) => {
+        let updatedData = previousData.slice(1);
+        updatedData.push({
+          x: dayjs(livestreamData.timestamp).format(realtimeChartDateFormat),
+          y: livestreamData.numOfFaces,
+        });
+
+        return updatedData;
+      });
+    }
+  }, [livestreamMessage]);
+
   const deviceState = useMemo(() => {
-    return lastMessage !== null
-      ? (lastMessage.data as DeviceState)
+    return deviceStatusMessage !== null
+      ? (deviceStatusMessage.data as DeviceState)
       : DeviceState.Loading;
-  }, [lastMessage]);
+  }, [deviceStatusMessage]);
 
   return (
     <Layout>
@@ -241,20 +275,29 @@ const DeviceDetailPage = () => {
 
         {devices?.cameraEnabled ? (
           <Box>
-            <Typography
-              sx={{ marginTop: 5, marginBottom: 1 }}
-              variant="h5"
-              fontWeight="bold"
-            >
-              Livestream
-            </Typography>
+            <Box>
+              <Typography
+                sx={{ marginTop: 5, marginBottom: 1 }}
+                variant="h5"
+                fontWeight="bold"
+              >
+                Livestream
+              </Typography>
 
-            <video
-              controls
-              autoPlay
-              style={{ width: 600, height: 450 }}
-              id="device-stream"
-            />
+              <video
+                controls
+                autoPlay
+                style={{ width: 600, height: 450 }}
+                id="device-stream"
+              />
+            </Box>
+
+            <Box>
+              <RealtimeChart
+                chartId="livestream"
+                chartData={realtimeChartData}
+              />
+            </Box>
           </Box>
         ) : null}
 

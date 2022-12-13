@@ -10,6 +10,9 @@
     "@mui/icons-material": "^5.6.2",
     "@mui/material": "^5.7.0",
     "@mui/x-date-pickers": "^5.0.0-beta.0",
+    "@nivo/core": "^0.80.0",
+    "@nivo/generators": "^0.80.0",
+    "@nivo/line": "^0.80.0",
     "@reduxjs/toolkit": "^1.8.2",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
@@ -56,5 +59,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/d3-time-format": "^4.0.0"
   }
 }
