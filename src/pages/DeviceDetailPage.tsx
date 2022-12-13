@@ -153,31 +153,107 @@ const DeviceDetailPage = () => {
 
   return (
     <Box>
+      <Box display="flex" justifyContent="center" alignItems="center">
+        <Typography align="center" variant="h5" fontWeight="bold">
+          {devices?.name}
+        </Typography>
+        {/* {hasUpdateDevicePermission ? (
+            <IconButton
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          ) : null}
+          {hasDeleteDevicePermission ? (
+            <IconButton>
+              <DeleteIcon />
+            </IconButton>
+          ) : null} */}
+      </Box>
+
+      <Box display="flex" justifyContent="center">
+        <Box sx={{ marginTop: 8 }}>
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography display="flex" fontWeight="bold">
+              ID
+            </Typography>
+            <Typography>{deviceId}</Typography>
+          </Box>
+
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Location</Typography>
+            <Typography>{devices?.location}</Typography>
+          </Box>
+
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Description</Typography>
+            <Typography>{devices?.description}</Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ marginTop: 8, marginLeft: 40 }}>
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Created at</Typography>
+            <Typography>{toDate(devices?.createdAt)}</Typography>
+          </Box>
+
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Updated at</Typography>
+            <Typography>{toDate(devices?.updatedAt)}</Typography>
+          </Box>
+
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Device Status</Typography>
+            <DeviceStatus state={deviceState} />
+          </Box>
+        </Box>
+      </Box>
+
       <Box>
+        <Typography sx={{ marginBottom: 1 }} variant="h5" fontWeight="bold">
+          Announcement
+        </Typography>
+
+        <Box sx={{ marginBottom: 1 }}>
+          <Card sx={{ bgcolor: "#D2E4EF" }}>
+            <CardActions>
+              {statusActions &&
+                statusActions.map((action, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => setActionType(action.value)}
+                    variant={actionType === action.value ? "contained" : "text"}
+                    sx={{ marginRight: 2 }}
+                    value={actionType}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+            </CardActions>
+          </Card>
+        </Box>
         {announcements && announcements.contents.length > 0 ? (
           <Box>
-            <Box display="flex" justifyContent="center">
-              <Typography variant="h4">{devices?.name}</Typography>
-              {hasUpdateDevicePermission ? (
-                <IconButton
-                  onClick={() => {
-                    setOpenUpdateModal(true);
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-              ) : null}
-              {hasDeleteDevicePermission ? (
-                <IconButton
-                  onClick={() => {
-                    setOpenDeleteModal(true);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              ) : null}
-            </Box>
-
+            {hasUpdateDevicePermission ? (
+              <IconButton
+                onClick={() => {
+                  setOpenUpdateModal(true);
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            ) : null}
+            {hasDeleteDevicePermission ? (
+              <IconButton
+                onClick={() => {
+                  setOpenDeleteModal(true);
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            ) : null}
             <Box display="flex" justifyContent="center">
               <Box sx={{ marginTop: 8 }}>
                 <Box sx={{ marginBottom: 5 }}>
@@ -242,9 +318,7 @@ const DeviceDetailPage = () => {
             </Dialog>
           </Box>
         ) : (
-          <Box display="flex" justifyContent="center" alignItems="center">
-            <Typography>Announcement not found!</Typography>
-          </Box>
+          <Box display="flex" justifyContent="center" alignItems="center"></Box>
         )}
 
         <Snackbar
