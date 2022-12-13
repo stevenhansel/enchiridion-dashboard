@@ -5,9 +5,6 @@ import {
   Box,
   Button,
   TextField,
-  InputLabel,
-  MenuItem,
-  FormControl,
   IconButton,
   Typography,
   Snackbar,
@@ -17,18 +14,24 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import dayjs from "dayjs";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { StaticDatePicker } from "@mui/x-date-pickers/StaticDatePicker";
 
 import { useCreateRequestMutation } from "../services/request";
 
-import { ApiErrorResponse } from "../services/error";
 import { ActionCreateRequest } from "../types/store";
+import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
 
 const validationSchema = yup.object({
   extendedEndDate: yup
     .date()
     .min(new Date(), "extend date cannot be in the past")
     .required("extend date is required"),
+  description: yup
+    .string()
+    .min(10, "please input more than 10 characters")
+    .required("description is required"),
 });
 
 type Props = {
@@ -39,7 +42,6 @@ type Props = {
 const ExtendDate = (props: Props) => {
   const [createRequest, { error }] = useCreateRequestMutation();
   const [errorMessage, setErrorMessage] = useState("");
-  const [description, setDescription] = useState("");
   const { announcementId = "" } = useParams();
 
   const today = dayjs(props.date);
@@ -50,13 +52,22 @@ const ExtendDate = (props: Props) => {
       action: "extend_date",
       extendedEndDate: dayjs(tomorrow.toDateString()).format("YYYY-MM-DD"),
       announcementId: parseInt(announcementId, 10),
-      description: description,
-      deviceIds: [],
+      description: "",
+      newDeviceIds: [],
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      createRequest(values);
-      props.setOpen(false);
+    onSubmit: async (values) => {
+      try {
+        await createRequest(values).unwrap();
+        props.setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { messages } = err.data;
+          if (messages.length !== 0) {
+            setErrorMessage(messages[0]);
+          }
+        }
+      }
     },
   });
 
@@ -68,15 +79,6 @@ const ExtendDate = (props: Props) => {
   };
 
   useEffect(() => {
-    if (description !== null) {
-      setDescription(
-        `Announcement extended to ${formik.values.extendedEndDate}`
-      );
-    }
-    formik.setFieldValue("description", description);
-  }, [description, formik.values.extendedEndDate]);
-
-  useEffect(() => {
     if (error && "data" in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
@@ -86,29 +88,52 @@ const ExtendDate = (props: Props) => {
     <>
       <form onSubmit={formik.handleSubmit}>
         <Box>
-          <Box>
-            <DesktopDatePicker
-              label="Extend Date Announcement"
-              inputFormat="MM/dd/yyyy"
-              value={dayjs(formik.values.extendedEndDate).format("YYYY-MM-DD")}
-              onChange={(newDate) =>
-                formik.setFieldValue(
-                  "extendedEndDate",
-                  dayjs(newDate).format("YYYY-MM-DD")
-                )
-              }
-              renderInput={(params) => <TextField {...params} />}
-              shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
-            />
+          <Box sx={{ marginBottom: 1 }}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <StaticDatePicker
+                displayStaticWrapperAs="desktop"
+                label="Extend Date Announcement"
+                inputFormat="MM/dd/yyyy"
+                value={dayjs(formik.values.extendedEndDate).format(
+                  "YYYY-MM-DD"
+                )}
+                onChange={(newDate) =>
+                  formik.setFieldValue(
+                    "extendedEndDate",
+                    dayjs(newDate).format("YYYY-MM-DD")
+                  )
+                }
+                renderInput={(params) => <TextField {...params} />}
+                shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
+              />
+            </LocalizationProvider>
           </Box>
           {formik.touched.extendedEndDate && formik.errors.extendedEndDate ? (
             <Typography variant="caption" color={red[700]} fontSize="">
               {String(formik.errors.extendedEndDate)}
             </Typography>
           ) : null}
-          <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
-            OK
-          </Button>
+          <Box>
+            <Typography>Description</Typography>
+            <TextField
+              variant="standard"
+              sx={{ width: "100%", marginBottom: 1 }}
+              onChange={(e) => {
+                formik.setFieldValue("description", e.target.value);
+              }}
+              error={
+                formik.touched.description && Boolean(formik.errors.description)
+              }
+              helperText={
+                formik.touched.description && formik.errors.description
+              }
+            />
+          </Box>
+          <Box display="flex">
+            <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
+              OK
+            </Button>
+          </Box>
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}

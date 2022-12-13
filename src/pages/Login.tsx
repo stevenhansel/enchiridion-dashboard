@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import {
   Box,
@@ -20,14 +19,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import { AppDispatch } from "../store";
 import { setProfile } from "../store/profile";
 
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
 import { authApi } from "../services/auth";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
-
-type Props = {
-  children?: React.ReactNode;
-};
 
 type LoginForm = {
   email: string;
@@ -45,9 +40,9 @@ const validationSchema = yup.object({
     .required("Password is required"),
 });
 
-const Login = (props: Props) => {
+const Login = () => {
   const dispatch: AppDispatch = useDispatch();
-  const profile = useSelector((state: RootState) => state.profile);
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -75,19 +70,30 @@ const Login = (props: Props) => {
             isEmailConfirmed: response.data.isEmailConfirmed,
           })
         );
-      } else {
-        setErrorMessage(
-          "data" in response.error
-            ? (response.error.data as ApiErrorResponse).messages[0]
-            : "Network Error"
-        );
+      } else if (
+        isReduxError(response.error) &&
+        isApiError(response.error.data)
+      ) {
+        const { errorCode } = response.error.data;
+        if (errorCode === "FORBIDDEN_PERMISSION") {
+          setErrorMessage(
+            "data" in response.error
+              ? (response.error.data as ApiErrorResponse).messages[0]
+              : "Network Error"
+          );
+          navigate("/waiting-for-approval");
+        } else if (errorCode === "AUTHENTICATION_FAILED") {
+          setErrorMessage(
+            "data" in response.error
+              ? (response.error.data as ApiErrorResponse).messages[0]
+              : "Network Error"
+          );
+        }
       }
-
       setIsLoading(false);
     },
     [dispatch]
   );
-
 
   const formik = useFormik({
     initialValues: {
@@ -152,8 +158,8 @@ const Login = (props: Props) => {
                 <TextField
                   id="email"
                   name="email"
-                  onChange={(event) =>
-                    formik.setFieldValue("email", event.target.value)
+                  onChange={(e) =>
+                    formik.setFieldValue("email", e.target.value)
                   }
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
@@ -205,12 +211,12 @@ const Login = (props: Props) => {
                   </Typography>
                   <Link to="/register">Daftar</Link>
                 </Box>
-                <Box display="flex" flexDirection="row" sx={{ marginTop: 1 }}>
+                {/* <Box display="flex" flexDirection="row" sx={{ marginTop: 1 }}>
                   <Typography sx={{ marginRight: 0.5 }}>
                     Forgot Password?
                   </Typography>
-                  <Link to="/forgot_password">Change</Link>
-                </Box>
+                  <Link to="/forgot-password">Change</Link>
+                </Box> */}
               </Box>
             </Box>
             <Snackbar

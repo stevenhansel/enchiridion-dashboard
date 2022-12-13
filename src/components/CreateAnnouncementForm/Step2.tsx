@@ -1,50 +1,28 @@
-import React, { useCallback, useEffect, useContext, useState } from "react";
-import cloneDeep from "lodash/cloneDeep";
+import React, { useState, useCallback, useContext, useEffect } from "react";
+import { Box, Button, Typography, IconButton } from "@mui/material";
+import {
+  RadioButtonUnchecked as RadioButtonUncheckedIcon,
+  RadioButtonChecked as RadioButtonCheckedIcon,
+} from "@mui/icons-material";
 import { useFormikContext } from "formik";
 
-import { Box, Button, Typography, Tooltip } from "@mui/material";
-import { red } from "@mui/material/colors";
+import { useGetBuildingsQuery } from "../../services/building";
 
 import { CreateAnnouncementFormContext } from "./context";
 import { CreateAnnouncementFormValues } from "./form";
 import { validateFormikFields } from "./util";
 
-import { useLazyGetFloorsQuery } from "../../services/floor";
-import { useGetBuildingsQuery } from "../../services/building";
-
-const fields = ["devices"];
+const fields = ["buildingId"];
 
 const Step2 = () => {
-  const { data: buildings, isLoading: isBuildingLoading } =
-    useGetBuildingsQuery(null);
-  const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
-
-  const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
-
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
+  const [selectedBuildingName, setSelectedBuildingName] = useState(values.buildingName);
   const { handleNextStep, handlePrevStep } = useContext(
     CreateAnnouncementFormContext
   );
 
-  const handleSelectDevice = useCallback(
-    (selectedDeviceId: string) => {
-      const selectedDeviceIndex = values.devices.findIndex(
-        (deviceId) => deviceId === selectedDeviceId
-      );
-
-      let updatedDevices = cloneDeep(values.devices);
-
-      if (selectedDeviceIndex !== -1) {
-        updatedDevices.splice(selectedDeviceIndex, 1);
-      } else {
-        updatedDevices.push(selectedDeviceId);
-      }
-
-      setFieldValue("devices", updatedDevices);
-    },
-    [values, setFieldValue]
-  );
+  const { data: buildings } = useGetBuildingsQuery(null);
 
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
@@ -57,154 +35,98 @@ const Step2 = () => {
     handlePrevStep();
   }, [handlePrevStep]);
 
+  const handleSelectedBuilding = useCallback(
+    (selectedBuildingId: string, selectedBuildingName: string) => {
+      const selectedBuildingCheck =
+        values.buildingId.indexOf(selectedBuildingId);
+      if (selectedBuildingCheck !== -1) {
+        setFieldValue(
+          "buildingId",
+          values.buildingId.slice(values.buildingId.length)
+        );
+      } else {
+        setFieldValue("buildingId", selectedBuildingId);
+      }
+      setSelectedBuildingName(selectedBuildingName);
+    },
+    [values, setFieldValue]
+  );
+
   useEffect(() => {
     fields.forEach((field) => validateField(field));
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
-    if (
-      buildings !== undefined &&
-      isBuildingLoading === false &&
-      buildings.length > 0
-    ) {
-      const firstBuildingId = buildings[0].id;
-      setCurrentBuildingId(firstBuildingId.toString());
-    }
-  }, [isBuildingLoading]);
-
-  useEffect(() => {
-    getFloors(null);
-  }, []);
+    setFieldValue("buildingName", selectedBuildingName);
+  }, [selectedBuildingName]);
 
   return (
-    <Box width="100%">
+    <>
       <Box
+        display="flex"
+        justifyContent="center"
+        flexDirection="column"
         sx={{
-          display: "flex",
           border: "1px solid #c4c4c4",
         }}
       >
-        <Box
-          sx={{
-            padding: 1,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <Box sx={{ width: 200 }}>
+          <Box display="flex" justifyContent="center">
+            <Typography variant="h6">Available Building:</Typography>
+          </Box>
           {buildings &&
             buildings.map((building) => (
-              <Button
-                key={building.id}
-                onClick={() => setCurrentBuildingId(building.id.toString())}
-                variant={
-                  currentBuildingId === building.id.toString()
-                    ? "contained"
-                    : "text"
-                }
-                color={
-                  currentBuildingId === building.id.toString()
-                    ? "secondary"
-                    : "inactive"
-                }
-                sx={{ marginBottom: 1 }}
-              >
-                {building.name}
-              </Button>
+              <Box key={building.id} display="flex" justifyContent="flex-start">
+                <IconButton
+                  onClick={() => {
+                    handleSelectedBuilding(
+                      building.id.toString(),
+                      building.name
+                    );
+                  }}
+                >
+                  {values.buildingId.includes(building.id.toString()) ? (
+                    <RadioButtonCheckedIcon color="secondary" />
+                  ) : (
+                    <RadioButtonUncheckedIcon color="secondary" />
+                  )}
+                </IconButton>
+                <Box display="flex" alignItems="center">
+                  <Typography fontWeight="bold">{building.name}</Typography>
+                </Box>
+              </Box>
             ))}
         </Box>
-        <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
-        <Box
-          sx={{
-            padding: 3,
-            // flex: 1,
-          }}
-        >
-          <Box>
-            {floors &&
-              floors?.contents
-                .filter(
-                  (floor) => currentBuildingId === floor.building.id.toString()
-                )
-                .map((floor) => (
-                  <Box
-                    key={floor.id}
-                    display="flex"
-                    sx={{ border: "1px solid #c4c4c4", marginBottom: 1 }}
-                  >
-                    <Box
-                      sx={{
-                        minWidth: 100,
-                        // flex: 1,
-                        marginRight: 1,
-                        marginBottom: 2,
-                        margin: 1,
-                      }}
-                    >
-                      {floor.name}
-                    </Box>
-                    <Box sx={{ maxWidth: "674px" }}>
-                      {floor.devices.map((device) => (
-                        <Tooltip key={device.id} title={device.description}>
-                          <Button
-                            key={device.id}
-                            onClick={() =>
-                              handleSelectDevice(device.id.toString())
-                            }
-                            variant={
-                              values.devices.includes(device.id.toString())
-                                ? "contained"
-                                : "outlined"
-                            }
-                            color={
-                              values.devices.includes(device.id.toString())
-                                ? "secondary"
-                                : "inactive"
-                            }
-                            sx={{ margin: 1, width: 140 }}
-                          >
-                            {device.name}
-                          </Button>
-                        </Tooltip>
-                      ))}
-                    </Box>
-                  </Box>
-                ))}
-          </Box>
-        </Box>
       </Box>
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-      >
-        {touched.devices &&
-        errors.devices &&
-        typeof errors.devices === "string" ? (
-          <Typography variant="caption" color={red[700]} sx={{ marginTop: 1 }}>
-            {errors.devices}
+      {touched.buildingId &&
+      errors.buildingId &&
+      typeof errors.buildingId === "string" ? (
+        <Box display="flex" justifyContent="center">
+          <Typography
+            sx={{
+              fontSize: "12px",
+              color: "#D32F2F",
+              marginTop: 1,
+            }}
+          >
+            {errors.buildingId}
           </Typography>
-        ) : null}
-      </Box>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        sx={{ marginTop: 7 }}
-      >
+        </Box>
+      ) : null}
+      <Box display="flex" justifyContent="center" sx={{ marginTop: 3 }}>
         <Button
-          variant="contained"
           onClick={handlePrevSubmission}
+          variant="contained"
           sx={{ marginRight: 1 }}
         >
           Previous
         </Button>
-        <Button variant="contained" onClick={handleNextSubmission}>
+        <Button onClick={handleNextSubmission} variant="contained">
           Next
         </Button>
       </Box>
-    </Box>
+    </>
   );
 };
 

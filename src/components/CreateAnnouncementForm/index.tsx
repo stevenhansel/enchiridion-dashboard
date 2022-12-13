@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import { Formik } from "formik";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,10 @@ import {
   Step,
   StepLabel,
   Typography,
+  Snackbar,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { AppDispatch } from "../../store";
 
@@ -21,14 +24,24 @@ import { announcementApi } from "../../services/announcement";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
+import Step4 from "./Step4";
 
 import { CreateAnnouncementFormContext } from "./context";
-import { initialValues, validationSchema, CreateAnnouncementFormValues } from "./form";
+import {
+  initialValues,
+  validationSchema,
+  CreateAnnouncementFormValues,
+} from "./form";
 
-const steps = ["Upload file", "Pilih lokasi pengumuman", "Submit"];
+const steps = [
+  "Upload file",
+  "Pilih lokasi Building",
+  "Pilih Devices",
+  "Submit",
+];
 const MIN_STEP = 0;
 const MAX_STEP: number = steps.length;
-const dateFormat = 'YYYY-MM-DD';
+const dateFormat = "YYYY-MM-DD";
 
 const CreateAnnouncementForm = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -50,35 +63,46 @@ const CreateAnnouncementForm = () => {
     setActiveStep((p) => p - 1);
   }, [activeStep]);
 
-  const handleSubmit = useCallback(async (values: CreateAnnouncementFormValues) => {
-    setIsLoading(true);
-
-    const formData = new FormData();
-    formData.append('title', values.title);
-    formData.append('media', values.media!.file);
-    formData.append('startDate', dayjs(values.startDate).format(dateFormat));
-    formData.append('endDate', dayjs(values.endDate).format(dateFormat));
-    formData.append('notes', values.notes);
-    formData.append('deviceIds', values.devices.join(','));
-
-    const response = await dispatch(
-      announcementApi.endpoints.createAnnouncement.initiate({
-        formData,
-      })
-    );
-
-    if ('error' in response) {
-      setErrorMessage(
-        response.error && "data" in response.error
-          ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
-      );
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
     }
+    setErrorMessage("");
+  };
 
-    setIsLoading(false);
+  const handleSubmit = useCallback(
+    async (values: CreateAnnouncementFormValues) => {
+      setIsLoading(true);
 
-    navigate('/');
-  }, []);
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("media", values.media!.file);
+      formData.append("media_duration", String(values.media!.duration));
+      formData.append("media_type", values.media!.type);
+      formData.append("startDate", dayjs(values.startDate).format(dateFormat));
+      formData.append("endDate", dayjs(values.endDate).format(dateFormat));
+      formData.append("notes", values.notes);
+      formData.append("buildingId", values.buildingId);
+      formData.append("deviceIds", values.devices.join(","));
+
+      const response = await dispatch(
+        announcementApi.endpoints.createAnnouncement.initiate({
+          formData,
+        })
+      );
+
+      if ("error" in response) {
+        setErrorMessage(
+          response.error && "data" in response.error
+            ? (response.error.data as ApiErrorResponse).messages[0]
+            : "Network Error"
+        );
+      }
+      setIsLoading(false);
+      navigate("/");
+    },
+    []
+  );
 
   const form = useMemo(() => {
     if (activeStep === 0) {
@@ -87,10 +111,12 @@ const CreateAnnouncementForm = () => {
       return <Step2 />;
     } else if (activeStep === 2) {
       return <Step3 />;
+    } else if (activeStep === 3) {
+      return <Step4 />;
     }
 
-    return <Step1 />
-  }, [activeStep])
+    return <Step1 />;
+  }, [activeStep]);
 
   return (
     <Formik
@@ -101,7 +127,7 @@ const CreateAnnouncementForm = () => {
     >
       {() => (
         <>
-          {isLoading && (<CircularProgress />)}
+          {isLoading && <CircularProgress />}
           {!isLoading && (
             <Box
               display="flex"
@@ -128,8 +154,24 @@ const CreateAnnouncementForm = () => {
               <CreateAnnouncementFormContext.Provider
                 value={{ handleNextStep, handlePrevStep }}
               >
-                <Box sx={{ marginHorizontal: 10, width: '100%' }}>{form}</Box>
+                <Box sx={{ marginHorizontal: 10 }}>{form}</Box>
               </CreateAnnouncementFormContext.Provider>
+              <Snackbar
+                open={Boolean(errorMessage)}
+                autoHideDuration={6000}
+                onClose={() => setErrorMessage("")}
+                message={errorMessage}
+                action={
+                  <IconButton
+                    size="small"
+                    aria-label="close"
+                    color="inherit"
+                    onClick={handleClose}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                }
+              />
             </Box>
           )}
         </>

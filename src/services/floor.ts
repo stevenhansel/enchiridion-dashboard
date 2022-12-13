@@ -15,7 +15,7 @@ export const floorApi = createApi({
       {
         page?: number;
         limit?: number;
-        query?: string;
+        query?: string | null;
         buildingId?: number | null;
         
       } | null

@@ -1,160 +1,248 @@
-import React, { useCallback, useContext, useEffect } from "react";
-
-import { Box, Button, Typography } from "@mui/material";
+import React, { useCallback, useEffect, useContext, useState } from "react";
+import cloneDeep from "lodash/cloneDeep";
+import { useNavigate } from "react-router-dom";
 import { useFormikContext } from "formik";
 
-import { CreateAnnouncementFormValues } from "./form";
+import { Box, Button, Typography, Tooltip } from "@mui/material";
+import { red } from "@mui/material/colors";
+
 import { CreateAnnouncementFormContext } from "./context";
+import { CreateAnnouncementFormValues } from "./form";
+import { validateFormikFields } from "./util";
 
-import { useGetBuildingsQuery } from "../../services/building";
 import { useLazyGetFloorsQuery } from "../../services/floor";
+import { useGetBuildingsQuery } from "../../services/building";
 
-import { Floor } from "../../types/store";
+const fields = ["devices"];
 
 const Step3 = () => {
-  const { data: buildings } = useGetBuildingsQuery(null);
+  const navigate = useNavigate();
+  const { data: buildings, isLoading: isBuildingLoading } =
+    useGetBuildingsQuery(null);
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
 
-  const { values, handleSubmit } =
-    useFormikContext<CreateAnnouncementFormValues>();
-  const { handlePrevStep } = useContext(CreateAnnouncementFormContext);
+  const formik = useFormikContext<CreateAnnouncementFormValues>();
+  const { errors, touched, validateField, setFieldValue, values } = formik;
+  const { handleNextStep, handlePrevStep } = useContext(
+    CreateAnnouncementFormContext
+  );
+
+  const [currentBuildingId, setCurrentBuildingId] = useState<string>(
+    values.buildingId
+  );
+
+  const floorCheck =
+    floors &&
+    floors?.contents.filter(
+      (floor) => currentBuildingId === floor.building.id.toString()
+    );
+
+  const deviceCheck =
+    floors &&
+    floors.contents
+      .filter((floor) => currentBuildingId === floor.building.id.toString())
+      .map((floor) => floor.devices.length);
+
+  const deviceState = deviceCheck?.every((d: number) => {
+    return d === 0;
+  });
+
+  const handleSelectDevice = useCallback(
+    (selectedDeviceId: string) => {
+      const selectedDeviceIndex = values.devices.findIndex(
+        (deviceId) => deviceId === selectedDeviceId
+      );
+
+      let updatedDevices = cloneDeep(values.devices);
+
+      if (selectedDeviceIndex !== -1) {
+        updatedDevices.splice(selectedDeviceIndex, 1);
+      } else {
+        updatedDevices.push(selectedDeviceId);
+      }
+      setFieldValue("devices", updatedDevices);
+    },
+    [values, setFieldValue]
+  );
+
+  const handleNextSubmission = useCallback(() => {
+    const errors = validateFormikFields(formik, fields);
+    if (errors.length > 0) return;
+
+    handleNextStep();
+  }, [formik, handleNextStep]);
 
   const handlePrevSubmission = useCallback(() => {
     handlePrevStep();
   }, [handlePrevStep]);
 
-  const buildingFloorDevices = buildings ? buildings.map((building) => {
-    let filteredFloors: Floor[] = [];
-    if (floors !== undefined) {
-      filteredFloors = floors?.contents
-        .map((floor) => ({
-          ...floor,
-          devices: floor.devices.filter((device) =>
-            values.devices.includes(device.id.toString())
-          ),
-        }))
-        .filter(
-          (floor) =>
-            building.id === floor.building.id && floor.devices.length > 0
-        );
-    }
-    return {
-      id: building.id,
-      name: building.name,
-      floors: filteredFloors,
-    };
-  }) : [];
+  useEffect(() => {
+    fields.forEach((field) => validateField(field));
+    // eslint-disable-next-line
+  }, []);
 
   useEffect(() => {
     getFloors(null);
   }, []);
 
-
   return (
-    <Box display="flex" flexDirection="column">
+    <Box width="100%">
+      {floorCheck?.length === 0 ? (
+        <>
+          <Box display="flex" justifyContent="center">
+            <Typography>
+              {values.buildingName} does not have floor and device yet! Please
+              make the floor and then proceed to device page by clicking this
+              button below!
+            </Typography>
+          </Box>
+          <Box display="flex" justifyContent="center">
+            <Button onClick={() => navigate("/floor")} variant="contained">
+              Floor Page
+            </Button>
+          </Box>
+        </>
+      ) : (
+        <>
+          <Typography variant="h6">
+            Building you Chose: {values.buildingName}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              border: "1px solid #c4c4c4",
+            }}
+          >
+            <Box
+              sx={{
+                padding: 3,
+              }}
+            >
+              <Box>
+                <>
+                  {floors &&
+                    floors?.contents
+                      .filter(
+                        (floor) =>
+                          values.buildingId === floor.building.id.toString()
+                      )
+                      .map((floor) => (
+                        <Box
+                          key={floor.id}
+                          display="flex"
+                          sx={{
+                            border: "1px solid #c4c4c4",
+                            marginBottom: 1,
+                          }}
+                          alignItems="center"
+                        >
+                          <Box
+                            sx={{
+                              minWidth: 100,
+                              marginRight: 1,
+                              marginBottom: 2,
+                              margin: 1,
+                            }}
+                          >
+                            {floor.name}
+                          </Box>
+                          <Box sx={{ width: "100%" }}>
+                            {floor.devices.map((device) => (
+                              <Tooltip
+                                key={device.id}
+                                title={device.description}
+                              >
+                                <Button
+                                  key={device.id}
+                                  onClick={() =>
+                                    handleSelectDevice(device.id.toString())
+                                  }
+                                  variant={
+                                    values.devices.includes(
+                                      device.id.toString()
+                                    )
+                                      ? "contained"
+                                      : "outlined"
+                                  }
+                                  color={
+                                    values.devices.includes(
+                                      device.id.toString()
+                                    )
+                                      ? "secondary"
+                                      : "inactive"
+                                  }
+                                  sx={{ margin: 1, width: 140 }}
+                                >
+                                  {device.name}
+                                </Button>
+                              </Tooltip>
+                            ))}
+                          </Box>
+                        </Box>
+                      ))}
+                </>
+              </Box>
+            </Box>
+          </Box>
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            {touched.devices &&
+            errors.devices &&
+            typeof errors.devices === "string" ? (
+              <Typography
+                variant="caption"
+                color={red[700]}
+                sx={{ marginTop: 1 }}
+              >
+                {errors.devices}
+              </Typography>
+            ) : null}
+          </Box>
+          {deviceState ? (
+            <>
+              <Box
+                display="flex"
+                justifyContent="center"
+                sx={{ marginBottom: 1 }}
+              >
+                <Typography variant="h6">
+                  Building you chose does not have a device yet! Please create
+                  one by device page or by clicking this button below
+                </Typography>
+              </Box>
+              <Box display="flex" justifyContent="center">
+                <Button variant="contained" onClick={() => navigate("/device")}>
+                  Device Page
+                </Button>
+              </Box>
+            </>
+          ) : null}
+        </>
+      )}
       <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
-        flexDirection="column"
+        sx={{ marginTop: 5 }}
       >
-        <Box
-          sx={{
-            marginTop: 5,
-            p: 2,
-          }}
+        <Button
+          variant="contained"
+          onClick={handlePrevSubmission}
+          sx={{ marginRight: 1 }}
         >
-          <Box sx={{ marginBottom: 2 }}>
-            <Typography variant="h2" align="center">
-              {values.title}
-            </Typography>
-          </Box>
-          <Box sx={{ marginBottom: 2 }}>
-            {values.media ? (
-              <img
-                alt="banner"
-                src={values.media.image.src}
-                style={{ width: "100%" }}
-              />
-            ) : null}
-          </Box>
-          <Box
-            sx={{
-              marginBottom: 2,
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box>
-              <Typography fontWeight="bold">Start Date</Typography>
-              <Typography>
-                {new Date(values.startDate).toDateString()}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography fontWeight="bold">End Date</Typography>
-              <Typography>{new Date(values.endDate).toDateString()}</Typography>
-            </Box>
-          </Box>
-          <Box sx={{ marginBottom: 2 }}>
-            <Typography display="flex" fontWeight="bold">
-              Notes
-            </Typography>
-            <Typography>{values.notes}</Typography>
-          </Box>
-          <Typography display="flex" fontWeight="bold">
-            Device
-          </Typography>
-          <Box>
-            {buildingFloorDevices &&
-              buildingFloorDevices.map((building) => (
-                <React.Fragment key={building.id}>
-                  {building.floors!.length > 0 ? (
-                    <Box>
-                      <Typography>{`• ${building.name}`}</Typography>
-                      <Box>
-                        {building.floors!.map((floor) => (
-                          <Box
-                            key={`building-${building.id}-floor-${floor.id}`}
-                            pl={2}
-                          >
-                            <Typography>{`• ${floor.name}`}</Typography>
-                            <Box>
-                              {floor.devices.map((device) => (
-                                <Box
-                                  key={`building-${building.id}-floor-${floor.id}-device-${device.id}`}
-                                  pl={2}
-                                >
-                                  <Typography>{`• ${device.name}`}</Typography>
-                                </Box>
-                              ))}
-                            </Box>
-                          </Box>
-                        ))}
-                      </Box>
-                    </Box>
-                  ) : null}
-                </React.Fragment>
-              ))}
-          </Box>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          sx={{ marginTop: 1 }}
+          Previous
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleNextSubmission}
+          disabled={deviceState ? true : false}
         >
-          <Button
-            variant="contained"
-            sx={{ marginRight: 1 }}
-            onClick={handlePrevSubmission}
-          >
-            Previous
-          </Button>
-          <Button variant="contained" onClick={() => handleSubmit()}>
-            Submit
-          </Button>
-        </Box>
+          Next
+        </Button>
       </Box>
     </Box>
   );

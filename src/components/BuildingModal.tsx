@@ -1,5 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
 
 import {
   Box,
@@ -9,20 +8,14 @@ import {
   DialogContent,
   Tab,
   Tabs,
+  Typography,
 } from "@mui/material";
 
 import CreateBuilding from "../components/CreateBuilding";
 import UpdateBuilding from "../components/UpdateBuilding";
 import DeleteBuilding from "../components/DeleteBuilding";
 
-import { RootState } from "../store";
-
 import usePermission from "../hooks/usePermission";
-
-type Props = {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 type TabPanelProps = {
   children?: React.ReactNode;
@@ -57,44 +50,32 @@ const a11yProps = (index: number) => {
   };
 };
 
+type Props = {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 const BuildingModal = (props: Props) => {
+  const { open, setOpen } = props;
   const [value, setValue] = useState(0);
-  const profile = useSelector((p: RootState) => p.profile);
 
   const hasPermissionCreateBuilding = usePermission("create_building");
   const hasPermissionUpdateBuilding = usePermission("update_building");
   const hasPermissionDeleteBuilding = usePermission("delete_building");
 
-  const hasPermission = useMemo(() => {
-    if (!profile) return false;
-    const { role } = profile;
+  const hasPermission =
+    hasPermissionCreateBuilding &&
+    hasPermissionUpdateBuilding &&
+    hasPermissionDeleteBuilding;
 
-    const permissions = role.permissions.map((p) => p.value);
-
-    if (
-      permissions.includes("create_building") &&
-      permissions.includes("update_building") &&
-      permissions.includes("delete_building")
-    ) {
-      return true;
-    }
-    return false;
-  }, [profile]);
-
-  const handleChange = useCallback(
-    (_: React.SyntheticEvent, newValue: number) => {
-      setValue(newValue);
-    },
-    [value]
-  );
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
 
   return (
     <>
       {hasPermission ? (
-        <Dialog
-          open={props.open}
-          onClose={() => props.setOpen(false)}
-        >
+        <Dialog open={open} onClose={() => setOpen(false)}>
           <DialogTitle>Building Menu</DialogTitle>
           <DialogContent>
             <Tabs
@@ -114,12 +95,12 @@ const BuildingModal = (props: Props) => {
             </Tabs>
             {hasPermissionCreateBuilding ? (
               <TabPanel value={value} index={0}>
-                <CreateBuilding setOpen={props.setOpen} />
+                <CreateBuilding setOpen={setOpen} />
               </TabPanel>
             ) : null}
             {hasPermissionUpdateBuilding ? (
               <TabPanel value={value} index={1}>
-                <UpdateBuilding setOpen={props.setOpen} />
+                <UpdateBuilding setOpen={setOpen} />
               </TabPanel>
             ) : null}
             {hasPermissionDeleteBuilding ? (
@@ -128,13 +109,17 @@ const BuildingModal = (props: Props) => {
               </TabPanel>
             ) : null}
             <Box sx={{ marginTop: 1 }}>
-              <Button variant="contained" onClick={() => props.setOpen(false)}>
+              <Button variant="contained" onClick={() => setOpen(false)}>
                 Close
               </Button>
             </Box>
           </DialogContent>
         </Dialog>
-      ) : null}
+      ) : (
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <Typography>Forbidden</Typography>
+        </Dialog>
+      )}
     </>
   );
 };

@@ -1,5 +1,5 @@
-import { type FormikContextType } from 'formik';
-import { CreateAnnouncementFormValues } from './form';
+import { type FormikContextType } from "formik";
+import { CreateAnnouncementFormValues } from "./form";
 
 export const validateFormikFields = (
   formik: FormikContextType<CreateAnnouncementFormValues>,

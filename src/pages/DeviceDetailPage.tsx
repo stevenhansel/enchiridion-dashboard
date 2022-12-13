@@ -7,24 +7,30 @@ import range from "lodash/range";
 
 import {
   Box,
+  Button,
   Typography,
   IconButton,
   Dialog,
   DialogContent,
   DialogTitle,
-  Button,
-  Paper,
+  CircularProgress,
+  Snackbar,
   Card,
   CardActions,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+
+import {
+  Edit as EditIcon,
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 
 import { useGetDeviceDetailQuery } from "../services/device";
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
-import Layout from "../components/Layout";
 import UpdateDeviceModal from "../components/UpdateDeviceModal";
+import DeleteDeviceModal from "../components/DeleteDeviceModal";
+import AnnouncementOnDeviceDetail from "../components/AnnouncementOnDeviceDetail";
 
 import { usePermission } from "../hooks";
 import { statusActions } from "../types/constants";
@@ -40,9 +46,27 @@ const toDate = (dateStr: string | undefined) =>
 const now = new Date();
 
 const DeviceDetailPage = () => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { deviceId = "" } = useParams();
+  const hasUpdateDevicePermission = usePermission("update_device");
+  const hasDeleteDevicePermission = usePermission("delete_device");
+  const hasViewAnnouncementListPermission = usePermission(
+    "view_list_announcement"
+  );
 
-  const [open, setOpen] = useState(false);
+  const { data: devices, isLoading: isDeviceDetailLoading } =
+    useGetDeviceDetailQuery(
+      { deviceId },
+      {
+        skip: deviceId === "",
+      }
+    );
+
+  const [getAnnouncements, { data: announcements }] =
+    useLazyGetAnnouncementsQuery();
+
   const [actionType, setActionType] = useState("");
   const [realtimeChartData, setRealtimeChartData] = useState<
     { x: string; y: number }[]
@@ -53,25 +77,12 @@ const DeviceDetailPage = () => {
     }))
   );
 
-  const hasUpdateDevicePermission = usePermission("update_device");
-  const hasDeleteDevicePermission = usePermission("delete_device");
-
   const { lastMessage: deviceStatusMessage } = useWebSocket(
     `${config.wssBaseUrl}/v1/device_status/${deviceId}`
   );
   const { lastMessage: livestreamMessage } = useWebSocket(
     `${config.wssBaseUrl}/v1/livestream/${deviceId}`
   );
-
-  const { data: devices } = useGetDeviceDetailQuery(
-    { deviceId },
-    {
-      skip: deviceId === "",
-    }
-  );
-
-  const [getAnnouncements, { data: announcements }] =
-    useLazyGetAnnouncementsQuery();
 
   useEffect(() => {
     if (
@@ -105,13 +116,14 @@ const DeviceDetailPage = () => {
     }
   }, [devices, deviceId]);
 
-  useEffect(() => {
-    getAnnouncements({
-      status: actionType,
-      populateMedia: true,
-      deviceId: deviceId,
-    });
-  }, [getAnnouncements, actionType, deviceId]);
+  const isLoading = isDeviceDetailLoading;
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
 
   useEffect(() => {
     if (livestreamMessage !== null) {
@@ -135,14 +147,17 @@ const DeviceDetailPage = () => {
       : DeviceState.Loading;
   }, [deviceStatusMessage]);
 
+  useEffect(() => {
+    getAnnouncements(null);
+  }, []);
+
   return (
-    <Layout>
-      <Box>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Typography align="center" variant="h5" fontWeight="bold">
-            {devices?.name}
-          </Typography>
-          {hasUpdateDevicePermission ? (
+    <Box>
+      <Box display="flex" justifyContent="center" alignItems="center">
+        <Typography align="center" variant="h5" fontWeight="bold">
+          {devices?.name}
+        </Typography>
+        {/* {hasUpdateDevicePermission ? (
             <IconButton
               onClick={() => {
                 setOpen(true);
@@ -155,124 +170,173 @@ const DeviceDetailPage = () => {
             <IconButton>
               <DeleteIcon />
             </IconButton>
-          ) : null}
-        </Box>
+          ) : null} */}
+      </Box>
 
-        <Box display="flex" justifyContent="center">
-          <Box sx={{ marginTop: 8 }}>
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography display="flex" fontWeight="bold">
-                ID
-              </Typography>
-              <Typography>{deviceId}</Typography>
-            </Box>
-
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Location</Typography>
-              <Typography>{devices?.location}</Typography>
-            </Box>
-
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Description</Typography>
-              <Typography>{devices?.description}</Typography>
-            </Box>
+      <Box display="flex" justifyContent="center">
+        <Box sx={{ marginTop: 8 }}>
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography display="flex" fontWeight="bold">
+              ID
+            </Typography>
+            <Typography>{deviceId}</Typography>
           </Box>
 
-          <Box sx={{ marginTop: 8, marginLeft: 40 }}>
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Created at</Typography>
-              <Typography>{toDate(devices?.createdAt)}</Typography>
-            </Box>
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Location</Typography>
+            <Typography>{devices?.location}</Typography>
+          </Box>
 
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Updated at</Typography>
-              <Typography>{toDate(devices?.updatedAt)}</Typography>
-            </Box>
-
-            <Box sx={{ marginBottom: 5 }}>
-              <Typography fontWeight="bold">Device Status</Typography>
-              <DeviceStatus state={deviceState} />
-            </Box>
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Description</Typography>
+            <Typography>{devices?.description}</Typography>
           </Box>
         </Box>
 
-        <Box>
-          <Typography sx={{ marginBottom: 1 }} variant="h5" fontWeight="bold">
-            Announcement
-          </Typography>
-
-          <Box sx={{ marginBottom: 1 }}>
-            <Card sx={{ bgcolor: "#D2E4EF" }}>
-              <CardActions>
-                {statusActions &&
-                  statusActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      onClick={() => setActionType(action.value)}
-                      variant={
-                        actionType === action.value ? "contained" : "text"
-                      }
-                      sx={{ marginRight: 2 }}
-                      value={actionType}
-                    >
-                      {action.label}
-                    </Button>
-                  ))}
-              </CardActions>
-            </Card>
+        <Box sx={{ marginTop: 8, marginLeft: 40 }}>
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Created at</Typography>
+            <Typography>{toDate(devices?.createdAt)}</Typography>
           </Box>
 
-          {announcements && announcements.contents.length > 0 ? (
-            <Box>
-              {announcements &&
-                announcements.contents.map((announcement) => (
-                  <Box
-                    key={announcement.id}
-                    display="flex"
-                    sx={{ marginBottom: 1 }}
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Updated at</Typography>
+            <Typography>{toDate(devices?.updatedAt)}</Typography>
+          </Box>
+
+          <Box sx={{ marginBottom: 5 }}>
+            <Typography fontWeight="bold">Device Status</Typography>
+            <DeviceStatus state={deviceState} />
+          </Box>
+        </Box>
+      </Box>
+
+      <Box>
+        <Typography sx={{ marginBottom: 1 }} variant="h5" fontWeight="bold">
+          Announcement
+        </Typography>
+
+        <Box sx={{ marginBottom: 1 }}>
+          <Card sx={{ bgcolor: "#D2E4EF" }}>
+            <CardActions>
+              {statusActions &&
+                statusActions.map((action, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => setActionType(action.value)}
+                    variant={actionType === action.value ? "contained" : "text"}
+                    sx={{ marginRight: 2 }}
+                    value={actionType}
                   >
-                    <Paper elevation={3}>
-                      <img
-                        src={announcement.media}
-                        style={{ margin: "10px" }}
-                      />
-                      <Typography
-                        variant="h5"
-                        fontWeight="bold"
-                        sx={{ marginLeft: "10px" }}
-                      >
-                        {announcement.title}
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        sx={{ marginBottom: 1, marginLeft: "10px" }}
-                      >
-                        {announcement.status.label}
-                      </Button>
-                      <Box
-                        display="flex"
-                        flexDirection="row"
-                        justifyContent="space-between"
-                        sx={{ marginBottom: 1, marginLeft: "10px" }}
-                      >
-                        <Typography>
-                          by&nbsp;{announcement.author.name}
-                        </Typography>
-                        <Typography sx={{ marginRight: "10px" }}>
-                          {dayjs(announcement.startDate).format("D MMMM YYYY")}
-                          &nbsp;-&nbsp;
-                          {dayjs(announcement.endDate).format("D MMMM YYYY")}
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  </Box>
+                    {action.label}
+                  </Button>
                 ))}
-            </Box>
-          ) : (
-            <Typography>Announcement Not Found!</Typography>
-          )}
+            </CardActions>
+          </Card>
         </Box>
+        {announcements && announcements.contents.length > 0 ? (
+          <Box>
+            {hasUpdateDevicePermission ? (
+              <IconButton
+                onClick={() => {
+                  setOpenUpdateModal(true);
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            ) : null}
+            {hasDeleteDevicePermission ? (
+              <IconButton
+                onClick={() => {
+                  setOpenDeleteModal(true);
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            ) : null}
+            <Box display="flex" justifyContent="center">
+              <Box sx={{ marginTop: 8 }}>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography display="flex" fontWeight="bold">
+                    ID
+                  </Typography>
+                  <Typography>{deviceId}</Typography>
+                </Box>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Location</Typography>
+                  <Typography>{devices?.location}</Typography>
+                </Box>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Description</Typography>
+                  <Typography>{devices?.description}</Typography>
+                </Box>
+              </Box>
 
+              <Box sx={{ marginTop: 8, marginLeft: 40 }}>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Created at</Typography>
+                  <Typography>{toDate(devices?.createdAt)}</Typography>
+                </Box>
+                <Box sx={{ marginBottom: 5 }}>
+                  <Typography fontWeight="bold">Updated at</Typography>
+                  <Typography>{toDate(devices?.updatedAt)}</Typography>
+                </Box>
+              </Box>
+            </Box>
+            {hasViewAnnouncementListPermission ? (
+              <AnnouncementOnDeviceDetail deviceId={deviceId} />
+            ) : null}
+            <Dialog
+              open={openUpdateModal}
+              onClose={() => {
+                setOpenUpdateModal(false);
+              }}
+            >
+              <DialogTitle>Update {devices?.name}</DialogTitle>
+              <DialogContent>
+                <UpdateDeviceModal
+                  open={openUpdateModal}
+                  setOpen={setOpenUpdateModal}
+                  deviceName={devices?.name}
+                />
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={openDeleteModal}
+              onClose={() => {
+                setOpenDeleteModal(false);
+              }}
+            >
+              <DialogTitle>Delete {devices?.name}</DialogTitle>
+              <DialogContent>
+                <DeleteDeviceModal
+                  setOpen={setOpenDeleteModal}
+                  deviceName={devices?.name}
+                  deviceId={devices?.id}
+                />
+              </DialogContent>
+            </Dialog>
+          </Box>
+        ) : (
+          <Box display="flex" justifyContent="center" alignItems="center"></Box>
+        )}
+
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+          message={errorMessage}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
         {devices?.cameraEnabled ? (
           <Box>
             <Box>
@@ -300,24 +364,8 @@ const DeviceDetailPage = () => {
             </Box>
           </Box>
         ) : null}
-
-        <Dialog
-          open={open}
-          onClose={() => {
-            setOpen(false);
-          }}
-        >
-          <DialogTitle>Update {devices?.name}</DialogTitle>
-          <DialogContent>
-            <UpdateDeviceModal
-              open={open}
-              setOpen={setOpen}
-              deviceName={devices?.name}
-            />
-          </DialogContent>
-        </Dialog>
       </Box>
-    </Layout>
+    </Box>
   );
 };
 

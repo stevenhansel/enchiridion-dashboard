@@ -14,7 +14,7 @@ export type CreateDevice = {
   name: string;
   description: string;
   floorId: number | null;
-}
+};
 
 export type Role = {
   name: string;
@@ -51,11 +51,12 @@ export type RegisterForm = {
   password: string;
   reason: string;
   role: string | null;
+  buildingId: number | null;
 };
 
 export type ActionButton = {
   label: string;
-  value: string;
+  value: string | null;
 };
 
 export type BuildingFloorDevices = {
@@ -82,6 +83,8 @@ export type Announcement = {
   status: Status;
   author: Author;
   media: string;
+  mediaType: string;
+  mediaDuration: number;
   notes: string;
   devices: Device[];
   createdAt: string;
@@ -128,7 +131,7 @@ export type UpdateDevice = {
   description: string;
   floorId: number | null;
   deviceId: string;
-}
+};
 
 // floor
 export type Floor = {
@@ -207,7 +210,7 @@ export type ActionCreateRequest = {
   announcementId: number;
   extendedEndDate: string | null;
   description: string | null;
-  deviceIds: number[];
+  newDeviceIds: number[];
 };
 
 export type User = {
@@ -223,4 +226,4 @@ export type User = {
 export type ActionStatus = {
   label: string;
   value: string;
-}
+};

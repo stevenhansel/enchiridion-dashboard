@@ -71,7 +71,7 @@ const CreateFloorModal = (props: Props) => {
 
   const getBuildingDelayed = useMemo(() => {
     return debounce((query: string) => {
-      getBuildings({ limit: 5 }).then(({ data }) =>
+      getBuildings({ limit: 5, query }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
@@ -83,11 +83,11 @@ const CreateFloorModal = (props: Props) => {
       );
       setIsBuildingFilterLoading(false);
     }, 250);
-  }, []);
+  }, [getBuildings]);
 
   useEffect(() => {
     if (open) {
-      getBuildings({ limit: 5 }).then(({ data }) =>
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
             ? data.map((b) => ({
@@ -111,10 +111,10 @@ const CreateFloorModal = (props: Props) => {
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box>
+        <Typography>Name</Typography>
         <TextField
           margin="dense"
           id="name"
-          label="Name"
           fullWidth
           variant="standard"
           autoComplete="off"
@@ -148,15 +148,19 @@ const CreateFloorModal = (props: Props) => {
                 setIsBuildingFilterLoading(true);
               }
             }}
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.id}>
+                  {option.name}
+                </li>
+              );
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Building"
                 error={
                   formik.touched.buildingId && Boolean(formik.errors.buildingId)
-                }
-                helperText={
-                  formik.touched.buildingId && formik.errors.buildingId
                 }
                 InputProps={{
                   ...params.InputProps,
@@ -174,9 +178,15 @@ const CreateFloorModal = (props: Props) => {
           />
           {formik.touched.buildingId && formik.errors.buildingId ? (
             <Typography
-              sx={{ fontSize: 12, marginTop: 0.3754, color: "#D32F2F" }}
+              sx={{
+                fontSize: "12px",
+                marginTop: "3px",
+                marginRight: "14px",
+                color: "#D32F2F",
+                marginBottom: 1,
+              }}
             >
-              Building is required
+              {formik.touched.buildingId && formik.errors.buildingId}
             </Typography>
           ) : null}
         </Box>

@@ -7,23 +7,24 @@ import {
   InputLabel,
   MenuItem,
   FormControl,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
   Typography,
   Snackbar,
+  IconButton,
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import CloseIcon from "@mui/icons-material/Close";
+
+import {
+  FiberManualRecord as FiberManualRecordIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
+
 import { useFormik } from "formik";
 import * as yup from "yup";
 
 import { useCreateBuildingMutation } from "../services/building";
 
 import { colorBuilding } from "../types/constants";
-import { ApiErrorResponse } from "../services/error";
+import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
 
 const validationSchema = yup.object({
   name: yup
@@ -52,9 +53,19 @@ const CreateBuilding = (props: Props) => {
       color: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      addNewBuilding(values);
-      props.setOpen(false);
+    onSubmit: async (values) => {
+      try {
+        await addNewBuilding(values).unwrap();
+        props.setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { errorCode, messages } = err.data;
+          const [message] = messages;
+          if (errorCode === "BUILDING_NAME_ALREADY_EXISTS") {
+            setErrorMessage(message);
+          }
+        }
+      }
     },
   });
 
@@ -64,19 +75,6 @@ const CreateBuilding = (props: Props) => {
     }
     setErrorMessage("");
   };
-
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
 
   const handleChange = (e: SelectChangeEvent) => {
     formik.setFieldValue("color", e.target.value as string);
@@ -91,11 +89,11 @@ const CreateBuilding = (props: Props) => {
   return (
     <>
       <form onSubmit={formik.handleSubmit}>
+        <Typography>Name</Typography>
         <TextField
           autoComplete="off"
           margin="dense"
           id="name"
-          label="Name"
           fullWidth
           variant="standard"
           sx={{ marginBottom: 2 }}
@@ -156,7 +154,18 @@ const CreateBuilding = (props: Props) => {
           autoHideDuration={6000}
           onClose={handleClose}
           message={errorMessage}
-          action={action}
+          action={
+            <>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
+          }
         />
       </form>
     </>

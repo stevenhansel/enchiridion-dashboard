@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import {
@@ -14,8 +14,9 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 
 import { authApi } from "../services/auth";
-import { AppDispatch, RootState } from "../store";
+import { isApiError, isReduxError } from "../services/error";
 
+import { AppDispatch } from "../store";
 
 import backgroundImage from "../assets/jpg/background-auth.jpeg";
 
@@ -25,7 +26,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const SendLinkVerificationPage = (props: Props) => {
+const SendLinkVerificationPage = (_: Props) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isPressed, setIsPressed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,19 +35,30 @@ const SendLinkVerificationPage = (props: Props) => {
   );
 
   const dispatch: AppDispatch = useDispatch();
-
   const { email } = useParams();
 
   const handleVerification = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-   await dispatch(authApi.endpoints.emailVerification.initiate({email}));
+    setIsPressed(true);
+    try {
+      await dispatch(
+        authApi.endpoints.emailVerification.initiate({ email })
+      ).unwrap();
+    } catch (err) {
+      if (isReduxError(err) && isApiError(err.data)) {
+        const { errorCode, messages } = err.data;
+        const [message] = messages;
+        if (errorCode === "USER_NOT_FOUND") {
+          setErrorMessage(message);
+        } else if (errorCode === "USER_ALREADY_VERIFIED") {
+          setErrorMessage(message);
+        }
+      }
+    }
     setIsLoading(false);
   }, [email]);
 
-  const handleClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
     }
@@ -70,22 +82,6 @@ const SendLinkVerificationPage = (props: Props) => {
       return () => clearInterval(interval);
     }, 1000);
   }, [isPressed]);
-
-  const action = (
-    <React.Fragment>
-      <Button color="secondary" size="small" onClick={handleClose}>
-        UNDO
-      </Button>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  );
 
   return (
     <React.Fragment>
@@ -117,7 +113,21 @@ const SendLinkVerificationPage = (props: Props) => {
             autoHideDuration={6000}
             onClose={() => setErrorMessage("")}
             message={errorMessage}
-            action={action}
+            action={
+              <React.Fragment>
+                <Button color="secondary" size="small" onClick={handleClose}>
+                  UNDO
+                </Button>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </React.Fragment>
+            }
           />
           <Box
             sx={{

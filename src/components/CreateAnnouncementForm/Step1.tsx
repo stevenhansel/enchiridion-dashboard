@@ -38,32 +38,54 @@ const Step1 = () => {
         const reader = new FileReader();
 
         reader.onload = (e) => {
-          if (!e.target || (e.target && !e.target.result))
-            throw new Error("Something went wrong when reading the image");
-
-          const image = new Image();
-          image.onload = () => {
-            setFieldValue("media", { file, image });
+          if (file.type === "video/mp4") {
+            if (!e.target || (e.target && !e.target.result))
+              throw new Error("Something went wrong when reading the video");
+            const video = document.createElement("video");
+            video.onloadedmetadata = () => {
+              setFieldValue("media", {
+                file,
+                image: null,
+                video,
+                duration: video.duration * 1000,
+                type: "video",
+              });
+            };
+            video.onerror = () => {
+              throw new Error("Something went wrong when reading the video");
+            };
+            video.src = e.target?.result as string;
+          } else if (file.type === "image/jpeg" || file.type === "image/jpg") {
+            if (!e.target || (e.target && !e.target.result))
+              throw new Error("Something went wrong when reading the image");
+            const image = new Image();
+            image.onload = () => {
+              setFieldValue("media", {
+                file,
+                image,
+                video: null,
+                duration: null,
+                type: "image",
+              });
+            };
+            image.onerror = () => {
+              throw new Error("Something went wrong when reading the image");
+            };
+            image.src = e.target?.result as string;
+          }
+          reader.onerror = () => {
+            throw new Error("Something went wrong when reading the file");
           };
-          image.onerror = () => {
-            throw new Error("Something went wrong when reading the image");
-          };
-          image.src = e.target.result as string;
-        };
-        reader.onerror = () => {
-          throw new Error("Something went wrong when reading the file");
         };
 
         reader.readAsDataURL(file);
       } catch (e) {
         if (e instanceof Error) {
-          // setError(e.message);
         }
       }
     },
     [setFieldValue]
   );
-  
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
     if (errors.length > 0) return;
@@ -73,7 +95,6 @@ const Step1 = () => {
 
   useEffect(() => {
     fields.forEach((field) => validateField(field));
-    // eslint-disable-next-line
   }, []);
 
   return (
@@ -84,7 +105,7 @@ const Step1 = () => {
       flexDirection="column"
       sx={{ width: "100%" }}
     >
-      <Box sx={{ marginBottom: 2, width: "100%" }}>
+      <Box sx={{ marginBottom: 2, width: 500 }}>
         <Typography>Title Announcement</Typography>
         <TextField
           fullWidth
@@ -95,40 +116,47 @@ const Step1 = () => {
           onChange={(e) => setFieldValue("title", e.target.value)}
           error={touched.title && Boolean(errors.title)}
         />
-
         {touched.title && errors.title ? (
           <Typography variant="caption" color={red[700]} fontSize="">
             {errors.title}
           </Typography>
         ) : null}
       </Box>
-
-      <Box sx={{ marginBottom: 2, width: "100%" }}>
+      <Box sx={{ marginBottom: 2, width: 500 }}>
         <Typography>File Announcement</Typography>
-        <Box display="flex" gap={10}>
-          <Button variant="contained" component="label">
-            Upload
-            <input
-              type="file"
-              hidden
-              accept=".jpg,.jpeg"
-              onChange={(e) => handleUploadImage(e)}
-            />
-          </Button>
+        <Button
+          variant="contained"
+          component="label"
+          color={touched.media && errors.media ? "error" : "primary"}
+        >
+          Upload
+          <input
+            type="file"
+            hidden
+            accept=".jpg,.jpeg,.mp4"
+            onChange={(e) => handleUploadImage(e)}
+          />
+        </Button>
 
-          {values.media !== null ? (
-            <Typography>{values.media.file.name}</Typography>
-          ) : null}
-        </Box>
+        {values.media !== null ? (
+          <Typography sx={{ marginLeft: 1 }} variant="caption" fontSize="">
+            {values.media.file.name}
+          </Typography>
+        ) : null}
 
         {touched.media && errors.media ? (
-          <Typography variant="caption" color={red[700]} fontSize="">
+          <Typography
+            variant="caption"
+            color={red[700]}
+            fontSize=""
+            sx={{ marginLeft: 1 }}
+          >
             {errors.media}
           </Typography>
         ) : null}
       </Box>
 
-      <Box sx={{ marginBottom: 2, width: "100%" }}>
+      <Box sx={{ marginBottom: 2, width: 500 }}>
         <DesktopDatePicker
           label="Start Date Announcement"
           inputFormat="MM/dd/yyyy"
@@ -143,7 +171,9 @@ const Step1 = () => {
             setFieldValue("endDate", newEndDate);
           }}
           renderInput={(params) => <TextField {...params} />}
-          shouldDisableDate={(date) => dayjs(date).isBefore(dayjs().subtract(1, 'day'))}
+          shouldDisableDate={(date) =>
+            dayjs(date).isBefore(dayjs().subtract(1, "day"))
+          }
         />
       </Box>
       {touched.startDate && errors.startDate ? (
@@ -152,14 +182,16 @@ const Step1 = () => {
         </Typography>
       ) : null}
 
-      <Box sx={{ marginBottom: 2, width: "100%" }}>
+      <Box sx={{ marginBottom: 2, width: 500 }}>
         <DesktopDatePicker
           label="End Date Announcement"
           inputFormat="MM/dd/yyyy"
           value={values.endDate}
           onChange={(newDate) => setFieldValue("endDate", newDate)}
           renderInput={(params) => <TextField {...params} />}
-          shouldDisableDate={(date) => dayjs(date).isSameOrBefore(values.startDate || dayjs())}
+          shouldDisableDate={(date) =>
+            dayjs(date).isSameOrBefore(values.startDate || dayjs())
+          }
         />
       </Box>
       {touched.endDate && errors.endDate ? (
@@ -168,7 +200,7 @@ const Step1 = () => {
         </Typography>
       ) : null}
 
-      <Box sx={{ marginBottom: 2, width: "100%" }}>
+      <Box sx={{ marginBottom: 2, width: 500 }}>
         <Typography>Notes tambahan</Typography>
         <TextField
           fullWidth
@@ -180,12 +212,12 @@ const Step1 = () => {
           onChange={(e) => setFieldValue("notes", e.target.value)}
           error={touched.notes && Boolean(errors.notes)}
         />
+        {touched.notes && errors.notes ? (
+          <Typography variant="caption" color={red[700]} fontSize="">
+            {errors.notes}
+          </Typography>
+        ) : null}
       </Box>
-      {touched.notes && errors.notes ? (
-        <Typography variant="caption" color={red[700]} fontSize="">
-          {errors.notes}
-        </Typography>
-      ) : null}
 
       <Box display="flex" justifyContent="center" alignItems="center">
         <Button variant="contained" onClick={handleNextSubmission}>

@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { useSelector } from "react-redux";
 
 import {
   Box,
@@ -13,9 +12,6 @@ import {
 
 import ExtendDate from "../components/ExtendDate";
 import ChangeDeviceRequest from "../components/ChangeDeviceRequest";
-import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
-
-import usePermission from "../hooks/usePermission";
 
 type Props = {
   open: boolean;
@@ -57,6 +53,8 @@ const a11yProps = (index: number) => {
 };
 
 const CreateRequestModal = (props: Props) => {
+  const {date, setOpen, open} = props
+
   const [value, setValue] = useState(0);
 
   const handleChange = useCallback(
@@ -69,8 +67,8 @@ const CreateRequestModal = (props: Props) => {
   return (
     <>
       <Dialog
-        open={props.open}
-        onClose={() => props.setOpen(false)}
+        open={open}
+        onClose={() => setOpen(false)}
         PaperProps={{ sx: { width: "100%", height: "100%" } }}
       >
         <DialogTitle>Create Request</DialogTitle>
@@ -84,13 +82,13 @@ const CreateRequestModal = (props: Props) => {
             <Tab label="Change Devices" {...a11yProps(1)} />
           </Tabs>
           <TabPanel value={value} index={0}>
-            <ExtendDate setOpen={props.setOpen} date={props.date} />
+            <ExtendDate setOpen={setOpen} date={date} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <ChangeDeviceRequest setOpen={props.setOpen} />
+            <ChangeDeviceRequest setOpen={setOpen} />
           </TabPanel>
           <Box sx={{ marginTop: 1 }}>
-            <Button variant="contained" onClick={() => props.setOpen(false)}>
+            <Button variant="contained" onClick={() => setOpen(false)}>
               Close
             </Button>
           </Box>

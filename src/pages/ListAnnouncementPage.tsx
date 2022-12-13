@@ -25,19 +25,20 @@ import {
   InputLabel,
   Autocomplete,
 } from "@mui/material";
-import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
-import CloseIcon from "@mui/icons-material/Close";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
-import { AnnouncementStatus } from "../types/constants";
-import { UserFilterOption, ActionStatus } from "../types/store";
+import {
+  Close as CloseIcon,
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+} from "@mui/icons-material";
+
+import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
+
+import { UserFilterOption } from "../types/store";
 
 import { ApiErrorResponse } from "../services/error";
 import { useLazyGetUsersQuery } from "../services/user";
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
-
-import Layout from "../components/Layout";
 
 import usePermission from "../hooks/usePermission";
 
@@ -47,7 +48,7 @@ const FETCH_LIMIT = 20;
 
 const ListAnnouncementPage = () => {
   const hasViewAnnouncementDetail = usePermission("view_list_announcement");
-  const hasViewAnnouncementMedia = usePermission("view_permission_media");
+  const hasViewAnnouncementMedia = usePermission("view_announcement_media");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -85,10 +86,8 @@ const ListAnnouncementPage = () => {
     },
   ] = useLazyGetAnnouncementsQuery();
 
-  const [
-    getUsers,
-    { data, isLoading: isGetUsersLoading, error: isUsersError },
-  ] = useLazyGetUsersQuery();
+  const [getUsers, { isLoading: isGetUsersLoading, error: isUsersError }] =
+    useLazyGetUsersQuery();
 
   const isLoading = isAnnouncementsLoading && isGetUsersLoading;
 
@@ -107,16 +106,6 @@ const ListAnnouncementPage = () => {
 
   const hasPermissionCreateAnnouncement = usePermission("create_announcement");
   const hasPermissionViewUserList = usePermission("view_list_user");
-
-  const handlePaginationPreviousPage = useCallback(
-    () => setPage((page) => page - 1),
-    []
-  );
-
-  const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
-    []
-  );
 
   const getUsersDelayed = useMemo(() => {
     return debounce((query: string) => {
@@ -145,6 +134,16 @@ const ListAnnouncementPage = () => {
     return page === announcements.totalPages;
   }, [page, announcements]);
 
+  const handlePaginationPreviousPage = useCallback(
+    () => setPage((page) => page - 1),
+    [page]
+  );
+
+  const handlePaginationNextPage = useCallback(
+    () => setPage((page) => page + 1),
+    [page]
+  );
+
   useEffect(() => {
     if (isAnnouncementsError && "data" in isAnnouncementsError) {
       setErrorMessage(
@@ -162,7 +161,7 @@ const ListAnnouncementPage = () => {
 
   useEffect(() => {
     if (hasPermissionViewUserList && open) {
-      getUsers({ limit: 5 }).then(({ data }) => {
+      getUsers({ limit: 5, query: userFilter?.name }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
             ? data.contents.map((u) => ({ id: u.id, name: u.name }))
@@ -170,10 +169,10 @@ const ListAnnouncementPage = () => {
         );
       });
     }
-  }, [getUsers, open]);
+  }, [getUsers, open, hasPermissionViewUserList]);
 
   return (
-    <Layout>
+    <>
       <Box
         sx={{
           alignItems: "center",
@@ -184,6 +183,12 @@ const ListAnnouncementPage = () => {
         {!isLoading ? (
           <>
             <Box>
+              <Box sx={{ marginBottom: 1 }}>
+                <Typography variant="h5" fontWeight="bold">
+                  {" "}
+                  Announcement Page{" "}
+                </Typography>
+              </Box>
               <Box
                 display="flex"
                 flexDirection="row"
@@ -193,11 +198,11 @@ const ListAnnouncementPage = () => {
                 {hasPermissionCreateAnnouncement ? (
                   <Button
                     size="large"
-                    sx={{ marginBottom: 3 }}
+                    sx={{ marginBottom: 2 }}
                     variant="contained"
                     onClick={() => navigate("/announcement/create")}
                   >
-                    + Create
+                    + Create Announcement
                   </Button>
                 ) : null}
               </Box>
@@ -230,6 +235,13 @@ const ListAnnouncementPage = () => {
                         option.name === value.name
                       }
                       sx={{ width: 220 }}
+                      renderOption={(props, option) => {
+                        return (
+                          <li {...props} key={option.id}>
+                            {option.name}
+                          </li>
+                        );
+                      }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -277,9 +289,7 @@ const ListAnnouncementPage = () => {
                         if (e.target.value === "") {
                           setStatus("");
                         } else {
-                          setStatus(
-                            e.target.value  
-                          );
+                          setStatus(e.target.value);
                         }
                       }}
                     >
@@ -290,23 +300,17 @@ const ListAnnouncementPage = () => {
                       <MenuItem value={"waiting_for_sync"}>
                         Waiting for Sync
                       </MenuItem>
-                      <MenuItem value={"active"}>
-                        Active
-                      </MenuItem>
+                      <MenuItem value={"active"}>Active</MenuItem>
                       <MenuItem value={"done"}>Done</MenuItem>
-                      <MenuItem value={"rejected"}>
-                        Rejected
-                      </MenuItem>
-                      <MenuItem value={"canceled"}>
-                        Canceled
-                      </MenuItem>
+                      <MenuItem value={"rejected"}>Rejected</MenuItem>
+                      <MenuItem value={"canceled"}>Canceled</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
-                <Box display="flex">
+                <Box>
                   <Button
                     size="large"
-                    sx={{ marginBottom: 3 }}
+                    sx={{ marginBottom: 3, marginLeft: 1 }}
                     variant="contained"
                     onClick={handleSearch}
                   >
@@ -317,7 +321,7 @@ const ListAnnouncementPage = () => {
             </Box>
             {announcements && announcements.contents.length > 0 ? (
               <>
-                <TableContainer component={Paper}>
+                <TableContainer component={Paper} sx={{ width: "100%" }}>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                       <TableRow>
@@ -329,7 +333,7 @@ const ListAnnouncementPage = () => {
                         <TableCell align="center">Author</TableCell>
                         <TableCell align="center">Created At</TableCell>
                         <TableCell align="center">
-                          {!hasViewAnnouncementMedia ? (
+                          {hasViewAnnouncementMedia ? (
                             <Typography fontSize="14px" fontWeight="bold">
                               Media
                             </Typography>
@@ -379,10 +383,10 @@ const ListAnnouncementPage = () => {
                             {toDate(announcement.createdAt)}
                           </TableCell>
                           <TableCell align="center">
-                            {!hasViewAnnouncementMedia ? (
+                            {hasViewAnnouncementMedia ? (
                               <Button
                                 onClick={() =>
-                                  handleNavigateToDetailPage(announcement.id)
+                                  handleSelectAnnouncementImage(announcement.id)
                                 }
                               >
                                 Open
@@ -448,7 +452,7 @@ const ListAnnouncementPage = () => {
           </IconButton>
         }
       />
-    </Layout>
+    </>
   );
 };
 

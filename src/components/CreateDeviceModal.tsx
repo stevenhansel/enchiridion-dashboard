@@ -6,6 +6,7 @@ import debounce from "lodash/debounce";
 
 import {
   Box,
+  ButtonGroup,
   Button,
   TextField,
   Typography,
@@ -14,7 +15,9 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import {
+  Close as CloseIcon,
+} from "@mui/icons-material";
 
 import { CreateDevice, UserFilterOption } from "../types/store";
 import { AppDispatch } from "../store";
@@ -64,7 +67,7 @@ const CreateDeviceModal = (props: Props) => {
   const [state, setState] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
-  const [getBuildings, { error: isGetBuildingsError, isLoading }] =
+  const [getBuildings, { error: isGetBuildingsError }] =
     useLazyGetBuildingsQuery();
   const [getFloors, { error: isGetFloorsError }] = useLazyGetFloorsQuery();
 
@@ -146,7 +149,7 @@ const CreateDeviceModal = (props: Props) => {
       buildingId: null,
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       handleCreateDevice(values);
     },
   });
@@ -160,16 +163,18 @@ const CreateDeviceModal = (props: Props) => {
 
   useEffect(() => {
     if (openBuildingFilter) {
-      getBuildings({ limit: 5 }).then(({ data }) => {
-        setBuildingFilterOptions(
-          data !== undefined
-            ? data.map((b) => ({
-                id: b.id,
-                name: b.name,
-              }))
-            : []
-        );
-      });
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(
+        ({ data }) => {
+          setBuildingFilterOptions(
+            data !== undefined
+              ? data.map((b) => ({
+                  id: b.id,
+                  name: b.name,
+                }))
+              : []
+          );
+        }
+      );
     }
   }, [openBuildingFilter]);
 
@@ -178,6 +183,7 @@ const CreateDeviceModal = (props: Props) => {
       getFloors({
         limit: 5,
         buildingId: buildingFilter !== null ? buildingFilter.id : null,
+        query: floorFilter?.name,
       }).then(({ data }) => {
         setFloorFilterOptions(
           data !== undefined
@@ -238,15 +244,15 @@ const CreateDeviceModal = (props: Props) => {
       ) : (
         <>
           <Box>
+            <Typography>Name</Typography>
             <TextField
               id="name"
-              label="Name"
-              variant="outlined"
+              variant="standard"
               autoComplete="off"
               onChange={(e) => formik.setFieldValue("name", e.target.value)}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
-              sx={{ marginRight: 1, marginBottom: 1, marginTop: 1 }}
+              sx={{ marginRight: 1, marginBottom: 2 }}
               fullWidth
             />
           </Box>
@@ -277,6 +283,13 @@ const CreateDeviceModal = (props: Props) => {
                     setIsBuildingFilterLoading(true);
                     getBuildingDelayed(newInputValue);
                   }
+                }}
+                renderOption={(props, option) => {
+                  return (
+                    <li {...props} key={option.id}>
+                      {option.name}
+                    </li>
+                  );
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -346,6 +359,13 @@ const CreateDeviceModal = (props: Props) => {
                     getFloorDelayed(newInputValue);
                   }
                 }}
+                renderOption={(props, option) => {
+                  return (
+                    <li {...props} key={option.id}>
+                      {option.name}
+                    </li>
+                  );
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -386,23 +406,27 @@ const CreateDeviceModal = (props: Props) => {
               ) : null}
             </Box>
           </Box>
+          <Box>
+            <Typography>Description</Typography>
+            <TextField
+              id="description"
+              variant="standard"
+              autoComplete="off"
+              onChange={(e) =>
+                formik.setFieldValue("description", e.target.value)
+              }
+              error={
+                formik.touched.description && Boolean(formik.errors.description)
+              }
+              helperText={
+                formik.touched.description && formik.errors.description
+              }
+              sx={{ marginRight: 1, marginBottom: 1 }}
+              fullWidth
+            />
+          </Box>
         </>
       )}
-      <Box>
-        <TextField
-          id="description"
-          label="Description"
-          variant="outlined"
-          autoComplete="off"
-          onChange={(e) => formik.setFieldValue("description", e.target.value)}
-          error={
-            formik.touched.description && Boolean(formik.errors.description)
-          }
-          helperText={formik.touched.description && formik.errors.description}
-          sx={{ marginRight: 1, marginBottom: 1 }}
-          fullWidth
-        />
-      </Box>
 
       {state ? null : (
         <Box sx={{ marginTop: 1 }}>

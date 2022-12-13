@@ -5,7 +5,6 @@ import axios from "../utils/axiosInstance";
 import { User, Pagination, Action } from "../types/store";
 
 import { urlBuilder } from "../utils";
-import { number } from "yup";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -17,9 +16,9 @@ export const userApi = createApi({
       {
         page?: number;
         limit?: number;
-        query?: string;
-        status?: string;
-        role?: string; 
+        query?: string | null;
+        status?: string | null;
+        role?: string | null; 
       } | null
     >({
       query: (params) => ({

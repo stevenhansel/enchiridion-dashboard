@@ -1,28 +1,34 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import debounce from "lodash/debounce";
 
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Snackbar from "@mui/material/Snackbar";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
-import { CircularProgress } from "@mui/material";
-import Autocomplete from "@mui/material/Autocomplete";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
+import {
+  CircularProgress,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  Paper,
+  TableRow,
+  Button,
+  Typography,
+  TextField,
+  Snackbar,
+  IconButton,
+  Autocomplete,
+  InputLabel,
+  FormControl,
+  MenuItem,
+} from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+
+import {
+  Close as CloseIcon,
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+} from "@mui/icons-material";
 
 import {
   useLazyGetUsersQuery,
@@ -31,7 +37,6 @@ import {
 
 import { useLazyGetRolesQuery } from "../services/roles";
 
-import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
 import usePermission from "../hooks/usePermission";
@@ -49,10 +54,8 @@ const ListUsersPage = () => {
     getUsers,
     { data: users, isLoading: isUserLoading, error: isUserError },
   ] = useLazyGetUsersQuery();
-  const [
-    getRoles,
-    { data: roles, isLoading: isRoleLoading, error: isRoleError },
-  ] = useLazyGetRolesQuery();
+  const [getRoles, { isLoading: isRoleLoading, error: isRoleError }] =
+    useLazyGetRolesQuery();
   const [approveRejectUser, { error: isApproveRejectUserError }] =
     useApproveRejectUserMutation();
   const [page, setPage] = useState(1);
@@ -65,6 +68,11 @@ const ListUsersPage = () => {
   const [roleFilter, setRoleFilter] = useState<RoleFilterOption | null>(null);
   const [isRoleFilterLoading, setIsRoleFilterLoading] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const userQueryParams = searchParams.get("userQueryParams");
+  const roleQueryParams = searchParams.get("roleQueryParams");
+  const statusQueryParams = searchParams.get("statusQueryParams");
 
   const getUsersQueryParams = useMemo(
     () => ({
@@ -79,6 +87,15 @@ const ListUsersPage = () => {
   const isLoading = isUserLoading && isRoleLoading;
 
   const handleSearch = useCallback(() => {
+    if (query === "" && roleFilter === null && status === "") {
+      setSearchParams({});
+    } else {
+      setSearchParams({
+        userQueryParams: query,
+        roleQueryParams: roleFilter !== null ? roleFilter.value : "",
+        statusQueryParams: status,
+      });
+    }
     getUsers(getUsersQueryParams);
   }, [query, status, roleFilter]);
 
@@ -109,22 +126,6 @@ const ListUsersPage = () => {
     }, 250);
   }, [getRoles]);
 
-  const handleOpenAutocomplete = useCallback(() => {
-    getRoles({ query, limit: 5 }).then(({ data }) => {
-      setRoleFilterOptions(
-        data !== undefined
-          ? data.map((r) => ({
-              name: r.name,
-              value: r.value,
-              description: r.description,
-            }))
-          : []
-      );
-      setIsRoleFilterLoading(false);
-    });
-    setOpen(true);
-  }, [open]);
-
   const userApprove = (userId: string, userStatus: boolean) => {
     approveRejectUser({ userId, userStatus });
   };
@@ -151,7 +152,7 @@ const ListUsersPage = () => {
 
   useEffect(() => {
     if (open) {
-      getRoles({ limit: 5 }).then(({ data }) => {
+      getRoles({ limit: 5, query: roleFilter?.name }).then(({ data }) => {
         setRoleFilterOptions(
           data !== undefined
             ? data.map((r) => ({
@@ -163,7 +164,7 @@ const ListUsersPage = () => {
         );
       });
     }
-  }, [open]);
+  }, [getRoles, open]);
 
   useEffect(() => {
     if (isUserError && "data" in isUserError) {
@@ -179,8 +180,21 @@ const ListUsersPage = () => {
     }
   }, [isUserError]);
 
+  useEffect(() => {
+    getUsers({
+      query: userQueryParams,
+      role: roleQueryParams,
+      status: statusQueryParams,
+    });
+  }, [userQueryParams, roleQueryParams, statusQueryParams]);
+
   return (
-    <Layout>
+    <>
+      <Box sx={{ marginBottom: 1 }}>
+        <Typography variant="h5" fontWeight="bold">
+          List User Page
+        </Typography>
+      </Box>
       <Box>
         <Box display="flex">
           <TextField
@@ -190,14 +204,16 @@ const ListUsersPage = () => {
             autoComplete="off"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            sx={{ marginBottom: 2, marginRight: 1 }}
+            sx={{ marginBottom: 1, marginRight: 1 }}
           />
           <Box>
             <Autocomplete
               options={roleFilterOptions}
               loading={isRoleLoading}
               open={open}
-              onOpen={handleOpenAutocomplete}
+              onOpen={() => {
+                setOpen(true);
+              }}
               onClose={() => {
                 setOpen(false);
               }}
@@ -215,6 +231,13 @@ const ListUsersPage = () => {
                   setRoleFilterOptions([]);
                   setIsRoleFilterLoading(true);
                 }
+              }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.value}>
+                    {option.name}
+                  </li>
+                );
               }}
               renderInput={(params) => (
                 <TextField
@@ -237,14 +260,14 @@ const ListUsersPage = () => {
               sx={{ width: 150, marginRight: 1 }}
             />
           </Box>
-          <Box sx={{ minWidth: 120 }}>
+          <Box sx={{ width: 250 }}>
             <FormControl fullWidth>
               <InputLabel id="status">Status</InputLabel>
               <Select
                 labelId="status"
                 id="status"
                 value={status}
-                label="Age"
+                label="Status"
                 onChange={(e: SelectChangeEvent) => {
                   setStatus(e.target.value as string);
                 }}
@@ -259,7 +282,12 @@ const ListUsersPage = () => {
             </FormControl>
           </Box>
           <Box>
-            <Button variant="contained" onClick={handleSearch} size="large">
+            <Button
+              variant="contained"
+              onClick={handleSearch}
+              size="large"
+              sx={{ marginLeft: 1 }}
+            >
               Search
             </Button>
           </Box>
@@ -268,7 +296,7 @@ const ListUsersPage = () => {
           <CircularProgress />
         ) : users && users.contents.length > 0 ? (
           <>
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} sx={{ width: "100%" }}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
@@ -301,7 +329,7 @@ const ListUsersPage = () => {
                           {profile.status.label}
                         </TableCell>
                         <TableCell align="center">
-                          {profile.status.value === "approved" && 
+                          {profile.status.value === "approved" &&
                           hasPermissionUpdateUserApproval ? null : (
                             <>
                               <Button
@@ -374,7 +402,7 @@ const ListUsersPage = () => {
           </IconButton>
         }
       />
-    </Layout>
+    </>
   );
 };
 

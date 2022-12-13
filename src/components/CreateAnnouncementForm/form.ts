@@ -5,13 +5,18 @@ export type CreateAnnouncementFormValues = {
   title: string;
   media: {
     file: File;
-    image: HTMLImageElement;
+    image: HTMLImageElement | null;
+    video: HTMLVideoElement | null;
+    duration: number | null;
+    type: string;
   } | null;
   duration: number;
   startDate: Date;
   endDate: Date;
   notes: string;
   devices: string[];
+  buildingId: string;
+  buildingName: string;
 };
 
 export const initialValues: CreateAnnouncementFormValues = {
@@ -20,6 +25,8 @@ export const initialValues: CreateAnnouncementFormValues = {
   duration: 0,
   notes: "",
   devices: [],
+  buildingId: "",
+  buildingName: "",
   startDate: dayjs().toDate(),
   endDate: dayjs().add(1, "day").toDate(),
 };
@@ -31,6 +38,7 @@ export const validationSchema = yup.object({
     .max(30, "Maximum character for title is reached")
     .required("Title is required"),
   media: yup.mixed().required("File is required"),
+  buildingId: yup.number().required("Building is required"),
   startDate: yup
     .date()
     .min(

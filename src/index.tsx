@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
@@ -15,18 +15,18 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-declare module '@mui/material/styles' {
+declare module "@mui/material/styles" {
   interface Palette {
-    inactive: import('@mui/material/styles').Palette;
+    inactive: import("@mui/material/styles").Palette;
   }
   interface PaletteOptions {
-    inactive: import('@mui/material/styles').PaletteColorOptions;
+    inactive: import("@mui/material/styles").PaletteColorOptions;
   }
 }
 
-declare module '@mui/material/Button' {
+declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
-    inactive: true,
+    inactive: true;
   }
 }
 
@@ -40,13 +40,13 @@ root.render(
         theme={createTheme({
           palette: {
             secondary: {
-              main: '#f29115',
-              contrastText: '#ffffff',
+              main: "#f29115",
+              contrastText: "#ffffff",
             },
             inactive: {
-              light: '#f5f5f5',
-              main: '#c4c4c4',
-              contrastText: '#a0a4a8',
+              light: "#f5f5f5",
+              main: "#c4c4c4",
+              contrastText: "#a0a4a8",
             },
           },
         })}

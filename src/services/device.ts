@@ -16,7 +16,7 @@ export const deviceApi = createApi({
       {
         page?: number;
         limit?: number;
-        query?: string;
+        query?: string | null;
       } | null
     >({
       query: (params) => ({ url: urlBuilder("/v1/devices", params) }),
@@ -40,7 +40,7 @@ export const deviceApi = createApi({
       query: ({ name, description, deviceId, floorId }) => ({
         url: `v1/devices/${deviceId}`,
         method: "PUT",
-        data: { name, description, floorId, deviceId},
+        data: { name, description, floorId, deviceId },
       }),
       invalidatesTags: () => ["Device"],
     }),
@@ -58,6 +58,14 @@ export const deviceApi = createApi({
       }),
       invalidatesTags: () => ["Device"],
     }),
+    deleteDevice: builders.mutation({
+      query: ({ deviceId }) => ({
+        url: `v1/devices/${deviceId}`,
+        method: "DELETE",
+        data: { deviceId },
+      }),
+      invalidatesTags: () => ["Device"],
+    }),
   }),
 });
 
@@ -67,4 +75,5 @@ export const {
   useLazyGetDevicesQuery,
   useCreateDeviceMutation,
   useUpdateDeviceMutation,
+  useDeleteDeviceMutation,
 } = deviceApi;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { debounce } from "lodash";
+import { useSearchParams } from "react-router-dom";
 
 import {
   Box,
@@ -22,11 +23,14 @@ import {
   DialogTitle,
   DialogContent,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Close as CloseIcon,
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+} from "@mui/icons-material";
 
 import UpdateFloorModal from "../components/UpdateFloorModal";
 import CreateFloorModal from "../components/CreateFloorModal";
@@ -34,16 +38,13 @@ import BuildingModal from "../components/BuildingModal";
 
 import { useLazyGetBuildingsQuery } from "../services/building";
 
-import {
-  useLazyGetFloorsQuery,
-  useDeleteFloorMutation,
-} from "../services/floor";
+import { useLazyGetFloorsQuery } from "../services/floor";
 
-import Layout from "../components/Layout";
 import { ApiErrorResponse } from "../services/error";
 
 import { UserFilterOption } from "../types/store";
 import { usePermission } from "../hooks";
+import DeleteFloorModal from "../components/DeleteFloorModal";
 
 const FETCH_LIMIT = 20;
 
@@ -57,9 +58,7 @@ const ListFloorPage = () => {
     "update_building",
     "delete_building"
   );
-  const hasPermissionViewBuilding = usePermission("view_list_building");
-
-  const [deleteFloor] = useDeleteFloorMutation();
+  const hasViewBuildingPermission = usePermission("view_list_building");
 
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -78,7 +77,15 @@ const ListFloorPage = () => {
   const [openCreateBuilding, setOpenCreateBuilding] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
   const [floorId, setFloorId] = useState("");
+  const [floorName, setFloorName] = useState("");
+  const [buildingName, setBuildingName] = useState("");
   const [open, setOpen] = useState(false);
+  const [openDeleteFloorModal, setOpenDeleteFloorModal] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const floorQueryParams = searchParams.get("floorQueryParams");
+  const buildingQueryParams = searchParams.get("buildingQueryParams");
 
   const getFloorsQueryParams = {
     page,
@@ -93,18 +100,35 @@ const ListFloorPage = () => {
 
   const [
     getBuildings,
-    { data: buildings, error: buildingsError, isLoading: isBuildingsLoading },
+    { error: buildingsError, isLoading: isBuildingsLoading },
   ] = useLazyGetBuildingsQuery();
 
   const isLoading = isFloorsLoading && isBuildingsLoading;
 
-  const handleDeleteAnnouncement = useCallback((floorId: string) => {
-    deleteFloor({ floorId });
-  }, []);
-
-  const handleSearch = useCallback(() => {
-    getFloors(getFloorsQueryParams);
-  }, [getFloors, getFloorsQueryParams]);
+  const handleSearch = useCallback(
+    (query: string) => {
+      if (query === "" && buildingFilter === null) {
+        setSearchParams({});
+      } else if (query !== "" && buildingFilter === null) {
+        setSearchParams({
+          floorQueryParams: query,
+        });
+      } else if (query === "" && buildingFilter !== null) {
+        setSearchParams({
+          buildingQueryParams:
+            buildingFilter !== null ? buildingFilter.id.toString() : "",
+        });
+      } else {
+        setSearchParams({
+          floorQueryParams: query,
+          buildingQueryParams:
+            buildingFilter !== null ? buildingFilter.id.toString() : "",
+        });
+      }
+      getFloors(getFloorsQueryParams);
+    },
+    [getFloors, getFloorsQueryParams, searchParams]
+  );
 
   const handlePaginationNextPage = useCallback(
     () => setPage((page) => page + 1),
@@ -115,6 +139,13 @@ const ListFloorPage = () => {
     () => setPage((page) => page - 1),
     []
   );
+
+  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorMessage("");
+  };
 
   const getBuildingDelayed = useMemo(() => {
     return debounce((query: string) => {
@@ -140,6 +171,16 @@ const ListFloorPage = () => {
     [floorId, openEditFloor]
   );
 
+  const handleDeleteFloorModal = useCallback(
+    (floorId: string, floorName: string, buildingName: string) => {
+      setOpenDeleteFloorModal(true);
+      setFloorId(floorId);
+      setFloorName(floorName);
+      setBuildingName(buildingName);
+    },
+    [floorId, floorName, buildingName]
+  );
+
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
 
   const isNextButtonDisabled = useMemo(() => {
@@ -160,29 +201,36 @@ const ListFloorPage = () => {
   }, [page]);
 
   useEffect(() => {
-    if (hasPermissionViewBuilding && open) {
-      getBuildings({ limit: 5 }).then(({ data }) => {
-        setBuildingFilterOptions(
-          data !== undefined
-            ? data.map((b) => ({
-                id: b.id,
-                name: b.name,
-              }))
-            : []
-        );
-      });
+    if (hasViewBuildingPermission && open) {
+      getBuildings({ limit: 5, query: buildingFilter?.name }).then(
+        ({ data }) => {
+          setBuildingFilterOptions(
+            data !== undefined
+              ? data.map((b) => ({
+                  id: b.id,
+                  name: b.name,
+                }))
+              : []
+          );
+        }
+      );
     }
-  }, [hasPermissionViewBuilding, getBuildings, open]);
+  }, [hasViewBuildingPermission, getBuildings, open]);
 
-  const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setErrorMessage("");
-  };
+  useEffect(() => {
+    getFloors({
+      query: floorQueryParams,
+      buildingId: Number(buildingQueryParams),
+    });
+  }, [floorQueryParams, buildingQueryParams]);
 
   return (
-    <Layout>
+    <>
+      <Box sx={{ marginBottom: 1 }}>
+        <Typography variant="h5" fontWeight="bold">
+          List Floor Page
+        </Typography>
+      </Box>
       <BuildingModal
         open={openCreateBuilding}
         setOpen={setOpenCreateBuilding}
@@ -233,18 +281,18 @@ const ListFloorPage = () => {
             ) : null}
           </Box>
           <Box display="flex">
-            <Box>
+            <Box sx={{ marginBottom: 1 }}>
               <TextField
                 id="search"
-                label="Search by floorname"
+                label="Search by Floor Name or ID"
                 variant="outlined"
                 autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                sx={{ width: 220, marginRight: 1 }}
+                sx={{ width: 230, marginRight: 1 }}
               />
             </Box>
-            {hasPermissionViewBuilding ? (
+            {hasViewBuildingPermission ? (
               <Box display="flex" justifyContent="flex-end">
                 <Autocomplete
                   options={buildingFilterOptions}
@@ -256,16 +304,23 @@ const ListFloorPage = () => {
                     setOpen(false);
                   }}
                   loading={isBuildingFilterLoading}
-                  getOptionLabel={(option) => option.name}
                   isOptionEqualToValue={(option, value) =>
-                    option.name === value.name
+                    option.id === value.id
                   }
+                  getOptionLabel={(option) => option.name}
+                  renderOption={(props, option) => {
+                    return (
+                      <li {...props} key={option.id}>
+                        {option.name}
+                      </li>
+                    );
+                  }}
                   onChange={(_, inputValue) => {
                     setBuildingFilterOptions([]);
                     setBuildingFilter(inputValue);
                   }}
                   onInputChange={(_, newInputValue, reason) => {
-                    if (reason == "input") {
+                    if (reason === "input") {
                       setBuildingFilterOptions([]);
                       setIsBuildingFilterLoading(true);
                       getBuildingDelayed(newInputValue);
@@ -295,14 +350,19 @@ const ListFloorPage = () => {
             ) : null}
 
             <Box>
-              <Button onClick={handleSearch} variant="contained" size="large">
+              <Button
+                onClick={() => handleSearch(query)}
+                variant="contained"
+                size="large"
+                sx={{ marginLeft: 1 }}
+              >
                 Search
               </Button>
             </Box>
           </Box>
           {floors && floors.contents.length > 0 ? (
             <>
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} sx={{ width: "100%" }}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
@@ -358,7 +418,11 @@ const ListFloorPage = () => {
                               <Tooltip title="Delete">
                                 <IconButton
                                   onClick={() =>
-                                    handleDeleteAnnouncement(row.id.toString())
+                                    handleDeleteFloorModal(
+                                      row.id.toString(),
+                                      row.name,
+                                      row.building.name
+                                    )
                                   }
                                 >
                                   <DeleteIcon />
@@ -411,6 +475,20 @@ const ListFloorPage = () => {
           ) : (
             <Typography>Not Found!</Typography>
           )}
+          <Dialog
+            open={openDeleteFloorModal}
+            onClose={() => setOpenDeleteFloorModal(false)}
+          >
+            <DialogTitle>Delete Floor</DialogTitle>
+            <DialogContent>
+              <DeleteFloorModal
+                floorName={floorName}
+                floorId={floorId}
+                buildingName={buildingName}
+                setOpen={setOpenDeleteFloorModal}
+              />
+            </DialogContent>
+          </Dialog>
         </Box>
       )}
       <Snackbar
@@ -429,7 +507,7 @@ const ListFloorPage = () => {
           </IconButton>
         }
       />
-    </Layout>
+    </>
   );
 };
 
