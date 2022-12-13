@@ -41,16 +41,8 @@ type CreateDeviceType = {
 };
 
 const validationSchema = yup.object({
-  name: yup
-    .string()
-    .min(5, "Minimum character for device name is 5")
-    .max(6, "Name of the device cannot be more that 6 character")
-    .required("Please give your device a name"),
-  description: yup
-    .string()
-    .min(10, "Minimum character for description is 10")
-    .max(30, "Maximum character for description has been reached")
-    .required("Description is required"),
+  name: yup.string().required("Please give your device a name"),
+  description: yup.string().required("Description is required"),
   floorId: yup.number().required("Please select the floor"),
   buildingId: yup.number().required(),
 });
@@ -223,8 +215,8 @@ const CreateDeviceModal = (props: Props) => {
           <Box>
             <Typography fontWeight="bold">NOTICE!</Typography>
             <Typography sx={{ marginBottom: 1 }}>
-              Please Screenshot the access code and give them to BM! Don't lose
-              them!
+              Make sure to save both the access key id and the secret access key
+              as it will be used to register the device.
             </Typography>
           </Box>
 
