@@ -7,16 +7,12 @@ import range from "lodash/range";
 
 import {
   Box,
-  Button,
   Typography,
   IconButton,
   Dialog,
   DialogContent,
   DialogTitle,
-  CircularProgress,
   Snackbar,
-  Card,
-  CardActions,
 } from "@mui/material";
 
 import {
@@ -33,12 +29,9 @@ import DeleteDeviceModal from "../components/DeleteDeviceModal";
 import AnnouncementOnDeviceDetail from "../components/AnnouncementOnDeviceDetail";
 
 import { usePermission } from "../hooks";
-import { statusActions } from "../types/constants";
 import config from "../config";
 import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
-import RealtimeChart, {
-  realtimeChartDateFormat,
-} from "../components/RealtimeChart";
+import { RealtimeChart, realtimeChartDateFormat } from "../components/Charts";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -56,18 +49,13 @@ const DeviceDetailPage = () => {
     "view_list_announcement"
   );
 
-  const { data: devices, isLoading: isDeviceDetailLoading } =
-    useGetDeviceDetailQuery(
-      { deviceId },
-      {
-        skip: deviceId === "",
-      }
-    );
+  const { data: devices } = useGetDeviceDetailQuery(
+    { deviceId },
+    {
+      skip: deviceId === "",
+    }
+  );
 
-  const [getAnnouncements, { data: announcements }] =
-    useLazyGetAnnouncementsQuery();
-
-  const [actionType, setActionType] = useState("");
   const [realtimeChartData, setRealtimeChartData] = useState<
     { x: string; y: number }[]
   >(
@@ -116,8 +104,6 @@ const DeviceDetailPage = () => {
     }
   }, [devices, deviceId]);
 
-  const isLoading = isDeviceDetailLoading;
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
@@ -147,123 +133,105 @@ const DeviceDetailPage = () => {
       : DeviceState.Loading;
   }, [deviceStatusMessage]);
 
-  useEffect(() => {
-    getAnnouncements(null);
-  }, []);
-
   return (
     <Box>
-      {announcements && announcements.contents.length > 0 ? (
-        <Box>
-          <Box display="flex" justifyContent="center">
-            <Typography fontWeight="bold" variant="h4">{devices?.name}</Typography>
-            {hasUpdateDevicePermission ? (
-              <IconButton
-                onClick={() => {
-                  setOpenUpdateModal(true);
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-            ) : null}
-            {hasDeleteDevicePermission ? (
-              <IconButton
-                onClick={() => {
-                  setOpenDeleteModal(true);
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            ) : null}
-          </Box>
+      <Box>
+        <Box display="flex" justifyContent="center">
+          <Typography fontWeight="bold" variant="h4">
+            {devices?.name}
+          </Typography>
 
-          <Box display="flex" justifyContent="center">
-            <Box sx={{ marginTop: 8 }}>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography display="flex" fontWeight="bold">
-                  ID
-                </Typography>
-                <Typography>{deviceId}</Typography>
-              </Box>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography fontWeight="bold">Location</Typography>
-                <Typography>{devices?.location}</Typography>
-              </Box>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography fontWeight="bold">Description</Typography>
-                <Typography>{devices?.description}</Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ marginTop: 8, marginLeft: 40 }}>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography fontWeight="bold">Created at</Typography>
-                <Typography>{toDate(devices?.createdAt)}</Typography>
-              </Box>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography fontWeight="bold">Updated at</Typography>
-                <Typography>{toDate(devices?.updatedAt)}</Typography>
-              </Box>
-              <Box sx={{ marginBottom: 5 }}>
-                <Typography fontWeight="bold">Device Status</Typography>
-                <DeviceStatus state={deviceState} />
-              </Box>
-            </Box>
-          </Box>
-          {hasViewAnnouncementListPermission ? (
-            <AnnouncementOnDeviceDetail deviceId={deviceId} />
+          {hasUpdateDevicePermission ? (
+            <IconButton
+              onClick={() => {
+                setOpenUpdateModal(true);
+              }}
+            >
+              <EditIcon />
+            </IconButton>
           ) : null}
-          <Dialog
-            open={openUpdateModal}
-            onClose={() => {
-              setOpenUpdateModal(false);
-            }}
-          >
-            <DialogTitle>Update {devices?.name}</DialogTitle>
-            <DialogContent>
-              <UpdateDeviceModal
-                open={openUpdateModal}
-                setOpen={setOpenUpdateModal}
-                deviceName={devices?.name}
-              />
-            </DialogContent>
-          </Dialog>
-          <Dialog
-            open={openDeleteModal}
-            onClose={() => {
-              setOpenDeleteModal(false);
-            }}
-          >
-            <DialogTitle>Delete {devices?.name}</DialogTitle>
-            <DialogContent>
-              <DeleteDeviceModal
-                setOpen={setOpenDeleteModal}
-                deviceName={devices?.name}
-                deviceId={devices?.id}
-              />
-            </DialogContent>
-          </Dialog>
-        </Box>
-      ) : (
-        <Box display="flex" justifyContent="center" alignItems="center"></Box>
-      )}
 
-      <Snackbar
-        open={Boolean(errorMessage)}
-        autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
-        message={errorMessage}
-        action={
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleClose}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-      />
+          {hasDeleteDevicePermission ? (
+            <IconButton
+              onClick={() => {
+                setOpenDeleteModal(true);
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          ) : null}
+        </Box>
+
+        <Box display="flex" justifyContent="center">
+          <Box sx={{ marginTop: 8 }}>
+            <Box sx={{ marginBottom: 5 }}>
+              <Typography display="flex" fontWeight="bold">
+                ID
+              </Typography>
+              <Typography>{deviceId}</Typography>
+            </Box>
+            <Box sx={{ marginBottom: 5 }}>
+              <Typography fontWeight="bold">Location</Typography>
+              <Typography>{devices?.location}</Typography>
+            </Box>
+            <Box sx={{ marginBottom: 5 }}>
+              <Typography fontWeight="bold">Description</Typography>
+              <Typography>{devices?.description}</Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ marginTop: 8, marginLeft: 40 }}>
+            <Box sx={{ marginBottom: 5 }}>
+              <Typography fontWeight="bold">Created at</Typography>
+              <Typography>{toDate(devices?.createdAt)}</Typography>
+            </Box>
+            <Box sx={{ marginBottom: 5 }}>
+              <Typography fontWeight="bold">Updated at</Typography>
+              <Typography>{toDate(devices?.updatedAt)}</Typography>
+            </Box>
+            <Box sx={{ marginBottom: 5 }}>
+              <Typography fontWeight="bold">Device Status</Typography>
+              <DeviceStatus state={deviceState} />
+            </Box>
+          </Box>
+        </Box>
+
+        {hasViewAnnouncementListPermission ? (
+          <AnnouncementOnDeviceDetail deviceId={deviceId} />
+        ) : null}
+
+        <Dialog
+          open={openUpdateModal}
+          onClose={() => {
+            setOpenUpdateModal(false);
+          }}
+        >
+          <DialogTitle>Update {devices?.name}</DialogTitle>
+          <DialogContent>
+            <UpdateDeviceModal
+              open={openUpdateModal}
+              setOpen={setOpenUpdateModal}
+              deviceName={devices?.name}
+            />
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={openDeleteModal}
+          onClose={() => {
+            setOpenDeleteModal(false);
+          }}
+        >
+          <DialogTitle>Delete {devices?.name}</DialogTitle>
+          <DialogContent>
+            <DeleteDeviceModal
+              setOpen={setOpenDeleteModal}
+              deviceName={devices?.name}
+              deviceId={devices?.id}
+            />
+          </DialogContent>
+        </Dialog>
+      </Box>
+
       {devices?.cameraEnabled ? (
         <Box>
           <Box>
@@ -288,6 +256,23 @@ const DeviceDetailPage = () => {
           </Box>
         </Box>
       ) : null}
+
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={() => setErrorMessage("")}
+        message={errorMessage}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleClose}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
     </Box>
   );
 };

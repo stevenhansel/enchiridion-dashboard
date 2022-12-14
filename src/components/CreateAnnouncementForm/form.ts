@@ -32,11 +32,7 @@ export const initialValues: CreateAnnouncementFormValues = {
 };
 
 export const validationSchema = yup.object({
-  title: yup
-    .string()
-    .min(5, "Minimum character for annoucement title is 5")
-    .max(30, "Maximum character for title is reached")
-    .required("Title is required"),
+  title: yup.string().required("Title is required"),
   media: yup.mixed().required("File is required"),
   buildingId: yup.number().required("Building is required"),
   startDate: yup
@@ -61,10 +57,6 @@ export const validationSchema = yup.object({
       return schema;
     })
     .required("End date is required"),
-  notes: yup
-    .string()
-    .min(5, "Minimum character for annoucement title is 5")
-    .max(40, "Maximum character for title is reached")
-    .required("You must fill the notes"),
+  notes: yup.string().required("You must fill the notes"),
   devices: yup.array().min(1, "You must select atleast 1 device").required(),
 });

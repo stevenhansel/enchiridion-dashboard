@@ -22,6 +22,7 @@ import { statusActions } from "../types/constants";
 
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 import { ApiErrorResponse } from "../services/error";
+import AnnouncementMedia from "./AnnouncementMedia";
 
 type Props = {
   deviceId: string;
@@ -103,6 +104,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
           </CardActions>
         </Card>
       </Box>
+
       {announcements && announcements.contents.length > 0 ? (
         <>
           <Box
@@ -119,20 +121,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
                 elevation={3}
               >
                 <Box display="flex" justifyContent="center">
-                  {announcement.mediaType === "video" ? (
-                    <video
-                      src={announcement.media}
-                      style={{ width: "100%" }}
-                      controls
-                      autoPlay
-                      muted
-                    />
-                  ) : (
-                    <img
-                      src={announcement.media}
-                      style={{ width: 395, margin: "auto" }}
-                    />
-                  )}
+                  <AnnouncementMedia announcement={announcement} />
                 </Box>
                 <Box sx={{ marginLeft: 1 }}>
                   <Typography variant="h5" fontWeight="bold">
