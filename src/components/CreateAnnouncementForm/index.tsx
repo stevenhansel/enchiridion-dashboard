@@ -35,8 +35,8 @@ import {
 
 const steps = [
   "Upload file",
-  "Pilih lokasi Building",
-  "Pilih Devices",
+  "Choose Building Location",
+  "Select Devices",
   "Submit",
 ];
 const MIN_STEP = 0;

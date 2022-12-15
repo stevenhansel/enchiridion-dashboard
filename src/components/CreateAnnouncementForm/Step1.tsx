@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useFormikContext } from "formik";
 import dayjs from "dayjs";
+import Cropper, { Area } from "react-easy-crop";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 
@@ -17,13 +18,189 @@ dayjs.extend(isSameOrAfter);
 
 const fields = ["title", "media", "startDate", "endDate", "notes"];
 
+export const createImage = (url: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.setAttribute("crossOrigin", "anonymous");
+    image.src = url;
+  });
+
+export function getRadianAngle(degreeValue: number) {
+  return (degreeValue * Math.PI) / 180;
+}
+
+export function rotateSize(width: number, height: number, rotation: number) {
+  const rotRad = getRadianAngle(rotation);
+
+  return {
+    width:
+      Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+    height:
+      Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+  };
+}
+
+export async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+  rotation = 0,
+  flip = { horizontal: false, vertical: false }
+) {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    return null;
+  }
+
+  const rotRad = getRadianAngle(rotation);
+
+  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
+    image.width,
+    image.height,
+    rotation
+  );
+
+  canvas.width = bBoxWidth;
+  canvas.height = bBoxHeight;
+
+  ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
+  ctx.rotate(rotRad);
+  ctx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1);
+  ctx.translate(-image.width / 2, -image.height / 2);
+
+  ctx.drawImage(image, 0, 0);
+
+  const data = ctx.getImageData(
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+
+  ctx.putImageData(data, 0, 0);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((file) => {
+      if (file !== null) {
+        resolve(URL.createObjectURL(file));
+      } else {
+        reject("File is null");
+      }
+    }, "image/jpeg");
+  });
+}
+
+enum MediaUploadState {
+  Upload,
+  Cropping,
+  Cropped,
+}
+
 const Step1 = () => {
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const [mediaUploadState, setMediaUploadState] = useState<MediaUploadState>(
+    MediaUploadState.Upload
+  );
+
   const formik = useFormikContext<CreateAnnouncementFormValues>();
-  const { values, errors, touched, validateField, setFieldValue } = formik;
+  const { values, errors, touched, setFieldValue } = formik;
 
   const { handleNextStep } = useContext(CreateAnnouncementFormContext);
 
-  const handleUploadImage = useCallback(
+  // const handleCrop = useCallback(async () => {
+  //   try {
+  //     const croppedImage = await getCroppedImg(
+  //       imageSrc,
+  //       croppedAreaPixels,
+  //       rotation
+  //     );
+
+  //     setCroppedImage(croppedImage);
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // }, []);
+
+  const renderMediaCropper = useCallback(() => {
+    if (values.media === null) return;
+
+    const cropperProps: {
+      image?: string;
+      video?: string;
+    } = {};
+    if (values.media.type === "image" && values.media.image !== null) {
+      cropperProps.image = values.media.image.src;
+    } else if (values.media.type === "video" && values.media.video !== null) {
+      cropperProps.video = values.media.video.src;
+    } else {
+    }
+
+    return (
+      <Cropper
+        {...cropperProps}
+        crop={crop}
+        rotation={rotation}
+        zoom={zoom}
+        aspect={16 / 7}
+        onCropChange={setCrop}
+        onRotationChange={setRotation}
+        onZoomChange={setZoom}
+        onCropComplete={(_, pixels) => setCroppedAreaPixels(pixels)}
+      />
+    );
+  }, [values.media, crop, rotation, zoom]);
+
+  const renderMediaPreview = useCallback(() => {
+    if (values.media === null) return;
+
+    const width = 498;
+
+    if (values.media.type === "image" && values.media.image !== null) {
+      return (
+        <img
+          style={{ width }}
+          src={values.media.image.src}
+          alt="Media preview"
+        />
+      );
+    } else if (values.media.type === "video" && values.media.video !== null) {
+      return (
+        <video
+          style={{ width }}
+          src={values.media.video.src}
+          controls
+          autoPlay
+          muted
+        />
+      );
+    }
+  }, [values.media]);
+
+  const renderMedia = useCallback(() => {
+    if (mediaUploadState === MediaUploadState.Cropping)
+      return renderMediaCropper();
+    else if (mediaUploadState === MediaUploadState.Cropped)
+      return renderMediaPreview();
+
+    return null;
+  }, [mediaUploadState, renderMediaCropper, renderMediaPreview]);
+
+  const handleUploadMedia = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       try {
         const files = event.currentTarget.files;
@@ -41,8 +218,11 @@ const Step1 = () => {
           if (file.type === "video/mp4") {
             if (!e.target || (e.target && !e.target.result))
               throw new Error("Something went wrong when reading the video");
+
             const video = document.createElement("video");
+
             video.onloadedmetadata = () => {
+              setMediaUploadState(MediaUploadState.Cropping);
               setFieldValue("media", {
                 file,
                 image: null,
@@ -51,15 +231,20 @@ const Step1 = () => {
                 type: "video",
               });
             };
+
             video.onerror = () => {
               throw new Error("Something went wrong when reading the video");
             };
+
             video.src = e.target?.result as string;
           } else if (file.type === "image/jpeg" || file.type === "image/jpg") {
             if (!e.target || (e.target && !e.target.result))
               throw new Error("Something went wrong when reading the image");
+
             const image = new Image();
+
             image.onload = () => {
+              setMediaUploadState(MediaUploadState.Cropping);
               setFieldValue("media", {
                 file,
                 image,
@@ -68,11 +253,14 @@ const Step1 = () => {
                 type: "image",
               });
             };
+
             image.onerror = () => {
               throw new Error("Something went wrong when reading the image");
             };
+
             image.src = e.target?.result as string;
           }
+
           reader.onerror = () => {
             throw new Error("Something went wrong when reading the file");
           };
@@ -89,12 +277,13 @@ const Step1 = () => {
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
     if (errors.length > 0) return;
+    if (mediaUploadState !== MediaUploadState.Cropped) return;
 
     handleNextStep();
-  }, [formik, handleNextStep]);
+  }, [formik, handleNextStep, mediaUploadState]);
 
   useEffect(() => {
-    fields.forEach((field) => validateField(field));
+    // TODO: Handle crop
   }, []);
 
   return (
@@ -106,7 +295,7 @@ const Step1 = () => {
       sx={{ width: "100%" }}
     >
       <Box sx={{ marginBottom: 2, width: 500 }}>
-        <Typography>Title Announcement</Typography>
+        <Typography>Title</Typography>
         <TextField
           fullWidth
           id="title"
@@ -122,8 +311,35 @@ const Step1 = () => {
           </Typography>
         ) : null}
       </Box>
-      <Box sx={{ marginBottom: 2, width: 500 }}>
-        <Typography>File Announcement</Typography>
+      <Box sx={{ marginBottom: 3, width: 500 }}>
+        <Typography sx={{ marginBottom: 1 }}>Media File</Typography>
+
+        <Box
+          sx={{
+            position: "relative",
+            border: "1px solid gray",
+            boxSizing: "border-box",
+            background: "lightgray",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 500,
+            height: 300,
+            marginBottom: 1,
+          }}
+        >
+          {renderMedia()}
+        </Box>
+
+        {values.media !== null ? (
+          <Typography
+            sx={{ marginBottom: 1, textAlign: "center" }}
+            variant="body1"
+          >
+            {values.media.file.name}
+          </Typography>
+        ) : null}
+
         <Button
           variant="contained"
           component="label"
@@ -134,15 +350,11 @@ const Step1 = () => {
             type="file"
             hidden
             accept=".jpg,.jpeg,.mp4"
-            onChange={(e) => handleUploadImage(e)}
+            onChange={(e) => handleUploadMedia(e)}
           />
         </Button>
 
-        {values.media !== null ? (
-          <Typography sx={{ marginLeft: 1 }} variant="caption" fontSize="">
-            {values.media.file.name}
-          </Typography>
-        ) : null}
+        <Button variant="contained">Crop</Button>
 
         {touched.media && errors.media ? (
           <Typography
@@ -176,6 +388,7 @@ const Step1 = () => {
           }
         />
       </Box>
+
       {touched.startDate && errors.startDate ? (
         <Typography variant="caption" color={red[700]} fontSize="">
           {String(errors.startDate)}
@@ -194,6 +407,7 @@ const Step1 = () => {
           }
         />
       </Box>
+
       {touched.endDate && errors.endDate ? (
         <Typography variant="caption" color={red[700]} fontSize="">
           {String(errors.endDate)}
@@ -201,7 +415,7 @@ const Step1 = () => {
       ) : null}
 
       <Box sx={{ marginBottom: 2, width: 500 }}>
-        <Typography>Notes tambahan</Typography>
+        <Typography>Additional Notes</Typography>
         <TextField
           fullWidth
           autoComplete="off"
