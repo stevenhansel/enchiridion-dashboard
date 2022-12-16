@@ -49,8 +49,9 @@ const DeviceRow = (props: {
     description: string;
   };
   handleNavigateToDetailPage: (deviceId: number) => void;
+  deviceDetailPermission: boolean;
 }) => {
-  const { device, handleNavigateToDetailPage } = props;
+  const { device, handleNavigateToDetailPage, deviceDetailPermission } = props;
 
   const { lastMessage } = useWebSocket(
     `${config.wssBaseUrl}/v1/device_status/${device.id}`
@@ -69,12 +70,19 @@ const DeviceRow = (props: {
       }}
     >
       <TableCell align="center">
-        <Link onClick={() => handleNavigateToDetailPage(device.id)}>
-          {device.id}
-        </Link>
+        {deviceDetailPermission ? (
+          <Link onClick={() => handleNavigateToDetailPage(device.id)}>
+            {device.id}
+          </Link>
+        ) : (
+          <Typography>{device.id}</Typography>
+        )}
       </TableCell>
       <TableCell align="center">{device.name}</TableCell>
-      <TableCell align="center" style={{ display: "flex", justifyContent: "center" }}>
+      <TableCell
+        align="center"
+        style={{ display: "flex", justifyContent: "center" }}
+      >
         <DeviceStatus state={deviceState} fontSize={14} />
       </TableCell>
       <TableCell align="center">{device.location}</TableCell>
@@ -221,6 +229,9 @@ const DevicePage = () => {
                             device={device}
                             handleNavigateToDetailPage={
                               handleNavigateToDetailPage
+                            }
+                            deviceDetailPermission={
+                              hasViewDeviceDetailPermission
                             }
                           />
                         ))}
