@@ -3,20 +3,15 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import mpegts from "mpegts.js";
 import useWebSocket from "react-use-websocket";
-import range from "lodash/range";
 
 import {
   Box,
-  Button,
   Typography,
   IconButton,
   Dialog,
   DialogContent,
   DialogTitle,
-  CircularProgress,
   Snackbar,
-  Card,
-  CardActions,
 } from "@mui/material";
 
 import {
@@ -25,7 +20,10 @@ import {
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 
-import { useGetDeviceDetailQuery } from "../services/device";
+import {
+  useGetDeviceDetailQuery,
+  useLazyGetLivestreamDeviceQuery,
+} from "../services/device";
 import { useLazyGetAnnouncementsQuery } from "../services/announcement";
 
 import UpdateDeviceModal from "../components/UpdateDeviceModal";
@@ -33,12 +31,14 @@ import DeleteDeviceModal from "../components/DeleteDeviceModal";
 import AnnouncementOnDeviceDetail from "../components/AnnouncementOnDeviceDetail";
 
 import { usePermission } from "../hooks";
-import { statusActions } from "../types/constants";
 import config from "../config";
 import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
 import RealtimeChart, {
   realtimeChartDateFormat,
 } from "../components/RealtimeChart";
+import MaximumChart, {
+  maximumChartDateFormat,
+} from "../components/MaximumChart";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -46,6 +46,10 @@ const toDate = (dateStr: string | undefined) =>
 const now = new Date();
 
 const DeviceDetailPage = () => {
+  const [interval, setInterval] = useState("minute");
+  const [range, setRange] = useState("hour");
+  const [format, setFormat] = useState("%M");
+  const [tickValue, setTickValue] = useState("every 10 minutes");
   const [errorMessage, setErrorMessage] = useState("");
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -67,15 +71,16 @@ const DeviceDetailPage = () => {
   const [getAnnouncements, { data: announcements }] =
     useLazyGetAnnouncementsQuery();
 
-  const [actionType, setActionType] = useState("");
+  const [getLivestream, { data: livestreamData }] =
+    useLazyGetLivestreamDeviceQuery();
+
   const [realtimeChartData, setRealtimeChartData] = useState<
     { x: string; y: number }[]
-  >(
-    range(0, 60).map((num) => ({
-      x: dayjs(now).subtract(num, "s").format(realtimeChartDateFormat),
-      y: 0,
-    }))
-  );
+  >([]);
+
+  const [maximumChartData, setMaximumChartData] = useState<
+    { x: string; y: number }[]
+  >([]);
 
   const { lastMessage: deviceStatusMessage } = useWebSocket(
     `${config.wssBaseUrl}/v1/device_status/${deviceId}`
@@ -116,8 +121,6 @@ const DeviceDetailPage = () => {
     }
   }, [devices, deviceId]);
 
-  const isLoading = isDeviceDetailLoading;
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
@@ -130,7 +133,11 @@ const DeviceDetailPage = () => {
       const livestreamData = JSON.parse(livestreamMessage.data);
 
       setRealtimeChartData((previousData) => {
-        let updatedData = previousData.slice(1);
+        let updatedData = previousData;
+        if (previousData.length === 60) {
+          updatedData = previousData.slice(1);
+        }
+
         updatedData.push({
           x: dayjs(livestreamData.timestamp).format(realtimeChartDateFormat),
           y: livestreamData.numOfFaces,
@@ -149,14 +156,31 @@ const DeviceDetailPage = () => {
 
   useEffect(() => {
     getAnnouncements(null);
+    getLivestream({
+      deviceId,
+      action: "max",
+      interval: interval,
+      range: range,
+    });
   }, []);
+
+  useEffect(() => {
+    if (livestreamData === undefined) return;
+    const data = livestreamData.contents.map((data) => ({
+      x: dayjs(data.timestamp).format(maximumChartDateFormat),
+      y: data.value,
+    }));
+    setMaximumChartData(data);
+  }, [livestreamData]);
 
   return (
     <Box>
       {announcements && announcements.contents.length > 0 ? (
         <Box>
           <Box display="flex" justifyContent="center">
-            <Typography fontWeight="bold" variant="h4">{devices?.name}</Typography>
+            <Typography fontWeight="bold" variant="h4">
+              {devices?.name}
+            </Typography>
             {hasUpdateDevicePermission ? (
               <IconButton
                 onClick={() => {
@@ -221,11 +245,7 @@ const DeviceDetailPage = () => {
           >
             <DialogTitle>Update {devices?.name}</DialogTitle>
             <DialogContent>
-              <UpdateDeviceModal
-                open={openUpdateModal}
-                setOpen={setOpenUpdateModal}
-                deviceName={devices?.name}
-              />
+              <UpdateDeviceModal setOpen={setOpenUpdateModal} />
             </DialogContent>
           </Dialog>
           <Dialog
@@ -274,18 +294,33 @@ const DeviceDetailPage = () => {
             >
               Livestream
             </Typography>
-
             <video
-              controls
               autoPlay
+              muted
               style={{ width: 600, height: 450 }}
               id="device-stream"
             />
           </Box>
-
-          <Box>
-            <RealtimeChart chartId="livestream" chartData={realtimeChartData} />
-          </Box>
+          <>
+            <Box>
+              {realtimeChartData.length > 0 ? (
+                <RealtimeChart
+                  chartId="livestream"
+                  chartData={realtimeChartData}
+                />
+              ) : null}
+            </Box>
+            {maximumChartData.length > 0 ? (
+              <Box>
+                <MaximumChart
+                  chartId="maximum"
+                  deviceId={deviceId}
+                  maximumChartData={maximumChartData}
+                  setMaximumChartData={setMaximumChartData}
+                />
+              </Box>
+            ) : null}
+          </>
         </Box>
       ) : null}
     </Box>

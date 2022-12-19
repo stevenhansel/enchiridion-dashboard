@@ -93,6 +93,7 @@ const ListFloorPage = () => {
     limit: FETCH_LIMIT,
     query,
   };
+
   const [
     getFloors,
     { data: floors, error: floorsError, isLoading: isFloorsLoading },

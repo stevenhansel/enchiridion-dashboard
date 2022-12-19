@@ -23,6 +23,7 @@ const DeleteDeviceModal = (props: Props) => {
     try {
       await deleteDevice({ deviceId }).unwrap();
       setDeletedDevice(true);
+      setOpen(false);
     } catch (err) {
       if (isReduxError(err) && isApiError(err.data)) {
         const { errorCode, messages } = err.data;
@@ -53,7 +54,7 @@ const DeleteDeviceModal = (props: Props) => {
             variant="contained"
             sx={{ marginRight: 1 }}
             onClick={() => {
-              navigate('/device');
+              navigate("/device");
             }}
           >
             Ok

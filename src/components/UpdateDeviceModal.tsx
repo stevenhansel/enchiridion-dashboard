@@ -27,12 +27,10 @@ import { useLazyGetBuildingsQuery } from "../services/building";
 import { useUpdateDeviceMutation } from "../services/device";
 
 import { UserFilterOption } from "../types/store";
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
 
 type Props = {
-  open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  deviceName?: string;
 };
 
 type UpdateDeviceType = {
@@ -44,10 +42,7 @@ type UpdateDeviceType = {
 };
 
 const validationSchema = yup.object({
-  name: yup
-    .string()
-    .required("Device name required")
-    .min(3, "Name should be of minimum 3 characters length"),
+  name: yup.string().required("Device name required").min(1),
   description: yup.string().required("Description is required"),
   floorId: yup.number().required("Please select the floor"),
   deviceId: yup.string().required(),
@@ -55,6 +50,7 @@ const validationSchema = yup.object({
 });
 
 const UpdateDeviceModal = (props: Props) => {
+  const { setOpen} = props;
   const { deviceId = "" } = useParams();
   const [errorMessage, setErrorMessage] = useState("");
   const [openBuildingFilter, setOpenBuildingFilter] = useState(false);
@@ -129,7 +125,18 @@ const UpdateDeviceModal = (props: Props) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      updateDevice(values);
+      try {
+        updateDevice(values);
+        setOpen(false);
+      } catch (err) {
+        if (isReduxError(err) && isApiError(err.data)) {
+          const { errorCode, messages } = err.data;
+          const [message] = messages;
+          if (errorCode === "DEVICE_ALREADY_EXISTS") {
+            setErrorMessage(message);
+          }
+        }
+      }
     },
   });
 

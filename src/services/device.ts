@@ -6,6 +6,18 @@ import { DeviceDetail, Device, Pagination, UpdateDevice } from "../types/store";
 
 import { urlBuilder } from "../utils";
 
+export type Livestream = {
+  action: string;
+  interval: string;
+  range: string;
+  contents: LivestreamContent[];
+};
+
+export type LivestreamContent = {
+  timestamp: string;
+  value: number;
+};
+
 export const deviceApi = createApi({
   reducerPath: "deviceApi",
   baseQuery: axios(),
@@ -66,6 +78,16 @@ export const deviceApi = createApi({
       }),
       invalidatesTags: () => ["Device"],
     }),
+    getLivestreamDevice: builders.query<
+      Livestream,
+      { deviceId: string; action: string; interval: string; range: string }
+    >({
+      query: ({ deviceId, action, interval, range }) => ({
+        url: `v1/devices/${deviceId}/livestream?action=${action}&interval=${interval}&range=${range}`,
+        method: "GET",
+      }),
+      providesTags: () => ["Device"],
+    }),
   }),
 });
 
@@ -76,4 +98,5 @@ export const {
   useCreateDeviceMutation,
   useUpdateDeviceMutation,
   useDeleteDeviceMutation,
+  useLazyGetLivestreamDeviceQuery,
 } = deviceApi;
