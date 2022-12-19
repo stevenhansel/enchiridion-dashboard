@@ -414,7 +414,7 @@ export default function Layout(props: Props) {
             notification
           </Button>
         </Box> */}
-        <Typography>link survey: https://forms.gle/Hgx3ro3LcRvQsXqEA</Typography>
+        <Link>link survey: https://forms.gle/Hgx3ro3LcRvQsXqEA</Link>
         {hasPermission ? props.children : <p>Forbidden</p>}
       </Box>
       <Snackbar
