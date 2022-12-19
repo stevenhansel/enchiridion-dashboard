@@ -76,7 +76,7 @@ const Register = () => {
       password: "",
       reason: "",
       role: null,
-      buildingId: null, 
+      buildingId: null,
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { setFieldError }) => {
@@ -301,6 +301,10 @@ const Register = () => {
                         onChange={(_, inputValue) => {
                           setBuildingFilterOptions([]);
                           setBuildingFilter(inputValue);
+                          formik.setFieldValue(
+                            "buildingId",
+                            inputValue?.id
+                          );
                         }}
                         onInputChange={(_, newInputValue, reason) => {
                           if (reason === "input") {
@@ -319,7 +323,7 @@ const Register = () => {
                             color: "#D32F2F",
                           }}
                         >
-                          {formik.errors.buildingId}
+                          Building is required
                         </Typography>
                       ) : null}
                     </Box>
