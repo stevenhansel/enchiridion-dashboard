@@ -21,7 +21,7 @@ export const requestApi = createApi({
       {
         page?: number;
         limit?: number;
-        query?: string | null;
+        requestId?: number | null;
         userId?: number | null;
         announcementId?: number | null;
         actionType?: string | null;

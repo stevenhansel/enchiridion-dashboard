@@ -73,7 +73,7 @@ const RequestsPage = () => {
   const [actionType, setActionType] = useState(actionQueryParams);
   const [errorMessage, setErrorMessage] = useState("");
   const [page, setPage] = useState(1);
-  const [query, setQuery] = useState("");
+  const [requestId, setRequestId] = useState<number | null>(null);
   const [approvedByLsc, setApprovedByLsc] = useState<boolean | null>(null);
   const [approvedByLscText, setApprovedByLscText] = useState("");
   const [approvedByBm, setApprovedByBm] = useState<boolean | null>(null);
@@ -94,7 +94,7 @@ const RequestsPage = () => {
 
   const getRequestQueryParams = {
     page,
-    query,
+    requestId,
     userId: userFilter !== null ? userFilter.id : null,
     announcementId: announcementFilter !== null ? announcementFilter.id : null,
     actionType,
@@ -157,7 +157,7 @@ const RequestsPage = () => {
 
   const handleSearch = useCallback(() => {
     if (
-      query === "" &&
+      requestId === null &&
       userFilter === null &&
       announcementFilter === null &&
       actionType === ""
@@ -165,15 +165,15 @@ const RequestsPage = () => {
       setSearchParams({});
     } else {
       setSearchParams({
-        requestQueryParams: query,
+        requestQueryParams: requestId ? requestId.toString() : "",
         userQueryParams: userFilter !== null ? userFilter.id.toString() : "",
         announcementQueryParams:
           announcementFilter !== null ? announcementFilter.id.toString() : "",
-        actionQueryParams: String(actionType),
+        actionQueryParams: actionType !== null ? String(actionType) : "",
       });
     }
     getRequests(getRequestQueryParams);
-  }, [getRequestQueryParams]);
+  }, [searchParams, getRequestQueryParams]);
 
   const getUserDelayed = useMemo(() => {
     return debounce((query: string) => {
@@ -283,7 +283,7 @@ const RequestsPage = () => {
 
   useEffect(() => {
     getRequests({
-      query: requestQueryParams,
+      requestId: Number(requestQueryParams),
       userId: Number(userQueryParams),
       announcementId: Number(announcementQueryParams),
       actionType: actionQueryParams,
@@ -312,8 +312,8 @@ const RequestsPage = () => {
                   label="Search by ID"
                   variant="outlined"
                   autoComplete="off"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  value={requestId}
+                  onChange={(e) => setRequestId(Number(e.target.value))}
                   sx={{ marginBottom: 2, width: 250 }}
                 />
                 {hasViewUserPermission ? (
@@ -514,7 +514,9 @@ const RequestsPage = () => {
                           key={index}
                           onClick={() => setActionType(action.value)}
                           variant={
-                            String(actionType) === action.value ? "contained" : "text"
+                            String(actionType) === action.value
+                              ? "contained"
+                              : "text"
                           }
                           sx={{ marginRight: 2 }}
                           value={String(actionType)}
