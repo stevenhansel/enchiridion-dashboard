@@ -30,7 +30,7 @@ const validationSchema = yup.object({
     .required("extend date is required"),
   description: yup
     .string()
-    .min(10, "please input more than 10 characters")
+    .min(1)
     .required("description is required"),
 });
 

@@ -36,9 +36,8 @@ import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
 import RealtimeChart, {
   realtimeChartDateFormat,
 } from "../components/RealtimeChart";
-import MaximumChart, {
-  maximumChartDateFormat,
-} from "../components/MaximumChart";
+import MaximumChart from "../components/MaximumChart";
+import AverageChart from "../components/AverageChart";
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format("DD MMM YYYY h:mm A");
@@ -46,10 +45,6 @@ const toDate = (dateStr: string | undefined) =>
 const now = new Date();
 
 const DeviceDetailPage = () => {
-  const [interval, setInterval] = useState("minute");
-  const [range, setRange] = useState("hour");
-  const [format, setFormat] = useState("%M");
-  const [tickValue, setTickValue] = useState("every 10 minutes");
   const [errorMessage, setErrorMessage] = useState("");
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -59,6 +54,9 @@ const DeviceDetailPage = () => {
   const hasViewAnnouncementListPermission = usePermission(
     "view_list_announcement"
   );
+
+  const [avgChartInterval, setAvgChartInterval] = useState("minute");
+  const [avgChartRange, setAvgChartRange] = useState("hour");
 
   const { data: devices, isLoading: isDeviceDetailLoading } =
     useGetDeviceDetailQuery(
@@ -71,14 +69,7 @@ const DeviceDetailPage = () => {
   const [getAnnouncements, { data: announcements }] =
     useLazyGetAnnouncementsQuery();
 
-  const [getLivestream, { data: livestreamData }] =
-    useLazyGetLivestreamDeviceQuery();
-
   const [realtimeChartData, setRealtimeChartData] = useState<
-    { x: string; y: number }[]
-  >([]);
-
-  const [maximumChartData, setMaximumChartData] = useState<
     { x: string; y: number }[]
   >([]);
 
@@ -156,22 +147,7 @@ const DeviceDetailPage = () => {
 
   useEffect(() => {
     getAnnouncements(null);
-    getLivestream({
-      deviceId,
-      action: "max",
-      interval: interval,
-      range: range,
-    });
   }, []);
-
-  useEffect(() => {
-    if (livestreamData === undefined) return;
-    const data = livestreamData.contents.map((data) => ({
-      x: dayjs(data.timestamp).format(maximumChartDateFormat),
-      y: data.value,
-    }));
-    setMaximumChartData(data);
-  }, [livestreamData]);
 
   return (
     <Box>
@@ -284,9 +260,9 @@ const DeviceDetailPage = () => {
           </IconButton>
         }
       />
-      {devices?.cameraEnabled ? (
+      {devices && devices.cameraEnabled ? (
         <Box>
-          <Box>
+          {/* <Box>
             <Typography
               sx={{ marginTop: 5, marginBottom: 1 }}
               variant="h5"
@@ -300,26 +276,33 @@ const DeviceDetailPage = () => {
               style={{ width: 600, height: 450 }}
               id="device-stream"
             />
-          </Box>
+          </Box> */}
           <>
             <Box>
               {realtimeChartData.length > 0 ? (
-                <RealtimeChart
-                  chartId="livestream"
-                  chartData={realtimeChartData}
-                />
+                <>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    sx={{ marginBottom: 1 }}
+                  >
+                    Realtime Chart
+                  </Typography>
+                  <RealtimeChart
+                    chartId="livestream"
+                    chartData={realtimeChartData}
+                  />
+                </>
               ) : null}
             </Box>
-            {maximumChartData.length > 0 ? (
-              <Box>
-                <MaximumChart
-                  chartId="maximum"
-                  deviceId={deviceId}
-                  maximumChartData={maximumChartData}
-                  setMaximumChartData={setMaximumChartData}
-                />
-              </Box>
-            ) : null}
+            <Box>
+              <MaximumChart deviceId={deviceId} />
+            </Box>
+            <Box>
+              <AverageChart
+                deviceId={deviceId}
+              />
+            </Box>
           </>
         </Box>
       ) : null}

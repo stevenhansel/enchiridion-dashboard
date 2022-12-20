@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import dayjs from "dayjs";
 
 import { Typography, Button, ButtonGroup } from "@mui/material";
@@ -16,42 +16,46 @@ const commonProperties = {
   enableSlices: "x",
 };
 
-type ChartProps = {
-  id: string;
-  data: { x: string; y: number }[];
-  xScaleFormat: string;
-  axisBottomFormat: string;
-  axisBottomLegend: string;
-  tickValue: string;
+type Props = {
+  deviceId: string;
 };
 
-const Chart = (props: ChartProps) => {
+type ChartData = {
+  id: string;
+  xScaleFormat: string;
+  axisBottomFormat: string;
+  tickValue: string;
+  data: { x: string; y: number }[];
+  axisBottomLegend: string;
+};
+
+const Chart = (props: ChartData) => {
   const {
     id,
-    data,
     xScaleFormat,
     axisBottomFormat,
-    axisBottomLegend,
     tickValue,
+    data,
+    axisBottomLegend,
   } = props;
   return (
     <Line
       {...commonProperties}
       margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
-      data={[{ id, data }]}
+      data={[{ id: id, data: data }]}
       xScale={{
         type: "time",
         format: xScaleFormat,
         // precision: "minute",
         useUTC: false,
       }}
-      yScale={{ type: "linear", max: 15 }}
+      yScale={{ type: "linear", max: 10 }}
       axisBottom={{
         format: axisBottomFormat,
         tickValues: tickValue,
         legend: axisBottomLegend,
         legendPosition: "middle",
-        legendOffset: 40,
+        legendOffset: 46,
       }}
       axisLeft={{
         legend: "num of faces",
@@ -65,21 +69,19 @@ const Chart = (props: ChartProps) => {
   );
 };
 
-type Props = {
-  deviceId: string;
-};
-
-const MaximumChart = (props: Props) => {
+const AverageChart = (props: Props) => {
   const { deviceId } = props;
+
+  const [averageChartData, setAverageChartData] = useState<
+    { x: string; y: number }[]
+  >([]);
+
 
   const [refreshChart, setRefreshChart] = useState(false);
 
   const [chartInterval, setChartInterval] = useState<ChartInterval>(
     ChartInterval.Minute
   );
-  const [maximumChartData, setMaximumChartData] = useState<
-    { x: string; y: number }[]
-  >([]);
 
   const [getLivestream, { data: livestreamData }] =
     useLazyGetLivestreamDeviceQuery();
@@ -88,8 +90,8 @@ const MaximumChart = (props: Props) => {
     if (chartInterval === ChartInterval.Minute) {
       return (
         <Chart
-          id="maximum-minute-chart"
-          data={maximumChartData}
+          id="average-minute-chart"
+          data={averageChartData}
           xScaleFormat="%Y-%m-%dT%H:%M:%S"
           axisBottomFormat="%M"
           axisBottomLegend="time (per minute)"
@@ -99,8 +101,8 @@ const MaximumChart = (props: Props) => {
     } else if (chartInterval === ChartInterval.Hour) {
       return (
         <Chart
-          id="maximum-hour-chart"
-          data={maximumChartData}
+          id="average-hour-chart"
+          data={averageChartData}
           xScaleFormat="%Y-%m-%dT%H:%M:%S"
           axisBottomFormat="%H"
           axisBottomLegend="time (per hour)"
@@ -110,8 +112,8 @@ const MaximumChart = (props: Props) => {
     } else {
       return (
         <Chart
-          id="maximum-day-chart"
-          data={maximumChartData}
+          id="average-day-chart"
+          data={averageChartData}
           xScaleFormat="%Y-%m-%d"
           axisBottomFormat="%b %d"
           axisBottomLegend="time (per day)"
@@ -119,12 +121,11 @@ const MaximumChart = (props: Props) => {
         />
       );
     }
-  }, [maximumChartData]);
+  }, [averageChartData]);
 
   useEffect(() => {
     let interval: string;
     let range: string;
-
     if (chartInterval === ChartInterval.Minute) {
       interval = "minute";
       range = "hour";
@@ -135,19 +136,18 @@ const MaximumChart = (props: Props) => {
       interval = "day";
       range = "week";
     }
-
     getLivestream({
       deviceId,
       interval,
       range,
-      action: "max",
+      action: "average",
     });
-  }, [chartInterval]);
+  }, [chartInterval, refreshChart]);
 
   useEffect(() => {
     if (livestreamData === undefined) return;
-
     let dateFormat: string;
+
     if (chartInterval === ChartInterval.Minute) {
       dateFormat = "YYYY-MM-DDTHH:mm:ss";
     } else if (chartInterval === ChartInterval.Hour) {
@@ -161,15 +161,15 @@ const MaximumChart = (props: Props) => {
       y: data.value,
     }));
 
-    setMaximumChartData(data);
+    setAverageChartData(data);
   }, [livestreamData, chartInterval]);
 
   return (
     <>
-      {maximumChartData.length > 0 ? (
+      {averageChartData.length > 0 ? (
         <>
           <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 1 }}>
-            Maximum Chart
+            Average Chart
           </Typography>
 
           <ButtonGroup>
@@ -199,7 +199,7 @@ const MaximumChart = (props: Props) => {
               size="small"
               onClick={() => setRefreshChart(!refreshChart)}
             >
-              refresh
+             refresh  
             </Button>
           </ButtonGroup>
 
@@ -210,4 +210,4 @@ const MaximumChart = (props: Props) => {
   );
 };
 
-export default MaximumChart;
+export default AverageChart;

@@ -15,10 +15,16 @@ export enum ApprovalStatus {
   All = "",
 }
 
+export enum ChartInterval {
+  Day = "day",
+  Hour = "hour",
+  Minute = "minute",
+}
+
 export const statusActions: ActionStatus[] = [
   {
     label: "all",
-    value: "", 
+    value: "",
   },
   {
     label: "Waiting for Approval",
@@ -49,7 +55,7 @@ export const statusActions: ActionStatus[] = [
 export const actions: ActionButton[] = [
   {
     label: "all",
-    value: "", 
+    value: "",
   },
   {
     label: "Create",
