@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 
 import { Typography, Button, ButtonGroup } from "@mui/material";
@@ -6,6 +6,7 @@ import { Typography, Button, ButtonGroup } from "@mui/material";
 import { useLazyGetLivestreamDeviceQuery } from "../services/device";
 
 import { Line } from "@nivo/line";
+import { ChartInterval } from "../types/constants";
 
 const commonProperties = {
   width: 900,
@@ -15,30 +16,66 @@ const commonProperties = {
   enableSlices: "x",
 };
 
+type ChartProps = {
+  id: string;
+  data: { x: string; y: number }[];
+  xScaleFormat: string;
+  axisBottomFormat: string;
+  axisBottomLegend: string;
+  tickValue: string;
+};
+
+const Chart = (props: ChartProps) => {
+  const {
+    id,
+    data,
+    xScaleFormat,
+    axisBottomFormat,
+    axisBottomLegend,
+    tickValue,
+  } = props;
+  return (
+    <Line
+      {...commonProperties}
+      margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
+      data={[{ id, data }]}
+      xScale={{
+        type: "time",
+        format: xScaleFormat,
+        // precision: "minute",
+        useUTC: false,
+      }}
+      yScale={{ type: "linear", max: 15 }}
+      axisBottom={{
+        format: axisBottomFormat,
+        tickValues: tickValue,
+        legend: axisBottomLegend,
+        legendPosition: "middle",
+        legendOffset: 40,
+      }}
+      axisLeft={{
+        legend: "num of faces",
+        legendOffset: 10,
+      }}
+      xFormat="time:%Y-%m-%d %H:%M:%S"
+      curve="linear"
+      enableSlices={false}
+      useMesh={true}
+    />
+  );
+};
+
 type Props = {
-  chartId: string;
   deviceId: string;
-  maxChartInterval: string;
-  maxChartRange: string;
-  setMaxChartInterval: React.Dispatch<React.SetStateAction<string>>;
-  setMaxChartRange: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const MaximumChart = (props: Props) => {
-  const {
-    chartId,
-    deviceId,
-    maxChartInterval,
-    maxChartRange,
-    setMaxChartRange,
-    setMaxChartInterval,
-  } = props;
+  const { deviceId } = props;
 
-  const [format, setFormat] = useState("%M");
-  const [tickValue, setTickValue] = useState("every 10 minutes");
-  const [xScaleFormat, setxScaleFormat] = useState("%Y-%m-%dT%H:%M:%S");
-  const [maximumChartDateFormat, setMaximumChartDateFormat] = useState(
-    "YYYY-MM-DDTHH:mm:ss"
+  const [refreshChart, setRefreshChart] = useState(false);
+
+  const [chartInterval, setChartInterval] = useState<ChartInterval>(
+    ChartInterval.Minute
   );
   const [maximumChartData, setMaximumChartData] = useState<
     { x: string; y: number }[]
@@ -47,73 +84,85 @@ const MaximumChart = (props: Props) => {
   const [getLivestream, { data: livestreamData }] =
     useLazyGetLivestreamDeviceQuery();
 
-  const handleFilterByMinute = useCallback(() => {
-    setMaxChartInterval("minute");
-    setMaxChartRange("hour");
-    setFormat("%M");
-    setTickValue("every 10 minutes");
-    setMaximumChartDateFormat("YYYY-MM-DDTHH:mm:ss");
-    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
-  }, [
-    maxChartInterval,
-    maxChartRange,
-    format,
-    tickValue,
-    maximumChartDateFormat,
-    xScaleFormat,
-  ]);
-
-  const handleFilterByHour = useCallback(() => {
-    setMaxChartInterval("hour");
-    setMaxChartRange("day");
-    setFormat("%H");
-    setTickValue("every 1 hour");
-    setMaximumChartDateFormat("YYYY-MM-DDTHH:mm:ss");
-    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
-  }, [
-    maxChartInterval,
-    maxChartRange,
-    format,
-    tickValue,
-    maximumChartDateFormat,
-    xScaleFormat,
-  ]);
-
-  const handleFilterByDay = useCallback(() => {
-    setMaxChartInterval("day");
-    setMaxChartRange("week");
-    setFormat("%b %d");
-    setTickValue("every 1 day");
-    setMaximumChartDateFormat("YYYY-MM-DDTHH:mm:ss");
-    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
-  }, [
-    maxChartInterval,
-    maxChartRange,
-    format,
-    tickValue,
-    maximumChartDateFormat,
-    xScaleFormat,
-  ]);
+  const chart = useMemo(() => {
+    if (chartInterval === ChartInterval.Minute) {
+      return (
+        <Chart
+          id="maximum-minute-chart"
+          data={maximumChartData}
+          xScaleFormat="%Y-%m-%dT%H:%M:%S"
+          axisBottomFormat="%M"
+          axisBottomLegend="time (per minute)"
+          tickValue="every 10 minutes"
+        />
+      );
+    } else if (chartInterval === ChartInterval.Hour) {
+      return (
+        <Chart
+          id="maximum-hour-chart"
+          data={maximumChartData}
+          xScaleFormat="%Y-%m-%dT%H:%M:%S"
+          axisBottomFormat="%H"
+          axisBottomLegend="time (per hour)"
+          tickValue="every 1 hour"
+        />
+      );
+    } else {
+      return (
+        <Chart
+          id="maximum-day-chart"
+          data={maximumChartData}
+          xScaleFormat="%Y-%m-%d"
+          axisBottomFormat="%b %d"
+          axisBottomLegend="time (per day)"
+          tickValue="every 1 day"
+        />
+      );
+    }
+  }, [maximumChartData]);
 
   useEffect(() => {
+    let interval: string;
+    let range: string;
+
+    if (chartInterval === ChartInterval.Minute) {
+      interval = "minute";
+      range = "hour";
+    } else if (chartInterval === ChartInterval.Hour) {
+      interval = "hour";
+      range = "day";
+    } else {
+      interval = "day";
+      range = "week";
+    }
+
     getLivestream({
       deviceId,
-      interval: maxChartInterval,
-      range: maxChartRange,
+      interval,
+      range,
       action: "max",
     });
-  }, [maxChartInterval, maxChartRange]);
+  }, [chartInterval]);
 
   useEffect(() => {
     if (livestreamData === undefined) return;
+
+    let dateFormat: string;
+    if (chartInterval === ChartInterval.Minute) {
+      dateFormat = "YYYY-MM-DDTHH:mm:ss";
+    } else if (chartInterval === ChartInterval.Hour) {
+      dateFormat = "YYYY-MM-DDTHH:mm:ss";
+    } else {
+      dateFormat = "YYYY-MM-DD";
+    }
+
     const data = livestreamData.contents.map((data) => ({
-      x: dayjs(data.timestamp).format(maximumChartDateFormat),
+      x: dayjs(data.timestamp).format(dateFormat),
       y: data.value,
     }));
-    setMaximumChartData(data);
-  }, [livestreamData, maximumChartDateFormat]);
 
-  // "%Y-%m-%d" <- day format
+    setMaximumChartData(data);
+  }, [livestreamData, chartInterval]);
 
   return (
     <>
@@ -127,52 +176,34 @@ const MaximumChart = (props: Props) => {
             <Button
               variant="contained"
               size="small"
-              onClick={handleFilterByMinute}
+              onClick={() => setChartInterval(ChartInterval.Minute)}
             >
               1M
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={handleFilterByHour}
+              onClick={() => setChartInterval(ChartInterval.Hour)}
             >
               1H
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={handleFilterByDay}
+              onClick={() => setChartInterval(ChartInterval.Day)}
             >
               1D
             </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => setRefreshChart(!refreshChart)}
+            >
+              refresh
+            </Button>
           </ButtonGroup>
-          <Line
-            {...commonProperties}
-            margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
-            data={[{ id: chartId, data: maximumChartData }]}
-            xScale={{
-              type: "time",
-              format: xScaleFormat,
-              // precision: "minute",
-              useUTC: false,
-            }}
-            yScale={{ type: "linear", max: 10 }}
-            axisBottom={{
-              format: format,
-              tickValues: tickValue,
-              legend: "time (per minute)",
-              legendPosition: "middle",
-              legendOffset: 40,
-            }}
-            axisLeft={{
-              legend: "num of faces",
-              legendOffset: 10,
-            }}
-            xFormat="time:%Y-%m-%d"
-            curve="linear"
-            enableSlices={false}
-            useMesh={true}
-          />
+
+          {chart}
         </>
       ) : null}
     </>

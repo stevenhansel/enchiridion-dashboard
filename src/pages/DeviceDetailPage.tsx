@@ -54,8 +54,6 @@ const DeviceDetailPage = () => {
   const hasViewAnnouncementListPermission = usePermission(
     "view_list_announcement"
   );
-  const [maxChartInterval, setMaxChartInterval] = useState("minute");
-  const [maxChartRange, setMaxChartRange] = useState("hour");
 
   const [avgChartInterval, setAvgChartInterval] = useState("minute");
   const [avgChartRange, setAvgChartRange] = useState("hour");
@@ -264,7 +262,7 @@ const DeviceDetailPage = () => {
       />
       {devices && devices.cameraEnabled ? (
         <Box>
-          <Box>
+          {/* <Box>
             <Typography
               sx={{ marginTop: 5, marginBottom: 1 }}
               variant="h5"
@@ -278,7 +276,7 @@ const DeviceDetailPage = () => {
               style={{ width: 600, height: 450 }}
               id="device-stream"
             />
-          </Box>
+          </Box> */}
           <>
             <Box>
               {realtimeChartData.length > 0 ? (
@@ -298,23 +296,11 @@ const DeviceDetailPage = () => {
               ) : null}
             </Box>
             <Box>
-              <MaximumChart
-                chartId="maximum"
-                deviceId={deviceId}
-                maxChartInterval={maxChartInterval}
-                maxChartRange={maxChartRange}
-                setMaxChartInterval={setMaxChartInterval}
-                setMaxChartRange={setMaxChartRange}
-              />
+              <MaximumChart deviceId={deviceId} />
             </Box>
             <Box>
               <AverageChart
-                chartId="average"
                 deviceId={deviceId}
-                avgChartInterval={avgChartInterval}
-                avgChartRange={avgChartRange}
-                setAvgChartInterval={setAvgChartInterval}
-                setAvgChartRange={setAvgChartRange}
               />
             </Box>
           </>

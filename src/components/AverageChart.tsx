@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import dayjs from "dayjs";
 
 import { Typography, Button, ButtonGroup } from "@mui/material";
@@ -6,6 +6,7 @@ import { Typography, Button, ButtonGroup } from "@mui/material";
 import { useLazyGetLivestreamDeviceQuery } from "../services/device";
 
 import { Line } from "@nivo/line";
+import { ChartInterval } from "../types/constants";
 
 const commonProperties = {
   width: 900,
@@ -16,106 +17,152 @@ const commonProperties = {
 };
 
 type Props = {
-  chartId: string;
   deviceId: string;
-  avgChartInterval: string;
-  avgChartRange: string;
-  setAvgChartInterval: React.Dispatch<React.SetStateAction<string>>;
-  setAvgChartRange: React.Dispatch<React.SetStateAction<string>>;
+};
+
+type ChartData = {
+  id: string;
+  xScaleFormat: string;
+  axisBottomFormat: string;
+  tickValue: string;
+  data: { x: string; y: number }[];
+  axisBottomLegend: string;
+};
+
+const Chart = (props: ChartData) => {
+  const {
+    id,
+    xScaleFormat,
+    axisBottomFormat,
+    tickValue,
+    data,
+    axisBottomLegend,
+  } = props;
+  return (
+    <Line
+      {...commonProperties}
+      margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
+      data={[{ id: id, data: data }]}
+      xScale={{
+        type: "time",
+        format: xScaleFormat,
+        // precision: "minute",
+        useUTC: false,
+      }}
+      yScale={{ type: "linear", max: 10 }}
+      axisBottom={{
+        format: axisBottomFormat,
+        tickValues: tickValue,
+        legend: axisBottomLegend,
+        legendPosition: "middle",
+        legendOffset: 46,
+      }}
+      axisLeft={{
+        legend: "num of faces",
+        legendOffset: 10,
+      }}
+      xFormat="time:%Y-%m-%d %H:%M:%S"
+      curve="linear"
+      enableSlices={false}
+      useMesh={true}
+    />
+  );
 };
 
 const AverageChart = (props: Props) => {
-  const {
-    chartId,
-    deviceId,
-    avgChartInterval,
-    avgChartRange,
-    setAvgChartInterval,
-    setAvgChartRange,
-  } = props;
+  const { deviceId } = props;
 
-  const [format, setFormat] = useState("%M");
-  const [tickValue, setTickValue] = useState("every 10 minutes");
-  const [averageChartDateFormat, setAverageChartDateFormat] = useState(
-    "YYYY-MM-DDTHH:mm:ss"
-  );
-  const [xScaleFormat, setxScaleFormat] = useState("%Y-%m-%dT%H:%M:%S");
-  const [] = useState("");
   const [averageChartData, setAverageChartData] = useState<
     { x: string; y: number }[]
   >([]);
 
+
+  const [refreshChart, setRefreshChart] = useState(false);
+
+  const [chartInterval, setChartInterval] = useState<ChartInterval>(
+    ChartInterval.Minute
+  );
+
   const [getLivestream, { data: livestreamData }] =
     useLazyGetLivestreamDeviceQuery();
 
-  const handleFilterByMinute = useCallback(() => {
-    setAvgChartInterval("minute");
-    setAvgChartRange("hour");
-    setFormat("%M");
-    setTickValue("every 10 minutes");
-    setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
-    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
-  }, [
-    avgChartInterval,
-    avgChartRange,
-    format,
-    tickValue,
-    averageChartDateFormat,
-    xScaleFormat,
-  ]);
-
-  const handleFilterByHour = useCallback(() => {
-    setAvgChartInterval("hour");
-    setAvgChartRange("day");
-    setFormat("%H");
-    setTickValue("every 1 hour");
-    setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
-    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
-  }, [
-    avgChartInterval,
-    avgChartRange,
-    format,
-    tickValue,
-    averageChartDateFormat,
-    xScaleFormat,
-  ]);
-
-// setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
-//     setxScaleFormat("%Y-%m-%dT%H:%M:%S");
-
-  const handleFilterByDay = useCallback(() => {
-    setAvgChartInterval("day");
-    setAvgChartRange("week");
-    setFormat("%d");
-    setTickValue("every 1 day");
-    setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
-    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
-  }, [
-    avgChartInterval,
-    avgChartRange,
-    format,
-    tickValue,
-    averageChartDateFormat,
-    xScaleFormat,
-  ]);
+  const chart = useMemo(() => {
+    if (chartInterval === ChartInterval.Minute) {
+      return (
+        <Chart
+          id="average-minute-chart"
+          data={averageChartData}
+          xScaleFormat="%Y-%m-%dT%H:%M:%S"
+          axisBottomFormat="%M"
+          axisBottomLegend="time (per minute)"
+          tickValue="every 10 minutes"
+        />
+      );
+    } else if (chartInterval === ChartInterval.Hour) {
+      return (
+        <Chart
+          id="average-hour-chart"
+          data={averageChartData}
+          xScaleFormat="%Y-%m-%dT%H:%M:%S"
+          axisBottomFormat="%H"
+          axisBottomLegend="time (per hour)"
+          tickValue="every 1 hour"
+        />
+      );
+    } else {
+      return (
+        <Chart
+          id="average-day-chart"
+          data={averageChartData}
+          xScaleFormat="%Y-%m-%d"
+          axisBottomFormat="%b %d"
+          axisBottomLegend="time (per day)"
+          tickValue="every 1 day"
+        />
+      );
+    }
+  }, [averageChartData]);
 
   useEffect(() => {
+    let interval: string;
+    let range: string;
+    if (chartInterval === ChartInterval.Minute) {
+      interval = "minute";
+      range = "hour";
+    } else if (chartInterval === ChartInterval.Hour) {
+      interval = "hour";
+      range = "day";
+    } else {
+      interval = "day";
+      range = "week";
+    }
     getLivestream({
       deviceId,
-      interval: avgChartInterval,
-      range: avgChartRange,
+      interval,
+      range,
       action: "average",
     });
-  }, [avgChartInterval, avgChartRange]);
+  }, [chartInterval, refreshChart]);
 
   useEffect(() => {
     if (livestreamData === undefined) return;
+    let dateFormat: string;
+
+    if (chartInterval === ChartInterval.Minute) {
+      dateFormat = "YYYY-MM-DDTHH:mm:ss";
+    } else if (chartInterval === ChartInterval.Hour) {
+      dateFormat = "YYYY-MM-DDTHH:mm:ss";
+    } else {
+      dateFormat = "YYYY-MM-DD";
+    }
+
     const data = livestreamData.contents.map((data) => ({
-      x: dayjs(data.timestamp).format(averageChartDateFormat),
+      x: dayjs(data.timestamp).format(dateFormat),
       y: data.value,
     }));
+
     setAverageChartData(data);
-  }, [livestreamData]);
+  }, [livestreamData, chartInterval]);
 
   return (
     <>
@@ -129,52 +176,34 @@ const AverageChart = (props: Props) => {
             <Button
               variant="contained"
               size="small"
-              onClick={handleFilterByMinute}
+              onClick={() => setChartInterval(ChartInterval.Minute)}
             >
               1M
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={handleFilterByHour}
+              onClick={() => setChartInterval(ChartInterval.Hour)}
             >
               1H
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={handleFilterByDay}
+              onClick={() => setChartInterval(ChartInterval.Day)}
             >
               1D
             </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => setRefreshChart(!refreshChart)}
+            >
+             refresh  
+            </Button>
           </ButtonGroup>
-          <Line
-            {...commonProperties}
-            margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
-            data={[{ id: chartId, data: averageChartData }]}
-            xScale={{
-              type: "time",
-              format: xScaleFormat,
-              // precision: "minute",
-              useUTC: false,
-            }}
-            yScale={{ type: "linear", max: 10 }}
-            axisBottom={{
-              format: format,
-              tickValues: tickValue,
-              legend: "time (per minute)",
-              legendPosition: "middle",
-              legendOffset: 46,
-            }}
-            axisLeft={{
-              legend: "num of faces",
-              legendOffset: 10,
-            }}
-            xFormat="time:%Y-%m-%d %H:%M:%S"
-            curve="linear"
-            enableSlices={false}
-            useMesh={true}
-          />
+
+          {chart}
         </>
       ) : null}
     </>
