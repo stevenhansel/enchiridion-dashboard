@@ -15,7 +15,7 @@ const commonProperties = {
   enableSlices: "x",
 };
 
-export const maximumChartDateFormat = "YYYY-MM-DDTHH:mm:ss";
+export const averageChartDateFormat = "YYYY-MM-DDTHH:mm:ss";
 
 type Props = {
   chartId: string;
@@ -24,16 +24,16 @@ type Props = {
   range: string;
 };
 
-const MaximumChart = (props: Props) => {
+const AverageChart = (props: Props) => {
   const { chartId, deviceId } = props;
-  const [interval, setInterval] = useState("day");
-  const [range, setRange] = useState("week");
-  const [format, setFormat] = useState("%d");
-  const [maximumChartData, setMaximumChartData] = useState<
 
+  const [interval, setInterval] = useState("minute");
+  const [range, setRange] = useState("hour");
+  const [format, setFormat] = useState("%M");
+  const [tickValue, setTickValue] = useState("every 10 minutes");
+  const [averageChartData, setAverageChartData] = useState<
     { x: string; y: number }[]
   >([]);
-  const [tickValue, setTickValue] = useState("every 10 minutes");
 
   const [getLivestream, { data: livestreamData }] =
     useLazyGetLivestreamDeviceQuery();
@@ -43,29 +43,25 @@ const MaximumChart = (props: Props) => {
       deviceId,
       interval: interval,
       range: range,
-      action: "max",
+      action: "average",
     });
   }, [interval, range]);
 
   useEffect(() => {
     if (livestreamData === undefined) return;
     const data = livestreamData.contents.map((data) => ({
-      x: dayjs(data.timestamp).format("YYYY-MM-DD"),
+      x: dayjs(data.timestamp).format(averageChartDateFormat),
       y: data.value,
     }));
-    setMaximumChartData(data);
+    setAverageChartData(data);
   }, [livestreamData]);
-
-console.log(maximumChartData);
-
-  // "%Y-%m-%d" <- day format
 
   return (
     <>
-      {maximumChartData.length > 0 ? (
+      {averageChartData.length > 0 ? (
         <>
           <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 1 }}>
-            Maximum Chart
+            Average Chart
           </Typography>
 
           <ButtonGroup>
@@ -99,7 +95,7 @@ console.log(maximumChartData);
               onClick={() => {
                 setInterval("day");
                 setRange("week");
-                setFormat("%b %d");
+                setFormat("%D");
                 setTickValue("every 1 day");
               }}
             >
@@ -109,20 +105,20 @@ console.log(maximumChartData);
           <Line
             {...commonProperties}
             margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
-            data={[{ id: chartId, data: maximumChartData }]}
+            data={[{ id: chartId, data: averageChartData }]}
             xScale={{
               type: "time",
-              format: "%Y-%m-%d",
+              format: "%Y-%m-%dT%H:%M:%S",
               // precision: "minute",
               useUTC: false,
             }}
             yScale={{ type: "linear", max: 10 }}
             axisBottom={{
-              format: "%b %d",
-              tickValues: "every 1 day",
-              legend: "Day",
+              format: format,
+              tickValues: tickValue,
+              legend: "time (per minute)",
               legendPosition: "middle",
-              legendOffset: 40,
+              legendOffset: 46,
             }}
             axisLeft={{
               legend: "num of faces",
@@ -139,4 +135,4 @@ console.log(maximumChartData);
   );
 };
 
-export default MaximumChart;
+export default AverageChart;
