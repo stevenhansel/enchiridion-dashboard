@@ -15,22 +15,32 @@ const commonProperties = {
   enableSlices: "x",
 };
 
-export const averageChartDateFormat = "YYYY-MM-DDTHH:mm:ss";
-
 type Props = {
   chartId: string;
   deviceId: string;
-  interval: string;
-  range: string;
+  avgChartInterval: string;
+  avgChartRange: string;
+  setAvgChartInterval: React.Dispatch<React.SetStateAction<string>>;
+  setAvgChartRange: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const AverageChart = (props: Props) => {
-  const { chartId, deviceId } = props;
+  const {
+    chartId,
+    deviceId,
+    avgChartInterval,
+    avgChartRange,
+    setAvgChartInterval,
+    setAvgChartRange,
+  } = props;
 
-  const [interval, setInterval] = useState("minute");
-  const [range, setRange] = useState("hour");
   const [format, setFormat] = useState("%M");
   const [tickValue, setTickValue] = useState("every 10 minutes");
+  const [averageChartDateFormat, setAverageChartDateFormat] = useState(
+    "YYYY-MM-DDTHH:mm:ss"
+  );
+  const [xScaleFormat, setxScaleFormat] = useState("%Y-%m-%dT%H:%M:%S");
+  const [] = useState("");
   const [averageChartData, setAverageChartData] = useState<
     { x: string; y: number }[]
   >([]);
@@ -38,14 +48,65 @@ const AverageChart = (props: Props) => {
   const [getLivestream, { data: livestreamData }] =
     useLazyGetLivestreamDeviceQuery();
 
+  const handleFilterByMinute = useCallback(() => {
+    setAvgChartInterval("minute");
+    setAvgChartRange("hour");
+    setFormat("%M");
+    setTickValue("every 10 minutes");
+    setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
+    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
+  }, [
+    avgChartInterval,
+    avgChartRange,
+    format,
+    tickValue,
+    averageChartDateFormat,
+    xScaleFormat,
+  ]);
+
+  const handleFilterByHour = useCallback(() => {
+    setAvgChartInterval("hour");
+    setAvgChartRange("day");
+    setFormat("%H");
+    setTickValue("every 1 hour");
+    setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
+    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
+  }, [
+    avgChartInterval,
+    avgChartRange,
+    format,
+    tickValue,
+    averageChartDateFormat,
+    xScaleFormat,
+  ]);
+
+// setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
+//     setxScaleFormat("%Y-%m-%dT%H:%M:%S");
+
+  const handleFilterByDay = useCallback(() => {
+    setAvgChartInterval("day");
+    setAvgChartRange("week");
+    setFormat("%d");
+    setTickValue("every 1 day");
+    setAverageChartDateFormat("YYYY-MM-DDTHH:mm:ss");
+    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
+  }, [
+    avgChartInterval,
+    avgChartRange,
+    format,
+    tickValue,
+    averageChartDateFormat,
+    xScaleFormat,
+  ]);
+
   useEffect(() => {
     getLivestream({
       deviceId,
-      interval: interval,
-      range: range,
+      interval: avgChartInterval,
+      range: avgChartRange,
       action: "average",
     });
-  }, [interval, range]);
+  }, [avgChartInterval, avgChartRange]);
 
   useEffect(() => {
     if (livestreamData === undefined) return;
@@ -68,36 +129,21 @@ const AverageChart = (props: Props) => {
             <Button
               variant="contained"
               size="small"
-              onClick={() => {
-                setInterval("minute");
-                setRange("hour");
-                setFormat("%M");
-                setTickValue("every 10 minutes");
-              }}
+              onClick={handleFilterByMinute}
             >
               1M
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={() => {
-                setInterval("hour");
-                setRange("day");
-                setFormat("%H");
-                setTickValue("every 1 hour");
-              }}
+              onClick={handleFilterByHour}
             >
               1H
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={() => {
-                setInterval("day");
-                setRange("week");
-                setFormat("%D");
-                setTickValue("every 1 day");
-              }}
+              onClick={handleFilterByDay}
             >
               1D
             </Button>
@@ -108,7 +154,7 @@ const AverageChart = (props: Props) => {
             data={[{ id: chartId, data: averageChartData }]}
             xScale={{
               type: "time",
-              format: "%Y-%m-%dT%H:%M:%S",
+              format: xScaleFormat,
               // precision: "minute",
               useUTC: false,
             }}

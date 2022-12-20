@@ -54,8 +54,11 @@ const DeviceDetailPage = () => {
   const hasViewAnnouncementListPermission = usePermission(
     "view_list_announcement"
   );
-  const [interval, setInterval] = useState("day");
-  const [range, setRange] = useState("week");
+  const [maxChartInterval, setMaxChartInterval] = useState("minute");
+  const [maxChartRange, setMaxChartRange] = useState("hour");
+
+  const [avgChartInterval, setAvgChartInterval] = useState("minute");
+  const [avgChartRange, setAvgChartRange] = useState("hour");
 
   const { data: devices, isLoading: isDeviceDetailLoading } =
     useGetDeviceDetailQuery(
@@ -67,9 +70,6 @@ const DeviceDetailPage = () => {
 
   const [getAnnouncements, { data: announcements }] =
     useLazyGetAnnouncementsQuery();
-
-  const [getLivestream, { data: livestreamData }] =
-    useLazyGetLivestreamDeviceQuery();
 
   const [realtimeChartData, setRealtimeChartData] = useState<
     { x: string; y: number }[]
@@ -301,16 +301,20 @@ const DeviceDetailPage = () => {
               <MaximumChart
                 chartId="maximum"
                 deviceId={deviceId}
-                interval={interval}
-                range={range}
+                maxChartInterval={maxChartInterval}
+                maxChartRange={maxChartRange}
+                setMaxChartInterval={setMaxChartInterval}
+                setMaxChartRange={setMaxChartRange}
               />
             </Box>
             <Box>
               <AverageChart
                 chartId="average"
                 deviceId={deviceId}
-                interval={interval}
-                range={range}
+                avgChartInterval={avgChartInterval}
+                avgChartRange={avgChartRange}
+                setAvgChartInterval={setAvgChartInterval}
+                setAvgChartRange={setAvgChartRange}
               />
             </Box>
           </>

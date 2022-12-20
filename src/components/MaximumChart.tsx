@@ -15,48 +15,103 @@ const commonProperties = {
   enableSlices: "x",
 };
 
-export const maximumChartDateFormat = "YYYY-MM-DDTHH:mm:ss";
-
 type Props = {
   chartId: string;
   deviceId: string;
-  interval: string;
-  range: string;
+  maxChartInterval: string;
+  maxChartRange: string;
+  setMaxChartInterval: React.Dispatch<React.SetStateAction<string>>;
+  setMaxChartRange: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const MaximumChart = (props: Props) => {
-  const { chartId, deviceId } = props;
-  const [interval, setInterval] = useState("day");
-  const [range, setRange] = useState("week");
-  const [format, setFormat] = useState("%d");
-  const [maximumChartData, setMaximumChartData] = useState<
+  const {
+    chartId,
+    deviceId,
+    maxChartInterval,
+    maxChartRange,
+    setMaxChartRange,
+    setMaxChartInterval,
+  } = props;
 
+  const [format, setFormat] = useState("%M");
+  const [tickValue, setTickValue] = useState("every 10 minutes");
+  const [xScaleFormat, setxScaleFormat] = useState("%Y-%m-%dT%H:%M:%S");
+  const [maximumChartDateFormat, setMaximumChartDateFormat] = useState(
+    "YYYY-MM-DDTHH:mm:ss"
+  );
+  const [maximumChartData, setMaximumChartData] = useState<
     { x: string; y: number }[]
   >([]);
-  const [tickValue, setTickValue] = useState("every 10 minutes");
 
   const [getLivestream, { data: livestreamData }] =
     useLazyGetLivestreamDeviceQuery();
 
+  const handleFilterByMinute = useCallback(() => {
+    setMaxChartInterval("minute");
+    setMaxChartRange("hour");
+    setFormat("%M");
+    setTickValue("every 10 minutes");
+    setMaximumChartDateFormat("YYYY-MM-DDTHH:mm:ss");
+    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
+  }, [
+    maxChartInterval,
+    maxChartRange,
+    format,
+    tickValue,
+    maximumChartDateFormat,
+    xScaleFormat,
+  ]);
+
+  const handleFilterByHour = useCallback(() => {
+    setMaxChartInterval("hour");
+    setMaxChartRange("day");
+    setFormat("%H");
+    setTickValue("every 1 hour");
+    setMaximumChartDateFormat("YYYY-MM-DDTHH:mm:ss");
+    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
+  }, [
+    maxChartInterval,
+    maxChartRange,
+    format,
+    tickValue,
+    maximumChartDateFormat,
+    xScaleFormat,
+  ]);
+
+  const handleFilterByDay = useCallback(() => {
+    setMaxChartInterval("day");
+    setMaxChartRange("week");
+    setFormat("%b %d");
+    setTickValue("every 1 day");
+    setMaximumChartDateFormat("YYYY-MM-DDTHH:mm:ss");
+    setxScaleFormat("%Y-%m-%dT%H:%M:%S");
+  }, [
+    maxChartInterval,
+    maxChartRange,
+    format,
+    tickValue,
+    maximumChartDateFormat,
+    xScaleFormat,
+  ]);
+
   useEffect(() => {
     getLivestream({
       deviceId,
-      interval: interval,
-      range: range,
+      interval: maxChartInterval,
+      range: maxChartRange,
       action: "max",
     });
-  }, [interval, range]);
+  }, [maxChartInterval, maxChartRange]);
 
   useEffect(() => {
     if (livestreamData === undefined) return;
     const data = livestreamData.contents.map((data) => ({
-      x: dayjs(data.timestamp).format("YYYY-MM-DD"),
+      x: dayjs(data.timestamp).format(maximumChartDateFormat),
       y: data.value,
     }));
     setMaximumChartData(data);
-  }, [livestreamData]);
-
-console.log(maximumChartData);
+  }, [livestreamData, maximumChartDateFormat]);
 
   // "%Y-%m-%d" <- day format
 
@@ -72,36 +127,21 @@ console.log(maximumChartData);
             <Button
               variant="contained"
               size="small"
-              onClick={() => {
-                setInterval("minute");
-                setRange("hour");
-                setFormat("%M");
-                setTickValue("every 10 minutes");
-              }}
+              onClick={handleFilterByMinute}
             >
               1M
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={() => {
-                setInterval("hour");
-                setRange("day");
-                setFormat("%H");
-                setTickValue("every 1 hour");
-              }}
+              onClick={handleFilterByHour}
             >
               1H
             </Button>
             <Button
               variant="contained"
               size="small"
-              onClick={() => {
-                setInterval("day");
-                setRange("week");
-                setFormat("%b %d");
-                setTickValue("every 1 day");
-              }}
+              onClick={handleFilterByDay}
             >
               1D
             </Button>
@@ -112,15 +152,15 @@ console.log(maximumChartData);
             data={[{ id: chartId, data: maximumChartData }]}
             xScale={{
               type: "time",
-              format: "%Y-%m-%d",
+              format: xScaleFormat,
               // precision: "minute",
               useUTC: false,
             }}
             yScale={{ type: "linear", max: 10 }}
             axisBottom={{
-              format: "%b %d",
-              tickValues: "every 1 day",
-              legend: "Day",
+              format: format,
+              tickValues: tickValue,
+              legend: "time (per minute)",
               legendPosition: "middle",
               legendOffset: 40,
             }}
@@ -128,7 +168,7 @@ console.log(maximumChartData);
               legend: "num of faces",
               legendOffset: 10,
             }}
-            xFormat="time:%Y-%m-%d %H:%M:%S"
+            xFormat="time:%Y-%m-%d"
             curve="linear"
             enableSlices={false}
             useMesh={true}
