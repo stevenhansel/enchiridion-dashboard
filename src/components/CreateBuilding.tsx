@@ -46,6 +46,7 @@ type Props = {
 const CreateBuilding = (props: Props) => {
   const [addNewBuilding, { error }] = useCreateBuildingMutation();
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const formik = useFormik<CreateBuildingType>({
     initialValues: {
@@ -57,6 +58,7 @@ const CreateBuilding = (props: Props) => {
       try {
         await addNewBuilding(values).unwrap();
         props.setOpen(false);
+        setSuccessMessage("you have successfully created a building");
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
           const { errorCode, messages } = err.data;
@@ -154,6 +156,24 @@ const CreateBuilding = (props: Props) => {
           autoHideDuration={6000}
           onClose={handleClose}
           message={errorMessage}
+          action={
+            <>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
+          }
+        />
+        <Snackbar
+          open={Boolean(successMessage)}
+          autoHideDuration={6000}
+          onClose={handleClose}
+          message={successMessage}
           action={
             <>
               <IconButton
