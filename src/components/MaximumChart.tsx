@@ -142,7 +142,7 @@ const MaximumChart = (props: Props) => {
       range,
       action: "max",
     });
-  }, [chartInterval]);
+  }, [chartInterval, refreshChart]);
 
   useEffect(() => {
     if (livestreamData === undefined) return;
