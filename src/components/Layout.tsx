@@ -263,57 +263,13 @@ export default function Layout(props: Props) {
           >
             <MenuIcon />
           </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={() => setOpen(false)}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon
-                sx={{
-                  color: navigationColor,
-                }}
-              />
-            )}
-          </IconButton>
-        </DrawerHeader>
-
-        <Divider />
-        <Box display="flex">
-          <Typography
-            sx={{
-              fontSize: 25,
-              marginTop: 1,
-              marginLeft: 3,
-              opacity: open ? 1 : 0,
-              color: navigationColor,
-            }}
-          >
-            {profile?.name}
-          </Typography>
-        </Box>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography
-            sx={{
-              fontSize: 20,
-              marginLeft: 3,
-              opacity: open ? 1 : 0,
-              color: navigationColor,
-            }}
-          >
-            {profile?.role.name}
-          </Typography>
-
+          <Typography variant="h5">{profile?.name}</Typography>
           <IconButton
             id="fade-button"
             aria-controls={openProfileDropdown ? "fade-menu" : undefined}
             aria-haspopup="true"
             aria-expanded={openProfileDropdown ? "true" : undefined}
             onClick={handleAnchorEl}
-            sx={{ opacity: open ? 1 : 0 }}
           >
             {openProfileDropdown ? (
               <ExpandLessIcon
@@ -343,7 +299,25 @@ export default function Layout(props: Props) {
             <MenuItem onClick={handleUserProfile}>Profile</MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
-        </Box>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer variant="permanent" open={open}>
+        <DrawerHeader>
+          <IconButton onClick={() => setOpen(false)}>
+            {theme.direction === "rtl" ? (
+              <ChevronRightIcon />
+            ) : (
+              <ChevronLeftIcon
+                sx={{
+                  color: navigationColor,
+                }}
+              />
+            )}
+          </IconButton>
+        </DrawerHeader>
+
+        <Divider />
         <List component="nav" aria-label="main navigation">
           {navigations.map(({ text, path, icon }) => (
             <Link
@@ -395,26 +369,9 @@ export default function Layout(props: Props) {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
-        {/* <Box display="flex" justifyContent="flex-end">
-          <Fab
-            size="small"
-            onClick={() => {
-              navigate("/requests");
-              setNotification(0);
-            }}
-          >
-            <Badge badgeContent={notification} color="secondary">
-              <MailIcon color="action" />
-            </Badge>
-          </Fab>
-          <Button
-            onClick={() => setNotification((notification) => notification + 1)}
-            variant="contained"
-          >
-            notification
-          </Button>
-        </Box> */}
-        <Typography>link survey: https://forms.gle/Hgx3ro3LcRvQsXqEA</Typography>
+        <Typography>
+          link survey: https://forms.gle/Hgx3ro3LcRvQsXqEA
+        </Typography>
         {hasPermission ? props.children : <p>Forbidden</p>}
       </Box>
       <Snackbar
