@@ -405,7 +405,7 @@ const ListFloorPage = () => {
                                 variant="outlined"
                                 sx={{
                                   marginRight: 1,
-                                  width: 100,
+                                  width: "120",
                                 }}
                               >
                                 {device.name}
