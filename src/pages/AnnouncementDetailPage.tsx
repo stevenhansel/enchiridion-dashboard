@@ -174,6 +174,7 @@ const AnnouncementDetailPage = () => {
             src={announcements.media}
             style={{ width: "50%" }}
             controls
+            loop
             autoPlay
             muted
           />

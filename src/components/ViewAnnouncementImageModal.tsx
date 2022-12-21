@@ -52,6 +52,7 @@ const ViewAnnouncementImageModal = (props: Props) => {
           src={announcementsDetail.media}
           style={{ width: "100%" }}
           controls
+          loop
           autoPlay
           muted
         />
