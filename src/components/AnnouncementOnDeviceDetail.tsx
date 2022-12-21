@@ -8,6 +8,7 @@ import {
   Paper,
   IconButton,
   Snackbar,
+  CircularProgress,
 } from "@mui/material";
 
 import {
@@ -35,7 +36,11 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
 
   const [
     getAnnouncements,
-    { data: announcements, error: isAnnouncementsError },
+    {
+      data: announcements,
+      error: isAnnouncementsError,
+      isLoading: isAnnouncementLoading,
+    },
   ] = useLazyGetAnnouncementsQuery();
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
@@ -118,22 +123,27 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
                 sx={{ marginRight: 1, width: 395 }}
                 elevation={3}
               >
-                <Box display="flex" justifyContent="center">
-                  {announcement.mediaType === "video" ? (
-                    <video
-                      src={announcement.media}
-                      style={{ width: "100%" }}
-                      controls
-                      autoPlay
-                      muted
-                    />
-                  ) : (
-                    <img
-                      src={announcement.media}
-                      style={{ width: 395, margin: "auto" }}
-                    />
-                  )}
-                </Box>
+                {!isAnnouncementLoading ? (
+                  <Box display="flex" justifyContent="center">
+                    {announcement.mediaType === "video" ? (
+                      <video
+                        src={announcement.media}
+                        style={{ width: "100%" }}
+                        autoPlay
+                        loop
+                        muted
+                      />
+                    ) : (
+                      <img
+                        src={announcement.media}
+                        style={{ width: 395, margin: "auto" }}
+                      />
+                    )}
+                  </Box>
+                ) : (
+                  <CircularProgress />
+                )}
+
                 <Box sx={{ marginLeft: 1 }}>
                   <Typography variant="h5" fontWeight="bold">
                     {announcement.title}
