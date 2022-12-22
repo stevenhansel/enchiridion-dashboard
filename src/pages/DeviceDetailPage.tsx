@@ -262,7 +262,7 @@ const DeviceDetailPage = () => {
       />
       {devices && devices.cameraEnabled ? (
         <Box>
-          {/* <Box>
+          <Box>
             <Typography
               sx={{ marginTop: 5, marginBottom: 1 }}
               variant="h5"
@@ -276,7 +276,7 @@ const DeviceDetailPage = () => {
               style={{ width: 600, height: 450 }}
               id="device-stream"
             />
-          </Box> */}
+          </Box>
           <>
             <Box>
               {realtimeChartData.length > 0 ? (
