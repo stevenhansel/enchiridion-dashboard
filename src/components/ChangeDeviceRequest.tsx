@@ -32,7 +32,7 @@ type Props = {
 
 const validationSchema = yup.object({
   newDeviceIds: yup.array().min(1).required(),
-  description: yup.string().required().min(10).max(30),
+  description: yup.string().required().min(1),
 });
 
 const ChangeDeviceRequest = (props: Props) => {

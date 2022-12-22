@@ -24,7 +24,7 @@ import { ApiErrorResponse } from "../services/error";
 const validationSchema = yup.object({
   name: yup
     .string()
-    .min(4, "Name should be of minimum 4 characters length")
+    .min(1)
     .required("Name is required"),
   buildingId: yup.string().required("Building is required"),
 });

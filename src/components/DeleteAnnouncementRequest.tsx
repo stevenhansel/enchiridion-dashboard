@@ -20,7 +20,7 @@ import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
 import { ActionCreateRequest } from "../types/store";
 
 const validationSchema = yup.object({
-  description: yup.string().required().min(10).max(30),
+  description: yup.string().required().min(1),
 });
 
 type Props = {
