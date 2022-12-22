@@ -17,7 +17,9 @@ const fields = ["buildingId"];
 const Step2 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
   const { errors, touched, validateField, setFieldValue, values } = formik;
-  const [selectedBuildingName, setSelectedBuildingName] = useState(values.buildingName);
+  const [selectedBuildingName, setSelectedBuildingName] = useState(
+    values.buildingName
+  );
   const { handleNextStep, handlePrevStep } = useContext(
     CreateAnnouncementFormContext
   );
@@ -40,17 +42,17 @@ const Step2 = () => {
       const selectedBuildingCheck =
         values.buildingId.indexOf(selectedBuildingId);
       if (selectedBuildingCheck !== -1) {
-        setFieldValue(
-          "buildingId",
-          values.buildingId.slice(values.buildingId.length)
-        );
+        setFieldValue("buildingId", "");
       } else {
         setFieldValue("buildingId", selectedBuildingId);
       }
       setSelectedBuildingName(selectedBuildingName);
+      console.log(selectedBuildingCheck)
     },
     [values, setFieldValue]
   );
+
+  console.log(values.buildingId)
 
   useEffect(() => {
     fields.forEach((field) => validateField(field));
@@ -86,7 +88,7 @@ const Step2 = () => {
                     );
                   }}
                 >
-                  {values.buildingId.includes(building.id.toString()) ? (
+                  {values.buildingId === building.id.toString() ? (
                     <RadioButtonCheckedIcon color="secondary" />
                   ) : (
                     <RadioButtonUncheckedIcon color="secondary" />
