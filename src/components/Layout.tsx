@@ -24,6 +24,7 @@ import {
   Menu,
   MenuItem,
   Fade,
+  Tooltip,
 } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 
@@ -320,50 +321,52 @@ export default function Layout(props: Props) {
         <Divider />
         <List component="nav" aria-label="main navigation">
           {navigations.map(({ text, path, icon }) => (
-            <Link
-              key={text}
-              to={`/${path}`}
-              style={{
-                textDecoration: "none",
-                color: "rgba(0, 0, 0, 0.87)",
-              }}
-            >
-              <ListItem
+            <Tooltip title={text + " Page"} placement="right" arrow>
+              <Link
                 key={text}
-                disablePadding
-                sx={{
-                  display: "block",
-                  backgroundColor: selectedPage === text ? "#F29115" : "",
+                to={`/${path}`}
+                style={{
+                  textDecoration: "none",
+                  color: "rgba(0, 0, 0, 0.87)",
                 }}
               >
-                <ListItemButton
+                <ListItem
+                  key={text}
+                  disablePadding
                   sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
+                    display: "block",
+                    backgroundColor: selectedPage === text ? "#F29115" : "",
                   }}
-                  onClick={() => setSelectedPage(text)}
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color: navigationColor,
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
                     }}
+                    onClick={() => setSelectedPage(text)}
                   >
-                    {icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={text}
-                    sx={{
-                      opacity: open ? 1 : 0,
-                      color: navigationColor,
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            </Link>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                        color: navigationColor,
+                      }}
+                    >
+                      {icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={text}
+                      sx={{
+                        opacity: open ? 1 : 0,
+                        color: navigationColor,
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
+            </Tooltip>
           ))}
         </List>
       </Drawer>
