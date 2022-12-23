@@ -47,12 +47,9 @@ const Step2 = () => {
         setFieldValue("buildingId", selectedBuildingId);
       }
       setSelectedBuildingName(selectedBuildingName);
-      console.log(selectedBuildingCheck)
     },
     [values, setFieldValue]
   );
-
-  console.log(values.buildingId)
 
   useEffect(() => {
     fields.forEach((field) => validateField(field));
