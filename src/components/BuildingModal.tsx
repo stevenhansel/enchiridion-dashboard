@@ -53,10 +53,11 @@ const a11yProps = (index: number) => {
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const BuildingModal = (props: Props) => {
-  const { open, setOpen } = props;
+  const { open, setOpen, setSuccessMessage } = props;
   const [value, setValue] = useState(0);
 
   const hasPermissionCreateBuilding = usePermission("create_building");
@@ -95,17 +96,25 @@ const BuildingModal = (props: Props) => {
             </Tabs>
             {hasPermissionCreateBuilding ? (
               <TabPanel value={value} index={0}>
-                <CreateBuilding setOpen={setOpen} />
+                <CreateBuilding
+                  setOpen={setOpen}
+                  setSuccessMessage={setSuccessMessage}
+                />
               </TabPanel>
             ) : null}
             {hasPermissionUpdateBuilding ? (
               <TabPanel value={value} index={1}>
-                <UpdateBuilding setOpen={setOpen} />
+               <UpdateBuilding
+                  setOpen={setOpen}
+                  setSuccessMessage={setSuccessMessage}
+                />
               </TabPanel>
             ) : null}
             {hasPermissionDeleteBuilding ? (
               <TabPanel value={value} index={2}>
-                <DeleteBuilding />
+                <DeleteBuilding
+                  setSuccessMessage={setSuccessMessage}
+                />
               </TabPanel>
             ) : null}
             <Box sx={{ marginTop: 1 }}>

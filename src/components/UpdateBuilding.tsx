@@ -48,11 +48,14 @@ type CreateBuildingType = {
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
+
 };
 
 const UpdateBuilding = (props: Props) => {
+  const {setOpen, setSuccessMessage} = props;
   const [errorMessage, setErrorMessage] = useState("");
-  const [open, setOpen] = useState(false);
+  const [openDropdown, setOpenDropDown] = useState(false);
   const [buildingFilterOptions, setBuildingFilterOptions] = useState<
     UserFilterOption[]
   >([]);
@@ -99,6 +102,7 @@ const UpdateBuilding = (props: Props) => {
       try {
         await updateBuilding(values).unwrap();
         props.setOpen(false);
+        setSuccessMessage("you have successfully update a building")
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
           const { errorCode, messages } = err.data;
@@ -135,7 +139,7 @@ const UpdateBuilding = (props: Props) => {
   }, [isUpdateBuildingsError, isGetBuildingsError]);
 
   useEffect(() => {
-    if (hasPermissionViewBuilding && open) {
+    if (hasPermissionViewBuilding && openDropdown) {
       getBuildings({
         limit: 5,
         query: buildingFilter?.name,
@@ -150,7 +154,7 @@ const UpdateBuilding = (props: Props) => {
         );
       });
     }
-  }, [hasPermissionViewBuilding, open]);
+  }, [hasPermissionViewBuilding, openDropdown]);
 
   return (
     <>
@@ -219,7 +223,7 @@ const UpdateBuilding = (props: Props) => {
               <Box sx={{ minWidth: 120, marginBottom: 1 }}>
                 <Autocomplete
                   options={buildingFilterOptions}
-                  open={open}
+                  open={openDropdown}
                   onOpen={() => {
                     setOpen(true);
                   }}

@@ -17,7 +17,12 @@ import { useGetBuildingsQuery } from "../services/building";
 
 import { ApiErrorResponse } from "../services/error";
 
-const DeleteBuilding = () => {
+type Props = {
+  setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const DeleteBuilding = (props: Props) => {
+  const { setSuccessMessage } = props;
   const {
     data: buildings,
     isLoading: isGetBuildingsLoading,
@@ -33,6 +38,7 @@ const DeleteBuilding = () => {
 
   const handleDelete = (buildingId: number) => {
     deleteBuilding({ buildingId });
+    setSuccessMessage("Delete Building Success");
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
@@ -40,6 +46,7 @@ const DeleteBuilding = () => {
       return;
     }
     setErrorMessage("");
+    setSuccessMessage("");
   };
 
   useEffect(() => {

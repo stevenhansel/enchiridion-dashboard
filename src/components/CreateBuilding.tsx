@@ -37,16 +37,18 @@ const validationSchema = yup.object({
 type CreateBuildingType = {
   name: string;
   color: string;
+
 };
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const CreateBuilding = (props: Props) => {
+  const {setOpen, setSuccessMessage} = props;
   const [addNewBuilding, { error }] = useCreateBuildingMutation();
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   const formik = useFormik<CreateBuildingType>({
     initialValues: {
@@ -57,7 +59,7 @@ const CreateBuilding = (props: Props) => {
     onSubmit: async (values) => {
       try {
         await addNewBuilding(values).unwrap();
-        props.setOpen(false);
+        setOpen(false);
         setSuccessMessage("you have successfully created a building");
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
@@ -76,6 +78,7 @@ const CreateBuilding = (props: Props) => {
       return;
     }
     setErrorMessage("");
+    setSuccessMessage("");
   };
 
   const handleChange = (e: SelectChangeEvent) => {
@@ -147,7 +150,25 @@ const CreateBuilding = (props: Props) => {
               ) : null}
             </FormControl>
           </Box>
-          <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
+         <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={handleClose}
+          message={errorMessage}
+          action={
+            <>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
+          }
+        />
+         <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
             OK
           </Button>
         </Box>
@@ -169,25 +190,7 @@ const CreateBuilding = (props: Props) => {
             </>
           }
         />
-        <Snackbar
-          open={Boolean(successMessage)}
-          autoHideDuration={6000}
-          onClose={handleClose}
-          message={successMessage}
-          action={
-            <>
-              <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleClose}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </>
-          }
-        />
-      </form>
+     </form>
     </>
   );
 };

@@ -81,6 +81,7 @@ const ListFloorPage = () => {
   const [buildingName, setBuildingName] = useState("");
   const [open, setOpen] = useState(false);
   const [openDeleteFloorModal, setOpenDeleteFloorModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -146,6 +147,7 @@ const ListFloorPage = () => {
       return;
     }
     setErrorMessage("");
+    setSuccessMessage("");
   };
 
   const getBuildingDelayed = useMemo(() => {
@@ -235,6 +237,7 @@ const ListFloorPage = () => {
       <BuildingModal
         open={openCreateBuilding}
         setOpen={setOpenCreateBuilding}
+        setSuccessMessage={setSuccessMessage}
       />
       <Dialog open={openEditFloor} onClose={() => setOpenEditFloor(false)}>
         <DialogTitle>Update Floor</DialogTitle>
@@ -506,6 +509,24 @@ const ListFloorPage = () => {
           >
             <CloseIcon fontSize="small" />
           </IconButton>
+        }
+      />
+      <Snackbar
+        open={Boolean(successMessage)}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage("")}
+        message={successMessage}
+        action={
+          <>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </>
         }
       />
     </>
