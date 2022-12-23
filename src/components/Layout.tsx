@@ -372,9 +372,6 @@ export default function Layout(props: Props) {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
-        <Typography>
-          link survey: https://forms.gle/Hgx3ro3LcRvQsXqEA
-        </Typography>
         {hasPermission ? props.children : <p>Forbidden</p>}
       </Box>
       <Snackbar
