@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-
 import {
   CircularProgress,
   Dialog,
   DialogContent,
   Typography,
 } from '@mui/material';
-
 import { ApiErrorResponse } from '../services/error';
-import { useGetAnnouncementMediaQuery } from '../services/announcement';
-import { useGetAnnouncementDetailQuery } from '../services/announcement';
+import {
+  useGetAnnouncementMediaQuery,
+  useGetAnnouncementDetailQuery,
+} from '../services/announcement';
 
 type Props = {
   announcementId: string;

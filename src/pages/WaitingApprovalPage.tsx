@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
-
 import { Box, CssBaseline, Typography, CircularProgress } from '@mui/material';
-
-import backgroundImage from '../assets/jpg/background-auth.jpeg';
-import { RootState } from '../store';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import { RootState } from '../store';
 
 const WaitingApprovalPage = () => {
   const navigate = useNavigate();

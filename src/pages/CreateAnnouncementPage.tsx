@@ -1,7 +1,5 @@
 import React from 'react';
-
 import Box from '@mui/material/Box';
-
 import CreateAnnouncementForm from '../components/CreateAnnouncementForm';
 
 type Props = {

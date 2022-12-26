@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-
 import {
   Box,
   CssBaseline,
@@ -12,13 +11,10 @@ import {
   Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-
 import { AppDispatch } from '../store';
 import { setProfile } from '../store/profile';
-
 import { ApiErrorResponse } from '../services/error';
 import { authApi } from '../services/auth';
-
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Props = {

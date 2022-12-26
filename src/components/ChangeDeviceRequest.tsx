@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import cloneDeep from 'lodash/cloneDeep';
 import * as yup from 'yup';
-
 import {
   Box,
   Button,
@@ -15,15 +14,12 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { red } from '@mui/material/colors';
-
 import { useFormik } from 'formik';
-
 import { useCreateRequestMutation } from '../services/request';
 import { useGetBuildingsQuery } from '../services/building';
 import { useGetFloorsQuery } from '../services/floor';
 import { useGetAnnouncementDetailQuery } from '../services/announcement';
 import { ApiErrorResponse, isApiError, isReduxError } from '../services/error';
-
 import { ActionCreateRequest } from '../types/store';
 
 type Props = {

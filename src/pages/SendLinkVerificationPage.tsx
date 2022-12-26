@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-
 import {
   Box,
   Button,
@@ -12,12 +11,9 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-
 import { authApi } from '../services/auth';
 import { isApiError, isReduxError } from '../services/error';
-
 import { AppDispatch } from '../store';
-
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 const SEND_VERIFICATION_RETRY_DELAY_SECONDS = 20;

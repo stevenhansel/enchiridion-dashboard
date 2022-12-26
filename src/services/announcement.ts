@@ -1,9 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-
 import axios from '../utils/axiosInstance';
-
 import { Announcement, Pagination } from '../types/store';
-
 import { urlBuilder } from '../utils';
 
 export const announcementApi = createApi({

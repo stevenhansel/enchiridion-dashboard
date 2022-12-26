@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import {
   Box,
   Card,
@@ -11,10 +10,10 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
-
-import { useDeleteBuildingMutation } from '../services/building';
-import { useGetBuildingsQuery } from '../services/building';
-
+import {
+  useDeleteBuildingMutation,
+  useGetBuildingsQuery,
+} from '../services/building';
 import { ApiErrorResponse } from '../services/error';
 
 type Props = {

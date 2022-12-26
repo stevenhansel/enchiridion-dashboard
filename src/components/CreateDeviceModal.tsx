@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import debounce from 'lodash/debounce';
-
 import {
   Box,
   Button,
@@ -15,14 +14,11 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-
 import { CreateDevice, UserFilterOption } from '../types/store';
-import { AppDispatch } from '../store';
+import { AppDispatch, RootState } from '../store';
 import { deviceApi } from '../services/device';
 import { setCreateDevice } from '../store/device';
 import { ApiErrorResponse } from '../services/error';
-import { RootState } from '../store';
-
 import { useLazyGetBuildingsQuery } from '../services/building';
 import { useLazyGetFloorsQuery } from '../services/floor';
 

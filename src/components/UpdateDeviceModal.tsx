@@ -14,13 +14,9 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import debounce from 'lodash/debounce';
-
 import { useLazyGetFloorsQuery } from '../services/floor';
-
 import { useLazyGetBuildingsQuery } from '../services/building';
-
 import { useUpdateDeviceMutation } from '../services/device';
-
 import { UserFilterOption } from '../types/store';
 import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
 

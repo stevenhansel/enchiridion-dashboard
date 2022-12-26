@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
-
 import {
   Box,
   Table,
@@ -22,20 +21,16 @@ import {
   Snackbar,
   Button,
 } from '@mui/material';
-
 import {
   Close as CloseIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
 } from '@mui/icons-material';
-
 import { useLazyGetDevicesQuery } from '../services/device';
 import { ApiErrorResponse } from '../services/error';
-
 import CreateDeviceModal from '../components/CreateDeviceModal';
 import config from '../config';
 import DeviceStatus, { DeviceState } from '../components/DeviceStatus';
-
 import { usePermission } from '../hooks';
 
 const FETCH_LIMIT = 20;

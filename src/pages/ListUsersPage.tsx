@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-
 import {
   CircularProgress,
   Box,
@@ -23,22 +22,17 @@ import {
   MenuItem,
 } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-
 import {
   Close as CloseIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
 } from '@mui/icons-material';
-
 import {
   useLazyGetUsersQuery,
   useApproveRejectUserMutation,
 } from '../services/user';
-
 import { useLazyGetRolesQuery } from '../services/roles';
-
 import { ApiErrorResponse } from '../services/error';
-
 import usePermission from '../hooks/usePermission';
 
 const FETCH_LIMIT = 20;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { debounce } from 'lodash';
 import { useSearchParams } from 'react-router-dom';
-
 import {
   Box,
   Table,
@@ -23,7 +22,6 @@ import {
   DialogTitle,
   DialogContent,
 } from '@mui/material';
-
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
@@ -31,17 +29,12 @@ import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
 } from '@mui/icons-material';
-
 import UpdateFloorModal from '../components/UpdateFloorModal';
 import CreateFloorModal from '../components/CreateFloorModal';
 import BuildingModal from '../components/BuildingModal';
-
 import { useLazyGetBuildingsQuery } from '../services/building';
-
 import { useLazyGetFloorsQuery } from '../services/floor';
-
 import { ApiErrorResponse } from '../services/error';
-
 import { UserFilterOption } from '../types/store';
 import { usePermission } from '../hooks';
 import DeleteFloorModal from '../components/DeleteFloorModal';

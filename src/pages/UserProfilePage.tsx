@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-
 import {
   Box,
   TextField,
@@ -16,9 +15,7 @@ import {
   Snackbar,
 } from '@mui/material';
 import { West as WestIcon, Close as CloseIcon } from '@mui/icons-material';
-
 import { RootState } from '../store';
-
 import { useChangePasswordMutation } from '../services/auth';
 import { isApiError, isReduxError } from '../services/error';
 

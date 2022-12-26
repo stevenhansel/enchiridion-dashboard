@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
-
 import { Typography, Button, ButtonGroup } from '@mui/material';
-
-import { useLazyGetLivestreamDeviceQuery } from '../services/device';
-
 import { Line } from '@nivo/line';
+import { useLazyGetLivestreamDeviceQuery } from '../services/device';
 import { ChartInterval } from '../types/constants';
 
 const commonProperties = {

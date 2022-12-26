@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box, Snackbar, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-
 import { useDeleteDeviceMutation } from '../services/device';
 import { isApiError, isReduxError } from '../services/error';
 

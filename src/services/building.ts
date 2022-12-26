@@ -1,8 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-
 import axios from '../utils/axiosInstance';
 import { urlBuilder } from '../utils';
-
 import { Building, UpdateBuilding } from '../types/store';
 
 export const buildingApi = createApi({

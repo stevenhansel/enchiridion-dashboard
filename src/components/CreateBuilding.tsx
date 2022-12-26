@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import {
   Box,
   Button,
@@ -12,17 +11,13 @@ import {
   IconButton,
 } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-
 import {
   FiberManualRecord as FiberManualRecordIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
-
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-
 import { useCreateBuildingMutation } from '../services/building';
-
 import { colorBuilding } from '../types/constants';
 import { isApiError, isReduxError, ApiErrorResponse } from '../services/error';
 

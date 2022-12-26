@@ -1,9 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-
 import axios from '../utils/axiosInstance';
-
 import { DeviceDetail, Device, Pagination, UpdateDevice } from '../types/store';
-
 import { urlBuilder } from '../utils';
 
 export type Livestream = {

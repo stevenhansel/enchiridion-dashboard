@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import {
   Box,
   Button,
@@ -10,11 +9,9 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-
 import CreateBuilding from '../components/CreateBuilding';
 import UpdateBuilding from '../components/UpdateBuilding';
 import DeleteBuilding from '../components/DeleteBuilding';
-
 import usePermission from '../hooks/usePermission';
 
 type TabPanelProps = {

@@ -3,7 +3,6 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-
 import {
   Box,
   Autocomplete,
@@ -20,15 +19,11 @@ import {
   Select,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-
 import { useRegisterMutation } from '../services/auth';
 import { useLazyGetRolesQuery } from '../services/roles';
 import { useLazyGetBuildingsQuery } from '../services/building';
 import { isApiError, isReduxError } from '../services/error';
-
-import { UserFilterOption } from '../types/store';
-import { RegisterForm } from '../types/store';
-
+import { UserFilterOption, RegisterForm } from '../types/store';
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 const validationSchema = yup.object({

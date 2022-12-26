@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react';
-
 import {
   Box,
   Button,
@@ -21,17 +20,13 @@ import {
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import debounce from 'lodash/debounce';
-
 import {
   useLazyGetBuildingsQuery,
   useUpdateBuildingMutation,
 } from '../services/building';
-
 import { colorBuilding } from '../types/constants';
 import { UserFilterOption } from '../types/store';
-
 import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
-
 import { usePermission } from '../hooks';
 
 const validationSchema = yup.object({

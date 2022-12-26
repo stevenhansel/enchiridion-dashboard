@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import mpegts from 'mpegts.js';
 import useWebSocket from 'react-use-websocket';
-
 import {
   Box,
   Typography,
@@ -13,20 +12,16 @@ import {
   DialogTitle,
   Snackbar,
 } from '@mui/material';
-
 import {
   Edit as EditIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-
 import { useGetDeviceDetailQuery } from '../services/device';
 import { useLazyGetAnnouncementsQuery } from '../services/announcement';
-
 import UpdateDeviceModal from '../components/UpdateDeviceModal';
 import DeleteDeviceModal from '../components/DeleteDeviceModal';
 import AnnouncementOnDeviceDetail from '../components/AnnouncementOnDeviceDetail';
-
 import { usePermission } from '../hooks';
 import config from '../config';
 import DeviceStatus, { DeviceState } from '../components/DeviceStatus';

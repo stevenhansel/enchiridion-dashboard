@@ -10,17 +10,13 @@ import {
   Snackbar,
   CircularProgress,
 } from '@mui/material';
-
 import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
   Close as CloseIcon,
 } from '@mui/icons-material/';
-
 import dayjs from 'dayjs';
-
 import { statusActions } from '../types/constants';
-
 import { useLazyGetAnnouncementsQuery } from '../services/announcement';
 import { ApiErrorResponse } from '../services/error';
 

@@ -1,15 +1,11 @@
 import React, { useCallback, useContext, useEffect } from 'react';
-
 import { Box, Button, Typography } from '@mui/material';
 import { useFormikContext } from 'formik';
-
-import { CreateAnnouncementFormValues } from './form';
-import { CreateAnnouncementFormContext } from './context';
-
 import { useGetBuildingsQuery } from '../../services/building';
 import { useLazyGetFloorsQuery } from '../../services/floor';
-
 import { Floor } from '../../types/store';
+import { CreateAnnouncementFormContext } from './context';
+import { CreateAnnouncementFormValues } from './form';
 
 const Step4 = () => {
   const { data: buildings } = useGetBuildingsQuery(null);

@@ -3,7 +3,6 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-
 import {
   Box,
   Snackbar,
@@ -15,13 +14,10 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-
 import { AppDispatch } from '../store';
 import { setProfile } from '../store/profile';
-
 import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
 import { authApi } from '../services/auth';
-
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type LoginForm = {

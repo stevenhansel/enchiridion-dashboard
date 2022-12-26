@@ -1,7 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-
 import { apiReducers, apiMiddlewares } from '../services';
-
 import profileReducer from './profile';
 import rolesReducer from './roles';
 import createDeviceReducer from './device';

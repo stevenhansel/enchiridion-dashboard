@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
 import { useSelector, useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Snackbar,
@@ -24,7 +22,6 @@ import {
   Tooltip,
 } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-
 import {
   Close as CloseIcon,
   Menu as MenuIcon,
@@ -38,10 +35,8 @@ import {
   AccountBox as AccountBoxIcon,
   Assignment as AssignmentIcon,
 } from '@mui/icons-material';
-
 import { RootState } from '../store';
 import { resetProfile } from '../store/profile';
-
 import { useLazyLogoutQuery } from '../services/auth';
 
 const navigationColor = '#FFFFFF';

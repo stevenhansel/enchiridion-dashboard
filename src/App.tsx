@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-
 import ListAnnouncementPage from './pages/ListAnnouncementPage';
 import DevicePage from './pages/DevicePage';
 import ListFloorPage from './pages/ListFloorPage';
@@ -17,10 +16,8 @@ import VerificationCallbackPage from './pages/VerificationCallbackPage';
 import WaitingApprovalPage from './pages/WaitingApprovalPage';
 import UserProfilePage from './pages/UserProfilePage';
 import Layout from './components/Layout';
-
 import { setProfile } from './store/profile';
 import { ApiErrorResponse } from './services/error';
-
 import { authApi } from './services/auth';
 import { AppDispatch, RootState } from './store';
 

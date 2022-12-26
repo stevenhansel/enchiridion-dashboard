@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { Button, Box, Typography } from '@mui/material';
-
 import { useDeleteFloorMutation } from '../services/floor';
 
 type Props = {

@@ -5,9 +5,7 @@ import {
   RadioButtonChecked as RadioButtonCheckedIcon,
 } from '@mui/icons-material';
 import { useFormikContext } from 'formik';
-
 import { useGetBuildingsQuery } from '../../services/building';
-
 import { CreateAnnouncementFormContext } from './context';
 import { CreateAnnouncementFormValues } from './form';
 import { validateFormikFields } from './util';

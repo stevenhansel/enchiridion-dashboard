@@ -2,16 +2,13 @@ import React, { useCallback, useEffect, useContext, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { useNavigate } from 'react-router-dom';
 import { useFormikContext } from 'formik';
-
 import { Box, Button, Typography, Tooltip } from '@mui/material';
 import { red } from '@mui/material/colors';
-
+import { useLazyGetFloorsQuery } from '../../services/floor';
+import { useGetBuildingsQuery } from '../../services/building';
 import { CreateAnnouncementFormContext } from './context';
 import { CreateAnnouncementFormValues } from './form';
 import { validateFormikFields } from './util';
-
-import { useLazyGetFloorsQuery } from '../../services/floor';
-import { useGetBuildingsQuery } from '../../services/building';
 
 const fields = ['devices'];
 

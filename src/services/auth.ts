@@ -1,5 +1,4 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-
 import axios from '../utils/axiosInstance';
 import { RegisterForm } from '../types/store';
 

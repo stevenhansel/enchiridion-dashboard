@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
 import { UserRole, UserStatus } from '../types/store';
 
 export type ProfileState = {
