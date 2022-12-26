@@ -7,9 +7,11 @@ export type ApiErrorResponse = {
 };
 
 export const isReduxError = <T>(obj: T): obj is T & FetchBaseQueryError => {
+  // @ts-ignore
   return obj && 'data' in obj;
 };
 
 export const isApiError = <T>(obj: T): obj is T & ApiErrorResponse => {
+  // @ts-ignore
   return obj && 'errorCode' in obj && 'messages' in obj;
 };
