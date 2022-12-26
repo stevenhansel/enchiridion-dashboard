@@ -45,13 +45,10 @@ export const announcementApi = createApi({
       providesTags: () => ['Announcement'],
     }),
     createAnnouncement: builders.mutation({
-      query: ({ formData }) => ({
+      query: ({ data }) => ({
         url: '/v1/announcements',
         method: 'POST',
-        data: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        data,
       }),
       invalidatesTags: () => ['Announcement'],
     }),

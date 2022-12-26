@@ -11,7 +11,7 @@ const Step4 = () => {
   const { data: buildings } = useGetBuildingsQuery(null);
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
 
-  const { values, handleSubmit, setFieldValue } =
+  const { values, handleSubmit } =
     useFormikContext<CreateAnnouncementFormValues>();
   const { handlePrevStep } = useContext(CreateAnnouncementFormContext);
 
@@ -27,7 +27,7 @@ const Step4 = () => {
             .map(floor => ({
               ...floor,
               devices: floor.devices.filter(device =>
-                values.devices.includes(device.id.toString())
+                values.devices.includes(device.id)
               ),
             }))
             .filter(
@@ -48,16 +48,18 @@ const Step4 = () => {
   }, []);
 
   const renderMedia = () => {
-    if (values.media === undefined || values.media === null) {
+    const media = values.media;
+    if (media === null) {
       return null;
     }
-    if (values.media.image !== null) {
-      return <img src={values.media.image.src} style={{ width: '100%' }} />;
-    } else if (values.media.video !== null) {
+
+    if (media.mediaType === 'image') {
+      return <img src={media.src} style={{ width: '100%' }} />;
+    } else {
       return (
         <Box display="flex" justifyContent="center">
           <video
-            src={values.media.video.src}
+            src={media.src}
             style={{ width: '50%' }}
             controls
             autoPlay

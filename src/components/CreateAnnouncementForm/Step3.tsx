@@ -45,7 +45,7 @@ const Step3 = () => {
   });
 
   const handleSelectDevice = useCallback(
-    (selectedDeviceId: string) => {
+    (selectedDeviceId: number) => {
       const selectedDeviceIndex = values.devices.findIndex(
         deviceId => deviceId === selectedDeviceId
       );
@@ -151,20 +151,14 @@ const Step3 = () => {
                               >
                                 <Button
                                   key={device.id}
-                                  onClick={() =>
-                                    handleSelectDevice(device.id.toString())
-                                  }
+                                  onClick={() => handleSelectDevice(device.id)}
                                   variant={
-                                    values.devices.includes(
-                                      device.id.toString()
-                                    )
+                                    values.devices.includes(device.id)
                                       ? 'contained'
                                       : 'outlined'
                                   }
                                   color={
-                                    values.devices.includes(
-                                      device.id.toString()
-                                    )
+                                    values.devices.includes(device.id)
                                       ? 'secondary'
                                       : 'inactive'
                                   }

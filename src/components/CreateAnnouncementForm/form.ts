@@ -4,17 +4,16 @@ import * as yup from 'yup';
 export type CreateAnnouncementFormValues = {
   title: string;
   media: {
-    file: File;
-    image: HTMLImageElement | null;
-    video: HTMLVideoElement | null;
-    duration: number | null;
-    type: string;
+    id: number;
+    src: string;
+    mediaType: string;
+    mediaDuration: number | null;
   } | null;
   duration: number;
   startDate: Date;
   endDate: Date;
   notes: string;
-  devices: string[];
+  devices: number[];
   buildingId: string;
   buildingName: string;
 };

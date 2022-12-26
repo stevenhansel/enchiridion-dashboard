@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
+import dayjs, { extend } from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { Formik } from 'formik';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -28,12 +29,15 @@ import {
   CreateAnnouncementFormValues,
 } from './form';
 
+extend(utc);
+
 const steps = [
   'Upload file',
   'Pilih lokasi Building',
   'Pilih Devices',
   'Submit',
 ];
+
 const MIN_STEP = 0;
 const MAX_STEP: number = steps.length;
 const dateFormat = 'YYYY-MM-DD';
@@ -69,20 +73,18 @@ const CreateAnnouncementForm = () => {
     async (values: CreateAnnouncementFormValues) => {
       setIsLoading(true);
 
-      const formData = new FormData();
-      formData.append('title', values.title);
-      formData.append('media', values.media!.file);
-      formData.append('media_duration', String(values.media!.duration));
-      formData.append('media_type', values.media!.type);
-      formData.append('startDate', dayjs(values.startDate).format(dateFormat));
-      formData.append('endDate', dayjs(values.endDate).format(dateFormat));
-      formData.append('notes', values.notes);
-      formData.append('buildingId', values.buildingId);
-      formData.append('deviceIds', values.devices.join(','));
+      const data = {
+        title: values.title,
+        mediaId: values.media!.id,
+        startDate: dayjs(values.startDate.toUTCString()).format(dateFormat),
+        endDate: dayjs(values.endDate.toUTCString()).format(dateFormat),
+        notes: values.notes,
+        deviceIds: values.devices,
+      };
 
       const response = await dispatch(
         announcementApi.endpoints.createAnnouncement.initiate({
-          formData,
+          data,
         })
       );
 
