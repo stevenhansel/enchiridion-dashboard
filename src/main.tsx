@@ -57,4 +57,3 @@ root.render(
     </LocalizationProvider>
   </React.StrictMode>
 );
-
