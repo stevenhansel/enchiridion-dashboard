@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint '*/**.{ts,tsx}'",
+    "lint": "eslint 'src/**/*.{ts,tsx}' --fix",
     "prettier": "prettier --write .",
     "lint-staged": "lint-staged",
     "prepare": "husky install"

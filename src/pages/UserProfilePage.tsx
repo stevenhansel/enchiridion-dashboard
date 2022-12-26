@@ -16,7 +16,6 @@ import {
   Snackbar,
 } from '@mui/material';
 import { West as WestIcon, Close as CloseIcon } from '@mui/icons-material';
-import Layout from '../components/Layout';
 
 import { RootState } from '../store';
 

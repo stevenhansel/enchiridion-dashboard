@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box,
   TextField,
-  ButtonGroup,
   Autocomplete,
   CircularProgress,
   Button,
@@ -11,11 +10,7 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import {
-  Close as CloseIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  KeyboardArrowUp as KeyboardArrowUpIcon,
-} from '@mui/icons-material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import debounce from 'lodash/debounce';

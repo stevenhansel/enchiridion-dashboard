@@ -20,10 +20,7 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 
-import {
-  useGetDeviceDetailQuery,
-  useLazyGetLivestreamDeviceQuery,
-} from '../services/device';
+import { useGetDeviceDetailQuery } from '../services/device';
 import { useLazyGetAnnouncementsQuery } from '../services/announcement';
 
 import UpdateDeviceModal from '../components/UpdateDeviceModal';

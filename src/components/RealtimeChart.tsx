@@ -1,3 +1,4 @@
+import React from 'react';
 import { Line } from '@nivo/line';
 
 const commonProperties = {

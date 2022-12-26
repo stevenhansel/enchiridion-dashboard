@@ -6,13 +6,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import {
   Box,
-  Button,
   Snackbar,
   Drawer as MuiDrawer,
   Toolbar,
-  Badge,
   List,
-  Fab,
   CssBaseline,
   Divider,
   IconButton,
@@ -31,7 +28,6 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import {
   Close as CloseIcon,
   Menu as MenuIcon,
-  Mail as MailIcon,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   ExpandLess as ExpandLessIcon,
@@ -321,7 +317,7 @@ export default function Layout(props: Props) {
         <Divider />
         <List component="nav" aria-label="main navigation">
           {navigations.map(({ text, path, icon }) => (
-            <Tooltip title={text + ' Page'} placement="right" arrow>
+            <Tooltip key={path} title={text + ' Page'} placement="right" arrow>
               <Link
                 key={text}
                 to={`/${path}`}

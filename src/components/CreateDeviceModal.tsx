@@ -6,7 +6,6 @@ import debounce from 'lodash/debounce';
 
 import {
   Box,
-  ButtonGroup,
   Button,
   TextField,
   Typography,
