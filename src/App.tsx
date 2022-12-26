@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -32,7 +32,7 @@ function App() {
   const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleMe = useCallback(async () => {
     setIsLoading(true);
