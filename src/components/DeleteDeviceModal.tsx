@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Typography, Button, Box, Snackbar, IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Typography, Button, Box, Snackbar, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { useDeleteDeviceMutation } from "../services/device";
-import { isApiError, isReduxError } from "../services/error";
+import { useDeleteDeviceMutation } from '../services/device';
+import { isApiError, isReduxError } from '../services/error';
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,7 +16,7 @@ const DeleteDeviceModal = (props: Props) => {
   const { setOpen, deviceName, deviceId } = props;
   const navigate = useNavigate();
   const [deletedDevice, setDeletedDevice] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [deleteDevice] = useDeleteDeviceMutation();
 
   const handleDelete = async (deviceId?: number) => {
@@ -28,9 +28,9 @@ const DeleteDeviceModal = (props: Props) => {
       if (isReduxError(err) && isApiError(err.data)) {
         const { errorCode, messages } = err.data;
         const [message] = messages;
-        if (errorCode === "DEVICE_NOT_FOUND") {
+        if (errorCode === 'DEVICE_NOT_FOUND') {
           setErrorMessage(message);
-        } else if (errorCode === "DEVICE_DELETE_CONFLICT") {
+        } else if (errorCode === 'DEVICE_DELETE_CONFLICT') {
           setErrorMessage(message);
         }
         setDeletedDevice(false);
@@ -39,10 +39,10 @@ const DeleteDeviceModal = (props: Props) => {
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   return (
@@ -54,7 +54,7 @@ const DeleteDeviceModal = (props: Props) => {
             variant="contained"
             sx={{ marginRight: 1 }}
             onClick={() => {
-              navigate("/device");
+              navigate('/device');
             }}
           >
             Ok
@@ -85,7 +85,7 @@ const DeleteDeviceModal = (props: Props) => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => setErrorMessage('')}
         message={errorMessage}
         action={
           <IconButton

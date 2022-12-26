@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from 'react';
 
 import {
   Box,
@@ -12,32 +12,35 @@ import {
   IconButton,
   Autocomplete,
   CircularProgress,
-} from "@mui/material";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { FiberManualRecord as FiberManualRecordIcon, Close as CloseIcon } from "@mui/icons-material";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import debounce from "lodash/debounce";
+} from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+  FiberManualRecord as FiberManualRecordIcon,
+  Close as CloseIcon,
+} from '@mui/icons-material';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import debounce from 'lodash/debounce';
 
 import {
   useLazyGetBuildingsQuery,
   useUpdateBuildingMutation,
-} from "../services/building";
+} from '../services/building';
 
-import { colorBuilding } from "../types/constants";
-import { UserFilterOption } from "../types/store";
+import { colorBuilding } from '../types/constants';
+import { UserFilterOption } from '../types/store';
 
-import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
+import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
 
-import { usePermission } from "../hooks";
+import { usePermission } from '../hooks';
 
 const validationSchema = yup.object({
   name: yup
     .string()
-    .min(4, "Name should be of minimum 4 characters length")
-    .required("Name of the Building is required"),
-  buildingId: yup.string().required("Please choose the building"),
-  color: yup.string().required("Please select the color"),
+    .min(4, 'Name should be of minimum 4 characters length')
+    .required('Name of the Building is required'),
+  buildingId: yup.string().required('Please choose the building'),
+  color: yup.string().required('Please select the color'),
 });
 
 type CreateBuildingType = {
@@ -49,12 +52,11 @@ type CreateBuildingType = {
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
-
 };
 
 const UpdateBuilding = (props: Props) => {
-  const {setOpen, setSuccessMessage} = props;
-  const [errorMessage, setErrorMessage] = useState("");
+  const { setOpen, setSuccessMessage } = props;
+  const [errorMessage, setErrorMessage] = useState('');
   const [openDropdown, setOpenDropDown] = useState(false);
   const [buildingFilterOptions, setBuildingFilterOptions] = useState<
     UserFilterOption[]
@@ -65,7 +67,7 @@ const UpdateBuilding = (props: Props) => {
     null
   );
 
-  const hasPermissionViewBuilding = usePermission("view_list_building");
+  const hasPermissionViewBuilding = usePermission('view_list_building');
 
   const [
     getBuildings,
@@ -80,7 +82,7 @@ const UpdateBuilding = (props: Props) => {
       getBuildings({ query, limit: 5 }).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
-            ? data.map((b) => ({
+            ? data.map(b => ({
                 id: b.id,
                 name: b.name,
               }))
@@ -93,23 +95,23 @@ const UpdateBuilding = (props: Props) => {
 
   const formik = useFormik<CreateBuildingType>({
     initialValues: {
-      name: "",
-      buildingId: "",
-      color: "",
+      name: '',
+      buildingId: '',
+      color: '',
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       try {
         await updateBuilding(values).unwrap();
         props.setOpen(false);
-        setSuccessMessage("you have successfully update a building")
+        setSuccessMessage('you have successfully update a building');
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
           const { errorCode, messages } = err.data;
           const [message] = messages;
           if (
-            errorCode === "BUILDING_NAME_ALREADY_EXISTS" ||
-            "BUILDING_NOT_FOUND"
+            errorCode === 'BUILDING_NAME_ALREADY_EXISTS' ||
+            'BUILDING_NOT_FOUND'
           ) {
             setErrorMessage(message);
           }
@@ -119,19 +121,19 @@ const UpdateBuilding = (props: Props) => {
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
-    if (isUpdateBuildingsError && "data" in isUpdateBuildingsError) {
+    if (isUpdateBuildingsError && 'data' in isUpdateBuildingsError) {
       setErrorMessage(
         (isUpdateBuildingsError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isGetBuildingsError && "data" in isGetBuildingsError) {
+    if (isGetBuildingsError && 'data' in isGetBuildingsError) {
       setErrorMessage(
         (isGetBuildingsError.data as ApiErrorResponse).messages[0]
       );
@@ -146,7 +148,7 @@ const UpdateBuilding = (props: Props) => {
       }).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
-            ? data.map((b) => ({
+            ? data.map(b => ({
                 id: b.id,
                 name: b.name,
               }))
@@ -167,10 +169,10 @@ const UpdateBuilding = (props: Props) => {
               margin="dense"
               id="name"
               variant="standard"
-              onChange={(e) => formik.setFieldValue("name", e.target.value)}
+              onChange={e => formik.setFieldValue('name', e.target.value)}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
-              sx={{ marginBottom: 2, width: "100%" }}
+              sx={{ marginBottom: 2, width: '100%' }}
             />
             <Box sx={{ minWidth: 120, marginBottom: 1 }}>
               <FormControl fullWidth>
@@ -179,7 +181,7 @@ const UpdateBuilding = (props: Props) => {
                   sx={{
                     color:
                       formik.touched.color && Boolean(formik.errors.color)
-                        ? "#D32F2F"
+                        ? '#D32F2F'
                         : null,
                   }}
                 >
@@ -189,16 +191,16 @@ const UpdateBuilding = (props: Props) => {
                   labelId="color"
                   id="color"
                   value={
-                    formik.values.color !== null ? formik.values.color : ""
+                    formik.values.color !== null ? formik.values.color : ''
                   }
                   onChange={(e: SelectChangeEvent) => {
-                    formik.setFieldValue("color", e.target.value);
+                    formik.setFieldValue('color', e.target.value);
                   }}
                   label="Color"
                   error={formik.touched.color && Boolean(formik.errors.color)}
                 >
                   {colorBuilding &&
-                    colorBuilding.map((color) => (
+                    colorBuilding.map(color => (
                       <MenuItem key={color.id} value={color.color}>
                         {color.name}
                         <FiberManualRecordIcon sx={{ color: color.color }} />
@@ -208,10 +210,10 @@ const UpdateBuilding = (props: Props) => {
                 {formik.touched.color && formik.errors.color ? (
                   <Typography
                     sx={{
-                      fontSize: "12px",
-                      marginTop: "3px",
-                      marginRight: "14px",
-                      color: "#D32F2F",
+                      fontSize: '12px',
+                      marginTop: '3px',
+                      marginRight: '14px',
+                      color: '#D32F2F',
                     }}
                   >
                     Color is required
@@ -231,17 +233,17 @@ const UpdateBuilding = (props: Props) => {
                     setOpen(false);
                   }}
                   loading={isBuildingFilterLoading}
-                  getOptionLabel={(option) => option.name}
+                  getOptionLabel={option => option.name}
                   isOptionEqualToValue={(option, value) =>
                     option.name === value.name
                   }
                   onChange={(_, inputValue) => {
                     setBuildingFilterOptions([]);
                     setBuildingFilter(inputValue);
-                    formik.setFieldValue("buildingId", inputValue?.id);
+                    formik.setFieldValue('buildingId', inputValue?.id);
                   }}
                   onInputChange={(_, newInputValue, reason) => {
-                    if (reason === "input") {
+                    if (reason === 'input') {
                       setBuildingFilterOptions([]);
                       setIsBuildingFilterLoading(true);
                       getBuildingDelayed(newInputValue);
@@ -254,7 +256,7 @@ const UpdateBuilding = (props: Props) => {
                       </li>
                     );
                   }}
-                  renderInput={(params) => (
+                  renderInput={params => (
                     <TextField
                       {...params}
                       label="Building"
@@ -280,10 +282,10 @@ const UpdateBuilding = (props: Props) => {
                 {formik.touched.buildingId && formik.errors.buildingId ? (
                   <Typography
                     sx={{
-                      fontSize: "12px",
-                      marginTop: "3px",
-                      marginRight: "14px",
-                      color: "#D32F2F",
+                      fontSize: '12px',
+                      marginTop: '3px',
+                      marginRight: '14px',
+                      color: '#D32F2F',
                     }}
                   >
                     Please select the building
@@ -297,7 +299,7 @@ const UpdateBuilding = (props: Props) => {
             <Snackbar
               open={Boolean(errorMessage)}
               autoHideDuration={6000}
-              onClose={() => setErrorMessage("")}
+              onClose={() => setErrorMessage('')}
               message={errorMessage}
               action={
                 <>

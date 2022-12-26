@@ -1,16 +1,16 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from '@reduxjs/toolkit/query/react';
 
-import axios from "../utils/axiosInstance";
+import axios from '../utils/axiosInstance';
 
-import { Announcement, Pagination } from "../types/store";
+import { Announcement, Pagination } from '../types/store';
 
-import { urlBuilder } from "../utils";
+import { urlBuilder } from '../utils';
 
 export const announcementApi = createApi({
-  reducerPath: "announcementApi",
+  reducerPath: 'announcementApi',
   baseQuery: axios(),
-  tagTypes: ["Announcement"],
-  endpoints: (builders) => ({
+  tagTypes: ['Announcement'],
+  endpoints: builders => ({
     getAnnouncements: builders.query<
       Pagination<Announcement>,
       {
@@ -23,9 +23,9 @@ export const announcementApi = createApi({
         deviceId?: string | null;
       } | null
     >({
-      query: (params) => ({ url: urlBuilder("/v1/announcements", params) }),
-      providesTags: () => ["Announcement"],
-      transformResponse: (response) => ({
+      query: params => ({ url: urlBuilder('/v1/announcements', params) }),
+      providesTags: () => ['Announcement'],
+      transformResponse: response => ({
         hasNext: response.hasNext,
         count: response.count,
         totalPages: response.totalPages,
@@ -36,7 +36,7 @@ export const announcementApi = createApi({
       query: ({ announcementId }) => ({
         url: `/v1/announcements/${announcementId}/media`,
       }),
-      providesTags: () => ["Announcement"],
+      providesTags: () => ['Announcement'],
     }),
     getAnnouncementDetail: builders.query<
       Announcement,
@@ -45,18 +45,18 @@ export const announcementApi = createApi({
       query: ({ announcementId }) => ({
         url: `/v1/announcements/${announcementId}`,
       }),
-      providesTags: () => ["Announcement"],
+      providesTags: () => ['Announcement'],
     }),
     createAnnouncement: builders.mutation({
       query: ({ formData }) => ({
-        url: "/v1/announcements",
-        method: "POST",
+        url: '/v1/announcements',
+        method: 'POST',
         data: formData,
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       }),
-      invalidatesTags: () => ["Announcement"],
+      invalidatesTags: () => ['Announcement'],
     }),
   }),
 });

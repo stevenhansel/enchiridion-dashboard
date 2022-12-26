@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { useFormik } from "formik";
-import * as yup from "yup";
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 
 import {
   Box,
@@ -14,14 +14,14 @@ import {
   DialogTitle,
   DialogContent,
   Snackbar,
-} from "@mui/material";
-import {West as WestIcon, Close as CloseIcon} from "@mui/icons-material";
-import Layout from "../components/Layout";
+} from '@mui/material';
+import { West as WestIcon, Close as CloseIcon } from '@mui/icons-material';
+import Layout from '../components/Layout';
 
-import { RootState } from "../store";
+import { RootState } from '../store';
 
-import { useChangePasswordMutation } from "../services/auth";
-import { isApiError, isReduxError } from "../services/error";
+import { useChangePasswordMutation } from '../services/auth';
+import { isApiError, isReduxError } from '../services/error';
 
 type ChangePassword = {
   oldPassword: string;
@@ -29,11 +29,11 @@ type ChangePassword = {
 };
 
 const validationSchema = yup.object({
-  oldPassword: yup.string().required("Please enter your old Password"),
+  oldPassword: yup.string().required('Please enter your old Password'),
   newPassword: yup
     .string()
-    .min(8, "Password should be of minimum 8 characters length")
-    .required("New Password is required"),
+    .min(8, 'Password should be of minimum 8 characters length')
+    .required('New Password is required'),
 });
 
 const UserProfilePage = () => {
@@ -42,17 +42,17 @@ const UserProfilePage = () => {
   const profile = useSelector((state: RootState) => state.profile);
 
   const [open, setOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [changePassword] = useChangePasswordMutation();
 
   const handleLogout = () => {
-    navigate("/");
+    navigate('/');
   };
 
   const formik = useFormik<ChangePassword>({
     initialValues: {
-      oldPassword: "",
-      newPassword: "",
+      oldPassword: '',
+      newPassword: '',
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { setFieldError }) => {
@@ -63,8 +63,8 @@ const UserProfilePage = () => {
         if (isReduxError(err) && isApiError(err.data)) {
           const { errorCode, messages } = err.data;
           const [message] = messages;
-          if (errorCode === "USER_INVALID_OLD_PASSWORD") {
-            setFieldError("oldPassword", message);
+          if (errorCode === 'USER_INVALID_OLD_PASSWORD') {
+            setFieldError('oldPassword', message);
           }
         }
       }
@@ -72,10 +72,10 @@ const UserProfilePage = () => {
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   return (
@@ -84,11 +84,11 @@ const UserProfilePage = () => {
         display="flex"
         flexDirection="row"
         sx={{
-          bgcolor: "lightblue",
+          bgcolor: 'lightblue',
           boxShadow: 1,
           borderRadius: 1,
           p: 2,
-          width: "100%",
+          width: '100%',
         }}
       >
         <Box>
@@ -175,9 +175,9 @@ const UserProfilePage = () => {
                 variant="standard"
                 id="Old Password"
                 type="password"
-                sx={{ width: "100%" }}
-                onChange={(e) =>
-                  formik.setFieldValue("oldPassword", e.target.value)
+                sx={{ width: '100%' }}
+                onChange={e =>
+                  formik.setFieldValue('oldPassword', e.target.value)
                 }
                 error={
                   formik.touched.oldPassword &&
@@ -192,9 +192,9 @@ const UserProfilePage = () => {
                 variant="standard"
                 id="New Password"
                 type="password"
-                sx={{ width: "100%" }}
-                onChange={(e) =>
-                  formik.setFieldValue("newPassword", e.target.value)
+                sx={{ width: '100%' }}
+                onChange={e =>
+                  formik.setFieldValue('newPassword', e.target.value)
                 }
                 error={
                   formik.touched.newPassword &&
@@ -222,7 +222,7 @@ const UserProfilePage = () => {
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}
-          onClose={() => setErrorMessage("")}
+          onClose={() => setErrorMessage('')}
           message={errorMessage}
           action={
             <>

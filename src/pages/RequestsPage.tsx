@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import dayjs from "dayjs";
-import debounce from "lodash/debounce";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import dayjs from 'dayjs';
+import debounce from 'lodash/debounce';
 
 import {
   Box,
@@ -24,8 +24,8 @@ import {
   Snackbar,
   Card,
   CardActions,
-} from "@mui/material";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+} from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import {
   Check as CheckIcon,
@@ -33,51 +33,51 @@ import {
   Remove as RemoveIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
 import {
   useApproveRejectRequestMutation,
   useLazyGetRequestsQuery,
-} from "../services/request";
+} from '../services/request';
 
-import { useLazyGetAnnouncementsQuery } from "../services/announcement";
+import { useLazyGetAnnouncementsQuery } from '../services/announcement';
 
-import { useLazyGetUsersQuery } from "../services/user";
+import { useLazyGetUsersQuery } from '../services/user';
 
-import { UserFilterOption } from "../types/store";
+import { UserFilterOption } from '../types/store';
 
-import { actions } from "../types/constants";
+import { actions } from '../types/constants';
 
-import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
-import { usePermission } from "../hooks";
+import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
+import { usePermission } from '../hooks';
 
 const toDate = (dateStr: string | undefined) =>
-  dayjs(dateStr).format("DD MMM YYYY h:mm A");
+  dayjs(dateStr).format('DD MMM YYYY h:mm A');
 
 const FETCH_LIMIT = 20;
 
 const RequestsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const requestQueryParams = searchParams.get("requestQueryParams");
-  const userQueryParams = searchParams.get("userQueryParams");
-  const announcementQueryParams = searchParams.get("announcementQueryParams");
-  const actionQueryParams = searchParams.get("actionQueryParams");
+  const requestQueryParams = searchParams.get('requestQueryParams');
+  const userQueryParams = searchParams.get('userQueryParams');
+  const announcementQueryParams = searchParams.get('announcementQueryParams');
+  const actionQueryParams = searchParams.get('actionQueryParams');
 
   const hasUpdateRequestApprovalPermission = usePermission(
-    "update_request_approval"
+    'update_request_approval'
   );
-  const hasViewAnnouncementPermission = usePermission("view_list_announcement");
-  const hasViewUserPermission = usePermission("view_list_user");
+  const hasViewAnnouncementPermission = usePermission('view_list_announcement');
+  const hasViewUserPermission = usePermission('view_list_user');
   const [openUserFilter, setOpenUserFilter] = useState(false);
   const [openAnnouncementFilter, setOpenAnnouncementFilter] = useState(false);
   const [actionType, setActionType] = useState(actionQueryParams);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [page, setPage] = useState(1);
   const [requestId, setRequestId] = useState<number | null>(null);
   const [approvedByLsc, setApprovedByLsc] = useState<boolean | null>(null);
-  const [approvedByLscText, setApprovedByLscText] = useState("");
+  const [approvedByLscText, setApprovedByLscText] = useState('');
   const [approvedByBm, setApprovedByBm] = useState<boolean | null>(null);
-  const [approvedByBmText, setApprovedByBmText] = useState("");
+  const [approvedByBmText, setApprovedByBmText] = useState('');
   const [userFilter, setUserFilter] = useState<UserFilterOption | null>(null);
   const [userFilterOptions, setUserFilterOptions] = useState<
     UserFilterOption[]
@@ -132,7 +132,7 @@ const RequestsPage = () => {
       if (isReduxError(err) && isApiError(err.data)) {
         const { errorCode, messages } = err.data;
         const [message] = messages;
-        if (errorCode === "USER_STATUS_CONFLICT") {
+        if (errorCode === 'USER_STATUS_CONFLICT') {
           setErrorMessage(message);
         } else {
           setErrorMessage(message);
@@ -160,16 +160,16 @@ const RequestsPage = () => {
       requestId === null &&
       userFilter === null &&
       announcementFilter === null &&
-      actionType === ""
+      actionType === ''
     ) {
       setSearchParams({});
     } else {
       setSearchParams({
-        requestQueryParams: requestId ? requestId.toString() : "",
-        userQueryParams: userFilter !== null ? userFilter.id.toString() : "",
+        requestQueryParams: requestId ? requestId.toString() : '',
+        userQueryParams: userFilter !== null ? userFilter.id.toString() : '',
         announcementQueryParams:
-          announcementFilter !== null ? announcementFilter.id.toString() : "",
-        actionQueryParams: actionType !== null ? String(actionType) : "",
+          announcementFilter !== null ? announcementFilter.id.toString() : '',
+        actionQueryParams: actionType !== null ? String(actionType) : '',
       });
     }
     getRequests(getRequestQueryParams);
@@ -180,7 +180,7 @@ const RequestsPage = () => {
       getUsers({ query, limit: 5 }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
-            ? data.contents.map((u) => ({
+            ? data.contents.map(u => ({
                 id: u.id,
                 name: u.name,
               }))
@@ -196,7 +196,7 @@ const RequestsPage = () => {
       getAnnouncements({ query, limit: 5 }).then(({ data }) => {
         setAnnouncementFilterOptions(
           data !== undefined
-            ? data.contents.map((a) => ({
+            ? data.contents.map(a => ({
                 id: a.id,
                 name: a.title,
               }))
@@ -208,12 +208,12 @@ const RequestsPage = () => {
   }, [getAnnouncements]);
 
   const handlePaginationPreviousPage = useCallback(
-    () => setPage((page) => page - 1),
+    () => setPage(page => page - 1),
     [page]
   );
 
   const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
+    () => setPage(page => page + 1),
     [page]
   );
 
@@ -225,22 +225,22 @@ const RequestsPage = () => {
   }, [page, requests]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
-    if (isGetRequestError && "data" in isGetRequestError) {
+    if (isGetRequestError && 'data' in isGetRequestError) {
       setErrorMessage((isGetRequestError.data as ApiErrorResponse).messages[0]);
     }
-    if (isGetAnnouncementError && "data" in isGetAnnouncementError) {
+    if (isGetAnnouncementError && 'data' in isGetAnnouncementError) {
       setErrorMessage(
         (isGetAnnouncementError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isGetUserError && "data" in isGetUserError) {
+    if (isGetUserError && 'data' in isGetUserError) {
       setErrorMessage((isGetUserError.data as ApiErrorResponse).messages[0]);
     }
   }, [isGetRequestError, isGetAnnouncementError, isGetUserError]);
@@ -254,7 +254,7 @@ const RequestsPage = () => {
       getUsers({ limit: 5, query: userFilter?.name }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
-            ? data.contents.map((u) => ({
+            ? data.contents.map(u => ({
                 id: u.id,
                 name: u.name,
               }))
@@ -270,7 +270,7 @@ const RequestsPage = () => {
         ({ data }) => {
           setAnnouncementFilterOptions(
             data !== undefined
-              ? data.contents.map((u) => ({
+              ? data.contents.map(u => ({
                   id: u.id,
                   name: u.title,
                 }))
@@ -313,7 +313,7 @@ const RequestsPage = () => {
                   variant="outlined"
                   autoComplete="off"
                   value={requestId}
-                  onChange={(e) => setRequestId(Number(e.target.value))}
+                  onChange={e => setRequestId(Number(e.target.value))}
                   sx={{ marginBottom: 2, width: 250 }}
                 />
                 {hasViewUserPermission ? (
@@ -333,7 +333,7 @@ const RequestsPage = () => {
                         setOpenUserFilter(false);
                       }}
                       options={userFilterOptions}
-                      getOptionLabel={(option) => option.name}
+                      getOptionLabel={option => option.name}
                       isOptionEqualToValue={(option, value) =>
                         option.id === value.id
                       }
@@ -345,7 +345,7 @@ const RequestsPage = () => {
                         );
                       }}
                       sx={{ width: 150 }}
-                      renderInput={(params) => (
+                      renderInput={params => (
                         <TextField
                           {...params}
                           label="Author"
@@ -368,7 +368,7 @@ const RequestsPage = () => {
                         setUserFilter(newValue);
                       }}
                       onInputChange={(_, newInputValue, reason) => {
-                        if (reason === "input") {
+                        if (reason === 'input') {
                           setUserFilterOptions([]);
                           getUserDelayed(newInputValue);
                           setIsUserFilterLoading(true);
@@ -390,7 +390,7 @@ const RequestsPage = () => {
                         setOpenAnnouncementFilter(false);
                       }}
                       options={announcementFilterOptions}
-                      getOptionLabel={(option) => option.name}
+                      getOptionLabel={option => option.name}
                       isOptionEqualToValue={(option, value) =>
                         option.id === value.id
                       }
@@ -402,7 +402,7 @@ const RequestsPage = () => {
                         );
                       }}
                       sx={{ width: 200 }}
-                      renderInput={(params) => (
+                      renderInput={params => (
                         <TextField
                           {...params}
                           label="Announcement"
@@ -425,7 +425,7 @@ const RequestsPage = () => {
                         setAnnouncementFilter(newValue);
                       }}
                       onInputChange={(_, newInputValue, reason) => {
-                        if (reason === "input") {
+                        if (reason === 'input') {
                           setAnnouncementFilterOptions([]);
                           getAnnouncementDelayed(newInputValue);
                           setIsAnnouncementFilterLoading(true);
@@ -442,18 +442,18 @@ const RequestsPage = () => {
                       id="lsc_filter"
                       label="Condition by LSC"
                       value={
-                        approvedByLscText !== null ? approvedByLscText : ""
+                        approvedByLscText !== null ? approvedByLscText : ''
                       }
                       onChange={(e: SelectChangeEvent) => {
-                        if (e.target.value === "Approved") {
+                        if (e.target.value === 'Approved') {
                           setApprovedByLsc(true);
                           setApprovedByLscText(e.target.value);
                         }
-                        if (e.target.value === "Rejected") {
+                        if (e.target.value === 'Rejected') {
                           setApprovedByLsc(false);
                           setApprovedByLscText(e.target.value);
                         }
-                        if (e.target.value === "All") {
+                        if (e.target.value === 'All') {
                           setApprovedByLsc(null);
                           setApprovedByLscText(e.target.value);
                         }
@@ -472,17 +472,17 @@ const RequestsPage = () => {
                       labelId="bm_filter"
                       id="bm_filter"
                       label="Condition by LSC"
-                      value={approvedByBmText !== null ? approvedByBmText : ""}
+                      value={approvedByBmText !== null ? approvedByBmText : ''}
                       onChange={(e: SelectChangeEvent) => {
-                        if (e.target.value === "All") {
+                        if (e.target.value === 'All') {
                           setApprovedByBm(null);
                           setApprovedByBmText(e.target.value);
                         }
-                        if (e.target.value === "Approved") {
+                        if (e.target.value === 'Approved') {
                           setApprovedByBm(true);
                           setApprovedByBmText(e.target.value);
                         }
-                        if (e.target.value === "Rejected") {
+                        if (e.target.value === 'Rejected') {
                           setApprovedByBm(false);
                           setApprovedByBmText(e.target.value);
                         }
@@ -506,7 +506,7 @@ const RequestsPage = () => {
                 </Box>
               </Box>
               <Box sx={{ marginBottom: 1 }}>
-                <Card sx={{ bgcolor: "#D2E4EF" }}>
+                <Card sx={{ bgcolor: '#D2E4EF' }}>
                   <CardActions>
                     {actions &&
                       actions.map((action, index) => (
@@ -515,8 +515,8 @@ const RequestsPage = () => {
                           onClick={() => setActionType(action.value)}
                           variant={
                             String(actionType) === action.value
-                              ? "contained"
-                              : "text"
+                              ? 'contained'
+                              : 'text'
                           }
                           sx={{ marginRight: 2 }}
                           value={String(actionType)}
@@ -529,7 +529,7 @@ const RequestsPage = () => {
               </Box>
               {requests && requests.contents.length > 0 ? (
                 <>
-                  <TableContainer component={Paper} sx={{ width: "100%" }}>
+                  <TableContainer component={Paper} sx={{ width: '100%' }}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                       <TableHead>
                         <TableRow>
@@ -546,11 +546,11 @@ const RequestsPage = () => {
                       </TableHead>
                       <TableBody>
                         {requests &&
-                          requests.contents.map((request) => (
+                          requests.contents.map(request => (
                             <TableRow
                               key={request.id}
                               sx={{
-                                "&:last-child td, &:last-child th": {
+                                '&:last-child td, &:last-child th': {
                                   border: 0,
                                 },
                               }}
@@ -565,7 +565,7 @@ const RequestsPage = () => {
                               <TableCell align="center">
                                 <Button
                                   variant="contained"
-                                  sx={{ maxWidth: "300px", width: "160px" }}
+                                  sx={{ maxWidth: '300px', width: '160px' }}
                                 >
                                   {request.action.label}
                                 </Button>
@@ -591,7 +591,7 @@ const RequestsPage = () => {
                                 request.approvalStatus.lsc === null) ? (
                                 <TableCell
                                   align="center"
-                                  sx={{ maxWidth: "300px", width: "230px" }}
+                                  sx={{ maxWidth: '300px', width: '230px' }}
                                 >
                                   <Button
                                     variant="contained"
@@ -653,7 +653,7 @@ const RequestsPage = () => {
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}
-          onClose={() => setErrorMessage("")}
+          onClose={() => setErrorMessage('')}
           message={errorMessage}
           action={
             <IconButton

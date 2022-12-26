@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import debounce from "lodash/debounce";
+import React, { useState, useEffect, useMemo } from 'react';
+import debounce from 'lodash/debounce';
 
 import {
   Box,
@@ -10,23 +10,20 @@ import {
   CircularProgress,
   IconButton,
   Snackbar,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { useFormik } from "formik";
-import * as yup from "yup";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 
-import { useCreateFloorMutation } from "../services/floor";
-import { useLazyGetBuildingsQuery } from "../services/building";
+import { useCreateFloorMutation } from '../services/floor';
+import { useLazyGetBuildingsQuery } from '../services/building';
 
-import { CreateFloor, UserFilterOption } from "../types/store";
-import { ApiErrorResponse } from "../services/error";
+import { CreateFloor, UserFilterOption } from '../types/store';
+import { ApiErrorResponse } from '../services/error';
 
 const validationSchema = yup.object({
-  name: yup
-    .string()
-    .min(1)
-    .required("Name is required"),
-  buildingId: yup.string().required("Building is required"),
+  name: yup.string().min(1).required('Name is required'),
+  buildingId: yup.string().required('Building is required'),
 });
 
 type Props = {
@@ -34,7 +31,7 @@ type Props = {
 };
 
 const CreateFloorModal = (props: Props) => {
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [
     getBuildings,
     { isLoading: isGetBuildingsLoading, error: isGetBuildingsError },
@@ -52,21 +49,21 @@ const CreateFloorModal = (props: Props) => {
 
   const formik = useFormik<CreateFloor>({
     initialValues: {
-      name: "",
-      buildingId: "",
+      name: '',
+      buildingId: '',
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: values => {
       addNewFloor(values);
       props.setOpen(false);
     },
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   const getBuildingDelayed = useMemo(() => {
@@ -74,7 +71,7 @@ const CreateFloorModal = (props: Props) => {
       getBuildings({ limit: 5, query }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
-            ? data.map((b) => ({
+            ? data.map(b => ({
                 id: b.id,
                 name: b.name,
               }))
@@ -90,7 +87,7 @@ const CreateFloorModal = (props: Props) => {
       getBuildings({ limit: 5, query: buildingFilter?.name }).then(({ data }) =>
         setBuildingFilterOptions(
           data !== undefined
-            ? data.map((b) => ({
+            ? data.map(b => ({
                 id: b.id,
                 name: b.name,
               }))
@@ -101,7 +98,7 @@ const CreateFloorModal = (props: Props) => {
   }, [open]);
 
   useEffect(() => {
-    if (isGetBuildingsError && "data" in isGetBuildingsError) {
+    if (isGetBuildingsError && 'data' in isGetBuildingsError) {
       setErrorMessage(
         (isGetBuildingsError.data as ApiErrorResponse).messages[0]
       );
@@ -119,7 +116,7 @@ const CreateFloorModal = (props: Props) => {
           variant="standard"
           autoComplete="off"
           sx={{ marginBottom: 2 }}
-          onChange={(e) => formik.setFieldValue("name", e.target.value)}
+          onChange={e => formik.setFieldValue('name', e.target.value)}
           error={formik.touched.name && Boolean(formik.errors.name)}
           helperText={formik.touched.name && formik.errors.name}
         />
@@ -134,15 +131,15 @@ const CreateFloorModal = (props: Props) => {
             }}
             options={buildingFilterOptions}
             value={buildingFilter}
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={option => option.name}
             isOptionEqualToValue={(option, value) => option.name === value.name}
             onChange={(_, inputValue) => {
               setBuildingFilterOptions([]);
               setBuildingFilter(inputValue);
-              formik.setFieldValue("buildingId", inputValue?.id);
+              formik.setFieldValue('buildingId', inputValue?.id);
             }}
             onInputChange={(_, newInputValue, reason) => {
-              if (reason === "input") {
+              if (reason === 'input') {
                 getBuildingDelayed(newInputValue);
                 setBuildingFilterOptions([]);
                 setIsBuildingFilterLoading(true);
@@ -155,7 +152,7 @@ const CreateFloorModal = (props: Props) => {
                 </li>
               );
             }}
-            renderInput={(params) => (
+            renderInput={params => (
               <TextField
                 {...params}
                 label="Building"
@@ -179,10 +176,10 @@ const CreateFloorModal = (props: Props) => {
           {formik.touched.buildingId && formik.errors.buildingId ? (
             <Typography
               sx={{
-                fontSize: "12px",
-                marginTop: "3px",
-                marginRight: "14px",
-                color: "#D32F2F",
+                fontSize: '12px',
+                marginTop: '3px',
+                marginRight: '14px',
+                color: '#D32F2F',
                 marginBottom: 1,
               }}
             >
@@ -206,7 +203,7 @@ const CreateFloorModal = (props: Props) => {
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}
-          onClose={() => setErrorMessage("")}
+          onClose={() => setErrorMessage('')}
           message={errorMessage}
           action={
             <>

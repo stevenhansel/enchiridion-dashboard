@@ -1,129 +1,129 @@
-import { ActionButton, ActionStatus, Color } from "../types/store";
+import { ActionButton, ActionStatus, Color } from '../types/store';
 
 export enum AnnouncementStatus {
-  WaitingForApproval = "waiting_for_approval",
-  WaitingForSync = "waiting_for_sync",
-  Active = "active",
-  Rejected = "rejected",
-  Canceled = "canceled",
-  Done = "done",
+  WaitingForApproval = 'waiting_for_approval',
+  WaitingForSync = 'waiting_for_sync',
+  Active = 'active',
+  Rejected = 'rejected',
+  Canceled = 'canceled',
+  Done = 'done',
 }
 
 export enum ApprovalStatus {
-  Approved = "true",
-  Rejected = "false",
-  All = "",
+  Approved = 'true',
+  Rejected = 'false',
+  All = '',
 }
 
 export enum ChartInterval {
-  Day = "day",
-  Hour = "hour",
-  Minute = "minute",
+  Day = 'day',
+  Hour = 'hour',
+  Minute = 'minute',
 }
 
 export const statusActions: ActionStatus[] = [
   {
-    label: "all",
-    value: "",
+    label: 'all',
+    value: '',
   },
   {
-    label: "Waiting for Approval",
-    value: "waiting_for_approval",
+    label: 'Waiting for Approval',
+    value: 'waiting_for_approval',
   },
   {
-    label: "Waiting for Sync",
-    value: "waiting_for_sync",
+    label: 'Waiting for Sync',
+    value: 'waiting_for_sync',
   },
   {
-    label: "Active",
-    value: "active",
+    label: 'Active',
+    value: 'active',
   },
   {
-    label: "Rejected",
-    value: "rejected",
+    label: 'Rejected',
+    value: 'rejected',
   },
   {
-    label: "Canceled",
-    value: "canceled",
+    label: 'Canceled',
+    value: 'canceled',
   },
   {
-    label: "Done",
-    value: "done",
+    label: 'Done',
+    value: 'done',
   },
 ];
 
 export const actions: ActionButton[] = [
   {
-    label: "all",
-    value: "",
+    label: 'all',
+    value: '',
   },
   {
-    label: "Create",
-    value: "create",
+    label: 'Create',
+    value: 'create',
   },
   {
-    label: "Delete",
-    value: "delete",
+    label: 'Delete',
+    value: 'delete',
   },
   {
-    label: "Extend Date",
-    value: "extend_date",
+    label: 'Extend Date',
+    value: 'extend_date',
   },
   {
-    label: "Change Devices",
-    value: "change_devices",
+    label: 'Change Devices',
+    value: 'change_devices',
   },
 ];
 
 export const colorBuilding: Color[] = [
   {
     id: 1,
-    name: "Light Gray",
-    color: "#E9E8E8",
+    name: 'Light Gray',
+    color: '#E9E8E8',
   },
   {
     id: 2,
-    name: "Gray",
-    color: "#E3E2E0",
+    name: 'Gray',
+    color: '#E3E2E0',
   },
   {
     id: 3,
-    name: "Brown",
-    color: "#EEDFDA",
+    name: 'Brown',
+    color: '#EEDFDA',
   },
   {
     id: 4,
-    name: "Orange",
-    color: "#F9DEC9",
+    name: 'Orange',
+    color: '#F9DEC9',
   },
   {
     id: 5,
-    name: "Yellow",
-    color: "#FDECC8",
+    name: 'Yellow',
+    color: '#FDECC8',
   },
   {
     id: 6,
-    name: "Green",
-    color: "#DBECDA",
+    name: 'Green',
+    color: '#DBECDA',
   },
   {
     id: 7,
-    name: "Blue",
-    color: "#D2E4EF",
+    name: 'Blue',
+    color: '#D2E4EF',
   },
   {
     id: 8,
-    name: "Purple",
-    color: "#E7DEEE",
+    name: 'Purple',
+    color: '#E7DEEE',
   },
   {
     id: 9,
-    name: "Pink",
-    color: "#F4E0E9",
+    name: 'Pink',
+    color: '#F4E0E9',
   },
   {
     id: 10,
-    name: "Red",
-    color: "#FFE2DD",
+    name: 'Red',
+    color: '#FFE2DD',
   },
 ];

@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 import {
   CircularProgress,
   Dialog,
   DialogContent,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 
-import { ApiErrorResponse } from "../services/error";
-import { useGetAnnouncementMediaQuery } from "../services/announcement";
-import { useGetAnnouncementDetailQuery } from "../services/announcement";
+import { ApiErrorResponse } from '../services/error';
+import { useGetAnnouncementMediaQuery } from '../services/announcement';
+import { useGetAnnouncementDetailQuery } from '../services/announcement';
 
 type Props = {
   announcementId: string;
@@ -18,7 +18,7 @@ type Props = {
 };
 
 const ViewAnnouncementImageModal = (props: Props) => {
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const { announcementId, open, setOpen } = props;
   const {
     data: announcementsMedia,
@@ -27,7 +27,7 @@ const ViewAnnouncementImageModal = (props: Props) => {
   } = useGetAnnouncementMediaQuery(
     { announcementId },
     {
-      skip: announcementId === "",
+      skip: announcementId === '',
     }
   );
 
@@ -38,7 +38,7 @@ const ViewAnnouncementImageModal = (props: Props) => {
   } = useGetAnnouncementDetailQuery(
     { announcementId },
     {
-      skip: announcementId === "",
+      skip: announcementId === '',
     }
   );
 
@@ -46,23 +46,23 @@ const ViewAnnouncementImageModal = (props: Props) => {
     if (announcementsDetail === undefined) {
       return null;
     }
-    if (announcementsDetail.mediaType === "video") {
+    if (announcementsDetail.mediaType === 'video') {
       return (
         <video
           src={announcementsDetail.media}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           controls
           loop
           autoPlay
           muted
         />
       );
-    } else if (announcementsDetail.mediaType === "image") {
+    } else if (announcementsDetail.mediaType === 'image') {
       return (
         <img
           alt="announcement-media"
           src={announcementsDetail.media}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         />
       );
     }
@@ -73,12 +73,12 @@ const ViewAnnouncementImageModal = (props: Props) => {
   const error = isAnnouncementsDetailError || isAnnouncementsMediaError;
 
   useEffect(() => {
-    if (isAnnouncementsDetailError && "data" in isAnnouncementsDetailError) {
+    if (isAnnouncementsDetailError && 'data' in isAnnouncementsDetailError) {
       setErrorMessage(
         (isAnnouncementsDetailError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isAnnouncementsMediaError && "data" in isAnnouncementsMediaError) {
+    if (isAnnouncementsMediaError && 'data' in isAnnouncementsMediaError) {
       setErrorMessage(
         (isAnnouncementsMediaError.data as ApiErrorResponse).messages[0]
       );
@@ -92,11 +92,7 @@ const ViewAnnouncementImageModal = (props: Props) => {
         {!isLoading && (
           <>
             {media()}
-            {error ? (
-              <Typography>
-                {errorMessage}
-              </Typography>
-            ) : null}
+            {error ? <Typography>{errorMessage}</Typography> : null}
           </>
         )}
       </DialogContent>

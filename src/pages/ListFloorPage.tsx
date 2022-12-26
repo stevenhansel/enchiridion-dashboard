@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { debounce } from "lodash";
-import { useSearchParams } from "react-router-dom";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { debounce } from 'lodash';
+import { useSearchParams } from 'react-router-dom';
 
 import {
   Box,
@@ -22,7 +22,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-} from "@mui/material";
+} from '@mui/material';
 
 import {
   Edit as EditIcon,
@@ -30,38 +30,38 @@ import {
   Close as CloseIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import UpdateFloorModal from "../components/UpdateFloorModal";
-import CreateFloorModal from "../components/CreateFloorModal";
-import BuildingModal from "../components/BuildingModal";
+import UpdateFloorModal from '../components/UpdateFloorModal';
+import CreateFloorModal from '../components/CreateFloorModal';
+import BuildingModal from '../components/BuildingModal';
 
-import { useLazyGetBuildingsQuery } from "../services/building";
+import { useLazyGetBuildingsQuery } from '../services/building';
 
-import { useLazyGetFloorsQuery } from "../services/floor";
+import { useLazyGetFloorsQuery } from '../services/floor';
 
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse } from '../services/error';
 
-import { UserFilterOption } from "../types/store";
-import { usePermission } from "../hooks";
-import DeleteFloorModal from "../components/DeleteFloorModal";
+import { UserFilterOption } from '../types/store';
+import { usePermission } from '../hooks';
+import DeleteFloorModal from '../components/DeleteFloorModal';
 
 const FETCH_LIMIT = 20;
 
 const ListFloorPage = () => {
-  const hasPermissionCreateFloor = usePermission("create_floor");
-  const hasPermissionUpdateFloor = usePermission("update_floor");
-  const hasPermissionDeleteFloor = usePermission("delete_floor");
+  const hasPermissionCreateFloor = usePermission('create_floor');
+  const hasPermissionUpdateFloor = usePermission('update_floor');
+  const hasPermissionDeleteFloor = usePermission('delete_floor');
 
   const hasPermissionMutateBuilding = usePermission(
-    "create_building",
-    "update_building",
-    "delete_building"
+    'create_building',
+    'update_building',
+    'delete_building'
   );
-  const hasViewBuildingPermission = usePermission("view_list_building");
+  const hasViewBuildingPermission = usePermission('view_list_building');
 
   const [page, setPage] = useState(1);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [buildingFilterOptions, setBuildingFilterOptions] = useState<
     UserFilterOption[]
   >([]);
@@ -71,22 +71,22 @@ const ListFloorPage = () => {
     null
   );
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [openCreateFloor, setOpenCreateFloor] = useState(false);
   const [openCreateBuilding, setOpenCreateBuilding] = useState(false);
   const [openEditFloor, setOpenEditFloor] = useState(false);
-  const [floorId, setFloorId] = useState("");
-  const [floorName, setFloorName] = useState("");
-  const [buildingName, setBuildingName] = useState("");
+  const [floorId, setFloorId] = useState('');
+  const [floorName, setFloorName] = useState('');
+  const [buildingName, setBuildingName] = useState('');
   const [open, setOpen] = useState(false);
   const [openDeleteFloorModal, setOpenDeleteFloorModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const floorQueryParams = searchParams.get("floorQueryParams");
-  const buildingQueryParams = searchParams.get("buildingQueryParams");
+  const floorQueryParams = searchParams.get('floorQueryParams');
+  const buildingQueryParams = searchParams.get('buildingQueryParams');
 
   const getFloorsQueryParams = {
     page,
@@ -109,22 +109,22 @@ const ListFloorPage = () => {
 
   const handleSearch = useCallback(
     (query: string) => {
-      if (query === "" && buildingFilter === null) {
+      if (query === '' && buildingFilter === null) {
         setSearchParams({});
-      } else if (query !== "" && buildingFilter === null) {
+      } else if (query !== '' && buildingFilter === null) {
         setSearchParams({
           floorQueryParams: query,
         });
-      } else if (query === "" && buildingFilter !== null) {
+      } else if (query === '' && buildingFilter !== null) {
         setSearchParams({
           buildingQueryParams:
-            buildingFilter !== null ? buildingFilter.id.toString() : "",
+            buildingFilter !== null ? buildingFilter.id.toString() : '',
         });
       } else {
         setSearchParams({
           floorQueryParams: query,
           buildingQueryParams:
-            buildingFilter !== null ? buildingFilter.id.toString() : "",
+            buildingFilter !== null ? buildingFilter.id.toString() : '',
         });
       }
       getFloors(getFloorsQueryParams);
@@ -133,21 +133,21 @@ const ListFloorPage = () => {
   );
 
   const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
+    () => setPage(page => page + 1),
     []
   );
 
   const handlePaginationPrevPage = useCallback(
-    () => setPage((page) => page - 1),
+    () => setPage(page => page - 1),
     []
   );
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
-    setSuccessMessage("");
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
   const getBuildingDelayed = useMemo(() => {
@@ -155,7 +155,7 @@ const ListFloorPage = () => {
       getBuildings({ query, limit: 5 }).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
-            ? data.map((b) => ({
+            ? data.map(b => ({
                 id: b.id,
                 name: b.name,
               }))
@@ -192,9 +192,9 @@ const ListFloorPage = () => {
   }, [page, floors]);
 
   useEffect(() => {
-    if (buildingsError && "data" in buildingsError) {
+    if (buildingsError && 'data' in buildingsError) {
       setErrorMessage((buildingsError.data as ApiErrorResponse).messages[0]);
-    } else if (floorsError && "data" in floorsError) {
+    } else if (floorsError && 'data' in floorsError) {
       setErrorMessage((floorsError.data as ApiErrorResponse).messages[0]);
     }
   }, [buildingsError, floorsError]);
@@ -209,7 +209,7 @@ const ListFloorPage = () => {
         ({ data }) => {
           setBuildingFilterOptions(
             data !== undefined
-              ? data.map((b) => ({
+              ? data.map(b => ({
                   id: b.id,
                   name: b.name,
                 }))
@@ -292,7 +292,7 @@ const ListFloorPage = () => {
                 variant="outlined"
                 autoComplete="off"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={e => setQuery(e.target.value)}
                 sx={{ width: 230, marginRight: 1 }}
               />
             </Box>
@@ -311,7 +311,7 @@ const ListFloorPage = () => {
                   isOptionEqualToValue={(option, value) =>
                     option.id === value.id
                   }
-                  getOptionLabel={(option) => option.name}
+                  getOptionLabel={option => option.name}
                   renderOption={(props, option) => {
                     return (
                       <li {...props} key={option.id}>
@@ -324,13 +324,13 @@ const ListFloorPage = () => {
                     setBuildingFilter(inputValue);
                   }}
                   onInputChange={(_, newInputValue, reason) => {
-                    if (reason === "input") {
+                    if (reason === 'input') {
                       setBuildingFilterOptions([]);
                       setIsBuildingFilterLoading(true);
                       getBuildingDelayed(newInputValue);
                     }
                   }}
-                  renderInput={(params) => (
+                  renderInput={params => (
                     <TextField
                       {...params}
                       label="Building"
@@ -366,7 +366,7 @@ const ListFloorPage = () => {
           </Box>
           {floors && floors.contents.length > 0 ? (
             <>
-              <TableContainer component={Paper} sx={{ width: "100%" }}>
+              <TableContainer component={Paper} sx={{ width: '100%' }}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
@@ -378,11 +378,11 @@ const ListFloorPage = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {floors.contents.map((row) => (
+                    {floors.contents.map(row => (
                       <TableRow
                         key={row.id}
                         sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
+                          '&:last-child td, &:last-child th': { border: 0 },
                         }}
                       >
                         <TableCell component="th" scope="row">
@@ -401,14 +401,14 @@ const ListFloorPage = () => {
                             {row.building.name}
                           </Button>
                         </TableCell>
-                        <TableCell align="center" sx={{ maxWidth: "700px" }}>
-                          {row.devices.map((device) => (
+                        <TableCell align="center" sx={{ maxWidth: '700px' }}>
+                          {row.devices.map(device => (
                             <Tooltip key={device.id} title={device.description}>
                               <Button
                                 variant="outlined"
                                 sx={{
                                   marginRight: 1,
-                                  width: "120",
+                                  width: '120',
                                 }}
                               >
                                 {device.name}
@@ -498,7 +498,7 @@ const ListFloorPage = () => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => setErrorMessage('')}
         message={errorMessage}
         action={
           <IconButton
@@ -514,7 +514,7 @@ const ListFloorPage = () => {
       <Snackbar
         open={Boolean(successMessage)}
         autoHideDuration={6000}
-        onClose={() => setSuccessMessage("")}
+        onClose={() => setSuccessMessage('')}
         message={successMessage}
         action={
           <>

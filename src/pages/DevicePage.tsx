@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import useWebSocket from "react-use-websocket";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import useWebSocket from 'react-use-websocket';
 
 import {
   Box,
@@ -21,22 +21,22 @@ import {
   IconButton,
   Snackbar,
   Button,
-} from "@mui/material";
+} from '@mui/material';
 
 import {
   Close as CloseIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import { useLazyGetDevicesQuery } from "../services/device";
-import { ApiErrorResponse } from "../services/error";
+import { useLazyGetDevicesQuery } from '../services/device';
+import { ApiErrorResponse } from '../services/error';
 
-import CreateDeviceModal from "../components/CreateDeviceModal";
-import config from "../config";
-import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
+import CreateDeviceModal from '../components/CreateDeviceModal';
+import config from '../config';
+import DeviceStatus, { DeviceState } from '../components/DeviceStatus';
 
-import { usePermission } from "../hooks";
+import { usePermission } from '../hooks';
 
 const FETCH_LIMIT = 20;
 
@@ -66,7 +66,7 @@ const DeviceRow = (props: {
   return (
     <TableRow
       sx={{
-        "&:last-child td, &:last-child th": { border: 0 },
+        '&:last-child td, &:last-child th': { border: 0 },
       }}
     >
       <TableCell align="center">
@@ -81,7 +81,7 @@ const DeviceRow = (props: {
       <TableCell align="center">{device.name}</TableCell>
       <TableCell
         align="center"
-        style={{ display: "flex", justifyContent: "center" }}
+        style={{ display: 'flex', justifyContent: 'center' }}
       >
         <DeviceStatus state={deviceState} fontSize={14} />
       </TableCell>
@@ -94,26 +94,26 @@ const DeviceRow = (props: {
 
 const DevicePage = () => {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const hasViewDeviceDetailPermission = usePermission("view_device_detail");
-  const hasCreateDevicePermission = usePermission("create_device");
+  const hasViewDeviceDetailPermission = usePermission('view_device_detail');
+  const hasCreateDevicePermission = usePermission('create_device');
 
   const getDeviceQueryParams = { page, query, limit: FETCH_LIMIT };
   const [getDevices, { data, isLoading, error }] = useLazyGetDevicesQuery();
 
-  const deviceQueryParams = searchParams.get("deviceQueryParams");
+  const deviceQueryParams = searchParams.get('deviceQueryParams');
 
   const handleNavigateToDetailPage = (deviceId: number) => {
     navigate(`/device/detail/${deviceId}`);
   };
 
   const handleSearch = useCallback(() => {
-    if (query !== "") {
+    if (query !== '') {
       setSearchParams({
         deviceQueryParams: query,
       });
@@ -124,20 +124,20 @@ const DevicePage = () => {
   }, [page, query]);
 
   const handlePaginationPreviousPage = useCallback(
-    () => setPage((page) => page - 1),
+    () => setPage(page => page - 1),
     []
   );
 
   const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
+    () => setPage(page => page + 1),
     []
   );
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
@@ -152,7 +152,7 @@ const DevicePage = () => {
   }, [page]);
 
   useEffect(() => {
-    if (error && "data" in error) {
+    if (error && 'data' in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
   }, [error]);
@@ -192,7 +192,7 @@ const DevicePage = () => {
                 variant="outlined"
                 autoComplete="off"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={e => setQuery(e.target.value)}
                 sx={{ width: 250 }}
               />
               <Button
@@ -223,7 +223,7 @@ const DevicePage = () => {
 
                     <TableBody>
                       {data &&
-                        data.contents.map((device) => (
+                        data.contents.map(device => (
                           <DeviceRow
                             key={device.id}
                             device={device}

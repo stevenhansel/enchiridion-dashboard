@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 import {
   Box,
@@ -8,16 +8,16 @@ import {
   Snackbar,
   Typography,
   TextField,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { useFormik } from "formik";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useFormik } from 'formik';
 
-import * as yup from "yup";
+import * as yup from 'yup';
 
-import { useCreateRequestMutation } from "../services/request";
+import { useCreateRequestMutation } from '../services/request';
 
-import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
-import { ActionCreateRequest } from "../types/store";
+import { isApiError, isReduxError, ApiErrorResponse } from '../services/error';
+import { ActionCreateRequest } from '../types/store';
 
 const validationSchema = yup.object({
   description: yup.string().required().min(1),
@@ -30,20 +30,20 @@ type Props = {
 const DeleteAnnouncementRequest = (props: Props) => {
   const { setOpen } = props;
   const [createRequest, { error }] = useCreateRequestMutation();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const { announcementId = "" } = useParams();
+  const { announcementId = '' } = useParams();
 
   const formik = useFormik<ActionCreateRequest>({
     initialValues: {
-      action: "delete",
+      action: 'delete',
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
-      description: "",
+      description: '',
       newDeviceIds: [],
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       try {
         createRequest(values).unwrap();
         setOpen(false);
@@ -59,14 +59,14 @@ const DeleteAnnouncementRequest = (props: Props) => {
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
-    if (error && "data" in error) {
+    if (error && 'data' in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
   }, [error]);
@@ -83,8 +83,8 @@ const DeleteAnnouncementRequest = (props: Props) => {
               </Typography>
               <Box>
                 <TextField
-                  onChange={(e) =>
-                    formik.setFieldValue("description", e.target.value)
+                  onChange={e =>
+                    formik.setFieldValue('description', e.target.value)
                   }
                   variant="standard"
                   error={
@@ -94,7 +94,7 @@ const DeleteAnnouncementRequest = (props: Props) => {
                   helperText={
                     formik.touched.description && formik.errors.description
                   }
-                  sx={{ width: "100%", marginBottom: 1 }}
+                  sx={{ width: '100%', marginBottom: 1 }}
                 />
               </Box>
               <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
@@ -133,7 +133,7 @@ const DeleteAnnouncementRequest = (props: Props) => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage("")}
+            onClose={() => setErrorMessage('')}
             message={errorMessage}
             action={
               <>

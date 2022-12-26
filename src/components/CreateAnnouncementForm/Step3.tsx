@@ -1,19 +1,19 @@
-import React, { useCallback, useEffect, useContext, useState } from "react";
-import cloneDeep from "lodash/cloneDeep";
-import { useNavigate } from "react-router-dom";
-import { useFormikContext } from "formik";
+import React, { useCallback, useEffect, useContext, useState } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
+import { useNavigate } from 'react-router-dom';
+import { useFormikContext } from 'formik';
 
-import { Box, Button, Typography, Tooltip } from "@mui/material";
-import { red } from "@mui/material/colors";
+import { Box, Button, Typography, Tooltip } from '@mui/material';
+import { red } from '@mui/material/colors';
 
-import { CreateAnnouncementFormContext } from "./context";
-import { CreateAnnouncementFormValues } from "./form";
-import { validateFormikFields } from "./util";
+import { CreateAnnouncementFormContext } from './context';
+import { CreateAnnouncementFormValues } from './form';
+import { validateFormikFields } from './util';
 
-import { useLazyGetFloorsQuery } from "../../services/floor";
-import { useGetBuildingsQuery } from "../../services/building";
+import { useLazyGetFloorsQuery } from '../../services/floor';
+import { useGetBuildingsQuery } from '../../services/building';
 
-const fields = ["devices"];
+const fields = ['devices'];
 
 const Step3 = () => {
   const navigate = useNavigate();
@@ -34,14 +34,14 @@ const Step3 = () => {
   const floorCheck =
     floors &&
     floors?.contents.filter(
-      (floor) => currentBuildingId === floor.building.id.toString()
+      floor => currentBuildingId === floor.building.id.toString()
     );
 
   const deviceCheck =
     floors &&
     floors.contents
-      .filter((floor) => currentBuildingId === floor.building.id.toString())
-      .map((floor) => floor.devices.length);
+      .filter(floor => currentBuildingId === floor.building.id.toString())
+      .map(floor => floor.devices.length);
 
   const deviceState = deviceCheck?.every((d: number) => {
     return d === 0;
@@ -50,7 +50,7 @@ const Step3 = () => {
   const handleSelectDevice = useCallback(
     (selectedDeviceId: string) => {
       const selectedDeviceIndex = values.devices.findIndex(
-        (deviceId) => deviceId === selectedDeviceId
+        deviceId => deviceId === selectedDeviceId
       );
 
       let updatedDevices = cloneDeep(values.devices);
@@ -60,7 +60,7 @@ const Step3 = () => {
       } else {
         updatedDevices.push(selectedDeviceId);
       }
-      setFieldValue("devices", updatedDevices);
+      setFieldValue('devices', updatedDevices);
     },
     [values, setFieldValue]
   );
@@ -77,7 +77,7 @@ const Step3 = () => {
   }, [handlePrevStep]);
 
   useEffect(() => {
-    fields.forEach((field) => validateField(field));
+    fields.forEach(field => validateField(field));
     // eslint-disable-next-line
   }, []);
 
@@ -97,7 +97,7 @@ const Step3 = () => {
             </Typography>
           </Box>
           <Box display="flex" justifyContent="center">
-            <Button onClick={() => navigate("/floor")} variant="contained">
+            <Button onClick={() => navigate('/floor')} variant="contained">
               Floor Page
             </Button>
           </Box>
@@ -109,8 +109,8 @@ const Step3 = () => {
           </Typography>
           <Box
             sx={{
-              display: "flex",
-              border: "1px solid #c4c4c4",
+              display: 'flex',
+              border: '1px solid #c4c4c4',
             }}
           >
             <Box
@@ -123,15 +123,15 @@ const Step3 = () => {
                   {floors &&
                     floors?.contents
                       .filter(
-                        (floor) =>
+                        floor =>
                           values.buildingId === floor.building.id.toString()
                       )
-                      .map((floor) => (
+                      .map(floor => (
                         <Box
                           key={floor.id}
                           display="flex"
                           sx={{
-                            border: "1px solid #c4c4c4",
+                            border: '1px solid #c4c4c4',
                             marginBottom: 1,
                           }}
                           alignItems="center"
@@ -146,8 +146,8 @@ const Step3 = () => {
                           >
                             {floor.name}
                           </Box>
-                          <Box sx={{ width: "100%" }}>
-                            {floor.devices.map((device) => (
+                          <Box sx={{ width: '100%' }}>
+                            {floor.devices.map(device => (
                               <Tooltip
                                 key={device.id}
                                 title={device.description}
@@ -161,15 +161,15 @@ const Step3 = () => {
                                     values.devices.includes(
                                       device.id.toString()
                                     )
-                                      ? "contained"
-                                      : "outlined"
+                                      ? 'contained'
+                                      : 'outlined'
                                   }
                                   color={
                                     values.devices.includes(
                                       device.id.toString()
                                     )
-                                      ? "secondary"
-                                      : "inactive"
+                                      ? 'secondary'
+                                      : 'inactive'
                                   }
                                   sx={{ margin: 1, width: 140 }}
                                 >
@@ -192,7 +192,7 @@ const Step3 = () => {
           >
             {touched.devices &&
             errors.devices &&
-            typeof errors.devices === "string" ? (
+            typeof errors.devices === 'string' ? (
               <Typography
                 variant="caption"
                 color={red[700]}
@@ -215,7 +215,7 @@ const Step3 = () => {
                 </Typography>
               </Box>
               <Box display="flex" justifyContent="center">
-                <Button variant="contained" onClick={() => navigate("/device")}>
+                <Button variant="contained" onClick={() => navigate('/device')}>
                   Device Page
                 </Button>
               </Box>

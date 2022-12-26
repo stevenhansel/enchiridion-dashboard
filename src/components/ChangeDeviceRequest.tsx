@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import cloneDeep from "lodash/cloneDeep";
-import * as yup from "yup";
+import React, { useState, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import cloneDeep from 'lodash/cloneDeep';
+import * as yup from 'yup';
 
 import {
   Box,
@@ -12,19 +12,19 @@ import {
   Tooltip,
   Typography,
   TextField,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { red } from "@mui/material/colors";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { red } from '@mui/material/colors';
 
-import { useFormik } from "formik";
+import { useFormik } from 'formik';
 
-import { useCreateRequestMutation } from "../services/request";
-import { useGetBuildingsQuery } from "../services/building";
-import { useGetFloorsQuery } from "../services/floor";
-import { useGetAnnouncementDetailQuery } from "../services/announcement";
-import { ApiErrorResponse, isApiError, isReduxError } from "../services/error";
+import { useCreateRequestMutation } from '../services/request';
+import { useGetBuildingsQuery } from '../services/building';
+import { useGetFloorsQuery } from '../services/floor';
+import { useGetAnnouncementDetailQuery } from '../services/announcement';
+import { ApiErrorResponse, isApiError, isReduxError } from '../services/error';
 
-import { ActionCreateRequest } from "../types/store";
+import { ActionCreateRequest } from '../types/store';
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -38,11 +38,11 @@ const validationSchema = yup.object({
 const ChangeDeviceRequest = (props: Props) => {
   const { setOpen } = props;
   const [createRequest, { error }] = useCreateRequestMutation();
-  const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [currentBuildingId, setCurrentBuildingId] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [descriptionConfirmation, setDescriptionConfirmation] = useState(false);
 
-  const { announcementId = "" } = useParams();
+  const { announcementId = '' } = useParams();
 
   const { data: buildings, isLoading: isBuildingLoading } =
     useGetBuildingsQuery(null);
@@ -53,7 +53,7 @@ const ChangeDeviceRequest = (props: Props) => {
     useGetAnnouncementDetailQuery(
       { announcementId },
       {
-        skip: announcementId === "",
+        skip: announcementId === '',
       }
     );
 
@@ -62,14 +62,14 @@ const ChangeDeviceRequest = (props: Props) => {
 
   const formik = useFormik<ActionCreateRequest>({
     initialValues: {
-      action: "change_devices",
+      action: 'change_devices',
       extendedEndDate: null,
       announcementId: parseInt(announcementId, 10),
-      description: "",
+      description: '',
       newDeviceIds: [],
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       try {
         await createRequest(values).unwrap();
         setOpen(false);
@@ -77,11 +77,11 @@ const ChangeDeviceRequest = (props: Props) => {
         if (isReduxError(err) && isApiError(err.data)) {
           const { errorCode, messages } = err.data;
           const [message] = messages;
-          if (errorCode === "DEVICE_NOT_FOUND") {
+          if (errorCode === 'DEVICE_NOT_FOUND') {
             setErrorMessage(message);
-          } else if (errorCode === "FLOOR_NOT_FOUND") {
+          } else if (errorCode === 'FLOOR_NOT_FOUND') {
             setErrorMessage(message);
-          } else if (errorCode === "DEVICE_ALREADY_EXISTS") {
+          } else if (errorCode === 'DEVICE_ALREADY_EXISTS') {
             setErrorMessage(message);
           }
         }
@@ -92,7 +92,7 @@ const ChangeDeviceRequest = (props: Props) => {
   const handleSelectDevice = useCallback(
     (selectedDeviceId: number) => {
       const selectedDeviceIndex = formik.values.newDeviceIds.findIndex(
-        (deviceId) => deviceId === selectedDeviceId
+        deviceId => deviceId === selectedDeviceId
       );
 
       let updatedDevices = cloneDeep(formik.values.newDeviceIds);
@@ -103,13 +103,13 @@ const ChangeDeviceRequest = (props: Props) => {
         updatedDevices.push(selectedDeviceId);
       }
 
-      formik.setFieldValue("newDeviceIds", updatedDevices);
+      formik.setFieldValue('newDeviceIds', updatedDevices);
     },
     [formik.values, formik.setFieldValue]
   );
 
   const handleNextStep = () => {
-    formik.setFieldTouched("newDeviceIds", true);
+    formik.setFieldTouched('newDeviceIds', true);
     if (
       formik.values.newDeviceIds.length !== 0 &&
       !Boolean(formik.errors.newDeviceIds)
@@ -121,14 +121,14 @@ const ChangeDeviceRequest = (props: Props) => {
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
-    if (error && "data" in error) {
+    if (error && 'data' in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
   }, [error]);
@@ -159,8 +159,8 @@ const ChangeDeviceRequest = (props: Props) => {
                   id="description"
                   variant="standard"
                   autoComplete="off"
-                  onChange={(e) =>
-                    formik.setFieldValue("description", e.target.value)
+                  onChange={e =>
+                    formik.setFieldValue('description', e.target.value)
                   }
                   error={
                     formik.touched.description &&
@@ -183,20 +183,20 @@ const ChangeDeviceRequest = (props: Props) => {
             <Box>
               <Box
                 sx={{
-                  display: "flex",
-                  border: "1px solid #c4c4c4",
+                  display: 'flex',
+                  border: '1px solid #c4c4c4',
                   marginBottom: 2,
                 }}
               >
                 <Box
                   sx={{
                     padding: 1,
-                    display: "flex",
-                    flexDirection: "column",
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
                 >
                   {buildings &&
-                    buildings.map((building) => (
+                    buildings.map(building => (
                       <Button
                         key={building.id}
                         onClick={() =>
@@ -204,13 +204,13 @@ const ChangeDeviceRequest = (props: Props) => {
                         }
                         variant={
                           currentBuildingId === building.id.toString()
-                            ? "contained"
-                            : "text"
+                            ? 'contained'
+                            : 'text'
                         }
                         color={
                           currentBuildingId === building.id.toString()
-                            ? "secondary"
-                            : "inactive"
+                            ? 'secondary'
+                            : 'inactive'
                         }
                         sx={{ marginBottom: 1 }}
                       >
@@ -218,7 +218,7 @@ const ChangeDeviceRequest = (props: Props) => {
                       </Button>
                     ))}
                 </Box>
-                <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
+                <Box sx={{ borderLeft: '1px solid #c4c4c4' }} />
                 <Box
                   sx={{
                     padding: 3,
@@ -229,15 +229,15 @@ const ChangeDeviceRequest = (props: Props) => {
                     {floors &&
                       floors?.contents
                         .filter(
-                          (floor) =>
+                          floor =>
                             currentBuildingId === floor.building.id.toString()
                         )
-                        .map((floor) => (
+                        .map(floor => (
                           <Box
                             key={floor.id}
                             display="flex"
                             sx={{
-                              border: "1px solid #c4c4c4",
+                              border: '1px solid #c4c4c4',
                               marginBottom: 1,
                             }}
                             alignItems="center"
@@ -252,8 +252,8 @@ const ChangeDeviceRequest = (props: Props) => {
                             >
                               {floor.name}
                             </Box>
-                            <Box sx={{ width: "100%" }}>
-                              {floor.devices.map((device) => (
+                            <Box sx={{ width: '100%' }}>
+                              {floor.devices.map(device => (
                                 <Tooltip
                                   key={device.id}
                                   title={device.description}
@@ -267,15 +267,15 @@ const ChangeDeviceRequest = (props: Props) => {
                                       formik.values.newDeviceIds.includes(
                                         device.id
                                       )
-                                        ? "contained"
-                                        : "outlined"
+                                        ? 'contained'
+                                        : 'outlined'
                                     }
                                     color={
                                       formik.values.newDeviceIds.includes(
                                         device.id
                                       )
-                                        ? "secondary"
-                                        : "inactive"
+                                        ? 'secondary'
+                                        : 'inactive'
                                     }
                                     sx={{ margin: 1, width: 140 }}
                                   >
@@ -308,7 +308,7 @@ const ChangeDeviceRequest = (props: Props) => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage("")}
+            onClose={() => setErrorMessage('')}
             message={errorMessage}
             action={
               <>

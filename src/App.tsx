@@ -1,28 +1,28 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
-import ListAnnouncementPage from "./pages/ListAnnouncementPage";
-import DevicePage from "./pages/DevicePage";
-import ListFloorPage from "./pages/ListFloorPage";
-import DeviceDetailPage from "./pages/DeviceDetailPage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import CreateAnnouncementPage from "./pages/CreateAnnouncementPage";
-import AnnouncementDetailPage from "./pages/AnnouncementDetailPage";
-import ListUsersPage from "./pages/ListUsersPage";
-import RequestsPage from "./pages/RequestsPage";
-import SendLinkVerificationPage from "./pages/SendLinkVerificationPage";
-import VerificationCallbackPage from "./pages/VerificationCallbackPage";
-import WaitingApprovalPage from "./pages/WaitingApprovalPage";
-import UserProfilePage from "./pages/UserProfilePage";
-import Layout from "./components/Layout";
+import ListAnnouncementPage from './pages/ListAnnouncementPage';
+import DevicePage from './pages/DevicePage';
+import ListFloorPage from './pages/ListFloorPage';
+import DeviceDetailPage from './pages/DeviceDetailPage';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import CreateAnnouncementPage from './pages/CreateAnnouncementPage';
+import AnnouncementDetailPage from './pages/AnnouncementDetailPage';
+import ListUsersPage from './pages/ListUsersPage';
+import RequestsPage from './pages/RequestsPage';
+import SendLinkVerificationPage from './pages/SendLinkVerificationPage';
+import VerificationCallbackPage from './pages/VerificationCallbackPage';
+import WaitingApprovalPage from './pages/WaitingApprovalPage';
+import UserProfilePage from './pages/UserProfilePage';
+import Layout from './components/Layout';
 
-import { setProfile } from "./store/profile";
-import { ApiErrorResponse } from "./services/error";
+import { setProfile } from './store/profile';
+import { ApiErrorResponse } from './services/error';
 
-import { authApi } from "./services/auth";
-import { AppDispatch, RootState } from "./store";
+import { authApi } from './services/auth';
+import { AppDispatch, RootState } from './store';
 
 function App() {
   const isAuthenticated = useSelector(
@@ -32,13 +32,13 @@ function App() {
   const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [, setErrorMessage] = useState("");
+  const [, setErrorMessage] = useState('');
 
   const handleMe = useCallback(async () => {
     setIsLoading(true);
 
-    const response = await dispatch(authApi.endpoints.me.initiate(""));
-    if ("data" in response) {
+    const response = await dispatch(authApi.endpoints.me.initiate(''));
+    if ('data' in response) {
       dispatch(
         setProfile({
           id: response.data.id,
@@ -52,9 +52,9 @@ function App() {
       );
     } else {
       setErrorMessage(
-        response.error && "data" in response.error
+        response.error && 'data' in response.error
           ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
+          : 'Network Error'
       );
     }
     setIsLoading(false);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 import {
   Box,
@@ -9,13 +9,13 @@ import {
   Tab,
   Tabs,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 
-import CreateBuilding from "../components/CreateBuilding";
-import UpdateBuilding from "../components/UpdateBuilding";
-import DeleteBuilding from "../components/DeleteBuilding";
+import CreateBuilding from '../components/CreateBuilding';
+import UpdateBuilding from '../components/UpdateBuilding';
+import DeleteBuilding from '../components/DeleteBuilding';
 
-import usePermission from "../hooks/usePermission";
+import usePermission from '../hooks/usePermission';
 
 type TabPanelProps = {
   children?: React.ReactNode;
@@ -46,7 +46,7 @@ const TabPanel = (props: TabPanelProps) => {
 const a11yProps = (index: number) => {
   return {
     id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
   };
 };
 
@@ -60,9 +60,9 @@ const BuildingModal = (props: Props) => {
   const { open, setOpen, setSuccessMessage } = props;
   const [value, setValue] = useState(0);
 
-  const hasPermissionCreateBuilding = usePermission("create_building");
-  const hasPermissionUpdateBuilding = usePermission("update_building");
-  const hasPermissionDeleteBuilding = usePermission("delete_building");
+  const hasPermissionCreateBuilding = usePermission('create_building');
+  const hasPermissionUpdateBuilding = usePermission('update_building');
+  const hasPermissionDeleteBuilding = usePermission('delete_building');
 
   const hasPermission =
     hasPermissionCreateBuilding &&
@@ -104,7 +104,7 @@ const BuildingModal = (props: Props) => {
             ) : null}
             {hasPermissionUpdateBuilding ? (
               <TabPanel value={value} index={1}>
-               <UpdateBuilding
+                <UpdateBuilding
                   setOpen={setOpen}
                   setSuccessMessage={setSuccessMessage}
                 />
@@ -112,9 +112,7 @@ const BuildingModal = (props: Props) => {
             ) : null}
             {hasPermissionDeleteBuilding ? (
               <TabPanel value={value} index={2}>
-                <DeleteBuilding
-                  setSuccessMessage={setSuccessMessage}
-                />
+                <DeleteBuilding setSuccessMessage={setSuccessMessage} />
               </TabPanel>
             ) : null}
             <Box sx={{ marginTop: 1 }}>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
-import dayjs from "dayjs";
-import mpegts from "mpegts.js";
-import useWebSocket from "react-use-websocket";
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
+import mpegts from 'mpegts.js';
+import useWebSocket from 'react-use-websocket';
 
 import {
   Box,
@@ -12,57 +12,57 @@ import {
   DialogContent,
   DialogTitle,
   Snackbar,
-} from "@mui/material";
+} from '@mui/material';
 
 import {
   Edit as EditIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
 import {
   useGetDeviceDetailQuery,
   useLazyGetLivestreamDeviceQuery,
-} from "../services/device";
-import { useLazyGetAnnouncementsQuery } from "../services/announcement";
+} from '../services/device';
+import { useLazyGetAnnouncementsQuery } from '../services/announcement';
 
-import UpdateDeviceModal from "../components/UpdateDeviceModal";
-import DeleteDeviceModal from "../components/DeleteDeviceModal";
-import AnnouncementOnDeviceDetail from "../components/AnnouncementOnDeviceDetail";
+import UpdateDeviceModal from '../components/UpdateDeviceModal';
+import DeleteDeviceModal from '../components/DeleteDeviceModal';
+import AnnouncementOnDeviceDetail from '../components/AnnouncementOnDeviceDetail';
 
-import { usePermission } from "../hooks";
-import config from "../config";
-import DeviceStatus, { DeviceState } from "../components/DeviceStatus";
+import { usePermission } from '../hooks';
+import config from '../config';
+import DeviceStatus, { DeviceState } from '../components/DeviceStatus';
 import RealtimeChart, {
   realtimeChartDateFormat,
-} from "../components/RealtimeChart";
-import MaximumChart from "../components/MaximumChart";
-import AverageChart from "../components/AverageChart";
+} from '../components/RealtimeChart';
+import MaximumChart from '../components/MaximumChart';
+import AverageChart from '../components/AverageChart';
 
 const toDate = (dateStr: string | undefined) =>
-  dayjs(dateStr).format("DD MMM YYYY h:mm A");
+  dayjs(dateStr).format('DD MMM YYYY h:mm A');
 
 const now = new Date();
 
 const DeviceDetailPage = () => {
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const { deviceId = "" } = useParams();
-  const hasUpdateDevicePermission = usePermission("update_device");
-  const hasDeleteDevicePermission = usePermission("delete_device");
+  const { deviceId = '' } = useParams();
+  const hasUpdateDevicePermission = usePermission('update_device');
+  const hasDeleteDevicePermission = usePermission('delete_device');
   const hasViewAnnouncementListPermission = usePermission(
-    "view_list_announcement"
+    'view_list_announcement'
   );
 
-  const [avgChartInterval, setAvgChartInterval] = useState("minute");
-  const [avgChartRange, setAvgChartRange] = useState("hour");
+  const [avgChartInterval, setAvgChartInterval] = useState('minute');
+  const [avgChartRange, setAvgChartRange] = useState('hour');
 
   const { data: devices, isLoading: isDeviceDetailLoading } =
     useGetDeviceDetailQuery(
       { deviceId },
       {
-        skip: deviceId === "",
+        skip: deviceId === '',
       }
     );
 
@@ -86,14 +86,14 @@ const DeviceDetailPage = () => {
       devices.cameraEnabled &&
       mpegts.getFeatureList().mseLivePlayback
     ) {
-      const videoElement = document.getElementById("device-stream");
+      const videoElement = document.getElementById('device-stream');
       if (videoElement === null) {
         return;
       }
 
       const player = mpegts.createPlayer(
         {
-          type: "flv",
+          type: 'flv',
           url: `${config.srsBaseUrl}/live/livestream/${deviceId}.flv`,
           hasAudio: false,
           hasVideo: true,
@@ -113,17 +113,17 @@ const DeviceDetailPage = () => {
   }, [devices, deviceId]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
     if (livestreamMessage !== null) {
       const livestreamData = JSON.parse(livestreamMessage.data);
 
-      setRealtimeChartData((previousData) => {
+      setRealtimeChartData(previousData => {
         let updatedData = previousData;
         if (previousData.length === 60) {
           updatedData = previousData.slice(1);
@@ -247,7 +247,7 @@ const DeviceDetailPage = () => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => setErrorMessage('')}
         message={errorMessage}
         action={
           <IconButton
@@ -299,9 +299,7 @@ const DeviceDetailPage = () => {
               <MaximumChart deviceId={deviceId} />
             </Box>
             <Box>
-              <AverageChart
-                deviceId={deviceId}
-              />
+              <AverageChart deviceId={deviceId} />
             </Box>
           </>
         </Box>

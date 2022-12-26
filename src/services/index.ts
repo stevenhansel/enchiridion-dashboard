@@ -2,11 +2,10 @@ import { authApi } from './auth';
 import { rolesApi } from './roles';
 import { floorApi } from './floor';
 import { buildingApi } from './building';
-import { announcementApi } from './announcement'
+import { announcementApi } from './announcement';
 import { requestApi } from './request';
 import { deviceApi } from './device';
 import { userApi } from './user';
-
 
 export const apiReducers = {
   [authApi.reducerPath]: authApi.reducer,
@@ -17,7 +16,7 @@ export const apiReducers = {
   [requestApi.reducerPath]: requestApi.reducer,
   [deviceApi.reducerPath]: deviceApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
-}
+};
 
 export const apiMiddlewares = [
   authApi.middleware,

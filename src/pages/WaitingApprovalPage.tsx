@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
-import { Box, CssBaseline, Typography, CircularProgress } from "@mui/material";
+import { Box, CssBaseline, Typography, CircularProgress } from '@mui/material';
 
-import backgroundImage from "../assets/jpg/background-auth.jpeg";
-import { RootState } from "../store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import { RootState } from '../store';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const WaitingApprovalPage = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const WaitingApprovalPage = () => {
   useEffect(() => {
     if (profile) {
       const { userStatus } = profile;
-      if (userStatus.value !== "waiting_for_approval") {
-        navigate("/");
+      if (userStatus.value !== 'waiting_for_approval') {
+        navigate('/');
       }
     }
   }, [navigate, profile]);
@@ -27,28 +27,28 @@ const WaitingApprovalPage = () => {
       <Box
         style={{
           backgroundImage: `url(${backgroundImage})`,
-          backgroundRepeat: "repeat-x",
-          height: "100vh",
-          width: "100ww",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundRepeat: 'repeat-x',
+          height: '100vh',
+          width: '100ww',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            bottom: "50%",
-            right: "50%",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            bottom: '50%',
+            right: '50%',
           }}
         >
           <Box
             sx={{
-              bgcolor: "white",
+              bgcolor: 'white',
               boxShadow: 1,
               borderRadius: 1,
               p: 2,

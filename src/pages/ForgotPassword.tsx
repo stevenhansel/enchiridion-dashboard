@@ -1,18 +1,18 @@
-import * as React from "react";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
+import * as React from 'react';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
 
-import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 const validationSchema = yup.object({
-  email: yup.string().email("Enter your Email").required("Email is required"),
+  email: yup.string().email('Enter your Email').required('Email is required'),
 });
 
 const ForgotPassword = () => {
@@ -20,11 +20,11 @@ const ForgotPassword = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: "",
+      email: '',
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      navigate("/reset_password");
+    onSubmit: values => {
+      navigate('/reset_password');
     },
   });
 
@@ -34,29 +34,29 @@ const ForgotPassword = () => {
       <Box
         style={{
           backgroundImage: `url(${backgroundImage})`,
-          backgroundRepeat: "repeat-x",
-          height: "100vh",
-          width: "100ww",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundRepeat: 'repeat-x',
+          height: '100vh',
+          width: '100ww',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            bottom: "50%",
-            right: "50%",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            bottom: '50%',
+            right: '50%',
           }}
         >
           <form onSubmit={formik.handleSubmit}>
             <Box
               sx={{
-                bgcolor: "white",
+                bgcolor: 'white',
                 boxShadow: 1,
                 borderRadius: 1,
                 p: 2,
@@ -77,9 +77,7 @@ const ForgotPassword = () => {
                   name="email"
                   variant="standard"
                   fullWidth
-                  onChange={(e) =>
-                    formik.setFieldValue("email", e.target.value)
-                  }
+                  onChange={e => formik.setFieldValue('email', e.target.value)}
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                 />

@@ -1,16 +1,16 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from '@reduxjs/toolkit/query/react';
 
-import axios from "../utils/axiosInstance";
+import axios from '../utils/axiosInstance';
 
-import { User, Pagination, Action } from "../types/store";
+import { User, Pagination, Action } from '../types/store';
 
-import { urlBuilder } from "../utils";
+import { urlBuilder } from '../utils';
 
 export const userApi = createApi({
-  reducerPath: "userApi",
+  reducerPath: 'userApi',
   baseQuery: axios(),
-  tagTypes: ["User"],
-  endpoints: (builders) => ({
+  tagTypes: ['User'],
+  endpoints: builders => ({
     getUsers: builders.query<
       Pagination<User>,
       {
@@ -18,14 +18,14 @@ export const userApi = createApi({
         limit?: number;
         query?: string | null;
         status?: string | null;
-        role?: string | null; 
+        role?: string | null;
       } | null
     >({
-      query: (params) => ({
-        url: urlBuilder("v1/users", params),
+      query: params => ({
+        url: urlBuilder('v1/users', params),
       }),
-      providesTags: () => ["User"],
-      transformResponse: (response) => ({
+      providesTags: () => ['User'],
+      transformResponse: response => ({
         hasNext: response.hasNext,
         count: response.count,
         totalPages: response.totalPages,
@@ -38,10 +38,10 @@ export const userApi = createApi({
     >({
       query: ({ userId, userStatus }) => ({
         url: `v1/users/${userId}/approval`,
-        method: "PUT",
-        data: { action: userStatus ? "approve" : "reject" },
+        method: 'PUT',
+        data: { action: userStatus ? 'approve' : 'reject' },
       }),
-      invalidatesTags: () => ["User"],
+      invalidatesTags: () => ['User'],
     }),
   }),
 });

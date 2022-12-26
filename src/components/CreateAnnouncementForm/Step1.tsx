@@ -1,21 +1,21 @@
-import React, { useCallback, useContext, useEffect } from "react";
-import { useFormikContext } from "formik";
-import dayjs from "dayjs";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import React, { useCallback, useContext, useEffect } from 'react';
+import { useFormikContext } from 'formik';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
-import { Box, Button, TextField, Typography } from "@mui/material";
-import { red } from "@mui/material/colors";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { Box, Button, TextField, Typography } from '@mui/material';
+import { red } from '@mui/material/colors';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 
-import { CreateAnnouncementFormContext } from "./context";
-import { CreateAnnouncementFormValues } from "./form";
-import { validateFormikFields } from "./util";
+import { CreateAnnouncementFormContext } from './context';
+import { CreateAnnouncementFormValues } from './form';
+import { validateFormikFields } from './util';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 
-const fields = ["title", "media", "startDate", "endDate", "notes"];
+const fields = ['title', 'media', 'startDate', 'endDate', 'notes'];
 
 const Step1 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
@@ -28,53 +28,53 @@ const Step1 = () => {
       try {
         const files = event.currentTarget.files;
         if (files === null) {
-          throw new Error("Something went wrong when reading the image");
+          throw new Error('Something went wrong when reading the image');
         }
         const file = files.item(0);
         if (file === null) {
-          throw new Error("Something went wrong when reading the image");
+          throw new Error('Something went wrong when reading the image');
         }
 
         const reader = new FileReader();
 
-        reader.onload = (e) => {
-          if (file.type === "video/mp4") {
+        reader.onload = e => {
+          if (file.type === 'video/mp4') {
             if (!e.target || (e.target && !e.target.result))
-              throw new Error("Something went wrong when reading the video");
-            const video = document.createElement("video");
+              throw new Error('Something went wrong when reading the video');
+            const video = document.createElement('video');
             video.onloadedmetadata = () => {
-              setFieldValue("media", {
+              setFieldValue('media', {
                 file,
                 image: null,
                 video,
                 duration: video.duration * 1000,
-                type: "video",
+                type: 'video',
               });
             };
             video.onerror = () => {
-              throw new Error("Something went wrong when reading the video");
+              throw new Error('Something went wrong when reading the video');
             };
             video.src = e.target?.result as string;
-          } else if (file.type === "image/jpeg" || file.type === "image/jpg") {
+          } else if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
             if (!e.target || (e.target && !e.target.result))
-              throw new Error("Something went wrong when reading the image");
+              throw new Error('Something went wrong when reading the image');
             const image = new Image();
             image.onload = () => {
-              setFieldValue("media", {
+              setFieldValue('media', {
                 file,
                 image,
                 video: null,
                 duration: null,
-                type: "image",
+                type: 'image',
               });
             };
             image.onerror = () => {
-              throw new Error("Something went wrong when reading the image");
+              throw new Error('Something went wrong when reading the image');
             };
             image.src = e.target?.result as string;
           }
           reader.onerror = () => {
-            throw new Error("Something went wrong when reading the file");
+            throw new Error('Something went wrong when reading the file');
           };
         };
 
@@ -94,7 +94,7 @@ const Step1 = () => {
   }, [formik, handleNextStep]);
 
   useEffect(() => {
-    fields.forEach((field) => validateField(field));
+    fields.forEach(field => validateField(field));
   }, []);
 
   return (
@@ -103,7 +103,7 @@ const Step1 = () => {
       justifyContent="center"
       alignItems="center"
       flexDirection="column"
-      sx={{ width: "100%" }}
+      sx={{ width: '100%' }}
     >
       <Box sx={{ marginBottom: 2, width: 500 }}>
         <Typography>Title Announcement</Typography>
@@ -113,7 +113,7 @@ const Step1 = () => {
           name="title"
           variant="outlined"
           value={values.title}
-          onChange={(e) => setFieldValue("title", e.target.value)}
+          onChange={e => setFieldValue('title', e.target.value)}
           error={touched.title && Boolean(errors.title)}
         />
         {touched.title && errors.title ? (
@@ -127,14 +127,14 @@ const Step1 = () => {
         <Button
           variant="contained"
           component="label"
-          color={touched.media && errors.media ? "error" : "primary"}
+          color={touched.media && errors.media ? 'error' : 'primary'}
         >
           Upload
           <input
             type="file"
             hidden
             accept=".jpg,.jpeg,.mp4"
-            onChange={(e) => handleUploadImage(e)}
+            onChange={e => handleUploadImage(e)}
           />
         </Button>
 
@@ -161,18 +161,18 @@ const Step1 = () => {
           label="Start Date Announcement"
           inputFormat="MM/dd/yyyy"
           value={values.startDate}
-          onChange={(newStartDate) => {
+          onChange={newStartDate => {
             let newEndDate = values.endDate;
             if (newStartDate && dayjs(newStartDate).isSameOrAfter(newEndDate)) {
-              newEndDate = dayjs(newStartDate).add(1, "day").toDate();
+              newEndDate = dayjs(newStartDate).add(1, 'day').toDate();
             }
 
-            setFieldValue("startDate", newStartDate);
-            setFieldValue("endDate", newEndDate);
+            setFieldValue('startDate', newStartDate);
+            setFieldValue('endDate', newEndDate);
           }}
-          renderInput={(params) => <TextField {...params} />}
-          shouldDisableDate={(date) =>
-            dayjs(date).isBefore(dayjs().subtract(1, "day"))
+          renderInput={params => <TextField {...params} />}
+          shouldDisableDate={date =>
+            dayjs(date).isBefore(dayjs().subtract(1, 'day'))
           }
         />
       </Box>
@@ -187,9 +187,9 @@ const Step1 = () => {
           label="End Date Announcement"
           inputFormat="MM/dd/yyyy"
           value={values.endDate}
-          onChange={(newDate) => setFieldValue("endDate", newDate)}
-          renderInput={(params) => <TextField {...params} />}
-          shouldDisableDate={(date) =>
+          onChange={newDate => setFieldValue('endDate', newDate)}
+          renderInput={params => <TextField {...params} />}
+          shouldDisableDate={date =>
             dayjs(date).isSameOrBefore(values.startDate || dayjs())
           }
         />
@@ -209,7 +209,7 @@ const Step1 = () => {
           name="notes"
           variant="outlined"
           value={values.notes}
-          onChange={(e) => setFieldValue("notes", e.target.value)}
+          onChange={e => setFieldValue('notes', e.target.value)}
           error={touched.notes && Boolean(errors.notes)}
         />
         {touched.notes && errors.notes ? (

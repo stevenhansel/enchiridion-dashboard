@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from 'react';
 
 import {
   Box,
@@ -8,10 +8,10 @@ import {
   DialogContent,
   Tab,
   Tabs,
-} from "@mui/material";
+} from '@mui/material';
 
-import ExtendDate from "../components/ExtendDate";
-import ChangeDeviceRequest from "../components/ChangeDeviceRequest";
+import ExtendDate from '../components/ExtendDate';
+import ChangeDeviceRequest from '../components/ChangeDeviceRequest';
 
 type Props = {
   open: boolean;
@@ -48,12 +48,12 @@ const TabPanel = (props: TabPanelProps) => {
 const a11yProps = (index: number) => {
   return {
     id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
   };
 };
 
 const CreateRequestModal = (props: Props) => {
-  const {date, setOpen, open} = props
+  const { date, setOpen, open } = props;
 
   const [value, setValue] = useState(0);
 
@@ -69,7 +69,7 @@ const CreateRequestModal = (props: Props) => {
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
-        PaperProps={{ sx: { width: "100%", height: "100%" } }}
+        PaperProps={{ sx: { width: '100%', height: '100%' } }}
       >
         <DialogTitle>Create Request</DialogTitle>
         <DialogContent>

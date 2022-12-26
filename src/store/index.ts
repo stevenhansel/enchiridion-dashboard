@@ -13,10 +13,11 @@ const store = configureStore({
     createDevice: createDeviceReducer,
     ...apiReducers,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(...apiMiddlewares),
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware().concat(...apiMiddlewares),
 });
 
-export type RootState = ReturnType<typeof store.getState>
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export default store;

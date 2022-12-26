@@ -1,19 +1,15 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-} from "react";
+import React, { useCallback, useContext, useEffect } from 'react';
 
-import { Box, Button, Typography } from "@mui/material";
-import { useFormikContext } from "formik";
+import { Box, Button, Typography } from '@mui/material';
+import { useFormikContext } from 'formik';
 
-import { CreateAnnouncementFormValues } from "./form";
-import { CreateAnnouncementFormContext } from "./context";
+import { CreateAnnouncementFormValues } from './form';
+import { CreateAnnouncementFormContext } from './context';
 
-import { useGetBuildingsQuery } from "../../services/building";
-import { useLazyGetFloorsQuery } from "../../services/floor";
+import { useGetBuildingsQuery } from '../../services/building';
+import { useLazyGetFloorsQuery } from '../../services/floor';
 
-import { Floor } from "../../types/store";
+import { Floor } from '../../types/store';
 
 const Step4 = () => {
   const { data: buildings } = useGetBuildingsQuery(null);
@@ -28,18 +24,18 @@ const Step4 = () => {
   }, [handlePrevStep]);
 
   const buildingFloorDevices = buildings
-    ? buildings.map((building) => {
+    ? buildings.map(building => {
         let filteredFloors: Floor[] = [];
         if (floors !== undefined) {
           filteredFloors = floors?.contents
-            .map((floor) => ({
+            .map(floor => ({
               ...floor,
-              devices: floor.devices.filter((device) =>
+              devices: floor.devices.filter(device =>
                 values.devices.includes(device.id.toString())
               ),
             }))
             .filter(
-              (floor) =>
+              floor =>
                 building.id === floor.building.id && floor.devices.length > 0
             );
         }
@@ -60,13 +56,13 @@ const Step4 = () => {
       return null;
     }
     if (values.media.image !== null) {
-      return <img src={values.media.image.src} style={{ width: "100%" }} />;
+      return <img src={values.media.image.src} style={{ width: '100%' }} />;
     } else if (values.media.video !== null) {
       return (
         <Box display="flex" justifyContent="center">
           <video
             src={values.media.video.src}
-            style={{ width: "50%" }}
+            style={{ width: '50%' }}
             controls
             autoPlay
             muted
@@ -99,8 +95,8 @@ const Step4 = () => {
           <Box
             sx={{
               marginBottom: 2,
-              display: "flex",
-              justifyContent: "space-between",
+              display: 'flex',
+              justifyContent: 'space-between',
             }}
           >
             <Box>
@@ -125,20 +121,20 @@ const Step4 = () => {
           </Typography>
           <Box>
             {buildingFloorDevices &&
-              buildingFloorDevices.map((building) => (
+              buildingFloorDevices.map(building => (
                 <React.Fragment key={building.id}>
                   {building.floors!.length > 0 ? (
                     <Box>
                       <Typography>{`• ${building.name}`}</Typography>
                       <Box>
-                        {building.floors!.map((floor) => (
+                        {building.floors!.map(floor => (
                           <Box
                             key={`building-${building.id}-floor-${floor.id}`}
                             pl={2}
                           >
                             <Typography>{`• ${floor.name}`}</Typography>
                             <Box>
-                              {floor.devices.map((device) => (
+                              {floor.devices.map(device => (
                                 <Box
                                   key={`building-${building.id}-floor-${floor.id}-device-${device.id}`}
                                   pl={2}

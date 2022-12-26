@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 import {
   Box,
@@ -10,34 +10,33 @@ import {
   Typography,
   Snackbar,
   IconButton,
-} from "@mui/material";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+} from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import {
   FiberManualRecord as FiberManualRecordIcon,
   Close as CloseIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import { useFormik } from "formik";
-import * as yup from "yup";
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 
-import { useCreateBuildingMutation } from "../services/building";
+import { useCreateBuildingMutation } from '../services/building';
 
-import { colorBuilding } from "../types/constants";
-import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
+import { colorBuilding } from '../types/constants';
+import { isApiError, isReduxError, ApiErrorResponse } from '../services/error';
 
 const validationSchema = yup.object({
   name: yup
     .string()
-    .min(4, "Name should be of minimum 4 characters length")
-    .required("Name of the Building is required"),
-  color: yup.string().required("Please select the color"),
+    .min(4, 'Name should be of minimum 4 characters length')
+    .required('Name of the Building is required'),
+  color: yup.string().required('Please select the color'),
 });
 
 type CreateBuildingType = {
   name: string;
   color: string;
-
 };
 
 type Props = {
@@ -46,26 +45,26 @@ type Props = {
 };
 
 const CreateBuilding = (props: Props) => {
-  const {setOpen, setSuccessMessage} = props;
+  const { setOpen, setSuccessMessage } = props;
   const [addNewBuilding, { error }] = useCreateBuildingMutation();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const formik = useFormik<CreateBuildingType>({
     initialValues: {
-      name: "",
-      color: "",
+      name: '',
+      color: '',
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       try {
         await addNewBuilding(values).unwrap();
         setOpen(false);
-        setSuccessMessage("you have successfully created a building");
+        setSuccessMessage('you have successfully created a building');
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
           const { errorCode, messages } = err.data;
           const [message] = messages;
-          if (errorCode === "BUILDING_NAME_ALREADY_EXISTS") {
+          if (errorCode === 'BUILDING_NAME_ALREADY_EXISTS') {
             setErrorMessage(message);
           }
         }
@@ -74,19 +73,19 @@ const CreateBuilding = (props: Props) => {
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
-    setSuccessMessage("");
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
   const handleChange = (e: SelectChangeEvent) => {
-    formik.setFieldValue("color", e.target.value as string);
+    formik.setFieldValue('color', e.target.value as string);
   };
 
   useEffect(() => {
-    if (error && "data" in error) {
+    if (error && 'data' in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
   }, [error]);
@@ -102,7 +101,7 @@ const CreateBuilding = (props: Props) => {
           fullWidth
           variant="standard"
           sx={{ marginBottom: 2 }}
-          onChange={(e) => formik.setFieldValue("name", e.target.value)}
+          onChange={e => formik.setFieldValue('name', e.target.value)}
           error={formik.touched.name && Boolean(formik.errors.name)}
           helperText={formik.touched.name && formik.errors.name}
         />
@@ -114,7 +113,7 @@ const CreateBuilding = (props: Props) => {
                 sx={{
                   color:
                     formik.touched.color && Boolean(formik.errors.color)
-                      ? "#D32F2F"
+                      ? '#D32F2F'
                       : null,
                 }}
               >
@@ -123,13 +122,13 @@ const CreateBuilding = (props: Props) => {
               <Select
                 labelId="color"
                 id="color"
-                value={formik.values.color !== null ? formik.values.color : ""}
+                value={formik.values.color !== null ? formik.values.color : ''}
                 onChange={handleChange}
                 label="Color"
                 error={formik.touched.color && Boolean(formik.errors.color)}
               >
                 {colorBuilding &&
-                  colorBuilding.map((color) => (
+                  colorBuilding.map(color => (
                     <MenuItem key={color.id} value={color.color}>
                       {color.name}
                       <FiberManualRecordIcon sx={{ color: color.color }} />
@@ -139,10 +138,10 @@ const CreateBuilding = (props: Props) => {
               {formik.touched.color && formik.errors.color ? (
                 <Typography
                   sx={{
-                    fontSize: "12px",
-                    marginTop: "3px",
-                    marginRight: "14px",
-                    color: "#D32F2F",
+                    fontSize: '12px',
+                    marginTop: '3px',
+                    marginRight: '14px',
+                    color: '#D32F2F',
                   }}
                 >
                   Color is required
@@ -150,25 +149,25 @@ const CreateBuilding = (props: Props) => {
               ) : null}
             </FormControl>
           </Box>
-         <Snackbar
-          open={Boolean(errorMessage)}
-          autoHideDuration={6000}
-          onClose={handleClose}
-          message={errorMessage}
-          action={
-            <>
-              <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleClose}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </>
-          }
-        />
-         <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
+          <Snackbar
+            open={Boolean(errorMessage)}
+            autoHideDuration={6000}
+            onClose={handleClose}
+            message={errorMessage}
+            action={
+              <>
+                <IconButton
+                  size="small"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={handleClose}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </>
+            }
+          />
+          <Button variant="contained" type="submit" sx={{ marginRight: 1 }}>
             OK
           </Button>
         </Box>
@@ -190,7 +189,7 @@ const CreateBuilding = (props: Props) => {
             </>
           }
         />
-     </form>
+      </form>
     </>
   );
 };

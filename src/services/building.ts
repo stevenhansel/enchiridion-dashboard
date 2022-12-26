@@ -1,24 +1,24 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from '@reduxjs/toolkit/query/react';
 
-import axios from "../utils/axiosInstance";
-import { urlBuilder } from "../utils";
+import axios from '../utils/axiosInstance';
+import { urlBuilder } from '../utils';
 
-import { Building, UpdateBuilding } from "../types/store";
+import { Building, UpdateBuilding } from '../types/store';
 
 export const buildingApi = createApi({
-  reducerPath: "buildingApi",
+  reducerPath: 'buildingApi',
   baseQuery: axios(),
-  tagTypes: ["Building"],
-  endpoints: (builders) => ({
+  tagTypes: ['Building'],
+  endpoints: builders => ({
     getBuildings: builders.query<
       Building[],
-      { query?: string; limit?: number; } | null
+      { query?: string; limit?: number } | null
     >({
-      query: (params) => ({
-        url: urlBuilder("/v1/buildings", params),
+      query: params => ({
+        url: urlBuilder('/v1/buildings', params),
       }),
-      providesTags: () => ["Building"],
-      transformResponse: (response) =>
+      providesTags: () => ['Building'],
+      transformResponse: response =>
         response.contents.map((content: Building) => ({
           id: content.id,
           name: content.name,
@@ -27,11 +27,11 @@ export const buildingApi = createApi({
     }),
     createBuilding: builders.mutation({
       query: ({ name, color }) => ({
-        url: "/v1/buildings",
-        method: "POST",
+        url: '/v1/buildings',
+        method: 'POST',
         data: { name, color },
       }),
-      invalidatesTags: () => ["Building"],
+      invalidatesTags: () => ['Building'],
     }),
     updateBuilding: builders.mutation<
       UpdateBuilding,
@@ -39,18 +39,18 @@ export const buildingApi = createApi({
     >({
       query: ({ name, buildingId, color }) => ({
         url: `/v1/buildings/${buildingId}`,
-        method: "PUT",
+        method: 'PUT',
         data: { name, buildingId, color },
       }),
-      invalidatesTags: () => ["Building"],
+      invalidatesTags: () => ['Building'],
     }),
     deleteBuilding: builders.mutation<number, { buildingId: number }>({
       query: ({ buildingId }) => ({
         url: `v1/buildings/${buildingId}`,
-        method: "DELETE",
+        method: 'DELETE',
         data: { buildingId },
       }),
-      invalidatesTags: () => ["Building"],
+      invalidatesTags: () => ['Building'],
     }),
   }),
 });

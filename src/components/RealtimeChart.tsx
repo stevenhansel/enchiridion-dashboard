@@ -1,14 +1,14 @@
-import { Line } from "@nivo/line";
+import { Line } from '@nivo/line';
 
 const commonProperties = {
   width: 900,
   height: 400,
   margin: { top: 80, right: 20, bottom: 60, left: 80 },
   animate: true,
-  enableSlices: "x",
+  enableSlices: 'x',
 };
 
-export const realtimeChartDateFormat = "YYYY-MM-DDTHH:mm:ss";
+export const realtimeChartDateFormat = 'YYYY-MM-DDTHH:mm:ss';
 
 type Props = {
   chartId: string;
@@ -27,16 +27,16 @@ const RealtimeChart = (props: Props) => {
       margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
       data={[{ id: chartId, data: chartData }]}
       xScale={{
-        type: "time",
-        format: "%Y-%m-%dT%H:%M:%S",
-        precision: "second",
+        type: 'time',
+        format: '%Y-%m-%dT%H:%M:%S',
+        precision: 'second',
       }}
-      yScale={{ type: "linear", max: 10 }}
+      yScale={{ type: 'linear', max: 10 }}
       axisBottom={{
-        format: "%S",
-        tickValues: "every 10 seconds",
+        format: '%S',
+        tickValues: 'every 10 seconds',
         legend: ``,
-        legendPosition: "middle",
+        legendPosition: 'middle',
         legendOffset: 46,
       }}
       enablePoints={false}
@@ -48,7 +48,7 @@ const RealtimeChart = (props: Props) => {
       useMesh={true}
       theme={{
         axis: { ticks: { text: { fontSize: 14 } } },
-        grid: { line: { stroke: "#ddd", strokeDasharray: "1 2" } },
+        grid: { line: { stroke: '#ddd', strokeDasharray: '1 2' } },
       }}
     />
   );

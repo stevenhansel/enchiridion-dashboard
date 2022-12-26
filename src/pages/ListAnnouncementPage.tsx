@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
-import debounce from "lodash/debounce";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 
 import {
   Box,
@@ -24,35 +24,35 @@ import {
   FormControl,
   InputLabel,
   Autocomplete,
-} from "@mui/material";
+} from '@mui/material';
 
 import {
   Close as CloseIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import ViewAnnouncementImageModal from "../components/ViewAnnouncementImageModal";
+import ViewAnnouncementImageModal from '../components/ViewAnnouncementImageModal';
 
-import { UserFilterOption } from "../types/store";
+import { UserFilterOption } from '../types/store';
 
-import { ApiErrorResponse } from "../services/error";
-import { useLazyGetUsersQuery } from "../services/user";
-import { useLazyGetAnnouncementsQuery } from "../services/announcement";
+import { ApiErrorResponse } from '../services/error';
+import { useLazyGetUsersQuery } from '../services/user';
+import { useLazyGetAnnouncementsQuery } from '../services/announcement';
 
-import usePermission from "../hooks/usePermission";
+import usePermission from '../hooks/usePermission';
 
-const toDate = (dateStr: string) => dayjs(dateStr).format("ddd, MMM D, YYYY");
+const toDate = (dateStr: string) => dayjs(dateStr).format('ddd, MMM D, YYYY');
 
 const FETCH_LIMIT = 20;
 
 const ListAnnouncementPage = () => {
-  const hasViewAnnouncementDetail = usePermission("view_list_announcement");
-  const hasViewAnnouncementMedia = usePermission("view_announcement_media");
+  const hasViewAnnouncementDetail = usePermission('view_list_announcement');
+  const hasViewAnnouncementMedia = usePermission('view_announcement_media');
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("");
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('');
   const [userFilter, setUserFilter] = useState<UserFilterOption | null>(null);
 
   const [isUserFilterLoading, setIsUserFilterLoading] = useState(false);
@@ -61,9 +61,9 @@ const ListAnnouncementPage = () => {
   >([]);
 
   const [currentAnnouncementId, setCurrentAnnouncementId] =
-    useState<string>("");
+    useState<string>('');
   const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [open, setOpen] = useState(false);
 
   const getAnnouncementsQueryParams = useMemo(
@@ -104,15 +104,15 @@ const ListAnnouncementPage = () => {
     getAnnouncements(getAnnouncementsQueryParams);
   }, [getAnnouncements, getAnnouncementsQueryParams]);
 
-  const hasPermissionCreateAnnouncement = usePermission("create_announcement");
-  const hasPermissionViewUserList = usePermission("view_list_user");
+  const hasPermissionCreateAnnouncement = usePermission('create_announcement');
+  const hasPermissionViewUserList = usePermission('view_list_user');
 
   const getUsersDelayed = useMemo(() => {
     return debounce((query: string) => {
       getUsers({ query, limit: 5 }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
-            ? data.contents.map((u) => ({ id: u.id, name: u.name }))
+            ? data.contents.map(u => ({ id: u.id, name: u.name }))
             : []
         );
         setIsUserFilterLoading(false);
@@ -121,10 +121,10 @@ const ListAnnouncementPage = () => {
   }, [getUsers]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
@@ -135,22 +135,22 @@ const ListAnnouncementPage = () => {
   }, [page, announcements]);
 
   const handlePaginationPreviousPage = useCallback(
-    () => setPage((page) => page - 1),
+    () => setPage(page => page - 1),
     [page]
   );
 
   const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
+    () => setPage(page => page + 1),
     [page]
   );
 
   useEffect(() => {
-    if (isAnnouncementsError && "data" in isAnnouncementsError) {
+    if (isAnnouncementsError && 'data' in isAnnouncementsError) {
       setErrorMessage(
         (isAnnouncementsError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isUsersError && "data" in isUsersError) {
+    if (isUsersError && 'data' in isUsersError) {
       setErrorMessage((isUsersError.data as ApiErrorResponse).messages[0]);
     }
   }, [isAnnouncementsError, isUsersError]);
@@ -164,7 +164,7 @@ const ListAnnouncementPage = () => {
       getUsers({ limit: 5, query: userFilter?.name }).then(({ data }) => {
         setUserFilterOptions(
           data !== undefined
-            ? data.contents.map((u) => ({ id: u.id, name: u.name }))
+            ? data.contents.map(u => ({ id: u.id, name: u.name }))
             : []
         );
       });
@@ -175,9 +175,9 @@ const ListAnnouncementPage = () => {
     <>
       <Box
         sx={{
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
         }}
       >
         {!isLoading ? (
@@ -185,8 +185,8 @@ const ListAnnouncementPage = () => {
             <Box>
               <Box sx={{ marginBottom: 1 }}>
                 <Typography variant="h5" fontWeight="bold">
-                  {" "}
-                  Announcement Page{" "}
+                  {' '}
+                  Announcement Page{' '}
                 </Typography>
               </Box>
               <Box
@@ -200,7 +200,7 @@ const ListAnnouncementPage = () => {
                     size="large"
                     sx={{ marginBottom: 2 }}
                     variant="contained"
-                    onClick={() => navigate("/announcement/create")}
+                    onClick={() => navigate('/announcement/create')}
                   >
                     + Create Announcement
                   </Button>
@@ -214,7 +214,7 @@ const ListAnnouncementPage = () => {
                     variant="outlined"
                     autoComplete="off"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={e => setQuery(e.target.value)}
                     sx={{ width: 220 }}
                   />
                 </Box>
@@ -230,7 +230,7 @@ const ListAnnouncementPage = () => {
                       onClose={() => {
                         setOpen(false);
                       }}
-                      getOptionLabel={(option) => option.name}
+                      getOptionLabel={option => option.name}
                       isOptionEqualToValue={(option, value) =>
                         option.name === value.name
                       }
@@ -242,7 +242,7 @@ const ListAnnouncementPage = () => {
                           </li>
                         );
                       }}
-                      renderInput={(params) => (
+                      renderInput={params => (
                         <TextField
                           {...params}
                           label="Author"
@@ -265,7 +265,7 @@ const ListAnnouncementPage = () => {
                         setUserFilter(inputValue);
                       }}
                       onInputChange={(_, newInputValue, reason) => {
-                        if (reason === "input") {
+                        if (reason === 'input') {
                           setIsUserFilterLoading(true);
                           setUserFilterOptions([]);
                           getUsersDelayed(newInputValue);
@@ -283,27 +283,27 @@ const ListAnnouncementPage = () => {
                     <Select
                       id="announcement-status-select"
                       sx={{ width: 220 }}
-                      value={status !== null ? status : ""}
+                      value={status !== null ? status : ''}
                       label="Status"
                       onChange={(e: SelectChangeEvent) => {
-                        if (e.target.value === "") {
-                          setStatus("");
+                        if (e.target.value === '') {
+                          setStatus('');
                         } else {
                           setStatus(e.target.value);
                         }
                       }}
                     >
                       <MenuItem value="">None</MenuItem>
-                      <MenuItem value={"waiting_for_approval"}>
+                      <MenuItem value={'waiting_for_approval'}>
                         Waiting for Approval
                       </MenuItem>
-                      <MenuItem value={"waiting_for_sync"}>
+                      <MenuItem value={'waiting_for_sync'}>
                         Waiting for Sync
                       </MenuItem>
-                      <MenuItem value={"active"}>Active</MenuItem>
-                      <MenuItem value={"done"}>Done</MenuItem>
-                      <MenuItem value={"rejected"}>Rejected</MenuItem>
-                      <MenuItem value={"canceled"}>Canceled</MenuItem>
+                      <MenuItem value={'active'}>Active</MenuItem>
+                      <MenuItem value={'done'}>Done</MenuItem>
+                      <MenuItem value={'rejected'}>Rejected</MenuItem>
+                      <MenuItem value={'canceled'}>Canceled</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -321,7 +321,7 @@ const ListAnnouncementPage = () => {
             </Box>
             {announcements && announcements.contents.length > 0 ? (
               <>
-                <TableContainer component={Paper} sx={{ width: "100%" }}>
+                <TableContainer component={Paper} sx={{ width: '100%' }}>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                       <TableRow>
@@ -342,11 +342,11 @@ const ListAnnouncementPage = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {announcements?.contents.map((announcement) => (
+                      {announcements?.contents.map(announcement => (
                         <TableRow
                           key={announcement.id}
                           sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
+                            '&:last-child td, &:last-child th': { border: 0 },
                           }}
                         >
                           <TableCell component="th" scope="row">
@@ -439,7 +439,7 @@ const ListAnnouncementPage = () => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => setErrorMessage('')}
         message={errorMessage}
         action={
           <IconButton

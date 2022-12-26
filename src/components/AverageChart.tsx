@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import dayjs from "dayjs";
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import dayjs from 'dayjs';
 
-import { Typography, Button, ButtonGroup } from "@mui/material";
+import { Typography, Button, ButtonGroup } from '@mui/material';
 
-import { useLazyGetLivestreamDeviceQuery } from "../services/device";
+import { useLazyGetLivestreamDeviceQuery } from '../services/device';
 
-import { Line } from "@nivo/line";
-import { ChartInterval } from "../types/constants";
+import { Line } from '@nivo/line';
+import { ChartInterval } from '../types/constants';
 
 const commonProperties = {
   width: 900,
   height: 400,
   margin: { top: 80, right: 20, bottom: 60, left: 80 },
   animate: true,
-  enableSlices: "x",
+  enableSlices: 'x',
 };
 
 type Props = {
@@ -44,21 +44,21 @@ const Chart = (props: ChartData) => {
       margin={{ top: 30, right: 50, bottom: 60, left: 50 }}
       data={[{ id: id, data: data }]}
       xScale={{
-        type: "time",
+        type: 'time',
         format: xScaleFormat,
         // precision: "minute",
         useUTC: false,
       }}
-      yScale={{ type: "linear", max: 10 }}
+      yScale={{ type: 'linear', max: 10 }}
       axisBottom={{
         format: axisBottomFormat,
         tickValues: tickValue,
         legend: axisBottomLegend,
-        legendPosition: "middle",
+        legendPosition: 'middle',
         legendOffset: 46,
       }}
       axisLeft={{
-        legend: "num of faces",
+        legend: 'num of faces',
         legendOffset: 10,
       }}
       xFormat="time:%Y-%m-%d %H:%M:%S"
@@ -75,7 +75,6 @@ const AverageChart = (props: Props) => {
   const [averageChartData, setAverageChartData] = useState<
     { x: string; y: number }[]
   >([]);
-
 
   const [refreshChart, setRefreshChart] = useState(false);
 
@@ -127,20 +126,20 @@ const AverageChart = (props: Props) => {
     let interval: string;
     let range: string;
     if (chartInterval === ChartInterval.Minute) {
-      interval = "minute";
-      range = "hour";
+      interval = 'minute';
+      range = 'hour';
     } else if (chartInterval === ChartInterval.Hour) {
-      interval = "hour";
-      range = "day";
+      interval = 'hour';
+      range = 'day';
     } else {
-      interval = "day";
-      range = "week";
+      interval = 'day';
+      range = 'week';
     }
     getLivestream({
       deviceId,
       interval,
       range,
-      action: "average",
+      action: 'average',
     });
   }, [chartInterval, refreshChart]);
 
@@ -149,14 +148,14 @@ const AverageChart = (props: Props) => {
     let dateFormat: string;
 
     if (chartInterval === ChartInterval.Minute) {
-      dateFormat = "YYYY-MM-DDTHH:mm:ss";
+      dateFormat = 'YYYY-MM-DDTHH:mm:ss';
     } else if (chartInterval === ChartInterval.Hour) {
-      dateFormat = "YYYY-MM-DDTHH:mm:ss";
+      dateFormat = 'YYYY-MM-DDTHH:mm:ss';
     } else {
-      dateFormat = "YYYY-MM-DD";
+      dateFormat = 'YYYY-MM-DD';
     }
 
-    const data = livestreamData.contents.map((data) => ({
+    const data = livestreamData.contents.map(data => ({
       x: dayjs(data.timestamp).format(dateFormat),
       y: data.value,
     }));
@@ -199,7 +198,7 @@ const AverageChart = (props: Props) => {
               size="small"
               onClick={() => setRefreshChart(!refreshChart)}
             >
-             refresh  
+              refresh
             </Button>
           </ButtonGroup>
 

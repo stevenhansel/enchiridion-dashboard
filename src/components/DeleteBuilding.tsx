@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 import {
   Box,
@@ -9,13 +9,13 @@ import {
   CardActions,
   CircularProgress,
   Tooltip,
-} from "@mui/material";
-import { Delete as DeleteIcon, Close as CloseIcon } from "@mui/icons-material";
+} from '@mui/material';
+import { Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
 
-import { useDeleteBuildingMutation } from "../services/building";
-import { useGetBuildingsQuery } from "../services/building";
+import { useDeleteBuildingMutation } from '../services/building';
+import { useGetBuildingsQuery } from '../services/building';
 
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse } from '../services/error';
 
 type Props = {
   setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
@@ -31,31 +31,31 @@ const DeleteBuilding = (props: Props) => {
   const [deleteBuilding, { error: isDeleteBuildingError }] =
     useDeleteBuildingMutation();
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
 
   const handleDelete = (buildingId: number) => {
     deleteBuilding({ buildingId });
-    setSuccessMessage("Delete Building Success");
+    setSuccessMessage('Delete Building Success');
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
-    setSuccessMessage("");
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
   useEffect(() => {
-    if (isDeleteBuildingError && "data" in isDeleteBuildingError) {
+    if (isDeleteBuildingError && 'data' in isDeleteBuildingError) {
       setErrorMessage(
         (isDeleteBuildingError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isGetBuildingsError && "data" in isGetBuildingsError) {
+    if (isGetBuildingsError && 'data' in isGetBuildingsError) {
       setErrorMessage(
         (isGetBuildingsError.data as ApiErrorResponse).messages[0]
       );
@@ -75,7 +75,7 @@ const DeleteBuilding = (props: Props) => {
           {!isGetBuildingsLoading ? (
             <Box>
               {buildings &&
-                buildings.map((building) => (
+                buildings.map(building => (
                   <Card
                     sx={{ backgroundColor: building.color, marginBottom: 1 }}
                     key={building.id}
@@ -105,7 +105,7 @@ const DeleteBuilding = (props: Props) => {
                             >
                               <DeleteIcon
                                 sx={{
-                                  color: "red",
+                                  color: 'red',
                                 }}
                               />
                             </IconButton>
@@ -125,7 +125,7 @@ const DeleteBuilding = (props: Props) => {
                 <Snackbar
                   open={Boolean(errorMessage)}
                   autoHideDuration={6000}
-                  onClose={() => setErrorMessage("")}
+                  onClose={() => setErrorMessage('')}
                   message={errorMessage}
                   action={
                     <>

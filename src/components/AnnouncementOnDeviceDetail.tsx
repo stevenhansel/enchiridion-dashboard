@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -9,20 +9,20 @@ import {
   IconButton,
   Snackbar,
   CircularProgress,
-} from "@mui/material";
+} from '@mui/material';
 
 import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
   Close as CloseIcon,
-} from "@mui/icons-material/";
+} from '@mui/icons-material/';
 
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
-import { statusActions } from "../types/constants";
+import { statusActions } from '../types/constants';
 
-import { useLazyGetAnnouncementsQuery } from "../services/announcement";
-import { ApiErrorResponse } from "../services/error";
+import { useLazyGetAnnouncementsQuery } from '../services/announcement';
+import { ApiErrorResponse } from '../services/error';
 
 type Props = {
   deviceId: string;
@@ -30,8 +30,8 @@ type Props = {
 
 const AnnouncementOnDeviceDetail = (props: Props) => {
   const { deviceId } = props;
-  const [errorMessage, setErrorMessage] = useState("");
-  const [actionType, setActionType] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
+  const [actionType, setActionType] = useState('');
   const [page, setPage] = useState(1);
 
   const [
@@ -51,20 +51,20 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
   }, [page, announcements]);
 
   const handlePaginationPreviousPage = useCallback(
-    () => setPage((page) => page - 1),
+    () => setPage(page => page - 1),
     []
   );
 
   const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
+    () => setPage(page => page + 1),
     []
   );
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
@@ -78,7 +78,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
   }, [getAnnouncements, actionType, deviceId, page]);
 
   useEffect(() => {
-    if (isAnnouncementsError && "data" in isAnnouncementsError) {
+    if (isAnnouncementsError && 'data' in isAnnouncementsError) {
       setErrorMessage(
         (isAnnouncementsError.data as ApiErrorResponse).messages[0]
       );
@@ -91,14 +91,14 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
         Announcement
       </Typography>
       <Box sx={{ marginBottom: 1 }}>
-        <Card sx={{ bgcolor: "#D2E4EF" }}>
+        <Card sx={{ bgcolor: '#D2E4EF' }}>
           <CardActions>
             {statusActions &&
               statusActions.map((action, index) => (
                 <Button
                   key={index}
                   onClick={() => setActionType(action.value)}
-                  variant={actionType === action.value ? "contained" : "text"}
+                  variant={actionType === action.value ? 'contained' : 'text'}
                   sx={{ marginRight: 2 }}
                   value={actionType}
                 >
@@ -117,7 +117,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
             justifyContent="center"
             sx={{ marginRight: 1 }}
           >
-            {announcements.contents.map((announcement) => (
+            {announcements.contents.map(announcement => (
               <Paper
                 key={announcement.id}
                 sx={{ marginRight: 1, width: 395 }}
@@ -125,10 +125,10 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
               >
                 {!isAnnouncementLoading ? (
                   <Box display="flex" justifyContent="center">
-                    {announcement.mediaType === "video" ? (
+                    {announcement.mediaType === 'video' ? (
                       <video
                         src={announcement.media}
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                         autoPlay
                         loop
                         muted
@@ -136,7 +136,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
                     ) : (
                       <img
                         src={announcement.media}
-                        style={{ width: 395, margin: "auto" }}
+                        style={{ width: 395, margin: 'auto' }}
                       />
                     )}
                   </Box>
@@ -161,10 +161,10 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
                   sx={{ marginLeft: 1, marginBottom: 1 }}
                 >
                   <Typography>by&nbsp;{announcement.author.name}</Typography>
-                  <Typography sx={{ marginRight: "10px" }}>
-                    {dayjs(announcement.startDate).format("D MMMM YYYY")}
+                  <Typography sx={{ marginRight: '10px' }}>
+                    {dayjs(announcement.startDate).format('D MMMM YYYY')}
                     &nbsp;-&nbsp;
-                    {dayjs(announcement.endDate).format("D MMMM YYYY")}
+                    {dayjs(announcement.endDate).format('D MMMM YYYY')}
                   </Typography>
                 </Box>
               </Paper>
@@ -199,7 +199,7 @@ const AnnouncementOnDeviceDetail = (props: Props) => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => setErrorMessage('')}
         message={errorMessage}
         action={
           <>

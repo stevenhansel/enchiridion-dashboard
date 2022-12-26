@@ -6,12 +6,12 @@ const urlBuilder = (
 
   const entries = Object.entries(params).filter(([_, value]) => !!value);
   if (Object.keys(params).length > 0) {
-    url += "?";
+    url += '?';
 
     for (let i = 0; i < entries.length; i++) {
       const [key, value] = entries[i];
       if (i !== 0) {
-        url += "&";
+        url += '&';
       }
 
       url += `${key}=${value}`;

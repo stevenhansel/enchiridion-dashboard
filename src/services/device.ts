@@ -1,10 +1,10 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from '@reduxjs/toolkit/query/react';
 
-import axios from "../utils/axiosInstance";
+import axios from '../utils/axiosInstance';
 
-import { DeviceDetail, Device, Pagination, UpdateDevice } from "../types/store";
+import { DeviceDetail, Device, Pagination, UpdateDevice } from '../types/store';
 
-import { urlBuilder } from "../utils";
+import { urlBuilder } from '../utils';
 
 export type Livestream = {
   action: string;
@@ -19,10 +19,10 @@ export type LivestreamContent = {
 };
 
 export const deviceApi = createApi({
-  reducerPath: "deviceApi",
+  reducerPath: 'deviceApi',
   baseQuery: axios(),
-  tagTypes: ["Device"],
-  endpoints: (builders) => ({
+  tagTypes: ['Device'],
+  endpoints: builders => ({
     getDevices: builders.query<
       Pagination<Device>,
       {
@@ -31,9 +31,9 @@ export const deviceApi = createApi({
         query?: string | null;
       } | null
     >({
-      query: (params) => ({ url: urlBuilder("/v1/devices", params) }),
-      providesTags: () => ["Device"],
-      transformResponse: (response) => ({
+      query: params => ({ url: urlBuilder('/v1/devices', params) }),
+      providesTags: () => ['Device'],
+      transformResponse: response => ({
         hasNext: response.hasNext,
         count: response.count,
         totalPages: response.totalPages,
@@ -51,32 +51,32 @@ export const deviceApi = createApi({
     >({
       query: ({ name, description, deviceId, floorId }) => ({
         url: `v1/devices/${deviceId}`,
-        method: "PUT",
+        method: 'PUT',
         data: { name, description, floorId, deviceId },
       }),
-      invalidatesTags: () => ["Device"],
+      invalidatesTags: () => ['Device'],
     }),
     getDeviceDetail: builders.query<DeviceDetail, { deviceId: string }>({
       query: ({ deviceId }) => ({
         url: `v1/devices/${deviceId}`,
       }),
-      providesTags: () => ["Device"],
+      providesTags: () => ['Device'],
     }),
     createDevice: builders.mutation({
       query: ({ name, description, floorId }) => ({
-        url: "v1/devices",
-        method: "POST",
+        url: 'v1/devices',
+        method: 'POST',
         data: { name, description, floorId },
       }),
-      invalidatesTags: () => ["Device"],
+      invalidatesTags: () => ['Device'],
     }),
     deleteDevice: builders.mutation({
       query: ({ deviceId }) => ({
         url: `v1/devices/${deviceId}`,
-        method: "DELETE",
+        method: 'DELETE',
         data: { deviceId },
       }),
-      invalidatesTags: () => ["Device"],
+      invalidatesTags: () => ['Device'],
     }),
     getLivestreamDevice: builders.query<
       Livestream,
@@ -84,9 +84,9 @@ export const deviceApi = createApi({
     >({
       query: ({ deviceId, action, interval, range }) => ({
         url: `v1/devices/${deviceId}/livestream?action=${action}&interval=${interval}&range=${range}`,
-        method: "GET",
+        method: 'GET',
       }),
-      providesTags: () => ["Device"],
+      providesTags: () => ['Device'],
     }),
   }),
 });

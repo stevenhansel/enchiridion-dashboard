@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Box,
@@ -10,16 +10,16 @@ import {
   Snackbar,
   IconButton,
   Button,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { AppDispatch } from "../store";
-import { setProfile } from "../store/profile";
+import { AppDispatch } from '../store';
+import { setProfile } from '../store/profile';
 
-import { ApiErrorResponse } from "../services/error";
-import { authApi } from "../services/auth";
+import { ApiErrorResponse } from '../services/error';
+import { authApi } from '../services/auth';
 
-import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Props = {
   children?: React.ReactNode;
@@ -28,18 +28,18 @@ type Props = {
 const VerificationCallbackPage = (_: Props) => {
   const dispatch: AppDispatch = useDispatch();
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [searchParams] = useSearchParams();
 
   const handleConfirmEmail = useCallback(async (): Promise<void> => {
     const response = await dispatch(
       authApi.endpoints.confirmEmail.initiate({
-        token: searchParams.get("token"),
+        token: searchParams.get('token'),
       })
     );
 
-    if ("data" in response) {
+    if ('data' in response) {
       dispatch(
         setProfile({
           id: response.data.id,
@@ -53,18 +53,18 @@ const VerificationCallbackPage = (_: Props) => {
       );
     } else {
       setErrorMessage(
-        "data" in response.error
+        'data' in response.error
           ? (response.error.data as ApiErrorResponse).messages[0]
-          : "Network Error"
+          : 'Network Error'
       );
     }
   }, [dispatch]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
@@ -77,28 +77,28 @@ const VerificationCallbackPage = (_: Props) => {
       <Box
         style={{
           backgroundImage: `url(${backgroundImage})`,
-          backgroundRepeat: "repeat-x",
-          height: "100vh",
-          width: "100ww",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundRepeat: 'repeat-x',
+          height: '100vh',
+          width: '100ww',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            bottom: "50%",
-            right: "50%",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            bottom: '50%',
+            right: '50%',
           }}
         >
           <Box
             sx={{
-              bgcolor: "white",
+              bgcolor: 'white',
               boxShadow: 1,
               borderRadius: 1,
               p: 2,
@@ -118,7 +118,7 @@ const VerificationCallbackPage = (_: Props) => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => setErrorMessage('')}
         message={errorMessage}
         action={
           <React.Fragment>

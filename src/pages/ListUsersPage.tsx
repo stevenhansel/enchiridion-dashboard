@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import debounce from "lodash/debounce";
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 
 import {
   CircularProgress,
@@ -21,25 +21,25 @@ import {
   InputLabel,
   FormControl,
   MenuItem,
-} from "@mui/material";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+} from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import {
   Close as CloseIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
 import {
   useLazyGetUsersQuery,
   useApproveRejectUserMutation,
-} from "../services/user";
+} from '../services/user';
 
-import { useLazyGetRolesQuery } from "../services/roles";
+import { useLazyGetRolesQuery } from '../services/roles';
 
-import { ApiErrorResponse } from "../services/error";
+import { ApiErrorResponse } from '../services/error';
 
-import usePermission from "../hooks/usePermission";
+import usePermission from '../hooks/usePermission';
 
 const FETCH_LIMIT = 20;
 
@@ -59,9 +59,9 @@ const ListUsersPage = () => {
   const [approveRejectUser, { error: isApproveRejectUserError }] =
     useApproveRejectUserMutation();
   const [page, setPage] = useState(1);
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [roleFilterOptions, setRoleFilterOptions] = useState<
     RoleFilterOption[]
   >([]);
@@ -70,16 +70,16 @@ const ListUsersPage = () => {
   const [open, setOpen] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const userQueryParams = searchParams.get("userQueryParams");
-  const roleQueryParams = searchParams.get("roleQueryParams");
-  const statusQueryParams = searchParams.get("statusQueryParams");
+  const userQueryParams = searchParams.get('userQueryParams');
+  const roleQueryParams = searchParams.get('roleQueryParams');
+  const statusQueryParams = searchParams.get('statusQueryParams');
 
   const getUsersQueryParams = useMemo(
     () => ({
       page,
       limit: FETCH_LIMIT,
       query,
-      role: roleFilter !== null ? roleFilter.value : "",
+      role: roleFilter !== null ? roleFilter.value : '',
       status,
     }),
     [page, query, roleFilter, status]
@@ -87,12 +87,12 @@ const ListUsersPage = () => {
   const isLoading = isUserLoading && isRoleLoading;
 
   const handleSearch = useCallback(() => {
-    if (query === "" && roleFilter === null && status === "") {
+    if (query === '' && roleFilter === null && status === '') {
       setSearchParams({});
     } else {
       setSearchParams({
         userQueryParams: query,
-        roleQueryParams: roleFilter !== null ? roleFilter.value : "",
+        roleQueryParams: roleFilter !== null ? roleFilter.value : '',
         statusQueryParams: status,
       });
     }
@@ -100,12 +100,12 @@ const ListUsersPage = () => {
   }, [query, status, roleFilter]);
 
   const handlePaginationPreviousPage = useCallback(
-    () => setPage((page) => page - 1),
+    () => setPage(page => page - 1),
     [page]
   );
 
   const handlePaginationNextPage = useCallback(
-    () => setPage((page) => page + 1),
+    () => setPage(page => page + 1),
     [page]
   );
 
@@ -114,7 +114,7 @@ const ListUsersPage = () => {
       getRoles({ query, limit: 5 }).then(({ data }) => {
         setRoleFilterOptions(
           data !== undefined
-            ? data.map((r) => ({
+            ? data.map(r => ({
                 name: r.name,
                 value: r.value,
                 description: r.description,
@@ -131,10 +131,10 @@ const ListUsersPage = () => {
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
@@ -144,7 +144,7 @@ const ListUsersPage = () => {
     return page === users.totalPages;
   }, [page, users]);
 
-  const hasPermissionUpdateUserApproval = usePermission("update_user_approval");
+  const hasPermissionUpdateUserApproval = usePermission('update_user_approval');
 
   useEffect(() => {
     getUsers(getUsersQueryParams);
@@ -155,7 +155,7 @@ const ListUsersPage = () => {
       getRoles({ limit: 5, query: roleFilter?.name }).then(({ data }) => {
         setRoleFilterOptions(
           data !== undefined
-            ? data.map((r) => ({
+            ? data.map(r => ({
                 name: r.name,
                 value: r.value,
                 description: r.description,
@@ -167,15 +167,15 @@ const ListUsersPage = () => {
   }, [getRoles, open]);
 
   useEffect(() => {
-    if (isUserError && "data" in isUserError) {
+    if (isUserError && 'data' in isUserError) {
       setErrorMessage((isUserError.data as ApiErrorResponse).messages[0]);
     }
-    if (isApproveRejectUserError && "data" in isApproveRejectUserError) {
+    if (isApproveRejectUserError && 'data' in isApproveRejectUserError) {
       setErrorMessage(
         (isApproveRejectUserError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isRoleError && "data" in isRoleError) {
+    if (isRoleError && 'data' in isRoleError) {
       setErrorMessage((isRoleError.data as ApiErrorResponse).messages[0]);
     }
   }, [isUserError]);
@@ -203,7 +203,7 @@ const ListUsersPage = () => {
             variant="outlined"
             autoComplete="off"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={e => setQuery(e.target.value)}
             sx={{ marginBottom: 1, marginRight: 1 }}
           />
           <Box>
@@ -217,7 +217,7 @@ const ListUsersPage = () => {
               onClose={() => {
                 setOpen(false);
               }}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={option => option.name}
               isOptionEqualToValue={(option, value) =>
                 option.name === value.name
               }
@@ -226,7 +226,7 @@ const ListUsersPage = () => {
                 setRoleFilterOptions([]);
               }}
               onInputChange={(_, newInputValue, reason) => {
-                if (reason === "input") {
+                if (reason === 'input') {
                   getRoleDelayed(newInputValue);
                   setRoleFilterOptions([]);
                   setIsRoleFilterLoading(true);
@@ -239,7 +239,7 @@ const ListUsersPage = () => {
                   </li>
                 );
               }}
-              renderInput={(params) => (
+              renderInput={params => (
                 <TextField
                   {...params}
                   label="Role"
@@ -272,12 +272,12 @@ const ListUsersPage = () => {
                   setStatus(e.target.value as string);
                 }}
               >
-                <MenuItem value={""}>None</MenuItem>
-                <MenuItem value={"waiting_for_approval"}>
+                <MenuItem value={''}>None</MenuItem>
+                <MenuItem value={'waiting_for_approval'}>
                   Waiting for Approval
                 </MenuItem>
-                <MenuItem value={"approved"}>Approved</MenuItem>
-                <MenuItem value={"rejected"}>Rejected</MenuItem>
+                <MenuItem value={'approved'}>Approved</MenuItem>
+                <MenuItem value={'rejected'}>Rejected</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -296,7 +296,7 @@ const ListUsersPage = () => {
           <CircularProgress />
         ) : users && users.contents.length > 0 ? (
           <>
-            <TableContainer component={Paper} sx={{ width: "100%" }}>
+            <TableContainer component={Paper} sx={{ width: '100%' }}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
@@ -310,11 +310,11 @@ const ListUsersPage = () => {
                 </TableHead>
                 <TableBody>
                   {users &&
-                    users.contents.map((profile) => (
+                    users.contents.map(profile => (
                       <TableRow
                         key={profile.id}
                         sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
+                          '&:last-child td, &:last-child th': { border: 0 },
                         }}
                       >
                         <TableCell align="center" component="th" scope="row">
@@ -329,7 +329,7 @@ const ListUsersPage = () => {
                           {profile.status.label}
                         </TableCell>
                         <TableCell align="center">
-                          {profile.status.value === "approved" &&
+                          {profile.status.value === 'approved' &&
                           hasPermissionUpdateUserApproval ? null : (
                             <>
                               <Button
@@ -389,7 +389,7 @@ const ListUsersPage = () => {
       <Snackbar
         open={Boolean(errorMessage)}
         autoHideDuration={6000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => setErrorMessage('')}
         message={errorMessage}
         action={
           <IconButton

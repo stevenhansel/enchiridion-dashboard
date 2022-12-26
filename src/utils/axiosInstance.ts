@@ -1,10 +1,10 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import config from "../config";
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import config from '../config';
 
 const instance = axios.create({
   baseURL: config.apiBaseUrl,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   withCredentials: true,
 });
@@ -12,21 +12,21 @@ const instance = axios.create({
 let retries = 0;
 
 instance.interceptors.response.use(
-  (res) => res,
-  async (error) => {
+  res => res,
+  async error => {
     const originalRequest = error.config;
 
     // access token expired
     if (error.response.status === 401 && retries > 2) {
       retries += 1;
       return instance
-        .put("/v1/auth/refresh")
-        .then((res) => {
+        .put('/v1/auth/refresh')
+        .then(res => {
           if (res.status === 200) {
             return axios(originalRequest);
           }
         })
-        .catch((refreshTokenErr) => {
+        .catch(refreshTokenErr => {
           // refresh token expired
           if (refreshTokenErr.response.status === 401) {
             // logout

@@ -1,10 +1,10 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography } from '@mui/material';
 
 export enum DeviceState {
-  Connected = "Connected",
-  Disconnected = "Disconnected",
-  Unregistered = "Unregistered",
-  Loading = "Loading",
+  Connected = 'Connected',
+  Disconnected = 'Disconnected',
+  Unregistered = 'Unregistered',
+  Loading = 'Loading',
 }
 
 const stateToColor = (state: DeviceState): string => {
@@ -12,16 +12,16 @@ const stateToColor = (state: DeviceState): string => {
 
   switch (state) {
     case DeviceState.Connected:
-      color = "#328164";
+      color = '#328164';
       break;
     case DeviceState.Disconnected:
-      color = "#A40000";
+      color = '#A40000';
       break;
     case DeviceState.Unregistered:
-      color = "#D3C29C";
+      color = '#D3C29C';
       break;
     case DeviceState.Loading:
-      color = "#9FA9A3";
+      color = '#9FA9A3';
       break;
   }
 
@@ -46,8 +46,8 @@ const DeviceStatus = (props: Props) => {
   return (
     <Box
       style={{
-        display: "flex",
-        alignItems: "center",
+        display: 'flex',
+        alignItems: 'center',
         width: 125,
       }}
     >
@@ -56,7 +56,7 @@ const DeviceStatus = (props: Props) => {
           backgroundColor: stateToColor(state),
           width: 10,
           height: 10,
-          borderRadius: "100%",
+          borderRadius: '100%',
           marginRight: 8,
         }}
       />

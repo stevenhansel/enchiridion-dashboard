@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
-import { Button, Box, Typography } from "@mui/material";
+import React, { useCallback } from 'react';
+import { Button, Box, Typography } from '@mui/material';
 
-import { useDeleteFloorMutation } from "../services/floor";
+import { useDeleteFloorMutation } from '../services/floor';
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,10 +14,13 @@ const DeleteFloorModal = (props: Props) => {
   const { floorId, floorName, buildingName, setOpen } = props;
   const [deleteFloor] = useDeleteFloorMutation();
 
-  const handleDeleteAnnouncement = useCallback((floorId: string) => {
-    deleteFloor({ floorId });
-    setOpen(false);
-  }, [deleteFloor, setOpen]);
+  const handleDeleteAnnouncement = useCallback(
+    (floorId: string) => {
+      deleteFloor({ floorId });
+      setOpen(false);
+    },
+    [deleteFloor, setOpen]
+  );
 
   return (
     <Box>

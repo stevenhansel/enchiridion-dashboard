@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import debounce from "lodash/debounce";
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import debounce from 'lodash/debounce';
 
 import {
   Box,
@@ -14,20 +14,18 @@ import {
   Snackbar,
   IconButton,
   CircularProgress,
-} from "@mui/material";
-import {
-  Close as CloseIcon,
-} from "@mui/icons-material";
+} from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
-import { CreateDevice, UserFilterOption } from "../types/store";
-import { AppDispatch } from "../store";
-import { deviceApi } from "../services/device";
-import { setCreateDevice } from "../store/device";
-import { ApiErrorResponse } from "../services/error";
-import { RootState } from "../store";
+import { CreateDevice, UserFilterOption } from '../types/store';
+import { AppDispatch } from '../store';
+import { deviceApi } from '../services/device';
+import { setCreateDevice } from '../store/device';
+import { ApiErrorResponse } from '../services/error';
+import { RootState } from '../store';
 
-import { useLazyGetBuildingsQuery } from "../services/building";
-import { useLazyGetFloorsQuery } from "../services/floor";
+import { useLazyGetBuildingsQuery } from '../services/building';
+import { useLazyGetFloorsQuery } from '../services/floor';
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -41,15 +39,15 @@ type CreateDeviceType = {
 };
 
 const validationSchema = yup.object({
-  name: yup.string().required("Please give your device a name"),
-  description: yup.string().required("Description is required"),
-  floorId: yup.number().required("Please select the floor"),
+  name: yup.string().required('Please give your device a name'),
+  description: yup.string().required('Description is required'),
+  floorId: yup.number().required('Please select the floor'),
   buildingId: yup.number().required(),
 });
 
 const CreateDeviceModal = (props: Props) => {
-  const [errorMessage, setErrorMessage] = useState("");
-  const [query, setQuery] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
+  const [query, setQuery] = useState('');
   const [openBuildingFilter, setOpenBuildingFilter] = useState(false);
   const [openFloorFilter, setOpenFloorFilter] = useState(false);
   const [buildingFilterOptions, setBuildingFilterOptions] = useState<
@@ -78,7 +76,7 @@ const CreateDeviceModal = (props: Props) => {
       getBuildings({ query, limit: 5 }).then(({ data }) => {
         setBuildingFilterOptions(
           data !== undefined
-            ? data.map((b) => ({
+            ? data.map(b => ({
                 id: b.id,
                 name: b.name,
               }))
@@ -99,7 +97,7 @@ const CreateDeviceModal = (props: Props) => {
       }).then(({ data }) => {
         setFloorFilterOptions(
           data !== undefined
-            ? data.contents.map((f) => ({
+            ? data.contents.map(f => ({
                 id: f.id,
                 name: f.name,
               }))
@@ -120,7 +118,7 @@ const CreateDeviceModal = (props: Props) => {
         })
       );
 
-      if ("data" in response) {
+      if ('data' in response) {
         dispatch(
           setCreateDevice({
             id: response.data.id,
@@ -131,9 +129,9 @@ const CreateDeviceModal = (props: Props) => {
         setState(true);
       } else {
         setErrorMessage(
-          "data" in response.error
+          'data' in response.error
             ? (response.error.data as ApiErrorResponse).messages[0]
-            : "Network Error"
+            : 'Network Error'
         );
         setState(false);
       }
@@ -143,22 +141,22 @@ const CreateDeviceModal = (props: Props) => {
 
   const formik = useFormik<CreateDeviceType>({
     initialValues: {
-      name: "",
-      description: "",
+      name: '',
+      description: '',
       floorId: null,
       buildingId: null,
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       handleCreateDevice(values);
     },
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
@@ -167,7 +165,7 @@ const CreateDeviceModal = (props: Props) => {
         ({ data }) => {
           setBuildingFilterOptions(
             data !== undefined
-              ? data.map((b) => ({
+              ? data.map(b => ({
                   id: b.id,
                   name: b.name,
                 }))
@@ -187,7 +185,7 @@ const CreateDeviceModal = (props: Props) => {
       }).then(({ data }) => {
         setFloorFilterOptions(
           data !== undefined
-            ? data.contents.map((f) => ({
+            ? data.contents.map(f => ({
                 id: f.id,
                 name: f.name,
               }))
@@ -198,12 +196,12 @@ const CreateDeviceModal = (props: Props) => {
   }, [getFloors, openFloorFilter, buildingFilter]);
 
   useEffect(() => {
-    if (isGetBuildingsError && "data" in isGetBuildingsError) {
+    if (isGetBuildingsError && 'data' in isGetBuildingsError) {
       setErrorMessage(
         (isGetBuildingsError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isGetFloorsError && "data" in isGetFloorsError) {
+    if (isGetFloorsError && 'data' in isGetFloorsError) {
       setErrorMessage((isGetFloorsError.data as ApiErrorResponse).messages[0]);
     }
   }, [isGetBuildingsError, isGetFloorsError]);
@@ -249,7 +247,7 @@ const CreateDeviceModal = (props: Props) => {
               id="name"
               variant="standard"
               autoComplete="off"
-              onChange={(e) => formik.setFieldValue("name", e.target.value)}
+              onChange={e => formik.setFieldValue('name', e.target.value)}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
               sx={{ marginRight: 1, marginBottom: 2 }}
@@ -268,17 +266,17 @@ const CreateDeviceModal = (props: Props) => {
                   setOpenBuildingFilter(false);
                 }}
                 loading={isBuildingFilterLoading}
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={option => option.name}
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
                 }
                 onChange={(_, inputValue) => {
                   setBuildingFilterOptions([]);
                   setBuildingFilter(inputValue);
-                  formik.setFieldValue("buildingId", inputValue?.id);
+                  formik.setFieldValue('buildingId', inputValue?.id);
                 }}
                 onInputChange={(_, newInputValue, reason) => {
-                  if (reason === "input") {
+                  if (reason === 'input') {
                     setBuildingFilterOptions([]);
                     setIsBuildingFilterLoading(true);
                     getBuildingDelayed(newInputValue);
@@ -291,7 +289,7 @@ const CreateDeviceModal = (props: Props) => {
                     </li>
                   );
                 }}
-                renderInput={(params) => (
+                renderInput={params => (
                   <TextField
                     {...params}
                     label="Building"
@@ -319,11 +317,11 @@ const CreateDeviceModal = (props: Props) => {
               {formik.touched.buildingId && formik.errors.buildingId ? (
                 <Typography
                   sx={{
-                    fontSize: "12px",
-                    marginTop: "3px",
-                    marginRight: "14px",
-                    marginLeft: "14px",
-                    color: "#D32F2F",
+                    fontSize: '12px',
+                    marginTop: '3px',
+                    marginRight: '14px',
+                    marginLeft: '14px',
+                    color: '#D32F2F',
                     marginBottom: 1,
                   }}
                 >
@@ -343,17 +341,17 @@ const CreateDeviceModal = (props: Props) => {
                 onClose={() => {
                   setOpenFloorFilter(false);
                 }}
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={option => option.name}
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
                 }
                 onChange={(_, inputValue) => {
                   setFloorFilterOptions([]);
                   setFloorFilter(inputValue);
-                  formik.setFieldValue("floorId", inputValue?.id);
+                  formik.setFieldValue('floorId', inputValue?.id);
                 }}
                 onInputChange={(_, newInputValue, reason) => {
-                  if (reason === "input") {
+                  if (reason === 'input') {
                     setFloorFilterOptions([]);
                     setIsFloorFilterLoading(true);
                     getFloorDelayed(newInputValue);
@@ -366,7 +364,7 @@ const CreateDeviceModal = (props: Props) => {
                     </li>
                   );
                 }}
-                renderInput={(params) => (
+                renderInput={params => (
                   <TextField
                     {...params}
                     label="Floor"
@@ -393,11 +391,11 @@ const CreateDeviceModal = (props: Props) => {
               {formik.touched.floorId && formik.errors.floorId ? (
                 <Typography
                   sx={{
-                    fontSize: "12px",
-                    marginTop: "3px",
-                    marginRight: "14px",
-                    marginLeft: "14px",
-                    color: "#D32F2F",
+                    fontSize: '12px',
+                    marginTop: '3px',
+                    marginRight: '14px',
+                    marginLeft: '14px',
+                    color: '#D32F2F',
                     marginBottom: 1,
                   }}
                 >
@@ -412,8 +410,8 @@ const CreateDeviceModal = (props: Props) => {
               id="description"
               variant="standard"
               autoComplete="off"
-              onChange={(e) =>
-                formik.setFieldValue("description", e.target.value)
+              onChange={e =>
+                formik.setFieldValue('description', e.target.value)
               }
               error={
                 formik.touched.description && Boolean(formik.errors.description)
@@ -447,7 +445,7 @@ const CreateDeviceModal = (props: Props) => {
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}
-          onClose={() => setErrorMessage("")}
+          onClose={() => setErrorMessage('')}
           message={errorMessage}
           action={
             <IconButton

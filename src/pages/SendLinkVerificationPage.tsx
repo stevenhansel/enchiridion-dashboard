@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import {
   Box,
@@ -10,15 +10,15 @@ import {
   IconButton,
   CircularProgress,
   Typography,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { authApi } from "../services/auth";
-import { isApiError, isReduxError } from "../services/error";
+import { authApi } from '../services/auth';
+import { isApiError, isReduxError } from '../services/error';
 
-import { AppDispatch } from "../store";
+import { AppDispatch } from '../store';
 
-import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 const SEND_VERIFICATION_RETRY_DELAY_SECONDS = 20;
 
@@ -27,7 +27,7 @@ type Props = {
 };
 
 const SendLinkVerificationPage = (_: Props) => {
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [isPressed, setIsPressed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(
@@ -48,9 +48,9 @@ const SendLinkVerificationPage = (_: Props) => {
       if (isReduxError(err) && isApiError(err.data)) {
         const { errorCode, messages } = err.data;
         const [message] = messages;
-        if (errorCode === "USER_NOT_FOUND") {
+        if (errorCode === 'USER_NOT_FOUND') {
           setErrorMessage(message);
-        } else if (errorCode === "USER_ALREADY_VERIFIED") {
+        } else if (errorCode === 'USER_ALREADY_VERIFIED') {
           setErrorMessage(message);
         }
       }
@@ -59,10 +59,10 @@ const SendLinkVerificationPage = (_: Props) => {
   }, [email]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
@@ -89,29 +89,29 @@ const SendLinkVerificationPage = (_: Props) => {
       <Box
         style={{
           backgroundImage: `url(${backgroundImage})`,
-          backgroundRepeat: "repeat-x",
-          height: "100vh",
-          width: "100ww",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundRepeat: 'repeat-x',
+          height: '100vh',
+          width: '100ww',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            bottom: "50%",
-            right: "50%",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            bottom: '50%',
+            right: '50%',
           }}
         >
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage("")}
+            onClose={() => setErrorMessage('')}
             message={errorMessage}
             action={
               <React.Fragment>
@@ -131,7 +131,7 @@ const SendLinkVerificationPage = (_: Props) => {
           />
           <Box
             sx={{
-              bgcolor: "white",
+              bgcolor: 'white',
               boxShadow: 1,
               borderRadius: 1,
               p: 2,

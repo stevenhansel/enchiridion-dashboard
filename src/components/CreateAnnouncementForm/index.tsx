@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
-import dayjs from "dayjs";
-import { Formik } from "formik";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import React, { useCallback, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
+import { Formik } from 'formik';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Box,
@@ -13,61 +13,61 @@ import {
   Typography,
   Snackbar,
   IconButton,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { AppDispatch } from "../../store";
+import { AppDispatch } from '../../store';
 
-import { ApiErrorResponse } from "../../services/error";
-import { announcementApi } from "../../services/announcement";
+import { ApiErrorResponse } from '../../services/error';
+import { announcementApi } from '../../services/announcement';
 
-import Step1 from "./Step1";
-import Step2 from "./Step2";
-import Step3 from "./Step3";
-import Step4 from "./Step4";
+import Step1 from './Step1';
+import Step2 from './Step2';
+import Step3 from './Step3';
+import Step4 from './Step4';
 
-import { CreateAnnouncementFormContext } from "./context";
+import { CreateAnnouncementFormContext } from './context';
 import {
   initialValues,
   validationSchema,
   CreateAnnouncementFormValues,
-} from "./form";
+} from './form';
 
 const steps = [
-  "Upload file",
-  "Pilih lokasi Building",
-  "Pilih Devices",
-  "Submit",
+  'Upload file',
+  'Pilih lokasi Building',
+  'Pilih Devices',
+  'Submit',
 ];
 const MIN_STEP = 0;
 const MAX_STEP: number = steps.length;
-const dateFormat = "YYYY-MM-DD";
+const dateFormat = 'YYYY-MM-DD';
 
 const CreateAnnouncementForm = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNextStep = useCallback(() => {
     if (activeStep === MAX_STEP) return;
 
-    setActiveStep((p) => p + 1);
+    setActiveStep(p => p + 1);
   }, [activeStep]);
 
   const handlePrevStep = useCallback(() => {
     if (activeStep === MIN_STEP) return;
 
-    setActiveStep((p) => p - 1);
+    setActiveStep(p => p - 1);
   }, [activeStep]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   const handleSubmit = useCallback(
@@ -75,15 +75,15 @@ const CreateAnnouncementForm = () => {
       setIsLoading(true);
 
       const formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("media", values.media!.file);
-      formData.append("media_duration", String(values.media!.duration));
-      formData.append("media_type", values.media!.type);
-      formData.append("startDate", dayjs(values.startDate).format(dateFormat));
-      formData.append("endDate", dayjs(values.endDate).format(dateFormat));
-      formData.append("notes", values.notes);
-      formData.append("buildingId", values.buildingId);
-      formData.append("deviceIds", values.devices.join(","));
+      formData.append('title', values.title);
+      formData.append('media', values.media!.file);
+      formData.append('media_duration', String(values.media!.duration));
+      formData.append('media_type', values.media!.type);
+      formData.append('startDate', dayjs(values.startDate).format(dateFormat));
+      formData.append('endDate', dayjs(values.endDate).format(dateFormat));
+      formData.append('notes', values.notes);
+      formData.append('buildingId', values.buildingId);
+      formData.append('deviceIds', values.devices.join(','));
 
       const response = await dispatch(
         announcementApi.endpoints.createAnnouncement.initiate({
@@ -91,15 +91,15 @@ const CreateAnnouncementForm = () => {
         })
       );
 
-      if ("error" in response) {
+      if ('error' in response) {
         setErrorMessage(
-          response.error && "data" in response.error
+          response.error && 'data' in response.error
             ? (response.error.data as ApiErrorResponse).messages[0]
-            : "Network Error"
+            : 'Network Error'
         );
       }
       setIsLoading(false);
-      navigate("/");
+      navigate('/');
     },
     []
   );
@@ -143,7 +143,7 @@ const CreateAnnouncementForm = () => {
               </Box>
               <Box sx={{ marginBottom: 3 }}>
                 <Stepper activeStep={activeStep} alternativeLabel>
-                  {steps.map((label) => (
+                  {steps.map(label => (
                     <Step key={label}>
                       <StepLabel>{label}</StepLabel>
                     </Step>
@@ -159,7 +159,7 @@ const CreateAnnouncementForm = () => {
               <Snackbar
                 open={Boolean(errorMessage)}
                 autoHideDuration={6000}
-                onClose={() => setErrorMessage("")}
+                onClose={() => setErrorMessage('')}
                 message={errorMessage}
                 action={
                   <IconButton

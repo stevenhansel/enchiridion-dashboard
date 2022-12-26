@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import dayjs from "dayjs";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
+import { useParams } from 'react-router-dom';
 
 import {
   Box,
@@ -20,39 +20,39 @@ import {
   DialogContent,
   Snackbar,
   IconButton,
-} from "@mui/material";
+} from '@mui/material';
 
 import {
   Check as CheckIcon,
   Close as CloseIcon,
   Remove as RemoveIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import { useGetAnnouncementDetailQuery } from "../services/announcement";
-import { useGetBuildingsQuery } from "../services/building";
-import { useLazyGetFloorsQuery } from "../services/floor";
-import { useLazyGetRequestsQuery } from "../services/request";
-import { ApiErrorResponse } from "../services/error";
+import { useGetAnnouncementDetailQuery } from '../services/announcement';
+import { useGetBuildingsQuery } from '../services/building';
+import { useLazyGetFloorsQuery } from '../services/floor';
+import { useLazyGetRequestsQuery } from '../services/request';
+import { ApiErrorResponse } from '../services/error';
 
-import CreateRequestModal from "../components/CreateRequestModal";
-import DeleteAnnouncementRequest from "../components/DeleteAnnouncementRequest";
+import CreateRequestModal from '../components/CreateRequestModal';
+import DeleteAnnouncementRequest from '../components/DeleteAnnouncementRequest';
 
-import { usePermission } from "../hooks";
+import { usePermission } from '../hooks';
 
-const toDate = (dateStr: string) => dayjs(dateStr).format("DD MMM YYYY");
+const toDate = (dateStr: string) => dayjs(dateStr).format('DD MMM YYYY');
 
 const AnnouncementDetailPage = () => {
-  const [errorMessage, setErrorMessage] = useState("");
-  const { announcementId = "" } = useParams();
-  const hasCreateRequestPermission = usePermission("create_request");
+  const [errorMessage, setErrorMessage] = useState('');
+  const { announcementId = '' } = useParams();
+  const hasCreateRequestPermission = usePermission('create_request');
 
   const hasViewAnnouncementDetailPermission = usePermission(
-    "view_announcement_detail"
+    'view_announcement_detail'
   );
   const [open, setOpen] = useState(false);
   const [openDeleteAnnouncementModal, setOpenDeleteAnnouncementModal] =
     useState(false);
-  const [currentBuildingId, setCurrentBuildingId] = useState<string>("");
+  const [currentBuildingId, setCurrentBuildingId] = useState<string>('');
 
   const {
     data: buildings,
@@ -72,7 +72,7 @@ const AnnouncementDetailPage = () => {
   } = useGetAnnouncementDetailQuery(
     { announcementId },
     {
-      skip: announcementId === "",
+      skip: announcementId === '',
     }
   );
 
@@ -105,10 +105,10 @@ const AnnouncementDetailPage = () => {
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
@@ -133,23 +133,23 @@ const AnnouncementDetailPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isGetBuildingError && "data" in isGetBuildingError) {
+    if (isGetBuildingError && 'data' in isGetBuildingError) {
       setErrorMessage(
         (isGetBuildingError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isGetFloorError && "data" in isGetFloorError) {
+    if (isGetFloorError && 'data' in isGetFloorError) {
       setErrorMessage((isGetFloorError.data as ApiErrorResponse).messages[0]);
     }
     if (
       isGetAnnouncementDetailError &&
-      "data" in isGetAnnouncementDetailError
+      'data' in isGetAnnouncementDetailError
     ) {
       setErrorMessage(
         (isGetAnnouncementDetailError.data as ApiErrorResponse).messages[0]
       );
     }
-    if (isGetRequestError && "data" in isGetRequestError) {
+    if (isGetRequestError && 'data' in isGetRequestError) {
       setErrorMessage((isGetRequestError.data as ApiErrorResponse).messages[0]);
     }
   }, [
@@ -163,16 +163,16 @@ const AnnouncementDetailPage = () => {
     if (announcements === undefined) {
       return null;
     }
-    if (announcements.mediaType === "image") {
+    if (announcements.mediaType === 'image') {
       return (
-        <img alt="banner" src={announcements.media} style={{ width: "100%" }} />
+        <img alt="banner" src={announcements.media} style={{ width: '100%' }} />
       );
-    } else if (announcements.mediaType === "video") {
+    } else if (announcements.mediaType === 'video') {
       return (
         <Box display="flex" justifyContent="center">
           <video
             src={announcements.media}
-            style={{ width: "50%" }}
+            style={{ width: '50%' }}
             controls
             loop
             autoPlay
@@ -210,8 +210,8 @@ const AnnouncementDetailPage = () => {
                 <Box
                   sx={{
                     marginBottom: 2,
-                    display: "flex",
-                    justifyContent: "space-between",
+                    display: 'flex',
+                    justifyContent: 'space-between',
                   }}
                 >
                   <Box>
@@ -252,20 +252,20 @@ const AnnouncementDetailPage = () => {
                 <Box>
                   <Box
                     sx={{
-                      display: "flex",
-                      border: "1px solid #c4c4c4",
+                      display: 'flex',
+                      border: '1px solid #c4c4c4',
                       marginBottom: 2,
                     }}
                   >
                     <Box
                       sx={{
                         padding: 1,
-                        display: "flex",
-                        flexDirection: "column",
+                        display: 'flex',
+                        flexDirection: 'column',
                       }}
                     >
                       {buildings &&
-                        buildings.map((building) => (
+                        buildings.map(building => (
                           <Button
                             key={building.id}
                             onClick={() =>
@@ -273,13 +273,13 @@ const AnnouncementDetailPage = () => {
                             }
                             variant={
                               currentBuildingId === building.id.toString()
-                                ? "contained"
-                                : "text"
+                                ? 'contained'
+                                : 'text'
                             }
                             color={
                               currentBuildingId === building.id.toString()
-                                ? "secondary"
-                                : "inactive"
+                                ? 'secondary'
+                                : 'inactive'
                             }
                             sx={{ marginBottom: 1 }}
                           >
@@ -287,7 +287,7 @@ const AnnouncementDetailPage = () => {
                           </Button>
                         ))}
                     </Box>
-                    <Box sx={{ borderLeft: "1px solid #c4c4c4" }} />
+                    <Box sx={{ borderLeft: '1px solid #c4c4c4' }} />
                     <Box
                       sx={{
                         padding: 3,
@@ -297,15 +297,15 @@ const AnnouncementDetailPage = () => {
                       <Box>
                         {floors?.contents
                           .filter(
-                            (floor) =>
+                            floor =>
                               currentBuildingId === floor.building.id.toString()
                           )
-                          .map((floor) => (
+                          .map(floor => (
                             <Box
                               key={floor.id}
                               display="flex"
                               sx={{
-                                border: "1px solid #c4c4c4",
+                                border: '1px solid #c4c4c4',
                                 marginBottom: 1,
                               }}
                               alignItems="center"
@@ -321,8 +321,8 @@ const AnnouncementDetailPage = () => {
                               >
                                 {floor.name}
                               </Box>
-                              <Box sx={{ maxWidth: "500px" }}>
-                                {floor.devices.map((device) => (
+                              <Box sx={{ maxWidth: '500px' }}>
+                                {floor.devices.map(device => (
                                   <Tooltip
                                     key={device.id}
                                     title={device.description}
@@ -332,12 +332,12 @@ const AnnouncementDetailPage = () => {
                                       color={
                                         announcements!.devices
                                           .map(
-                                            (announcementDevice) =>
+                                            announcementDevice =>
                                               announcementDevice.id
                                           )
                                           .includes(device.id)
-                                          ? "secondary"
-                                          : "inactive"
+                                          ? 'secondary'
+                                          : 'inactive'
                                       }
                                       sx={{
                                         margin: 1,
@@ -360,7 +360,7 @@ const AnnouncementDetailPage = () => {
                     Request
                   </Typography>
                   {hasCreateRequestPermission &&
-                  announcements?.status.value === "active" ? (
+                  announcements?.status.value === 'active' ? (
                     <>
                       <Button
                         onClick={() => {
@@ -410,11 +410,11 @@ const AnnouncementDetailPage = () => {
                     </TableHead>
                     <TableBody>
                       {requests &&
-                        requests.contents.map((request) => (
+                        requests.contents.map(request => (
                           <TableRow
                             key={request.id}
                             sx={{
-                              "&:last-child td, &:last-child th": { border: 0 },
+                              '&:last-child td, &:last-child th': { border: 0 },
                             }}
                           >
                             <TableCell>{request.id}</TableCell>
@@ -452,7 +452,7 @@ const AnnouncementDetailPage = () => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage("")}
+            onClose={() => setErrorMessage('')}
             message={errorMessage}
             action={
               <IconButton

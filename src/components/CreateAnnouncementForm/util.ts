@@ -1,5 +1,5 @@
-import { type FormikContextType } from "formik";
-import { CreateAnnouncementFormValues } from "./form";
+import { type FormikContextType } from 'formik';
+import { CreateAnnouncementFormValues } from './form';
 
 export const validateFormikFields = (
   formik: FormikContextType<CreateAnnouncementFormValues>,
@@ -7,7 +7,7 @@ export const validateFormikFields = (
 ): string[] => {
   const { validateField, errors, setFieldTouched } = formik;
 
-  fields.forEach((field) => validateField(field));
+  fields.forEach(field => validateField(field));
   /**
    * for (const field of fields) {
    *    validateField(field)
@@ -24,11 +24,11 @@ export const validateFormikFields = (
   // Object.entries() [["title", "title ga boleh kosong"], ["duration", "duration mesti lebih dari 3 hari"]]
 
   // .filter()
-  const fieldErrors = Object.keys(errors).filter((key) => fields.includes(key));
+  const fieldErrors = Object.keys(errors).filter(key => fields.includes(key));
 
   if (fieldErrors.length > 0) {
     // ["title", "duration"]
-    fieldErrors.forEach((field) => setFieldTouched(field));
+    fieldErrors.forEach(field => setFieldTouched(field));
   }
 
   return fieldErrors;

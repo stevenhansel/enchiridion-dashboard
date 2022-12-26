@@ -1,18 +1,18 @@
-import React, { useState, useCallback, useContext, useEffect } from "react";
-import { Box, Button, Typography, IconButton } from "@mui/material";
+import React, { useState, useCallback, useContext, useEffect } from 'react';
+import { Box, Button, Typography, IconButton } from '@mui/material';
 import {
   RadioButtonUnchecked as RadioButtonUncheckedIcon,
   RadioButtonChecked as RadioButtonCheckedIcon,
-} from "@mui/icons-material";
-import { useFormikContext } from "formik";
+} from '@mui/icons-material';
+import { useFormikContext } from 'formik';
 
-import { useGetBuildingsQuery } from "../../services/building";
+import { useGetBuildingsQuery } from '../../services/building';
 
-import { CreateAnnouncementFormContext } from "./context";
-import { CreateAnnouncementFormValues } from "./form";
-import { validateFormikFields } from "./util";
+import { CreateAnnouncementFormContext } from './context';
+import { CreateAnnouncementFormValues } from './form';
+import { validateFormikFields } from './util';
 
-const fields = ["buildingId"];
+const fields = ['buildingId'];
 
 const Step2 = () => {
   const formik = useFormikContext<CreateAnnouncementFormValues>();
@@ -42,9 +42,9 @@ const Step2 = () => {
       const selectedBuildingCheck =
         values.buildingId.indexOf(selectedBuildingId);
       if (selectedBuildingCheck !== -1) {
-        setFieldValue("buildingId", "");
+        setFieldValue('buildingId', '');
       } else {
-        setFieldValue("buildingId", selectedBuildingId);
+        setFieldValue('buildingId', selectedBuildingId);
       }
       setSelectedBuildingName(selectedBuildingName);
     },
@@ -52,12 +52,12 @@ const Step2 = () => {
   );
 
   useEffect(() => {
-    fields.forEach((field) => validateField(field));
+    fields.forEach(field => validateField(field));
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
-    setFieldValue("buildingName", selectedBuildingName);
+    setFieldValue('buildingName', selectedBuildingName);
   }, [selectedBuildingName]);
 
   return (
@@ -67,7 +67,7 @@ const Step2 = () => {
         justifyContent="center"
         flexDirection="column"
         sx={{
-          border: "1px solid #c4c4c4",
+          border: '1px solid #c4c4c4',
         }}
       >
         <Box sx={{ width: 200 }}>
@@ -75,7 +75,7 @@ const Step2 = () => {
             <Typography variant="h6">Available Building:</Typography>
           </Box>
           {buildings &&
-            buildings.map((building) => (
+            buildings.map(building => (
               <Box key={building.id} display="flex" justifyContent="flex-start">
                 <IconButton
                   onClick={() => {
@@ -100,12 +100,12 @@ const Step2 = () => {
       </Box>
       {touched.buildingId &&
       errors.buildingId &&
-      typeof errors.buildingId === "string" ? (
+      typeof errors.buildingId === 'string' ? (
         <Box display="flex" justifyContent="center">
           <Typography
             sx={{
-              fontSize: "12px",
-              color: "#D32F2F",
+              fontSize: '12px',
+              color: '#D32F2F',
               marginTop: 1,
             }}
           >

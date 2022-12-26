@@ -1,37 +1,37 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { Provider } from "react-redux";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
 
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import store from "./store/index";
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import store from './store/index';
 
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
-declare module "@mui/material/styles" {
+declare module '@mui/material/styles' {
   interface Palette {
-    inactive: import("@mui/material/styles").Palette;
+    inactive: import('@mui/material/styles').Palette;
   }
   interface PaletteOptions {
-    inactive: import("@mui/material/styles").PaletteColorOptions;
+    inactive: import('@mui/material/styles').PaletteColorOptions;
   }
 }
 
-declare module "@mui/material/Button" {
+declare module '@mui/material/Button' {
   interface ButtonPropsColorOverrides {
     inactive: true;
   }
 }
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
@@ -40,13 +40,13 @@ root.render(
         theme={createTheme({
           palette: {
             secondary: {
-              main: "#f29115",
-              contrastText: "#ffffff",
+              main: '#f29115',
+              contrastText: '#ffffff',
             },
             inactive: {
-              light: "#f5f5f5",
-              main: "#c4c4c4",
-              contrastText: "#a0a4a8",
+              light: '#f5f5f5',
+              main: '#c4c4c4',
+              contrastText: '#a0a4a8',
             },
           },
         })}

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 import {
   Box,
@@ -8,30 +8,27 @@ import {
   IconButton,
   Typography,
   Snackbar,
-} from "@mui/material";
-import { red } from "@mui/material/colors";
-import CloseIcon from "@mui/icons-material/Close";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import dayjs from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { StaticDatePicker } from "@mui/x-date-pickers/StaticDatePicker";
+} from '@mui/material';
+import { red } from '@mui/material/colors';
+import CloseIcon from '@mui/icons-material/Close';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 
-import { useCreateRequestMutation } from "../services/request";
+import { useCreateRequestMutation } from '../services/request';
 
-import { ActionCreateRequest } from "../types/store";
-import { isApiError, isReduxError, ApiErrorResponse } from "../services/error";
+import { ActionCreateRequest } from '../types/store';
+import { isApiError, isReduxError, ApiErrorResponse } from '../services/error';
 
 const validationSchema = yup.object({
   extendedEndDate: yup
     .date()
-    .min(new Date(), "extend date cannot be in the past")
-    .required("extend date is required"),
-  description: yup
-    .string()
-    .min(1)
-    .required("description is required"),
+    .min(new Date(), 'extend date cannot be in the past')
+    .required('extend date is required'),
+  description: yup.string().min(1).required('description is required'),
 });
 
 type Props = {
@@ -41,22 +38,22 @@ type Props = {
 
 const ExtendDate = (props: Props) => {
   const [createRequest, { error }] = useCreateRequestMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-  const { announcementId = "" } = useParams();
+  const [errorMessage, setErrorMessage] = useState('');
+  const { announcementId = '' } = useParams();
 
   const today = dayjs(props.date);
-  const tomorrow = dayjs(props.date).add(1, "day").toDate();
+  const tomorrow = dayjs(props.date).add(1, 'day').toDate();
 
   const formik = useFormik<ActionCreateRequest>({
     initialValues: {
-      action: "extend_date",
-      extendedEndDate: dayjs(tomorrow.toDateString()).format("YYYY-MM-DD"),
+      action: 'extend_date',
+      extendedEndDate: dayjs(tomorrow.toDateString()).format('YYYY-MM-DD'),
       announcementId: parseInt(announcementId, 10),
-      description: "",
+      description: '',
       newDeviceIds: [],
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       try {
         await createRequest(values).unwrap();
         props.setOpen(false);
@@ -72,14 +69,14 @@ const ExtendDate = (props: Props) => {
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   useEffect(() => {
-    if (error && "data" in error) {
+    if (error && 'data' in error) {
       setErrorMessage((error.data as ApiErrorResponse).messages[0]);
     }
   }, [error]);
@@ -95,16 +92,16 @@ const ExtendDate = (props: Props) => {
                 label="Extend Date Announcement"
                 inputFormat="MM/dd/yyyy"
                 value={dayjs(formik.values.extendedEndDate).format(
-                  "YYYY-MM-DD"
+                  'YYYY-MM-DD'
                 )}
-                onChange={(newDate) =>
+                onChange={newDate =>
                   formik.setFieldValue(
-                    "extendedEndDate",
-                    dayjs(newDate).format("YYYY-MM-DD")
+                    'extendedEndDate',
+                    dayjs(newDate).format('YYYY-MM-DD')
                   )
                 }
-                renderInput={(params) => <TextField {...params} />}
-                shouldDisableDate={(date) => dayjs(date).isSameOrBefore(today)}
+                renderInput={params => <TextField {...params} />}
+                shouldDisableDate={date => dayjs(date).isSameOrBefore(today)}
               />
             </LocalizationProvider>
           </Box>
@@ -117,9 +114,9 @@ const ExtendDate = (props: Props) => {
             <Typography>Description</Typography>
             <TextField
               variant="standard"
-              sx={{ width: "100%", marginBottom: 1 }}
-              onChange={(e) => {
-                formik.setFieldValue("description", e.target.value);
+              sx={{ width: '100%', marginBottom: 1 }}
+              onChange={e => {
+                formik.setFieldValue('description', e.target.value);
               }}
               error={
                 formik.touched.description && Boolean(formik.errors.description)
@@ -137,7 +134,7 @@ const ExtendDate = (props: Props) => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage("")}
+            onClose={() => setErrorMessage('')}
             message={errorMessage}
             action={
               <>

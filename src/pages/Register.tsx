@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
-import debounce from "lodash/debounce";
+import React, { useEffect, useState, useMemo } from 'react';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 
 import {
   Box,
@@ -18,39 +18,39 @@ import {
   Snackbar,
   CircularProgress,
   Select,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { useRegisterMutation } from "../services/auth";
-import { useLazyGetRolesQuery } from "../services/roles";
-import { useLazyGetBuildingsQuery } from "../services/building";
-import { isApiError, isReduxError } from "../services/error";
+import { useRegisterMutation } from '../services/auth';
+import { useLazyGetRolesQuery } from '../services/roles';
+import { useLazyGetBuildingsQuery } from '../services/building';
+import { isApiError, isReduxError } from '../services/error';
 
-import { UserFilterOption } from "../types/store";
-import { RegisterForm } from "../types/store";
+import { UserFilterOption } from '../types/store';
+import { RegisterForm } from '../types/store';
 
-import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 const validationSchema = yup.object({
   name: yup
     .string()
-    .min(4, "Name should be of minimum 4 characters length")
-    .required("Name is required"),
+    .min(4, 'Name should be of minimum 4 characters length')
+    .required('Name is required'),
   email: yup
     .string()
-    .email("Enter a valid email")
-    .required("Email is required"),
+    .email('Enter a valid email')
+    .required('Email is required'),
   password: yup
     .string()
-    .min(8, "Password should be of minimum 8 characters length")
-    .required("Password is required"),
+    .min(8, 'Password should be of minimum 8 characters length')
+    .required('Password is required'),
   role: yup.string().required(),
-  buildingId: yup.string().required("Building domain is required"),
+  buildingId: yup.string().required('Building domain is required'),
 });
 
 const Register = () => {
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [nextStep, setNextStep] = useState(false);
   const [buildingFilter, setBuildingFilter] = useState<UserFilterOption | null>(
     null
@@ -71,10 +71,10 @@ const Register = () => {
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
-      name: "",
-      email: "",
-      password: "",
-      reason: "",
+      name: '',
+      email: '',
+      password: '',
+      reason: '',
       role: null,
       buildingId: null,
     },
@@ -88,11 +88,11 @@ const Register = () => {
           const { errorCode, messages } = err.data;
           const [message] = messages;
 
-          if (errorCode === "EMAIL_ALREADY_EXISTS") {
-            setFieldError("email", message);
+          if (errorCode === 'EMAIL_ALREADY_EXISTS') {
+            setFieldError('email', message);
             setErrorMessage(message);
-          } else if (errorCode === "ROLE_NOT_FOUND") {
-            setFieldError("role", message);
+          } else if (errorCode === 'ROLE_NOT_FOUND') {
+            setFieldError('role', message);
             setErrorMessage(message);
           }
         }
@@ -101,9 +101,9 @@ const Register = () => {
   });
 
   const handleNextStep = () => {
-    formik.setFieldTouched("name", true);
-    formik.setFieldTouched("email", true);
-    formik.setFieldTouched("password", true);
+    formik.setFieldTouched('name', true);
+    formik.setFieldTouched('email', true);
+    formik.setFieldTouched('password', true);
     if (
       formik.values.name.length !== 0 &&
       !Boolean(formik.errors.name) &&
@@ -119,19 +119,17 @@ const Register = () => {
   };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   const getBuildingsDelayed = useMemo(() => {
     return debounce((query: string) => {
       getBuildings({ query, limit: 5 }).then(({ data }) => {
         setBuildingFilterOptions(
-          data !== undefined
-            ? data.map((u) => ({ id: u.id, name: u.name }))
-            : []
+          data !== undefined ? data.map(u => ({ id: u.id, name: u.name })) : []
         );
         setIsBuildingFilterLoading(false);
       });
@@ -142,9 +140,7 @@ const Register = () => {
     if (open) {
       getBuildings({ limit: 5 }).then(({ data }) => {
         setBuildingFilterOptions(
-          data !== undefined
-            ? data.map((u) => ({ id: u.id, name: u.name }))
-            : []
+          data !== undefined ? data.map(u => ({ id: u.id, name: u.name })) : []
         );
       });
     }
@@ -160,37 +156,37 @@ const Register = () => {
       <CssBaseline />
       <Box
         style={{
-          position: "absolute",
+          position: 'absolute',
           backgroundImage: `url(${backgroundImage})`,
-          backgroundRepeat: "repeat-x",
-          minHeight: "100%",
-          minWidth: "100%",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundRepeat: 'repeat-x',
+          minHeight: '100%',
+          minWidth: '100%',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            bottom: "50%",
-            right: "50%",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            bottom: '50%',
+            right: '50%',
           }}
         >
           {roles && roles.length > 0 ? (
             <form onSubmit={formik.handleSubmit}>
               <Box
                 sx={{
-                  bgcolor: "white",
+                  bgcolor: 'white',
                   boxShadow: 1,
                   borderRadius: 1,
                   p: 2,
                   minWidth: 300,
-                  width: "60vw",
+                  width: '60vw',
                   maxWidth: 200,
                 }}
               >
@@ -203,11 +199,11 @@ const Register = () => {
                 </Typography>
                 {nextStep ? (
                   <>
-                    <Box sx={{ marginBottom: 3, width: "100%" }}>
+                    <Box sx={{ marginBottom: 3, width: '100%' }}>
                       <Typography
                         sx={{
                           marginBottom: 1,
-                          textAlign: "center",
+                          textAlign: 'center',
                         }}
                         variant="h6"
                       >
@@ -222,17 +218,17 @@ const Register = () => {
                           value={
                             formik.values.role !== null
                               ? formik.values.role
-                              : ""
+                              : ''
                           }
                           defaultValue=""
-                          onChange={(e) => {
-                            formik.setFieldValue("role", e.target.value);
+                          onChange={e => {
+                            formik.setFieldValue('role', e.target.value);
                           }}
                           error={
                             formik.touched.role && Boolean(formik.errors.role)
                           }
                         >
-                          {roles.map((role) => (
+                          {roles.map(role => (
                             <MenuItem key={role.value} value={role.value}>
                               {role.name}
                             </MenuItem>
@@ -241,10 +237,10 @@ const Register = () => {
                         {formik.touched.role && formik.errors.role ? (
                           <Typography
                             sx={{
-                              fontSize: "12px",
-                              marginTop: "3px",
-                              marginRight: "14px",
-                              color: "#D32F2F",
+                              fontSize: '12px',
+                              marginTop: '3px',
+                              marginRight: '14px',
+                              color: '#D32F2F',
                             }}
                           >
                             Role is required
@@ -261,7 +257,7 @@ const Register = () => {
                         onClose={() => {
                           setOpen(false);
                         }}
-                        getOptionLabel={(option) => option.name}
+                        getOptionLabel={option => option.name}
                         isOptionEqualToValue={(option, value) =>
                           option.name === value.name
                         }
@@ -273,7 +269,7 @@ const Register = () => {
                             </li>
                           );
                         }}
-                        renderInput={(params) => (
+                        renderInput={params => (
                           <TextField
                             {...params}
                             label="Building"
@@ -301,13 +297,10 @@ const Register = () => {
                         onChange={(_, inputValue) => {
                           setBuildingFilterOptions([]);
                           setBuildingFilter(inputValue);
-                          formik.setFieldValue(
-                            "buildingId",
-                            inputValue?.id
-                          );
+                          formik.setFieldValue('buildingId', inputValue?.id);
                         }}
                         onInputChange={(_, newInputValue, reason) => {
-                          if (reason === "input") {
+                          if (reason === 'input') {
                             setIsBuildingFilterLoading(true);
                             setBuildingFilterOptions([]);
                             getBuildingsDelayed(newInputValue);
@@ -317,10 +310,10 @@ const Register = () => {
                       {formik.touched.buildingId && formik.errors.buildingId ? (
                         <Typography
                           sx={{
-                            fontSize: "12px",
-                            marginTop: "3px",
-                            marginRight: "14px",
-                            color: "#D32F2F",
+                            fontSize: '12px',
+                            marginTop: '3px',
+                            marginRight: '14px',
+                            color: '#D32F2F',
                           }}
                         >
                           Building is required
@@ -352,8 +345,8 @@ const Register = () => {
                         autoComplete="off"
                         id="name"
                         name="name"
-                        onChange={(e) => {
-                          formik.setFieldValue("name", e.target.value);
+                        onChange={e => {
+                          formik.setFieldValue('name', e.target.value);
                         }}
                         error={
                           formik.touched.name && Boolean(formik.errors.name)
@@ -369,8 +362,8 @@ const Register = () => {
                         autoComplete="off"
                         id="email"
                         name="email"
-                        onChange={(e) =>
-                          formik.setFieldValue("email", e.target.value)
+                        onChange={e =>
+                          formik.setFieldValue('email', e.target.value)
                         }
                         error={
                           formik.touched.email && Boolean(formik.errors.email)
@@ -386,8 +379,8 @@ const Register = () => {
                         autoComplete="off"
                         id="password"
                         name="password"
-                        onChange={(e) =>
-                          formik.setFieldValue("password", e.target.value)
+                        onChange={e =>
+                          formik.setFieldValue('password', e.target.value)
                         }
                         error={
                           formik.touched.password &&
@@ -408,8 +401,8 @@ const Register = () => {
                         id="reason"
                         name="reason"
                         variant="standard"
-                        onChange={(e) =>
-                          formik.setFieldValue("reason", e.target.value)
+                        onChange={e =>
+                          formik.setFieldValue('reason', e.target.value)
                         }
                         error={
                           formik.touched.reason && Boolean(formik.errors.reason)
@@ -448,7 +441,7 @@ const Register = () => {
           <Snackbar
             open={Boolean(errorMessage)}
             autoHideDuration={6000}
-            onClose={() => setErrorMessage("")}
+            onClose={() => setErrorMessage('')}
             message={errorMessage}
             action={
               <IconButton

@@ -1,21 +1,21 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from '@reduxjs/toolkit/query/react';
 
-import axios from "../utils/axiosInstance";
+import axios from '../utils/axiosInstance';
 
 import {
   Request,
   Action,
   Pagination,
   ActionCreateRequest,
-} from "../types/store";
+} from '../types/store';
 
-import { urlBuilder } from "../utils";
+import { urlBuilder } from '../utils';
 
 export const requestApi = createApi({
-  reducerPath: "requestApi",
+  reducerPath: 'requestApi',
   baseQuery: axios(),
-  tagTypes: ["Request"],
-  endpoints: (builders) => ({
+  tagTypes: ['Request'],
+  endpoints: builders => ({
     getRequests: builders.query<
       Pagination<Request>,
       {
@@ -29,9 +29,9 @@ export const requestApi = createApi({
         approvedByBm?: boolean | null;
       } | null
     >({
-      query: (params) => ({ url: urlBuilder("/v1/requests", params) }),
-      providesTags: () => ["Request"],
-      transformResponse: (response) => ({
+      query: params => ({ url: urlBuilder('/v1/requests', params) }),
+      providesTags: () => ['Request'],
+      transformResponse: response => ({
         hasNext: response.hasNext,
         count: response.count,
         totalPages: response.totalPages,
@@ -44,10 +44,10 @@ export const requestApi = createApi({
     >({
       query: ({ requestId, requestStatus }) => ({
         url: `/v1/requests/${requestId}/approval`,
-        method: "PUT",
-        data: { action: requestStatus ? "approve" : "reject" },
+        method: 'PUT',
+        data: { action: requestStatus ? 'approve' : 'reject' },
       }),
-      invalidatesTags: () => ["Request"],
+      invalidatesTags: () => ['Request'],
     }),
     createRequest: builders.mutation<
       ActionCreateRequest,
@@ -66,11 +66,17 @@ export const requestApi = createApi({
         extendedEndDate,
         newDeviceIds,
       }) => ({
-        url: "/v1/requests",
-        method: "POST",
-        data: { action, announcementId, description, extendedEndDate, newDeviceIds },
+        url: '/v1/requests',
+        method: 'POST',
+        data: {
+          action,
+          announcementId,
+          description,
+          extendedEndDate,
+          newDeviceIds,
+        },
       }),
-      invalidatesTags: () => ["Request"],
+      invalidatesTags: () => ['Request'],
     }),
   }),
 });

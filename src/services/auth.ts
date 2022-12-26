@@ -1,13 +1,13 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from '@reduxjs/toolkit/query/react';
 
-import axios from "../utils/axiosInstance";
-import { RegisterForm } from "../types/store";
+import axios from '../utils/axiosInstance';
+import { RegisterForm } from '../types/store';
 
 export const authApi = createApi({
-  reducerPath: "authApi",
+  reducerPath: 'authApi',
   baseQuery: axios(),
-  tagTypes: ["Auth"],
-  endpoints: (builder) => ({
+  tagTypes: ['Auth'],
+  endpoints: builder => ({
     register: builder.mutation<
       RegisterForm,
       {
@@ -20,66 +20,66 @@ export const authApi = createApi({
       }
     >({
       query: ({ name, email, password, reason, role, buildingId }) => ({
-        url: "/v1/auth/register",
-        method: "POST",
+        url: '/v1/auth/register',
+        method: 'POST',
         data: { name, email, password, reason, role, buildingId },
       }),
-      invalidatesTags: () => ["Auth"],
+      invalidatesTags: () => ['Auth'],
     }),
     login: builder.mutation({
       query: ({ email, password }) => ({
-        url: "/v1/auth/login",
-        method: "POST",
+        url: '/v1/auth/login',
+        method: 'POST',
         data: { email, password },
       }),
-      invalidatesTags: () => ["Auth"],
+      invalidatesTags: () => ['Auth'],
     }),
     logout: builder.query({
       query: () => ({
-        url: "/v1/logout",
+        url: '/v1/logout',
       }),
-      providesTags: () => ["Auth"],
+      providesTags: () => ['Auth'],
     }),
     refresh: builder.mutation({
       query: () => ({
-        url: "/v1/auth/refresh",
-        method: "PUT",
+        url: '/v1/auth/refresh',
+        method: 'PUT',
       }),
-      invalidatesTags: () => ["Auth"],
+      invalidatesTags: () => ['Auth'],
     }),
     emailVerification: builder.query({
       query: ({ email }) => ({
         url: `/v1/auth/verification/${email}`,
       }),
-      providesTags: () => ["Auth"],
+      providesTags: () => ['Auth'],
     }),
     confirmEmail: builder.mutation({
       query: ({ token }) => ({
-        url: "/v1/auth/verification",
-        method: "PUT",
+        url: '/v1/auth/verification',
+        method: 'PUT',
         data: { token },
       }),
-      invalidatesTags: () => ["Auth"],
+      invalidatesTags: () => ['Auth'],
     }),
     forgotPassword: builder.query({
       query: () => ({
-        url: "/v1/auth/forgot-password",
+        url: '/v1/auth/forgot-password',
       }),
-      providesTags: () => ["Auth"],
+      providesTags: () => ['Auth'],
     }),
     changePassword: builder.mutation({
       query: ({ oldPassword, newPassword }) => ({
-        url: "/v1/me/change-password",
-        method: "PUT",
+        url: '/v1/me/change-password',
+        method: 'PUT',
         data: { oldPassword, newPassword },
       }),
-      invalidatesTags: () => ["Auth"],
+      invalidatesTags: () => ['Auth'],
     }),
     me: builder.query({
       query: () => ({
-        url: "/v1/me",
+        url: '/v1/me',
       }),
-      providesTags: () => ["Auth"],
+      providesTags: () => ['Auth'],
     }),
   }),
 });

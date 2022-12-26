@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from "react";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React, { useState, useCallback } from 'react';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import {
   Box,
@@ -13,16 +13,16 @@ import {
   CssBaseline,
   TextField,
   IconButton,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { AppDispatch } from "../store";
-import { setProfile } from "../store/profile";
+import { AppDispatch } from '../store';
+import { setProfile } from '../store/profile';
 
-import { ApiErrorResponse, isReduxError, isApiError } from "../services/error";
-import { authApi } from "../services/auth";
+import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
+import { authApi } from '../services/auth';
 
-import backgroundImage from "../assets/jpg/background-auth.jpeg";
+import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type LoginForm = {
   email: string;
@@ -32,12 +32,12 @@ type LoginForm = {
 const validationSchema = yup.object({
   email: yup
     .string()
-    .email("Enter a valid email")
-    .required("Email is required"),
+    .email('Enter a valid email')
+    .required('Email is required'),
   password: yup
     .string()
-    .min(8, "Password should be of minimum 8 characters length")
-    .required("Password is required"),
+    .min(8, 'Password should be of minimum 8 characters length')
+    .required('Password is required'),
 });
 
 const Login = () => {
@@ -45,7 +45,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = useCallback(
     async (values: LoginForm): Promise<void> => {
@@ -58,7 +58,7 @@ const Login = () => {
         })
       );
 
-      if ("data" in response) {
+      if ('data' in response) {
         dispatch(
           setProfile({
             id: response.data.id,
@@ -75,18 +75,18 @@ const Login = () => {
         isApiError(response.error.data)
       ) {
         const { errorCode } = response.error.data;
-        if (errorCode === "FORBIDDEN_PERMISSION") {
+        if (errorCode === 'FORBIDDEN_PERMISSION') {
           setErrorMessage(
-            "data" in response.error
+            'data' in response.error
               ? (response.error.data as ApiErrorResponse).messages[0]
-              : "Network Error"
+              : 'Network Error'
           );
-          navigate("/waiting-for-approval");
-        } else if (errorCode === "AUTHENTICATION_FAILED") {
+          navigate('/waiting-for-approval');
+        } else if (errorCode === 'AUTHENTICATION_FAILED') {
           setErrorMessage(
-            "data" in response.error
+            'data' in response.error
               ? (response.error.data as ApiErrorResponse).messages[0]
-              : "Network Error"
+              : 'Network Error'
           );
         }
       }
@@ -97,18 +97,18 @@ const Login = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
     validationSchema: validationSchema,
     onSubmit: handleLogin,
   });
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   return (
@@ -117,29 +117,29 @@ const Login = () => {
       <Box
         style={{
           backgroundImage: `url(${backgroundImage})`,
-          backgroundRepeat: "repeat-x",
-          height: "100vh",
-          width: "100ww",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundRepeat: 'repeat-x',
+          height: '100vh',
+          width: '100ww',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            bottom: "50%",
-            right: "50%",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            bottom: '50%',
+            right: '50%',
           }}
         >
           <form onSubmit={formik.handleSubmit}>
             <Box
               sx={{
-                bgcolor: "white",
+                bgcolor: 'white',
                 boxShadow: 1,
                 borderRadius: 1,
                 p: 2,
@@ -158,9 +158,7 @@ const Login = () => {
                 <TextField
                   id="email"
                   name="email"
-                  onChange={(e) =>
-                    formik.setFieldValue("email", e.target.value)
-                  }
+                  onChange={e => formik.setFieldValue('email', e.target.value)}
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
                   variant="standard"
@@ -173,8 +171,8 @@ const Login = () => {
                 <TextField
                   id="password"
                   name="password"
-                  onChange={(e) =>
-                    formik.setFieldValue("password", e.target.value)
+                  onChange={e =>
+                    formik.setFieldValue('password', e.target.value)
                   }
                   error={
                     formik.touched.password && Boolean(formik.errors.password)
@@ -222,7 +220,7 @@ const Login = () => {
             <Snackbar
               open={Boolean(errorMessage)}
               autoHideDuration={6000}
-              onClose={() => setErrorMessage("")}
+              onClose={() => setErrorMessage('')}
               message={errorMessage}
               action={
                 <IconButton
