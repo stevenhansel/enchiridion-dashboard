@@ -251,7 +251,10 @@ const Step1 = () => {
             srcType={mediaPreview.mediaType}
             aspect={16 / 7}
             onFinish={handleFinishCrop}
-            onClose={() => setIsCropperModalOpen(false)}
+            onClose={() => {
+              setMediaPreview(null);
+              setIsCropperModalOpen(false);
+            }}
           />
         ) : null}
 
