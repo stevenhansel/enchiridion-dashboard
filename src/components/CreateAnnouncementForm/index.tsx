@@ -93,7 +93,7 @@ const CreateAnnouncementForm = () => {
         );
       }
       setIsLoading(false);
-      navigate('/');
+      navigate('/announcement');
     },
     []
   );
