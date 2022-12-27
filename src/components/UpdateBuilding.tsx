@@ -52,7 +52,7 @@ type Props = {
 const UpdateBuilding = (props: Props) => {
   const { setOpen, setSuccessMessage } = props;
   const [errorMessage, setErrorMessage] = useState('');
-  const [openDropdown, setOpenDropDown] = useState(false);
+  const [openDropdown, _] = useState(false);
   const [buildingFilterOptions, setBuildingFilterOptions] = useState<
     UserFilterOption[]
   >([]);

@@ -29,7 +29,7 @@ function App() {
   const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [_, setErrorMessage] = useState('');
 
   const handleMe = useCallback(async () => {
     setIsLoading(true);

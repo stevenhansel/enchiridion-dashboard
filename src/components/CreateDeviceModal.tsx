@@ -42,7 +42,7 @@ const validationSchema = yup.object({
 
 const CreateDeviceModal = (props: Props) => {
   const [errorMessage, setErrorMessage] = useState('');
-  const [query, setQuery] = useState('');
+  const [query, _] = useState('');
   const [openBuildingFilter, setOpenBuildingFilter] = useState(false);
   const [openFloorFilter, setOpenFloorFilter] = useState(false);
   const [buildingFilterOptions, setBuildingFilterOptions] = useState<

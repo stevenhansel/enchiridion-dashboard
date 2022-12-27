@@ -34,8 +34,6 @@ import AverageChart from '../components/AverageChart';
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format('DD MMM YYYY h:mm A');
 
-const now = new Date();
-
 const DeviceDetailPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
@@ -47,16 +45,12 @@ const DeviceDetailPage = () => {
     'view_list_announcement'
   );
 
-  const [avgChartInterval, setAvgChartInterval] = useState('minute');
-  const [avgChartRange, setAvgChartRange] = useState('hour');
-
-  const { data: devices, isLoading: isDeviceDetailLoading } =
-    useGetDeviceDetailQuery(
-      { deviceId },
-      {
-        skip: deviceId === '',
-      }
-    );
+  const { data: devices } = useGetDeviceDetailQuery(
+    { deviceId },
+    {
+      skip: deviceId === '',
+    }
+  );
 
   const [getAnnouncements, { data: announcements }] =
     useLazyGetAnnouncementsQuery();

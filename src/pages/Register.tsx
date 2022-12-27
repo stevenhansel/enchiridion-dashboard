@@ -59,7 +59,7 @@ const Register = () => {
 
   const [getRoles, { data: roles, isLoading: isRoleLoading }] =
     useLazyGetRolesQuery();
-  const [getBuildings, { data: buildings }] = useLazyGetBuildingsQuery();
+  const [getBuildings] = useLazyGetBuildingsQuery();
   const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
 
   const isLoading = isRoleLoading || isRegisterLoading;

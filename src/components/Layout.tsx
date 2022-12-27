@@ -158,7 +158,6 @@ export default function Layout(props: Props) {
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [notification, setNotification] = React.useState(0);
   const [selectedPage, setSelectedPage] = React.useState('Announcement');
   const [errorMessage, setErrorMessage] = React.useState('');
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

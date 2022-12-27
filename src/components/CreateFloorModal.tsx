@@ -29,10 +29,8 @@ type Props = {
 
 const CreateFloorModal = (props: Props) => {
   const [errorMessage, setErrorMessage] = useState('');
-  const [
-    getBuildings,
-    { isLoading: isGetBuildingsLoading, error: isGetBuildingsError },
-  ] = useLazyGetBuildingsQuery();
+  const [getBuildings, { error: isGetBuildingsError }] =
+    useLazyGetBuildingsQuery();
   const [addNewFloor] = useCreateFloorMutation();
 
   const [open, setOpen] = useState(false);

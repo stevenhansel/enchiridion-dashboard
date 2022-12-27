@@ -5,7 +5,6 @@ import { useFormikContext } from 'formik';
 import { Box, Button, Typography, Tooltip } from '@mui/material';
 import { red } from '@mui/material/colors';
 import { useLazyGetFloorsQuery } from '../../services/floor';
-import { useGetBuildingsQuery } from '../../services/building';
 import { CreateAnnouncementFormContext } from './context';
 import { CreateAnnouncementFormValues } from './form';
 import { validateFormikFields } from './util';
@@ -14,8 +13,6 @@ const fields = ['devices'];
 
 const Step3 = () => {
   const navigate = useNavigate();
-  const { data: buildings, isLoading: isBuildingLoading } =
-    useGetBuildingsQuery(null);
   const [getFloors, { data: floors }] = useLazyGetFloorsQuery();
 
   const formik = useFormikContext<CreateAnnouncementFormValues>();
@@ -24,9 +21,7 @@ const Step3 = () => {
     CreateAnnouncementFormContext
   );
 
-  const [currentBuildingId, setCurrentBuildingId] = useState<string>(
-    values.buildingId
-  );
+  const [currentBuildingId, _] = useState<string>(values.buildingId);
 
   const floorCheck =
     floors &&

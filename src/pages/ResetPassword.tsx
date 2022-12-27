@@ -29,7 +29,7 @@ const ResetPassword = () => {
       confirmPassword: '',
     },
     validationSchema: validationSchema,
-    onSubmit: values => {
+    onSubmit: () => {
       //   alert(JSON.stringify(values, null, 2));
       navigate('/login');
     },

@@ -61,18 +61,13 @@ const UpdateDeviceModal = (props: Props) => {
   );
   const [isBuildingFilterLoading, setIsBuildingFilterLoading] = useState(false);
 
-  const [getFloors, { error: isGetFloorError, isLoading: isGetFloorLoading }] =
-    useLazyGetFloorsQuery();
+  const [getFloors, { error: isGetFloorError }] = useLazyGetFloorsQuery();
 
-  const [
-    getBuildings,
-    { error: isGetBuildingError, isLoading: isGetBuildingLoading },
-  ] = useLazyGetBuildingsQuery();
+  const [getBuildings, { error: isGetBuildingError }] =
+    useLazyGetBuildingsQuery();
 
-  const [
-    updateDevice,
-    { error: isUpdateDeviceError, isLoading: isUpdateDeviceLoading },
-  ] = useUpdateDeviceMutation();
+  const [updateDevice, { error: isUpdateDeviceError }] =
+    useUpdateDeviceMutation();
 
   const getFloorDelayed = useMemo(() => {
     return debounce((query: string) => {

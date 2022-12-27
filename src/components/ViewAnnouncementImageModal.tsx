@@ -21,7 +21,6 @@ const ViewAnnouncementImageModal = (props: Props) => {
   const [errorMessage, setErrorMessage] = useState('');
   const { announcementId, open, setOpen } = props;
   const {
-    data: announcementsMedia,
     isLoading: isAnnouncementsMediaLoading,
     error: isAnnouncementsMediaError,
   } = useGetAnnouncementMediaQuery(

@@ -21,7 +21,7 @@ const ForgotPassword = () => {
       email: '',
     },
     validationSchema: validationSchema,
-    onSubmit: values => {
+    onSubmit: () => {
       navigate('/reset_password');
     },
   });
