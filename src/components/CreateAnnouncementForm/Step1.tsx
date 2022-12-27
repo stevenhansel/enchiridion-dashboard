@@ -47,7 +47,7 @@ const Step1 = () => {
     const media = formik.values.media;
     if (media === null) return null;
 
-    const style = { maxWidth: 500, maxHeight: 400 };
+    const style = { width: '100%', maxHeight: 300 };
 
     if (media.mediaType === 'image') {
       return <img style={style} src={media.src} alt={media.id.toString()} />;
@@ -183,13 +183,13 @@ const Step1 = () => {
 
   const handleFinishCrop = useCallback(
     (croppedAreaPixels: Area) => {
-      console.log('croppedAreaPixels: ', croppedAreaPixels);
       if (mediaPreview === null) return;
 
       uploadMedia({
         file: mediaPreview.file,
         type: mediaPreview.mediaType,
         duration: mediaPreview.mediaDuration,
+        crop: croppedAreaPixels,
       });
     },
     [mediaPreview, uploadMedia]
@@ -258,7 +258,7 @@ const Step1 = () => {
         <Box
           sx={{
             width: 500,
-            height: 400,
+            height: 300,
             border: '1px solid #c4c4c4',
             background: formik.values.media !== null ? '#d3d3d3' : '#ffffff',
             boxSizing: 'border-box',
