@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Typography, Button, ButtonGroup } from '@mui/material';
 import { Line } from '@nivo/line';

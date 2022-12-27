@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useFormikContext } from 'formik';
 import dayjs, { extend } from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -7,9 +13,18 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import { red } from '@mui/material/colors';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import axiosInstance from '../../utils/axiosInstance';
+import MediaCropper from '../MediaCropper';
+import { Area } from '../MediaCropper/Base';
 import { CreateAnnouncementFormContext } from './context';
 import { CreateAnnouncementFormValues } from './form';
 import { validateFormikFields } from './util';
+
+type MediaPreview = {
+  src: string;
+  file: File;
+  mediaType: 'image' | 'video';
+  mediaDuration?: number;
+};
 
 const axios = axiosInstance();
 
@@ -24,60 +39,35 @@ const Step1 = () => {
 
   const { handleNextStep } = useContext(CreateAnnouncementFormContext);
 
-  const mediaPreview = useMemo(() => {
+  const [mediaPreview, setMediaPreview] = useState<MediaPreview | null>(null);
+  const [isCropperModalOpen, setIsCropperModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const croppedMediaPreview = useMemo(() => {
     const media = formik.values.media;
     if (media === null) return null;
 
+    const style = { maxWidth: 500, maxHeight: 400 };
+
     if (media.mediaType === 'image') {
-      return <img src={media.src} alt={media.id.toString()} />;
+      return <img style={style} src={media.src} alt={media.id.toString()} />;
     } else {
-      return (
-        <video
-          controls
-          autoPlay
-          muted
-          src={media.src}
-          style={{ maxWidth: 497, maxHeight: 400 }}
-        />
-      );
+      return <video controls autoPlay muted src={media.src} style={style} />;
     }
   }, [formik.values.media]);
 
-  const uploadMedia = useCallback(
-    async (payload: { file: File; duration?: number; type: string }) => {
-      try {
-        const formData = new FormData();
-
-        formData.append('media', payload.file);
-        formData.append('mediaType', payload.type);
-
-        if (payload.duration) {
-          formData.append('mediaDuration', payload.duration.toString());
-        }
-
-        const response = await axios({
-          url: '/v1/medias',
-          method: 'POST',
-          data: formData,
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        if (response.data === undefined) {
-          throw new Error('Something went wrong with the response');
-        }
-
-        console.log(response.data);
-
-        formik.setFieldValue('media', {
-          id: response.data.id,
-          src: response.data.path,
-          mediaType: response.data.mediaType,
-          mediaDuration: response.data.mediaDuration,
-        });
-      } catch (err) {
-        // TODO: show error to user
-        console.error(err);
-      }
+  const createMediaPreview = useCallback(
+    (
+      mediaSource: File,
+      mediaType: 'image' | 'video',
+      mediaDuration?: number
+    ) => {
+      setMediaPreview({
+        src: window.URL.createObjectURL(mediaSource),
+        file: mediaSource,
+        mediaType,
+        mediaDuration,
+      });
     },
     []
   );
@@ -103,11 +93,7 @@ const Step1 = () => {
             const video = document.createElement('video');
 
             video.onloadedmetadata = () => {
-              uploadMedia({
-                file,
-                duration: video.duration * 1000,
-                type: 'video',
-              });
+              createMediaPreview(file, 'video', video.duration * 1000);
             };
 
             video.onerror = () => {
@@ -122,10 +108,7 @@ const Step1 = () => {
             const image = new Image();
 
             image.onload = () => {
-              uploadMedia({
-                file,
-                type: 'image',
-              });
+              createMediaPreview(file, 'image');
             };
 
             image.onerror = () => {
@@ -147,6 +130,71 @@ const Step1 = () => {
     },
     [setFieldValue]
   );
+
+  const uploadMedia = useCallback(
+    async (payload: {
+      file: File;
+      type: 'image' | 'video';
+      duration?: number;
+      crop?: Area;
+    }) => {
+      try {
+        setIsUploading(true);
+
+        const formData = new FormData();
+
+        formData.append('media', payload.file);
+        formData.append('mediaType', payload.type);
+
+        if (payload.duration) {
+          formData.append('mediaDuration', payload.duration.toString());
+        }
+        if (payload.crop) {
+          formData.append('crop', JSON.stringify(payload.crop));
+        }
+
+        const response = await axios({
+          url: '/v1/medias',
+          method: 'POST',
+          data: formData,
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data === undefined) {
+          throw new Error('Something went wrong with the response');
+        }
+
+        formik.setFieldValue('media', {
+          id: response.data.id,
+          src: response.data.path,
+          mediaType: response.data.mediaType,
+          mediaDuration: response.data.mediaDuration,
+        });
+
+        setIsUploading(false);
+        setMediaPreview(null);
+      } catch (err) {
+        // TODO: show error to user
+        console.error(err);
+      }
+    },
+    []
+  );
+
+  const handleFinishCrop = useCallback(
+    (croppedAreaPixels: Area) => {
+      console.log('croppedAreaPixels: ', croppedAreaPixels);
+      if (mediaPreview === null) return;
+
+      uploadMedia({
+        file: mediaPreview.file,
+        type: mediaPreview.mediaType,
+        duration: mediaPreview.mediaDuration,
+      });
+    },
+    [mediaPreview, uploadMedia]
+  );
+
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
     if (errors.length > 0) return;
@@ -158,6 +206,12 @@ const Step1 = () => {
     fields.forEach(field => validateField(field));
   }, []);
 
+  useEffect(() => {
+    if (mediaPreview !== null && isCropperModalOpen === false) {
+      setIsCropperModalOpen(true);
+    }
+  }, [mediaPreview, isCropperModalOpen]);
+
   return (
     <Box
       display="flex"
@@ -168,6 +222,7 @@ const Step1 = () => {
     >
       <Box sx={{ marginBottom: 2, width: 500 }}>
         <Typography>Title Announcement</Typography>
+
         <TextField
           fullWidth
           id="title"
@@ -184,28 +239,42 @@ const Step1 = () => {
         ) : null}
       </Box>
 
-      <Box sx={{ marginBottom: 2, width: 500 }}>
+      <Box sx={{ marginBottom: 2 }}>
         <Typography>File Announcement</Typography>
+
+        {mediaPreview !== null ? (
+          <MediaCropper
+            withModal
+            open={isCropperModalOpen}
+            loading={isUploading}
+            src={mediaPreview.src}
+            srcType={mediaPreview.mediaType}
+            aspect={16 / 7}
+            onFinish={handleFinishCrop}
+            onClose={() => setIsCropperModalOpen(false)}
+          />
+        ) : null}
 
         <Box
           sx={{
-            width: '100%',
+            width: 500,
             height: 400,
             border: '1px solid #c4c4c4',
-            background: formik.values.media !== null ? 'black' : 'white',
+            background: formik.values.media !== null ? '#d3d3d3' : '#ffffff',
             boxSizing: 'border-box',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          {mediaPreview}
+          {croppedMediaPreview}
         </Box>
 
         <Button
           variant="contained"
           component="label"
           color={touched.media && errors.media ? 'error' : 'primary'}
+          sx={{ marginY: 1 }}
         >
           Upload
           <input

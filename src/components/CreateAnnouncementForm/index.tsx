@@ -1,6 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import dayjs, { extend } from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import { useCallback, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 import { Formik } from 'formik';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -28,8 +27,6 @@ import {
   validationSchema,
   CreateAnnouncementFormValues,
 } from './form';
-
-extend(utc);
 
 const steps = [
   'Upload file',
