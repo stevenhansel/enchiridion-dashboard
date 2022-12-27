@@ -41,6 +41,7 @@ const Step1 = () => {
 
   const [mediaPreview, setMediaPreview] = useState<MediaPreview | null>(null);
   const [isCropperModalOpen, setIsCropperModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const croppedMediaPreview = useMemo(() => {
     const media = formik.values.media;
