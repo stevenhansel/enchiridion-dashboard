@@ -152,13 +152,15 @@ export default function Layout(props: Props) {
   const location = useLocation();
   const profile = useSelector((state: RootState) => state.profile);
 
+  const pathname = location.pathname.split('/')[1];
+
   const [logout] = useLazyLogoutQuery();
 
   const { announcementId = '', deviceId = '' } = useParams();
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [selectedPage, setSelectedPage] = React.useState('Announcement');
+  const [selectedPage, setSelectedPage] = React.useState(pathname);
   const [errorMessage, setErrorMessage] = React.useState('');
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -205,7 +207,7 @@ export default function Layout(props: Props) {
 
     const permissions = role.permissions.map(p => p.value);
     if (
-      (location.pathname === '/' &&
+      (location.pathname === '/announcement' &&
         !permissions.includes('view_list_announcement')) ||
       (location.pathname === '/device' &&
         !permissions.includes('view_list_device')) ||
@@ -275,7 +277,6 @@ export default function Layout(props: Props) {
               />
             )}
           </IconButton>
-
           <Menu
             id="fade-menu"
             MenuListProps={{
@@ -324,7 +325,7 @@ export default function Layout(props: Props) {
                   disablePadding
                   sx={{
                     display: 'block',
-                    backgroundColor: selectedPage === text ? '#F29115' : '',
+                    backgroundColor: selectedPage === path ? '#F29115' : '',
                   }}
                 >
                   <ListItemButton
@@ -333,7 +334,7 @@ export default function Layout(props: Props) {
                       justifyContent: open ? 'initial' : 'center',
                       px: 2.5,
                     }}
-                    onClick={() => setSelectedPage(text)}
+                    onClick={() => setSelectedPage(path)}
                   >
                     <ListItemIcon
                       sx={{
