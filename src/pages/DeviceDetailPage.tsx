@@ -30,6 +30,7 @@ import RealtimeChart, {
 } from '../components/RealtimeChart';
 import MaximumChart from '../components/MaximumChart';
 import AverageChart from '../components/AverageChart';
+import LivestreamCam from '../components/LivestreamCam';
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format('DD MMM YYYY h:mm A');
@@ -38,6 +39,7 @@ const DeviceDetailPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
   const { deviceId = '' } = useParams();
   const hasUpdateDevicePermission = usePermission('update_device');
   const hasDeleteDevicePermission = usePermission('delete_device');
@@ -256,12 +258,8 @@ const DeviceDetailPage = () => {
             >
               Livestream
             </Typography>
-            <video
-              autoPlay
-              muted
-              style={{ width: 600, height: 450 }}
-              id="device-stream"
-            />
+
+            <LivestreamCam deviceId={deviceId} />
           </Box>
           <>
             <Box>

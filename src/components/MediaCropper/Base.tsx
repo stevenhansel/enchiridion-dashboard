@@ -75,7 +75,7 @@ const BaseCropper = (props: Props) => {
 
       <Button
         variant="contained"
-        disabled={croppedAreaPixels === null}
+        disabled={loading}
         onClick={handleCropFinish}
         sx={{ marginTop: 4, width: 100 }}
       >

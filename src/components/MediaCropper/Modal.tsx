@@ -12,8 +12,16 @@ export type Props = WithModalProps & BaseCropperProps;
 const WithModal = (props: Props) => {
   const { open = false, onClose, ...rest } = props;
 
+  console.log(rest.loading);
+
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={() => {
+        if (rest.loading === true) return;
+        onClose;
+      }}
+    >
       <DialogTitle align="center">Cropper</DialogTitle>
 
       <DialogContent sx={{ width: 600, height: 400 }}>

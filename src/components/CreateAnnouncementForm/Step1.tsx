@@ -41,7 +41,6 @@ const Step1 = () => {
 
   const [mediaPreview, setMediaPreview] = useState<MediaPreview | null>(null);
   const [isCropperModalOpen, setIsCropperModalOpen] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
   const croppedMediaPreview = useMemo(() => {
     const media = formik.values.media;
@@ -152,27 +151,30 @@ const Step1 = () => {
         if (payload.crop) {
           formData.append('crop', JSON.stringify(payload.crop));
         }
-
-        const response = await axios({
+        axios({
           url: '/v1/medias',
           method: 'POST',
           data: formData,
           headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        })
+          .then(response => {
+            if (response.data === undefined) {
+              throw new Error('Something went wrong with the response');
+            }
 
-        if (response.data === undefined) {
-          throw new Error('Something went wrong with the response');
-        }
+            formik.setFieldValue('media', {
+              id: response.data.id,
+              src: response.data.path,
+              mediaType: response.data.mediaType,
+              mediaDuration: response.data.mediaDuration,
+            });
 
-        formik.setFieldValue('media', {
-          id: response.data.id,
-          src: response.data.path,
-          mediaType: response.data.mediaType,
-          mediaDuration: response.data.mediaDuration,
-        });
-
-        setIsUploading(false);
-        setMediaPreview(null);
+            setIsUploading(false);
+            setMediaPreview(null);
+          })
+          .catch(err => {
+            console.error(err);
+          });
       } catch (err) {
         // TODO: show error to user
         console.error(err);
@@ -252,6 +254,9 @@ const Step1 = () => {
             aspect={16 / 7}
             onFinish={handleFinishCrop}
             onClose={() => {
+              if (isUploading === true) {
+                setIsCropperModalOpen(true);
+              }
               setMediaPreview(null);
               setIsCropperModalOpen(false);
             }}
