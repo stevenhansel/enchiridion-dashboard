@@ -24,7 +24,6 @@ export type Props = {
 
 const BaseCropper = (props: Props) => {
   const { aspect, onFinish, src, srcType, loading = false } = props;
-  console.log('loading: ', loading);
 
   const [crop, setCrop] = useState<Coordinate>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);

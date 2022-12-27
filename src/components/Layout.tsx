@@ -44,7 +44,7 @@ const navigationColor = '#FFFFFF';
 const navigations = [
   {
     text: 'Announcement',
-    path: '',
+    path: 'announcement',
     icon: <HomeIcon />,
   },
   {
@@ -227,13 +227,12 @@ export default function Layout(props: Props) {
 
   React.useEffect(() => {
     if (profile) {
-      const { userStatus } = profile;
-
-      if (userStatus.value === 'waiting_for_approval') {
+      const { email, isEmailConfirmed, userStatus } = profile;
+      if (isEmailConfirmed === false) {
+        navigate(`/register/${email}`);
+      } else if (userStatus.value === 'waiting_for_approval') {
         navigate('/waiting-for-approval');
       }
-    } else {
-      navigate('/');
     }
   }, [profile, location, navigate]);
 

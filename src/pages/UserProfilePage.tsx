@@ -42,7 +42,7 @@ const UserProfilePage = () => {
   const [changePassword] = useChangePasswordMutation();
 
   const handleLogout = () => {
-    navigate('/');
+    navigate('/announcement');
   };
 
   const formik = useFormik<ChangePassword>({

@@ -23,7 +23,6 @@ export const authApi = createApi({
         method: 'POST',
         data: { name, email, password, reason, role, buildingId },
       }),
-      invalidatesTags: () => ['Auth'],
     }),
     login: builder.mutation({
       query: ({ email, password }) => ({

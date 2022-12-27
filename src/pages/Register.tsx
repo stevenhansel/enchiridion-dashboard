@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import debounce from 'lodash/debounce';
 import {
   Box,
@@ -19,12 +20,15 @@ import {
   Select,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useRegisterMutation } from '../services/auth';
+import { useRegisterMutation, authApi } from '../services/auth';
 import { useLazyGetRolesQuery } from '../services/roles';
 import { useLazyGetBuildingsQuery } from '../services/building';
-import { isApiError, isReduxError } from '../services/error';
+import { isApiError, isReduxError, ApiErrorResponse } from '../services/error';
 import { UserFilterOption, RegisterForm } from '../types/store';
+import { AppDispatch } from '../store';
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import { setProfile } from '../store/profile';
+import { LoginForm } from './Login';
 
 const validationSchema = yup.object({
   name: yup
@@ -51,18 +55,66 @@ const Register = () => {
     null
   );
 
+  const dispatch: AppDispatch = useDispatch();
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const [isBuildingFilterLoading, setIsBuildingFilterLoading] = useState(false);
   const [buildingFilterOptions, setBuildingFilterOptions] = useState<
     UserFilterOption[]
   >([]);
   const [open, setOpen] = useState(false);
 
-  const [getRoles, { data: roles, isLoading: isRoleLoading }] =
-    useLazyGetRolesQuery();
+  const [getRoles, { data: roles }] = useLazyGetRolesQuery();
   const [getBuildings] = useLazyGetBuildingsQuery();
-  const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
+  const [register] = useRegisterMutation();
 
-  const isLoading = isRoleLoading || isRegisterLoading;
+  const handleLogin = useCallback(
+    async (values: LoginForm): Promise<void> => {
+      setIsLoading(true);
+
+      const response = await dispatch(
+        authApi.endpoints.login.initiate({
+          email: values.email,
+          password: values.password,
+        })
+      );
+
+      if ('data' in response) {
+        dispatch(
+          setProfile({
+            id: response.data.id,
+            name: response.data.name,
+            email: response.data.email,
+            profilePicture: response.data.profilePicture,
+            role: response.data.role,
+            userStatus: response.data.userStatus,
+            isEmailConfirmed: response.data.isEmailConfirmed,
+          })
+        );
+      } else if (
+        isReduxError(response.error) &&
+        isApiError(response.error.data)
+      ) {
+        const { errorCode } = response.error.data;
+        if (errorCode === 'FORBIDDEN_PERMISSION') {
+          setErrorMessage(
+            'data' in response.error
+              ? (response.error.data as ApiErrorResponse).messages[0]
+              : 'Network Error'
+          );
+        } else if (errorCode === 'AUTHENTICATION_FAILED') {
+          setErrorMessage(
+            'data' in response.error
+              ? (response.error.data as ApiErrorResponse).messages[0]
+              : 'Network Error'
+          );
+        }
+      }
+      setIsLoading(false);
+    },
+    [dispatch]
+  );
 
   const formik = useFormik<RegisterForm>({
     initialValues: {
@@ -77,6 +129,7 @@ const Register = () => {
     onSubmit: async (values, { setFieldError }) => {
       try {
         await register(values).unwrap();
+        await handleLogin({ email: values.email, password: values.password });
         navigate(`/register/${values.email}`);
       } catch (err) {
         if (isReduxError(err) && isApiError(err.data)) {
@@ -323,7 +376,6 @@ const Register = () => {
                     >
                       <Button
                         variant="contained"
-                        disabled={isLoading}
                         type="submit"
                         sx={{ marginBottom: 0.5 }}
                         endIcon={isLoading && <CircularProgress />}

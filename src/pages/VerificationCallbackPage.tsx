@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   Box,
@@ -12,9 +12,9 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { AppDispatch } from '../store';
-import { setProfile } from '../store/profile';
+import { setProfile, resetProfile } from '../store/profile';
+import { useLazyLogoutQuery, authApi } from '../services/auth';
 import { ApiErrorResponse } from '../services/error';
-import { authApi } from '../services/auth';
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
 
 type Props = {
@@ -24,9 +24,23 @@ type Props = {
 const VerificationCallbackPage = (_: Props) => {
   const dispatch: AppDispatch = useDispatch();
 
+  const [logout] = useLazyLogoutQuery();
+
   const [errorMessage, setErrorMessage] = useState('');
 
   const [searchParams] = useSearchParams();
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout(null).unwrap();
+      dispatch(resetProfile());
+    } catch (err) {
+      // setErrorMessage('Logout failed');
+    }
+    navigate('/');
+  };
 
   const handleConfirmEmail = useCallback(async (): Promise<void> => {
     const response = await dispatch(
@@ -47,6 +61,7 @@ const VerificationCallbackPage = (_: Props) => {
           userStatus: response.data.userStatus,
         })
       );
+      navigate('/waiting-for-approval');
     } else {
       setErrorMessage(
         'data' in response.error
@@ -101,6 +116,7 @@ const VerificationCallbackPage = (_: Props) => {
               minWidth: 300,
             }}
           >
+            <Button onClick={handleLogout}>back</Button>
             <Box display="flex" justifyContent="center">
               <Typography>Please wait for confirmation</Typography>
             </Box>

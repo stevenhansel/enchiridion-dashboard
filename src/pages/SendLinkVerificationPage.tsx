@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   Box,
@@ -11,10 +11,11 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { authApi } from '../services/auth';
+import { authApi, useLazyLogoutQuery } from '../services/auth';
 import { isApiError, isReduxError } from '../services/error';
 import { AppDispatch } from '../store';
 import backgroundImage from '../assets/jpg/background-auth.jpeg';
+import { resetProfile } from '../store/profile';
 
 const SEND_VERIFICATION_RETRY_DELAY_SECONDS = 20;
 
@@ -30,8 +31,12 @@ const SendLinkVerificationPage = (_: Props) => {
     SEND_VERIFICATION_RETRY_DELAY_SECONDS
   );
 
+  const [logout] = useLazyLogoutQuery();
+
   const dispatch: AppDispatch = useDispatch();
   const { email } = useParams();
+
+  const navigate = useNavigate();
 
   const handleVerification = useCallback(async (): Promise<void> => {
     setIsLoading(true);
@@ -53,6 +58,16 @@ const SendLinkVerificationPage = (_: Props) => {
     }
     setIsLoading(false);
   }, [email]);
+
+  const handleLogout = async () => {
+    try {
+      await logout(null).unwrap();
+      dispatch(resetProfile());
+    } catch (err) {
+      // setErrorMessage('Logout failed');
+    }
+    navigate('/');
+  };
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -144,6 +159,7 @@ const SendLinkVerificationPage = (_: Props) => {
                   justifyContent="center"
                   alignItems="center"
                 >
+                  <Button onClick={handleLogout}>back</Button>
                   <Button
                     onClick={handleVerification}
                     disabled={isPressed}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import ListAnnouncementPage from './pages/ListAnnouncementPage';
 import DevicePage from './pages/DevicePage';
 import ListFloorPage from './pages/ListFloorPage';
@@ -19,13 +19,9 @@ import Layout from './components/Layout';
 import { setProfile } from './store/profile';
 import { ApiErrorResponse } from './services/error';
 import { authApi } from './services/auth';
-import { AppDispatch, RootState } from './store';
+import { AppDispatch } from './store';
 
 function App() {
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.profile !== null
-  );
-
   const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -67,98 +63,87 @@ function App() {
 
   return (
     <BrowserRouter>
-      {isAuthenticated ? (
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Layout>
-                <ListAnnouncementPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/announcement/create"
-            element={
-              <Layout>
-                <CreateAnnouncementPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/announcement/detail/:announcementId"
-            element={
-              <Layout>
-                <AnnouncementDetailPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/device"
-            element={
-              <Layout>
-                <DevicePage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/device/detail/:deviceId"
-            element={
-              <Layout>
-                <DeviceDetailPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/floor"
-            element={
-              <Layout>
-                <ListFloorPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/user"
-            element={
-              <Layout>
-                <ListUsersPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/requests"
-            element={
-              <Layout>
-                <RequestsPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <Layout>
-                <UserProfilePage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/waiting-for-approval"
-            element={<WaitingApprovalPage />}
-          />
-        </Routes>
-      ) : (
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/register/:email"
-            element={<SendLinkVerificationPage />}
-          />
-          {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
-          {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
-          <Route path="/verification" element={<VerificationCallbackPage />} />
-        </Routes>
-      )}
+      <Routes>
+        <Route
+          path="/announcement"
+          element={
+            <Layout>
+              <ListAnnouncementPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/announcement/create"
+          element={
+            <Layout>
+              <CreateAnnouncementPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/announcement/detail/:announcementId"
+          element={
+            <Layout>
+              <AnnouncementDetailPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/device"
+          element={
+            <Layout>
+              <DevicePage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/device/detail/:deviceId"
+          element={
+            <Layout>
+              <DeviceDetailPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/floor"
+          element={
+            <Layout>
+              <ListFloorPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/user"
+          element={
+            <Layout>
+              <ListUsersPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/requests"
+          element={
+            <Layout>
+              <RequestsPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Layout>
+              <UserProfilePage />
+            </Layout>
+          }
+        />
+        <Route path="/waiting-for-approval" element={<WaitingApprovalPage />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
+        {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
+        <Route path="/verification" element={<VerificationCallbackPage />} />
+        <Route path="/register/:email" element={<SendLinkVerificationPage />} />
+      </Routes>
     </BrowserRouter>
   );
 }
