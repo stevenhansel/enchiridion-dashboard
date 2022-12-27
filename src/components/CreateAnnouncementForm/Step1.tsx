@@ -281,10 +281,13 @@ const Step1 = () => {
         >
           Upload
           <input
-            type="file"
             hidden
+            type="file"
             accept=".jpg,.jpeg,.mp4"
-            onChange={e => handleUploadMedia(e)}
+            onChange={e => {
+              handleUploadMedia(e);
+              e.target.value = '';
+            }}
           />
         </Button>
 
