@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
-import mpegts from 'mpegts.js';
 import useWebSocket from 'react-use-websocket';
 import {
   Box,
@@ -67,38 +66,6 @@ const DeviceDetailPage = () => {
   const { lastMessage: livestreamMessage } = useWebSocket(
     `${config.wssBaseUrl}/v1/livestream/${deviceId}`
   );
-
-  useEffect(() => {
-    if (
-      devices &&
-      devices.cameraEnabled &&
-      mpegts.getFeatureList().mseLivePlayback
-    ) {
-      const videoElement = document.getElementById('device-stream');
-      if (videoElement === null) {
-        return;
-      }
-
-      const player = mpegts.createPlayer(
-        {
-          type: 'flv',
-          url: `${config.srsBaseUrl}/live/livestream/${deviceId}.flv`,
-          hasAudio: false,
-          hasVideo: true,
-          isLive: true,
-        },
-        {
-          enableWorker: true,
-          liveBufferLatencyChasing: true,
-          liveBufferLatencyMaxLatency: 10,
-        }
-      );
-
-      player.attachMediaElement(videoElement as HTMLMediaElement);
-      player.load();
-      player.play();
-    }
-  }, [devices, deviceId]);
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {

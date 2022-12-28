@@ -187,8 +187,9 @@ const AverageChart = (props: Props) => {
               variant="contained"
               size="small"
               onClick={() => setChartInterval(ChartInterval.Day)}
+              sx={{ marginRight: 1 }}
             >
-              1D
+              7 Week
             </Button>
             <Button
               variant="contained"
