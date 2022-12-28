@@ -69,10 +69,10 @@ export const actions: ActionButton[] = [
     label: 'Extend Date',
     value: 'extend_date',
   },
-  {
-    label: 'Change Devices',
-    value: 'change_devices',
-  },
+  // {
+  //   label: 'Change Devices',
+  //   value: 'change_devices',
+  // },
 ];
 
 export const colorBuilding: Color[] = [

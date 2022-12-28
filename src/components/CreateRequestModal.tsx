@@ -9,7 +9,6 @@ import {
   Tabs,
 } from '@mui/material';
 import ExtendDate from '../components/ExtendDate';
-import ChangeDeviceRequest from '../components/ChangeDeviceRequest';
 
 type Props = {
   open: boolean;
@@ -77,14 +76,14 @@ const CreateRequestModal = (props: Props) => {
             aria-label="basic tabs example"
           >
             <Tab label="Extend Date" {...a11yProps(0)} />
-            <Tab label="Change Devices" {...a11yProps(1)} />
+            {/* <Tab label="Change Devices" {...a11yProps(1)} /> */}
           </Tabs>
           <TabPanel value={value} index={0}>
             <ExtendDate setOpen={setOpen} date={date} />
           </TabPanel>
-          <TabPanel value={value} index={1}>
+          {/* <TabPanel value={value} index={1}>
             <ChangeDeviceRequest setOpen={setOpen} />
-          </TabPanel>
+          </TabPanel> */}
           <Box sx={{ marginTop: 1 }}>
             <Button variant="contained" onClick={() => setOpen(false)}>
               Close
