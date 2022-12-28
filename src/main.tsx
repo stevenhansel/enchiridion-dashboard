@@ -24,8 +24,33 @@ import { Provider } from 'react-redux';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { setupWorker, rest, context, response } from 'msw';
 import App from './App';
 import store from './store/index';
+
+export function res(...transformers: any[]) {
+  return response(...transformers, context.delay(5000));
+}
+
+const handlers = [
+  rest.get(
+    'https://api.beesmart.stevenhansel.com/dashboard/v1/announcements',
+    (_req, _, ctx) => {
+      return res(
+        ctx.json({
+          count: 0,
+          totalPages: 0,
+          hasNext: false,
+          contents: [],
+        })
+      );
+    }
+  ),
+];
+
+const worker = setupWorker(...handlers);
+
+worker.start();
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

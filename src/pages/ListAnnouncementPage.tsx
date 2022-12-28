@@ -80,10 +80,9 @@ const ListAnnouncementPage = () => {
     },
   ] = useLazyGetAnnouncementsQuery();
 
-  const [getUsers, { isLoading: isGetUsersLoading, error: isUsersError }] =
-    useLazyGetUsersQuery();
+  const [getUsers, { error: isUsersError }] = useLazyGetUsersQuery();
 
-  const isLoading = isAnnouncementsLoading && isGetUsersLoading;
+  const isLoading = isAnnouncementsLoading;
 
   const handleSelectAnnouncementImage = (announcementId: number) => {
     setCurrentAnnouncementId(announcementId.toString());
@@ -174,6 +173,8 @@ const ListAnnouncementPage = () => {
           width: '100%',
         }}
       >
+        {isLoading ? 'loading...' : 'not loading'}
+
         {!isLoading ? (
           <>
             <Box>
