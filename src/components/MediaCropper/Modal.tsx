@@ -17,12 +17,12 @@ const WithModal = (props: Props) => {
       open={open}
       onClose={() => {
         if (rest.loading === true) return;
-        onClose;
+        else if (onClose !== undefined) onClose();
       }}
     >
       <DialogTitle align="center">Cropper</DialogTitle>
 
-      <DialogContent sx={{ width: 600, height: 400 }}>
+      <DialogContent sx={{ width: 600, height: 450 }}>
         <Base {...rest} />
       </DialogContent>
     </Dialog>
