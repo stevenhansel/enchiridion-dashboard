@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useCallback, useMemo, useState } from 'react';
 import Cropper from 'react-easy-crop';
 
@@ -83,6 +83,11 @@ const BaseCropper = (props: Props) => {
         ) : null}
         Crop
       </Button>
+      {loading ? (
+        <Typography sx={{ marginTop: 1 }}>
+          Please wait your media is being processed
+        </Typography>
+      ) : null}
     </Box>
   );
 };
