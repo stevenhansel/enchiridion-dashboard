@@ -168,7 +168,6 @@ const AnnouncementDetailPage = () => {
           <video
             src={announcements.media}
             style={{ width: '50%' }}
-            controls
             loop
             autoPlay
             muted
