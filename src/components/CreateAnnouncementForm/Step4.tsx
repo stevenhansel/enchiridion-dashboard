@@ -58,13 +58,7 @@ const Step4 = () => {
     } else {
       return (
         <Box display="flex" justifyContent="center">
-          <video
-            src={media.src}
-            style={{ width: '50%' }}
-            controls
-            autoPlay
-            muted
-          />
+          <video src={media.src} style={{ width: '50%' }} autoPlay loop muted />
         </Box>
       );
     }
