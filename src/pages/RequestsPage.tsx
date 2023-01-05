@@ -32,6 +32,7 @@ import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
 } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 import {
   useApproveRejectRequestMutation,
   useLazyGetRequestsQuery,
@@ -42,6 +43,7 @@ import { UserFilterOption } from '../types/store';
 import { actions } from '../types/constants';
 import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
 import { usePermission } from '../hooks';
+import { RootState } from '../store';
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format('DD MMM YYYY h:mm A');
@@ -83,6 +85,8 @@ const RequestsPage = () => {
   >([]);
   const [isAnnouncementFilterLoading, setIsAnnouncementFilterLoading] =
     useState(false);
+
+  const profile = useSelector((state: RootState) => state.profile);
 
   const getRequestQueryParams = {
     page,
@@ -538,78 +542,102 @@ const RequestsPage = () => {
                       </TableHead>
                       <TableBody>
                         {requests &&
-                          requests.contents.map(request => (
-                            <TableRow
-                              key={request.id}
-                              sx={{
-                                '&:last-child td, &:last-child th': {
-                                  border: 0,
-                                },
-                              }}
-                            >
-                              <TableCell>{request.id}</TableCell>
-                              <TableCell align="center">
-                                {request.announcement.title}
-                              </TableCell>
-                              <TableCell align="center">
-                                {request.author.name}
-                              </TableCell>
-                              <TableCell align="center">
-                                <Button
-                                  variant="contained"
-                                  sx={{ maxWidth: '300px', width: '160px' }}
-                                >
-                                  {request.action.label}
-                                </Button>
-                              </TableCell>
-                              <TableCell align="center">
-                                {request.description}
-                              </TableCell>
-                              <TableCell align="center">
-                                {toDate(request.createdAt)}
-                              </TableCell>
-                              <TableCell align="center">
-                                {renderApprovalStatus(
-                                  request.approvalStatus.lsc
-                                )}
-                              </TableCell>
-                              <TableCell align="center">
-                                {renderApprovalStatus(
-                                  request.approvalStatus.bm
-                                )}
-                              </TableCell>
-                              {hasUpdateRequestApprovalPermission &&
-                              (request.approvalStatus.bm === null ||
-                                request.approvalStatus.lsc === null) ? (
-                                <TableCell
-                                  align="center"
-                                  sx={{ maxWidth: '300px', width: '230px' }}
-                                >
+                          requests.contents.map(request => {
+                            let ableToApproveFromRole = false;
+                            const userRole = profile?.role.name;
+                            console.log('userRole: ', profile?.role);
+                            if (userRole !== undefined) {
+                              if (userRole === 'BM') {
+                                ableToApproveFromRole =
+                                  request.approvalStatus.bm === null;
+                              } else if (userRole === 'LSC') {
+                                ableToApproveFromRole =
+                                  request.approvalStatus.lsc === null;
+                              } else if (userRole === 'Admin') {
+                                ableToApproveFromRole =
+                                  request.approvalStatus.lsc === null ||
+                                  request.approvalStatus.bm === null;
+                              }
+                            }
+
+                            const ableToApprove =
+                              hasUpdateRequestApprovalPermission &&
+                              ableToApproveFromRole;
+
+                            return (
+                              <TableRow
+                                key={request.id}
+                                sx={{
+                                  '&:last-child td, &:last-child th': {
+                                    border: 0,
+                                  },
+                                }}
+                              >
+                                <TableCell>{request.id}</TableCell>
+                                <TableCell align="center">
+                                  {request.announcement.title}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {request.author.name}
+                                </TableCell>
+                                <TableCell align="center">
                                   <Button
                                     variant="contained"
-                                    color="success"
-                                    sx={{ marginRight: 1 }}
-                                    onClick={() =>
-                                      userApprove(request.id.toString(), true)
-                                    }
+                                    sx={{ maxWidth: '300px', width: '160px' }}
                                   >
-                                    Approve
-                                  </Button>
-                                  <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={() =>
-                                      userApprove(request.id.toString(), false)
-                                    }
-                                  >
-                                    Reject
+                                    {request.action.label}
                                   </Button>
                                 </TableCell>
-                              ) : (
-                                <TableCell>{null}</TableCell>
-                              )}
-                            </TableRow>
-                          ))}
+                                <TableCell align="center">
+                                  {request.description}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {toDate(request.createdAt)}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {renderApprovalStatus(
+                                    request.approvalStatus.lsc
+                                  )}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {renderApprovalStatus(
+                                    request.approvalStatus.bm
+                                  )}
+                                </TableCell>
+                                {ableToApprove ? (
+                                  <TableCell
+                                    align="center"
+                                    sx={{ maxWidth: '300px', width: '230px' }}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="success"
+                                      sx={{ marginRight: 1 }}
+                                      onClick={() =>
+                                        userApprove(request.id.toString(), true)
+                                      }
+                                    >
+                                      Approve
+                                    </Button>
+                                    <Button
+                                      variant="contained"
+                                      color="error"
+                                      onClick={() =>
+                                        userApprove(
+                                          request.id.toString(),
+                                          false
+                                        )
+                                      }
+                                    >
+                                      Reject
+                                    </Button>
+                                  </TableCell>
+                                ) : (
+                                  <TableCell>{null}</TableCell>
+                                )}
+                              </TableRow>
+                            );
+                          })}
                       </TableBody>
                     </Table>
                   </TableContainer>
