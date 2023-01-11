@@ -521,7 +521,6 @@ const RequestsPage = () => {
                           requests.contents.map(request => {
                             let ableToApproveFromRole = false;
                             const userRole = profile?.role.name;
-                            console.log('userRole: ', profile?.role);
                             if (userRole !== undefined) {
                               if (userRole === 'BM') {
                                 ableToApproveFromRole =
