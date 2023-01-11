@@ -32,6 +32,7 @@ import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
 } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 import {
   useApproveRejectRequestMutation,
   useLazyGetRequestsQuery,
@@ -42,6 +43,7 @@ import { UserFilterOption } from '../types/store';
 import { actions } from '../types/constants';
 import { ApiErrorResponse, isReduxError, isApiError } from '../services/error';
 import { usePermission } from '../hooks';
+import { RootState } from '../store';
 
 const toDate = (dateStr: string | undefined) =>
   dayjs(dateStr).format('DD MMM YYYY h:mm A');
@@ -54,7 +56,6 @@ const RequestsPage = () => {
   const userQueryParams = searchParams.get('userQueryParams');
   const announcementQueryParams = searchParams.get('announcementQueryParams');
   const actionQueryParams = searchParams.get('actionQueryParams');
-
   const hasUpdateRequestApprovalPermission = usePermission(
     'update_request_approval'
   );
@@ -75,7 +76,6 @@ const RequestsPage = () => {
     UserFilterOption[]
   >([]);
   const [isUserFilterLoading, setIsUserFilterLoading] = useState(false);
-
   const [announcementFilter, setAnnouncementFilter] =
     useState<UserFilterOption | null>(null);
   const [announcementFilterOptions, setAnnouncementFilterOptions] = useState<
@@ -83,6 +83,8 @@ const RequestsPage = () => {
   >([]);
   const [isAnnouncementFilterLoading, setIsAnnouncementFilterLoading] =
     useState(false);
+
+  const profile = useSelector((state: RootState) => state.profile);
 
   const getRequestQueryParams = {
     page,
@@ -94,7 +96,6 @@ const RequestsPage = () => {
     approvedByBm,
     limit: FETCH_LIMIT,
   };
-
   const [
     getRequests,
     {
@@ -103,20 +104,15 @@ const RequestsPage = () => {
       error: isGetRequestError,
     },
   ] = useLazyGetRequestsQuery();
-
   const [
     getAnnouncements,
     { isLoading: isGetAnnouncementLoading, error: isGetAnnouncementError },
   ] = useLazyGetAnnouncementsQuery();
-
   const [getUsers, { isLoading: isGetUserLoading, error: isGetUserError }] =
     useLazyGetUsersQuery();
-
   const [approveRejectRequest] = useApproveRejectRequestMutation();
-
   const isLoading =
     isGetAnnouncementLoading && isGetRequestLoading && isGetUserLoading;
-
   const userApprove = async (requestId: string, requestStatus: boolean) => {
     try {
       await approveRejectRequest({ requestId, requestStatus });
@@ -132,7 +128,6 @@ const RequestsPage = () => {
       }
     }
   };
-
   const renderApprovalStatus = (
     approval: boolean | null
   ): JSX.Element | null => {
@@ -143,10 +138,8 @@ const RequestsPage = () => {
     } else if (approval === false) {
       return <CloseIcon />;
     }
-
     return null;
   };
-
   const handleSearch = useCallback(() => {
     if (
       requestId === null &&
@@ -166,7 +159,6 @@ const RequestsPage = () => {
     }
     getRequests(getRequestQueryParams);
   }, [searchParams, getRequestQueryParams]);
-
   const getUserDelayed = useMemo(() => {
     return debounce((query: string) => {
       getUsers({ query, limit: 5 }).then(({ data }) => {
@@ -182,7 +174,6 @@ const RequestsPage = () => {
       });
     }, 250);
   }, [getUsers]);
-
   const getAnnouncementDelayed = useMemo(() => {
     return debounce((query: string) => {
       getAnnouncements({ query, limit: 5 }).then(({ data }) => {
@@ -198,31 +189,25 @@ const RequestsPage = () => {
       });
     }, 250);
   }, [getAnnouncements]);
-
   const handlePaginationPreviousPage = useCallback(
     () => setPage(page => page - 1),
     [page]
   );
-
   const handlePaginationNextPage = useCallback(
     () => setPage(page => page + 1),
     [page]
   );
-
   const isPreviousButtonDisabled = useMemo(() => page === 1, [page]);
   const isNextButtonDisabled = useMemo(() => {
     if (!requests) return true;
-
     return page === requests.totalPages && requests.hasNext === false;
   }, [page, requests]);
-
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
     setErrorMessage('');
   };
-
   useEffect(() => {
     if (isGetRequestError && 'data' in isGetRequestError) {
       setErrorMessage((isGetRequestError.data as ApiErrorResponse).messages[0]);
@@ -236,11 +221,9 @@ const RequestsPage = () => {
       setErrorMessage((isGetUserError.data as ApiErrorResponse).messages[0]);
     }
   }, [isGetRequestError, isGetAnnouncementError, isGetUserError]);
-
   useEffect(() => {
     getRequests(getRequestQueryParams);
   }, [getRequests, page]);
-
   useEffect(() => {
     if (openUserFilter && hasViewUserPermission) {
       getUsers({ limit: 5, query: userFilter?.name }).then(({ data }) => {
@@ -255,7 +238,6 @@ const RequestsPage = () => {
       });
     }
   }, [getUsers, openUserFilter, hasViewUserPermission]);
-
   useEffect(() => {
     if (openAnnouncementFilter && hasViewAnnouncementPermission) {
       getAnnouncements({ limit: 5, query: announcementFilter?.name }).then(
@@ -272,7 +254,6 @@ const RequestsPage = () => {
       );
     }
   }, [openAnnouncementFilter, getAnnouncements, hasViewAnnouncementPermission]);
-
   useEffect(() => {
     getRequests({
       requestId: Number(requestQueryParams),
@@ -286,7 +267,6 @@ const RequestsPage = () => {
     announcementQueryParams,
     actionQueryParams,
   ]);
-
   return (
     <>
       <Box sx={{ marginBottom: 1 }}>
@@ -538,81 +518,106 @@ const RequestsPage = () => {
                       </TableHead>
                       <TableBody>
                         {requests &&
-                          requests.contents.map(request => (
-                            <TableRow
-                              key={request.id}
-                              sx={{
-                                '&:last-child td, &:last-child th': {
-                                  border: 0,
-                                },
-                              }}
-                            >
-                              <TableCell>{request.id}</TableCell>
-                              <TableCell align="center">
-                                {request.announcement.title}
-                              </TableCell>
-                              <TableCell align="center">
-                                {request.author.name}
-                              </TableCell>
-                              <TableCell align="center">
-                                <Button
-                                  variant="contained"
-                                  sx={{ maxWidth: '300px', width: '160px' }}
-                                >
-                                  {request.action.label}
-                                </Button>
-                              </TableCell>
-                              <TableCell align="center">
-                                {request.description}
-                              </TableCell>
-                              <TableCell align="center">
-                                {toDate(request.createdAt)}
-                              </TableCell>
-                              <TableCell align="center">
-                                {renderApprovalStatus(
-                                  request.approvalStatus.lsc
-                                )}
-                              </TableCell>
-                              <TableCell align="center">
-                                {renderApprovalStatus(
-                                  request.approvalStatus.bm
-                                )}
-                              </TableCell>
-                              {hasUpdateRequestApprovalPermission &&
-                              (request.approvalStatus.bm === null ||
-                                request.approvalStatus.lsc === null) ? (
-                                <TableCell
-                                  align="center"
-                                  sx={{ maxWidth: '300px', width: '230px' }}
-                                >
+                          requests.contents.map(request => {
+                            let ableToApproveFromRole = false;
+                            const userRole = profile?.role.name;
+                            console.log('userRole: ', profile?.role);
+                            if (userRole !== undefined) {
+                              if (userRole === 'BM') {
+                                ableToApproveFromRole =
+                                  request.approvalStatus.bm === null;
+                              } else if (userRole === 'LSC') {
+                                ableToApproveFromRole =
+                                  request.approvalStatus.lsc === null;
+                              } else if (userRole === 'Admin') {
+                                ableToApproveFromRole =
+                                  request.approvalStatus.lsc === null ||
+                                  request.approvalStatus.bm === null;
+                              }
+                            }
+
+                            const ableToApprove =
+                              hasUpdateRequestApprovalPermission &&
+                              ableToApproveFromRole;
+
+                            return (
+                              <TableRow
+                                key={request.id}
+                                sx={{
+                                  '&:last-child td, &:last-child th': {
+                                    border: 0,
+                                  },
+                                }}
+                              >
+                                <TableCell>{request.id}</TableCell>
+                                <TableCell align="center">
+                                  {request.announcement.title}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {request.author.name}
+                                </TableCell>
+                                <TableCell align="center">
                                   <Button
                                     variant="contained"
-                                    color="success"
-                                    sx={{ marginRight: 1 }}
-                                    onClick={() =>
-                                      userApprove(request.id.toString(), true)
-                                    }
+                                    sx={{ maxWidth: '300px', width: '160px' }}
                                   >
-                                    Approve
-                                  </Button>
-                                  <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={() =>
-                                      userApprove(request.id.toString(), false)
-                                    }
-                                  >
-                                    Reject
+                                    {request.action.label}
                                   </Button>
                                 </TableCell>
-                              ) : (
-                                <TableCell>{null}</TableCell>
-                              )}
-                            </TableRow>
-                          ))}
+                                <TableCell align="center">
+                                  {request.description}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {toDate(request.createdAt)}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {renderApprovalStatus(
+                                    request.approvalStatus.lsc
+                                  )}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {renderApprovalStatus(
+                                    request.approvalStatus.bm
+                                  )}
+                                </TableCell>
+                                {ableToApprove ? (
+                                  <TableCell
+                                    align="center"
+                                    sx={{ maxWidth: '300px', width: '230px' }}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="success"
+                                      sx={{ marginRight: 1 }}
+                                      onClick={() =>
+                                        userApprove(request.id.toString(), true)
+                                      }
+                                    >
+                                      Approve
+                                    </Button>
+                                    <Button
+                                      variant="contained"
+                                      color="error"
+                                      onClick={() =>
+                                        userApprove(
+                                          request.id.toString(),
+                                          false
+                                        )
+                                      }
+                                    >
+                                      Reject
+                                    </Button>
+                                  </TableCell>
+                                ) : (
+                                  <TableCell>{null}</TableCell>
+                                )}
+                              </TableRow>
+                            );
+                          })}
                       </TableBody>
                     </Table>
                   </TableContainer>
+
                   <Box display="flex" justifyContent="center">
                     <IconButton
                       disabled={isPreviousButtonDisabled}
@@ -641,7 +646,6 @@ const RequestsPage = () => {
             </Box>
           )}
         </Box>
-
         <Snackbar
           open={Boolean(errorMessage)}
           autoHideDuration={6000}
@@ -662,5 +666,4 @@ const RequestsPage = () => {
     </>
   );
 };
-
 export default RequestsPage;
