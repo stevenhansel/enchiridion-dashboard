@@ -90,6 +90,13 @@ export type Announcement = {
   createdAt: string;
 };
 
+export type DeviceOnFloor = {
+  id: number;
+  name: string;
+  description: string;
+  totalAnnouncements: number;
+};
+
 export type PaginatedAnnouncements = {
   count: number;
   pages: number;
@@ -106,7 +113,6 @@ export type Building = {
   color: string;
 };
 
-// device
 export type Device = {
   id: number;
   name: string;
@@ -138,7 +144,7 @@ export type Floor = {
   id: number;
   name: string;
   building: Building;
-  devices: Device[];
+  devices: DeviceOnFloor[];
 };
 
 export type UpdateFloor = {

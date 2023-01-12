@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useContext } from 'react';
+import React, { useCallback, useEffect, useContext, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { useNavigate } from 'react-router-dom';
 import { useFormikContext } from 'formik';
@@ -21,7 +21,7 @@ const Step3 = () => {
     CreateAnnouncementFormContext
   );
 
-  // const [updatedActiveAnnouncements, _] = useState<number[]>([]);
+  const [updatedActiveAnnouncements, _] = useState<number[]>([]);
 
   const floorCheck =
     floors &&
@@ -39,12 +39,12 @@ const Step3 = () => {
     return d === 0;
   });
 
-  // const checkActiveAnnouncements = (activeAnnouncements: number) => {
-  //   return activeAnnouncements < 10;
-  // };
+  const checkActiveAnnouncements = (activeAnnouncements: number) => {
+    return activeAnnouncements < 10;
+  };
 
   const handleSelectDevice = useCallback(
-    (selectedDeviceId: number) => {
+    (selectedDeviceId: number, selectedActiveAnnouncement: number) => {
       const selectedDeviceIndex = values.devices.findIndex(
         deviceId => deviceId === selectedDeviceId
       );
@@ -53,10 +53,10 @@ const Step3 = () => {
 
       if (selectedDeviceIndex !== -1) {
         updatedDevices.splice(selectedDeviceIndex, 1);
-        // updatedActiveAnnouncements.splice(selectedDeviceIndex, 1);
+        updatedActiveAnnouncements.splice(selectedDeviceIndex, 1);
       } else {
         updatedDevices.push(selectedDeviceId);
-        // updatedActiveAnnouncements.push(selectedActiveAnnouncement);
+        updatedActiveAnnouncements.push(selectedActiveAnnouncement);
       }
       setFieldValue('devices', updatedDevices);
     },
@@ -66,9 +66,8 @@ const Step3 = () => {
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
     if (
-      // errors.length > 0 ||
-      // !updatedActiveAnnouncements.every(checkActiveAnnouncements)
-      errors.length > 0
+      errors.length > 0 ||
+      !updatedActiveAnnouncements.every(checkActiveAnnouncements)
     )
       return;
 
@@ -153,28 +152,27 @@ const Step3 = () => {
                             {floor.devices.map(device => (
                               <Tooltip
                                 key={device.id}
-                                title="test"
-                                // title={
-                                //   device.totalAnnouncements >= 10 ? (
-                                //     <>
-                                //       <>
-                                //         Announcement on this device already
-                                //         reached limit
-                                //       </>
-                                //       <br></br>
-                                //       <Box
-                                //         display="flex"
-                                //         justifyContent="center"
-                                //       >
-                                //         Device Location: {device.description}
-                                //       </Box>
-                                //     </>
-                                //   ) : (
-                                //     `Device Location: ${device.description}`
-                                //   )
-                                // }
+                                title={
+                                  device.totalAnnouncements >= 10 ? (
+                                    <>
+                                      <>
+                                        Announcement on this device already
+                                        reached limit
+                                      </>
+                                      <br></br>
+                                      <Box
+                                        display="flex"
+                                        justifyContent="center"
+                                      >
+                                        Device Location: {device.description}
+                                      </Box>
+                                    </>
+                                  ) : (
+                                    `Device Location: ${device.description}`
+                                  )
+                                }
                               >
-                                {/* {device.totalAnnouncements >= 10 ? (
+                                {device.totalAnnouncements >= 10 ? (
                                   <Button
                                     variant="contained"
                                     color="error"
@@ -188,30 +186,30 @@ const Step3 = () => {
                                   >
                                     {device.name}
                                   </Button>
-                                ) : ( */}
-                                <Button
-                                  key={device.id}
-                                  onClick={() =>
-                                    handleSelectDevice(
-                                      device.id
-                                      // device.totalAnnouncements
-                                    )
-                                  }
-                                  variant={
-                                    values.devices.includes(device.id)
-                                      ? 'contained'
-                                      : 'outlined'
-                                  }
-                                  color={
-                                    values.devices.includes(device.id)
-                                      ? 'secondary'
-                                      : 'inactive'
-                                  }
-                                  sx={{ margin: 1, width: 140 }}
-                                >
-                                  {device.name}
-                                </Button>
-                                {/* )} */}
+                                ) : (
+                                  <Button
+                                    key={device.id}
+                                    onClick={() =>
+                                      handleSelectDevice(
+                                        device.id,
+                                        device.totalAnnouncements
+                                      )
+                                    }
+                                    variant={
+                                      values.devices.includes(device.id)
+                                        ? 'contained'
+                                        : 'outlined'
+                                    }
+                                    color={
+                                      values.devices.includes(device.id)
+                                        ? 'secondary'
+                                        : 'inactive'
+                                    }
+                                    sx={{ margin: 1, width: 140 }}
+                                  >
+                                    {device.name}
+                                  </Button>
+                                )}
                               </Tooltip>
                             ))}
                           </Box>
@@ -239,7 +237,7 @@ const Step3 = () => {
               </Typography>
             ) : null}
 
-            {/* {!updatedActiveAnnouncements.every(checkActiveAnnouncements) ? (
+            {!updatedActiveAnnouncements.every(checkActiveAnnouncements) ? (
               <Typography
                 variant="caption"
                 color={red[700]}
@@ -248,7 +246,7 @@ const Step3 = () => {
                 One of the device you chose the announcements already reached
                 limit
               </Typography>
-            ) : null} */}
+            ) : null}
           </Box>
           {deviceState ? (
             <>
