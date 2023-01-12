@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useContext, useState } from 'react';
+import React, { useCallback, useEffect, useContext } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { useNavigate } from 'react-router-dom';
 import { useFormikContext } from 'formik';
@@ -21,23 +21,27 @@ const Step3 = () => {
     CreateAnnouncementFormContext
   );
 
-  const [currentBuildingId, _] = useState<string>(values.buildingId);
+  // const [updatedActiveAnnouncements, _] = useState<number[]>([]);
 
   const floorCheck =
     floors &&
     floors?.contents.filter(
-      floor => currentBuildingId === floor.building.id.toString()
+      floor => values.buildingId === floor.building.id.toString()
     );
 
   const deviceCheck =
     floors &&
     floors.contents
-      .filter(floor => currentBuildingId === floor.building.id.toString())
+      .filter(floor => values.buildingId === floor.building.id.toString())
       .map(floor => floor.devices.length);
 
   const deviceState = deviceCheck?.every((d: number) => {
     return d === 0;
   });
+
+  // const checkActiveAnnouncements = (activeAnnouncements: number) => {
+  //   return activeAnnouncements < 10;
+  // };
 
   const handleSelectDevice = useCallback(
     (selectedDeviceId: number) => {
@@ -49,8 +53,10 @@ const Step3 = () => {
 
       if (selectedDeviceIndex !== -1) {
         updatedDevices.splice(selectedDeviceIndex, 1);
+        // updatedActiveAnnouncements.splice(selectedDeviceIndex, 1);
       } else {
         updatedDevices.push(selectedDeviceId);
+        // updatedActiveAnnouncements.push(selectedActiveAnnouncement);
       }
       setFieldValue('devices', updatedDevices);
     },
@@ -59,7 +65,12 @@ const Step3 = () => {
 
   const handleNextSubmission = useCallback(() => {
     const errors = validateFormikFields(formik, fields);
-    if (errors.length > 0) return;
+    if (
+      // errors.length > 0 ||
+      // !updatedActiveAnnouncements.every(checkActiveAnnouncements)
+      errors.length > 0
+    )
+      return;
 
     handleNextStep();
   }, [formik, handleNextStep]);
@@ -142,11 +153,50 @@ const Step3 = () => {
                             {floor.devices.map(device => (
                               <Tooltip
                                 key={device.id}
-                                title={device.description}
+                                title="test"
+                                // title={
+                                //   device.totalAnnouncements >= 10 ? (
+                                //     <>
+                                //       <>
+                                //         Announcement on this device already
+                                //         reached limit
+                                //       </>
+                                //       <br></br>
+                                //       <Box
+                                //         display="flex"
+                                //         justifyContent="center"
+                                //       >
+                                //         Device Location: {device.description}
+                                //       </Box>
+                                //     </>
+                                //   ) : (
+                                //     `Device Location: ${device.description}`
+                                //   )
+                                // }
                               >
+                                {/* {device.totalAnnouncements >= 10 ? (
+                                  <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() =>
+                                      handleSelectDevice(
+                                        device.id,
+                                        device.totalAnnouncements
+                                      )
+                                    }
+                                    sx={{ margin: 1, width: 140 }}
+                                  >
+                                    {device.name}
+                                  </Button>
+                                ) : ( */}
                                 <Button
                                   key={device.id}
-                                  onClick={() => handleSelectDevice(device.id)}
+                                  onClick={() =>
+                                    handleSelectDevice(
+                                      device.id
+                                      // device.totalAnnouncements
+                                    )
+                                  }
                                   variant={
                                     values.devices.includes(device.id)
                                       ? 'contained'
@@ -161,6 +211,7 @@ const Step3 = () => {
                                 >
                                   {device.name}
                                 </Button>
+                                {/* )} */}
                               </Tooltip>
                             ))}
                           </Box>
@@ -187,6 +238,17 @@ const Step3 = () => {
                 {errors.devices}
               </Typography>
             ) : null}
+
+            {/* {!updatedActiveAnnouncements.every(checkActiveAnnouncements) ? (
+              <Typography
+                variant="caption"
+                color={red[700]}
+                sx={{ marginTop: 1 }}
+              >
+                One of the device you chose the announcements already reached
+                limit
+              </Typography>
+            ) : null} */}
           </Box>
           {deviceState ? (
             <>
