@@ -12,6 +12,7 @@ import {
   Snackbar,
   IconButton,
   CircularProgress,
+  Tooltip,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { CreateDevice, UserFilterOption } from '../types/store';
@@ -400,7 +401,9 @@ const CreateDeviceModal = (props: Props) => {
             </Box>
           </Box>
           <Box>
-            <Typography>Description</Typography>
+            <Tooltip title="Detail Location for your device">
+              <Typography>Description Location</Typography>
+            </Tooltip>
             <TextField
               id="description"
               variant="standard"
