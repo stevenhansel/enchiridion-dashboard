@@ -212,7 +212,9 @@ const DevicePage = () => {
                         <TableCell align="center">
                           Active Announcements
                         </TableCell>
-                        <TableCell align="center">Descriptions</TableCell>
+                        <TableCell align="center">
+                          Description Location
+                        </TableCell>
                       </TableRow>
                     </TableHead>
 

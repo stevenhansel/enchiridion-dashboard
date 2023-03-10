@@ -145,7 +145,7 @@ const DeviceDetailPage = () => {
                 <Typography>{devices?.location}</Typography>
               </Box>
               <Box sx={{ marginBottom: 5 }}>
-                <Typography fontWeight="bold">Description Location</Typography>
+                <Typography fontWeight="bold">Description Locations</Typography>
                 <Typography>{devices?.description}</Typography>
               </Box>
             </Box>
