@@ -28,7 +28,6 @@ import RealtimeChart, {
   realtimeChartDateFormat,
 } from '../components/RealtimeChart';
 import MaximumChart from '../components/MaximumChart';
-import AverageChart from '../components/AverageChart';
 import LivestreamCam from '../components/LivestreamCam';
 
 const toDate = (dateStr: string | undefined) =>
@@ -249,9 +248,9 @@ const DeviceDetailPage = () => {
             <Box>
               <MaximumChart deviceId={deviceId} />
             </Box>
-            <Box>
+            {/* <Box>
               <AverageChart deviceId={deviceId} />
-            </Box>
+            </Box> */}
           </>
         </Box>
       ) : null}

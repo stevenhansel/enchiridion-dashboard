@@ -87,6 +87,8 @@ const Step3 = () => {
     getFloors(null);
   }, []);
 
+  console.log(floors);
+
   return (
     <Box width="100%">
       {floorCheck?.length === 0 ? (
@@ -204,6 +206,11 @@ const Step3 = () => {
                                       values.devices.includes(device.id)
                                         ? 'secondary'
                                         : 'inactive'
+                                    }
+                                    disabled={
+                                      device.totalAnnouncements === 10
+                                        ? true
+                                        : false
                                     }
                                     sx={{ margin: 1, width: 140 }}
                                   >
