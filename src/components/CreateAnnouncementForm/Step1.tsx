@@ -89,7 +89,7 @@ const Step1 = () => {
 
         reader.onload = e => {
           if (file.type === 'video/mp4') {
-            if (file.size >= 10000000) return setFileSizeBig(true);
+            if (file.size >= 20000000) return setFileSizeBig(true);
 
             if (!e.target || (e.target && !e.target.result))
               throw new Error('Something went wrong when reading the video');
