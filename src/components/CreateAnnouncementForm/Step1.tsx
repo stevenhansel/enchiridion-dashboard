@@ -42,6 +42,7 @@ const Step1 = () => {
   const [mediaPreview, setMediaPreview] = useState<MediaPreview | null>(null);
   const [isCropperModalOpen, setIsCropperModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isFileSizeBig, setFileSizeBig] = useState(false);
 
   const croppedMediaPreview = useMemo(() => {
     const media = formik.values.media;
@@ -88,10 +89,13 @@ const Step1 = () => {
 
         reader.onload = e => {
           if (file.type === 'video/mp4') {
+            if (file.size >= 10000000) return setFileSizeBig(true);
+
             if (!e.target || (e.target && !e.target.result))
               throw new Error('Something went wrong when reading the video');
             const video = document.createElement('video');
 
+            setFileSizeBig(false);
             video.onloadedmetadata = () => {
               createMediaPreview(file, 'video', video.duration * 1000);
             };
@@ -101,11 +105,13 @@ const Step1 = () => {
             };
 
             video.src = e.target?.result as string;
-          } else if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+          } else if (file.type === 'image/jpeg') {
+            if (file.size >= 5000000) return setFileSizeBig(true);
             if (!e.target || (e.target && !e.target.result))
               throw new Error('Something went wrong when reading the image');
 
             const image = new Image();
+            setFileSizeBig(false);
 
             image.onload = () => {
               createMediaPreview(file, 'image');
@@ -225,7 +231,6 @@ const Step1 = () => {
     >
       <Box sx={{ marginBottom: 2, width: 500 }}>
         <Typography>Title Announcement</Typography>
-
         <TextField
           fullWidth
           id="title"
@@ -288,6 +293,7 @@ const Step1 = () => {
           Upload
           <input
             hidden
+            id="fileSelector"
             type="file"
             accept=".jpg,.jpeg,.mp4"
             onChange={e => {
@@ -305,6 +311,17 @@ const Step1 = () => {
             sx={{ marginLeft: 1 }}
           >
             {errors.media}
+          </Typography>
+        ) : null}
+
+        {isFileSizeBig ? (
+          <Typography
+            variant="caption"
+            color={red[700]}
+            fontSize=""
+            sx={{ marginLeft: 1 }}
+          >
+            the file you chose is too big
           </Typography>
         ) : null}
       </Box>
@@ -373,7 +390,12 @@ const Step1 = () => {
       </Box>
 
       <Box display="flex" justifyContent="center" alignItems="center">
-        <Button variant="contained" onClick={handleNextSubmission}>
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleNextSubmission();
+          }}
+        >
           Next
         </Button>
       </Box>
