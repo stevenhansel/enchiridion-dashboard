@@ -98,7 +98,10 @@ const Step1 = () => {
             setIsFileSizeBig(false);
             video.onloadedmetadata = () => {
               if (video.duration >= 30) return setIsVideoDurationBig(true);
-              createMediaPreview(file, 'video', video.duration * 1000);
+              else {
+                createMediaPreview(file, 'video', video.duration * 1000);
+                setIsVideoDurationBig(false);
+              }
             };
 
             video.onerror = () => {
@@ -324,7 +327,29 @@ const Step1 = () => {
             fontSize=""
             sx={{ marginLeft: 1 }}
           >
-            the file you chose is too big
+            please choose media size below 20mb
+          </Typography>
+        ) : null}
+
+        {isVideoDurationBig ? (
+          <Typography
+            variant="caption"
+            color={red[700]}
+            fontSize=""
+            sx={{ marginLeft: 1 }}
+          >
+            The duration of the video chose is too long
+          </Typography>
+        ) : null}
+
+        {isVideoDurationBig && isFileSizeBig ? (
+          <Typography
+            variant="caption"
+            color={red[700]}
+            fontSize=""
+            sx={{ marginLeft: 1 }}
+          >
+            The duration and size of the video chose is too long
           </Typography>
         ) : null}
       </Box>
