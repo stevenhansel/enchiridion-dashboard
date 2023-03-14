@@ -42,7 +42,8 @@ const Step1 = () => {
   const [mediaPreview, setMediaPreview] = useState<MediaPreview | null>(null);
   const [isCropperModalOpen, setIsCropperModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [isFileSizeBig, setFileSizeBig] = useState(false);
+  const [isFileSizeBig, setIsFileSizeBig] = useState(false);
+  const [isVideoDurationBig, setIsVideoDurationBig] = useState(false);
 
   const croppedMediaPreview = useMemo(() => {
     const media = formik.values.media;
@@ -89,14 +90,14 @@ const Step1 = () => {
 
         reader.onload = e => {
           if (file.type === 'video/mp4') {
-            if (file.size >= 20000000) return setFileSizeBig(true);
+            if (file.size >= 20000000) return setIsFileSizeBig(true);
 
             if (!e.target || (e.target && !e.target.result))
               throw new Error('Something went wrong when reading the video');
             const video = document.createElement('video');
-
-            setFileSizeBig(false);
+            setIsFileSizeBig(false);
             video.onloadedmetadata = () => {
+              if (video.duration >= 30) return setIsVideoDurationBig(true);
               createMediaPreview(file, 'video', video.duration * 1000);
             };
 
@@ -106,12 +107,12 @@ const Step1 = () => {
 
             video.src = e.target?.result as string;
           } else if (file.type === 'image/jpeg') {
-            if (file.size >= 5000000) return setFileSizeBig(true);
+            if (file.size >= 5000000) return setIsFileSizeBig(true);
             if (!e.target || (e.target && !e.target.result))
               throw new Error('Something went wrong when reading the image');
 
             const image = new Image();
-            setFileSizeBig(false);
+            setIsFileSizeBig(false);
 
             image.onload = () => {
               createMediaPreview(file, 'image');
@@ -136,6 +137,8 @@ const Step1 = () => {
     },
     [setFieldValue]
   );
+
+  console.log(isVideoDurationBig);
 
   const uploadMedia = useCallback(
     async (payload: {
